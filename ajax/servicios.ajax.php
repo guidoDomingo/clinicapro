@@ -470,6 +470,45 @@ if (isset($_POST['action'])) {
             }
             break;
             
+        // Añadir nuevo caso para obtener detalles de reserva
+        case 'obtenerDetallesReserva':
+            if (isset($_POST['reserva_id'])) {
+                $reserva_id = $_POST['reserva_id'];
+                
+                try {
+                    // Incluir el modelo de reservas si no está incluido ya
+                    if (!class_exists('ReservasModel')) {
+                        require_once $rutaBase . "/model/reservas.model.php";
+                    }
+                    
+                    $modelo = new ReservasModel();
+                    $detalles = $modelo->obtenerReservaPorId($reserva_id);
+                    
+                    if ($detalles) {
+                        echo json_encode([
+                            "status" => "success",
+                            "data" => $detalles
+                        ]);
+                    } else {
+                        echo json_encode([
+                            "status" => "error",
+                            "message" => "No se encontró la reserva con ID: " . $reserva_id
+                        ]);
+                    }
+                } catch (Exception $e) {
+                    echo json_encode([
+                        "status" => "error",
+                        "message" => "Error al obtener detalles de la reserva: " . $e->getMessage()
+                    ]);
+                }
+            } else {
+                echo json_encode([
+                    "status" => "error",
+                    "message" => "No se proporcionó ID de reserva"
+                ]);
+            }
+            break;
+            
         default:
             echo json_encode([
                 "status" => "error",
