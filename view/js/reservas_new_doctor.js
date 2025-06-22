@@ -2669,16 +2669,74 @@ $(document).on('click', '.btnEnviarWhatsAppDoctor', function() {
                             return false;
                         }
                         return telefono;
-                    }
-                }).then((result) => {
+                    }                }).then((result) => {
                     if (result.isConfirmed) {
                         const telefonoFinal = result.value;
                         
-                        // Crear enlace de WhatsApp y abrirlo en nueva ventana
-                        const mensajeURL = encodeURIComponent(mensajeWhatsApp);
-                        const whatsappURL = `https://wa.me/${telefonoFinal}?text=${mensajeURL}`;
+                        // Mostrar indicador de carga mientras se envía
+                        Swal.fire({
+                            title: 'Enviando mensaje...',
+                            text: 'Conectando con el servicio de mensajería',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
                         
-                        window.open(whatsappURL, '_blank');
+                        // Enviar mensaje usando la API interna
+                        $.ajax({
+                            url: 'ajax/servicios.ajax.php',
+                            method: 'POST',
+                            data: {
+                                action: 'enviarWhatsApp',
+                                telefono: telefonoFinal,
+                                mensaje: mensajeWhatsApp
+                            },
+                            dataType: 'json',
+                            success: function(respuesta) {
+                                console.log('Respuesta del envío de WhatsApp:', respuesta);
+                                
+                                if (respuesta.status === 'success') {
+                                    Swal.fire({
+                                        title: '¡Mensaje enviado!',
+                                        text: 'El recordatorio ha sido enviado correctamente',
+                                        icon: 'success'
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        title: 'Error',
+                                        text: respuesta.mensaje || 'Error al enviar el mensaje',
+                                        icon: 'error',
+                                        footer: '<a href="#" id="btnAbrirWhatsAppWeb">Intentar con WhatsApp Web</a>'
+                                    });
+                                    
+                                    // Agregar evento para abrir WhatsApp Web como alternativa
+                                    $(document).on('click', '#btnAbrirWhatsAppWeb', function(e) {
+                                        e.preventDefault();
+                                        const mensajeURL = encodeURIComponent(mensajeWhatsApp);
+                                        const whatsappURL = `https://wa.me/${telefonoFinal}?text=${mensajeURL}`;
+                                        window.open(whatsappURL, '_blank');
+                                    });
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                console.error('Error al enviar WhatsApp:', error);
+                                Swal.fire({
+                                    title: 'Error',
+                                    text: 'No se pudo conectar con el servicio de mensajería',
+                                    icon: 'error',
+                                    footer: '<a href="#" id="btnAbrirWhatsAppWeb">Intentar con WhatsApp Web</a>'
+                                });
+                                
+                                // Agregar evento para abrir WhatsApp Web como alternativa
+                                $(document).on('click', '#btnAbrirWhatsAppWeb', function(e) {
+                                    e.preventDefault();
+                                    const mensajeURL = encodeURIComponent(mensajeWhatsApp);
+                                    const whatsappURL = `https://wa.me/${telefonoFinal}?text=${mensajeURL}`;
+                                    window.open(whatsappURL, '_blank');
+                                });
+                            }
+                        });
                           // Registrar el envío en los logs
                         $.ajax({
                             url: 'ajax/log_whatsapp_envios.php',
@@ -2746,36 +2804,91 @@ function enviarPDFReservaWhatsApp(reservaId, telefono) {
         }
     });
     
+    // Primero generamos el PDF
     $.ajax({
-        url: 'enviar_pdf_whatsapp.php',
-        method: 'POST',
+        url: 'generar_pdf_reserva.php',
+        method: 'GET',
         data: {
-            reserva_id: reservaId,
-            telefono: telefono
+            id: reservaId,
+            formato: 'json'
         },
         dataType: 'json',
-        success: function(respuesta) {
-            console.log('Respuesta de envío de PDF:', respuesta);
+        success: function(respuestaPDF) {
+            console.log('Respuesta de generación de PDF:', respuestaPDF);
             
-            if (respuesta.status === 'success') {
-                Swal.fire({
-                    title: '¡PDF Enviado!',
-                    text: respuesta.mensaje || 'El PDF ha sido enviado correctamente',
-                    icon: 'success'
+            if (respuestaPDF.status === 'success' && respuestaPDF.pdf_url) {
+                // PDF generado correctamente, ahora enviamos por WhatsApp
+                
+                // Construir mensaje con el enlace al PDF
+                const pdfURL = window.location.origin + '/' + respuestaPDF.pdf_url;
+                const mensaje = `👋 Hola, aquí está el ticket de tu cita médica:\n\n📄 ${pdfURL}\n\n✅ Por favor, llega 10 minutos antes y trae este ticket.\n\n🙏 ¡Gracias!`;
+                
+                // Actualizar mensaje en el modal
+                Swal.update({
+                    title: 'Enviando ticket...',
+                    text: 'Conectando con el servicio de mensajería'
+                });
+                
+                // Enviar mensaje con el PDF por WhatsApp API
+                $.ajax({
+                    url: 'ajax/servicios.ajax.php',
+                    method: 'POST',
+                    data: {
+                        action: 'enviarWhatsApp',
+                        telefono: telefono,
+                        mensaje: mensaje
+                    },
+                    dataType: 'json',
+                    success: function(respuesta) {
+                        console.log('Respuesta de envío de PDF por WhatsApp:', respuesta);
+                        
+                        if (respuesta.status === 'success') {
+                            Swal.fire({
+                                title: '¡Ticket Enviado!',
+                                text: 'El comprobante ha sido enviado correctamente',
+                                icon: 'success'
+                            });
+                        } else {
+                            Swal.fire({
+                                title: 'Error',
+                                text: respuesta.mensaje || 'Error al enviar el ticket',
+                                icon: 'error',
+                                footer: '<a href="#" class="btnEnviarManual" data-url="' + pdfURL + '" data-telefono="' + telefono + '">Enviar manualmente</a>'
+                            });
+                            
+                            // Evento para abrir WhatsApp Web manualmente
+                            $(document).on('click', '.btnEnviarManual', function(e) {
+                                e.preventDefault();
+                                const pdfURL = $(this).data('url');
+                                const telefono = $(this).data('telefono');
+                                const mensajeManual = `Aquí está el ticket de tu cita médica: ${pdfURL}`;
+                                const whatsappURL = `https://wa.me/${telefono}?text=${encodeURIComponent(mensajeManual)}`;
+                                window.open(whatsappURL, '_blank');
+                            });
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error al enviar PDF por WhatsApp:', error);
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'No se pudo enviar el ticket: ' + error,
+                            icon: 'error'
+                        });
+                    }
                 });
             } else {
                 Swal.fire({
                     title: 'Error',
-                    text: respuesta.mensaje || 'Error al enviar el PDF',
+                    text: respuestaPDF.mensaje || 'No se pudo generar el PDF',
                     icon: 'error'
                 });
             }
         },
         error: function(xhr, status, error) {
-            console.error('Error al enviar PDF por WhatsApp:', error);
+            console.error('Error al generar PDF:', error);
             Swal.fire({
                 title: 'Error',
-                text: 'No se pudo enviar el PDF: ' + error,
+                text: 'No se pudo generar el PDF: ' + error,
                 icon: 'error'
             });
         }

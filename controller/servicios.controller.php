@@ -421,5 +421,61 @@ class ControladorServicios {
             return [];
         }
     }
+    
+    /**
+     * Envía un mensaje de WhatsApp utilizando la API externa
+     * @param string $telefono Número de teléfono con código de país (sin el +)
+     * @param string $mensaje Mensaje a enviar
+     * @return array Resultado de la operación
+     */
+    static public function ctrEnviarWhatsApp($telefono, $mensaje) {
+        try {
+            // URL de la API externa
+            $url = "http://aventisdev.com:8082/send.php?phone={$telefono}&message=" . urlencode($mensaje);
+            
+            // Configurar opciones para la solicitud HTTP
+            $opciones = [
+                'http' => [
+                    'header' => "Authorization: Basic " . base64_encode("admin:1234") . "\r\n",
+                    'method' => 'GET',
+                    'timeout' => 30
+                ]
+            ];
+            
+            // Crear contexto de la solicitud
+            $contexto = stream_context_create($opciones);
+            
+            // Registrar intento de envío
+            error_log("Enviando WhatsApp a {$telefono}: " . substr($mensaje, 0, 50) . "...", 3, dirname(__FILE__, 2) . '/logs/whatsapp_api.log');
+            
+            // Realizar la solicitud HTTP
+            $resultado = @file_get_contents($url, false, $contexto);
+            
+            if ($resultado === FALSE) {
+                $error = error_get_last();
+                throw new Exception("Error al enviar WhatsApp: " . ($error['message'] ?? 'Error desconocido'));
+            }
+            
+            // Decodificar respuesta JSON si es posible
+            $respuesta = json_decode($resultado, true);
+            
+            // Registrar respuesta
+            error_log("Respuesta API WhatsApp: " . print_r($respuesta ?: $resultado, true), 3, dirname(__FILE__, 2) . '/logs/whatsapp_api.log');
+            
+            return [
+                'status' => 'success',
+                'mensaje' => 'Mensaje enviado correctamente',
+                'respuesta_api' => $respuesta ?: $resultado
+            ];
+            
+        } catch (Exception $e) {
+            error_log("Error al enviar WhatsApp: " . $e->getMessage(), 3, dirname(__FILE__, 2) . '/logs/whatsapp_api.log');
+            
+            return [
+                'status' => 'error',
+                'mensaje' => 'Error al enviar WhatsApp: ' . $e->getMessage()
+            ];
+        }
+    }
 }
 

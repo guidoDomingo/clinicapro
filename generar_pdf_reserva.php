@@ -16,7 +16,16 @@ use Dompdf\Options;
 
 // Verificar que se proporciona un ID de reserva
 if (!isset($_GET['id']) || empty($_GET['id'])) {
-    die('ID de reserva no especificado');
+    if (isset($_GET['formato']) && $_GET['formato'] === 'json') {
+        header('Content-Type: application/json');
+        echo json_encode([
+            'status' => 'error',
+            'mensaje' => 'ID de reserva no especificado'
+        ]);
+        exit;
+    } else {
+        die('ID de reserva no especificado');
+    }
 }
 
 $reservaId = intval($_GET['id']);
@@ -272,10 +281,46 @@ try {    // Obtener datos de la reserva con el método estándar
                urlencode("Confirmación de reserva - " . ($reserva['nombre_paciente'] ?? 'Paciente')));
         exit;
     }
+      // Comprobar si se solicita respuesta JSON
+    if (isset($_GET['formato']) && $_GET['formato'] === 'json') {
+        // Generar y guardar el PDF
+        $nombreArchivo = 'pdf_reservas/reserva_' . $reservaId . '_' . date('YmdHis') . '.pdf';
+        $rutaCompleta = dirname(__FILE__) . '/' . $nombreArchivo;
+        
+        // Asegurar que el directorio existe
+        $directorio = dirname($rutaCompleta);
+        if (!file_exists($directorio)) {
+            mkdir($directorio, 0755, true);
+        }
+        
+        // Guardar el PDF
+        file_put_contents($rutaCompleta, $dompdf->output());
+        
+        // Devolver respuesta JSON con la URL del PDF
+        header('Content-Type: application/json');
+        echo json_encode([
+            'status' => 'success',
+            'mensaje' => 'PDF generado correctamente',
+            'pdf_url' => $nombreArchivo,
+            'nombre_paciente' => $reserva['nombre_paciente'] ?? 'Paciente',
+            'fecha' => $reserva['fecha'] ?? date('Y-m-d'),
+            'hora' => $reserva['hora'] ?? ''
+        ]);
+        exit;
+    }
     
     // Comportamiento normal: enviar el PDF al navegador
     $dompdf->stream($filename, array('Attachment' => true));
     } catch (Exception $e) {
-    die('Error al generar el PDF: ' . $e->getMessage());
-}
+        if (isset($_GET['formato']) && $_GET['formato'] === 'json') {
+            header('Content-Type: application/json');
+            echo json_encode([
+                'status' => 'error',
+                'mensaje' => 'Error al generar el PDF: ' . $e->getMessage()
+            ]);
+            exit;
+        } else {
+            die('Error al generar el PDF: ' . $e->getMessage());
+        }
+    }
 ?>

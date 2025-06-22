@@ -509,6 +509,33 @@ if (isset($_POST['action'])) {
             }
             break;
             
+        case 'enviarWhatsApp':
+            if (isset($_POST['telefono']) && isset($_POST['mensaje'])) {
+                $telefono = $_POST['telefono'];
+                $mensaje = $_POST['mensaje'];
+                
+                // Registrar datos antes de procesar
+                error_log("AJAX enviarWhatsApp: Enviando a teléfono {$telefono}, mensaje: " . substr($mensaje, 0, 50) . "...", 
+                         3, 'c:/laragon/www/clinica/logs/whatsapp.log');
+                
+                try {
+                    $resultado = ControladorServicios::ctrEnviarWhatsApp($telefono, $mensaje);
+                    echo json_encode($resultado);
+                } catch (Exception $e) {
+                    error_log("AJAX enviarWhatsApp ERROR: " . $e->getMessage(), 3, 'c:/laragon/www/clinica/logs/whatsapp.log');
+                    echo json_encode([
+                        "status" => "error",
+                        "message" => "Error al enviar mensaje: " . $e->getMessage()
+                    ]);
+                }
+            } else {
+                echo json_encode([
+                    "status" => "error",
+                    "message" => "Faltan parámetros: teléfono y mensaje son obligatorios"
+                ]);
+            }
+            break;
+            
         default:
             echo json_encode([
                 "status" => "error",
