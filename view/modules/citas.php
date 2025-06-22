@@ -22,7 +22,7 @@ if (!isset($_SESSION['perfil'])) {
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1>Gestión de Servicios Médicos <a href="../README_SERVICIOS.md" target="_blank" title="Ver documentación" class="btn btn-sm btn-outline-info"><i class="fas fa-question-circle"></i></a></h1>
+                    <h1>Sala de espera <a href="../README_SERVICIOS.md" target="_blank" title="Ver documentación" class="btn btn-sm btn-outline-info"><i class="fas fa-question-circle"></i></a></h1>
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
@@ -47,7 +47,7 @@ if (!isset($_SESSION['perfil'])) {
                         <div class="card-header p-0 border-bottom-0">
                             <ul class="nav nav-tabs" id="custom-tabs" role="tablist">
                                 <!-- <li class="nav-item">
-                                    <a class="nav-link active" id="tab-servicios-tab" data-toggle="pill" href="#tabServicios" role="tab" aria-controls="tabServicios" aria-selected="true">
+                                    <a class="nav-link" id="tab-servicios-tab" data-toggle="pill" href="#tabServicios" role="tab" aria-controls="tabServicios" aria-selected="true">
                                         <i class="fas fa-clipboard-list mr-1"></i>Servicios
                                     </a>
                                 </li> -->
@@ -57,13 +57,13 @@ if (!isset($_SESSION['perfil'])) {
                                     </a>
                                 </li> -->
 
-                                <li class="nav-item">
+                                <!-- <li class="nav-item">
                                     <a class="nav-link active" id="tab-reservas-new-tab" data-toggle="pill" href="#tabReservasNew" role="tab" aria-controls="tabReservasNew" aria-selected="false">
                                         <i class="fas fa-calendar-check mr-1"></i>Nueva reserva
                                     </a>
-                                </li>
+                                </li> -->
                                 <li class="nav-item">
-                                    <a class="nav-link" id="tab-reservas-tab" data-toggle="pill" href="#tabReservas" role="tab" aria-controls="tabReservas" aria-selected="false">
+                                    <a class="nav-link active" id="tab-reservas-tab" data-toggle="pill" href="#tabReservas" role="tab" aria-controls="tabReservas" aria-selected="false">
                                         <i class="fas fa-calendar-alt mr-1"></i>Reservas
                                     </a>
                                 </li>
@@ -345,7 +345,7 @@ if (!isset($_SESSION['perfil'])) {
                                     <input type="hidden" id="tarifaId">
                                 </div>
                                 <!-- PESTAÑA: RESERVAS ACTUALES -->
-                                <div class="tab-pane fade" id="tabReservas" role="tabpanel" aria-labelledby="tab-reservas-tab">
+                                <div class="tab-pane fade show active" id="tabReservas" role="tabpanel" aria-labelledby="tab-reservas-tab">
                                     <div class="row mb-3">
                                         <div class="col-md-3">
                                             <label for="fechaReservas">Fecha:</label>
@@ -419,7 +419,7 @@ if (!isset($_SESSION['perfil'])) {
                                     <div id="calendar"></div>
                                 </div>
                                 <!-- PESTAÑA: RESERVAS NEW -->
-                                <div class="tab-pane fade show active" id="tabReservasNew" role="tabpanel" aria-labelledby="tab-reservas-new-tab">
+                                <div class="tab-pane fade" id="tabReservasNew" role="tabpanel" aria-labelledby="tab-reservas-new-tab">
                                     <div class="reservas-new-container compact-view">
                                         <!-- Panel izquierdo -->
                                         <div class="section-left">
@@ -981,7 +981,7 @@ if (!isset($_SESSION['perfil'])) {
 <script src="view/js/slots_fallback.js"></script>
 <script src="view/js/slots_pagination.js"></script>
 <script src="view/js/enviar_pdf_reserva.js"></script>
-<script src="view/js/reservas_new.js"></script>
+<script src="view/js/reservas_new_doctor.js"></script>
 
 <!-- Script para asegurar que la pestaña "Nueva reserva" se abra por defecto -->
 <script>

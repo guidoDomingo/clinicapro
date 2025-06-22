@@ -2906,6 +2906,10 @@ function procesarParametrosURL() {
         setTimeout(() => {
             console.log('⏱️ Ejecutando buscarPersonaPorId con ID:', pacienteId);
             buscarPersonaPorId(pacienteId);
+
+            inicializarTablaConsultas(pacienteId);
+
+            mostrarHistorialConsultas(pacienteId);
             
             // Si también hay una reserva ID, podríamos usarla para mostrar información adicional
             if (reservaId) {

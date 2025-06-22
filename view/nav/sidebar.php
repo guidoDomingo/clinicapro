@@ -40,7 +40,7 @@
                 <li class="nav-item <?php echo mostrar_si_tiene_permiso('ver_agenda'); ?>">
                     <a href="index.php?ruta=citas" class="nav-link">
                         <i class="nav-icon fas fa-calendar-alt"></i>
-                        <p>Citas</p>
+                        <p>Sala de espera</p>
                     </a>
                 </li>
                 <!-- <li class="nav-item">

@@ -2548,10 +2548,10 @@ function procesarParametrosURLPaciente() {
                                 <button class="btn btn-danger btn-sm btnCancelarReserva" data-id="${reserva.reserva_id}" title="Cancelar">
                                     <i class="fas fa-times"></i>
                                 </button>
-                                <a href="generar_pdf_reserva.php?id=${reserva.reserva_id}" class="btn btn-success btn-sm" target="_blank" title="Descargar PDF">
-                                    <i class="fas fa-file-pdf"></i>
+                                <a href="#" class="btn btn-success btn-sm" target="_blank" title="Enviar Ticket">
+                                    <i class="fas fa-phone"></i>
                                 </a>
-                                <button class="btn btn-info btn-sm btnEnviarWhatsApp" data-id="${reserva.reserva_id}" data-telefono="${reserva.telefono || ''}" title="Enviar por WhatsApp">
+                                <button class="btn btn-info btn-sm btnEnviarWhatsAppDoctor" data-id="${reserva.reserva_id}" data-telefono="${reserva.telefono || ''}" title="Enviar por WhatsApp">
                                     <i class="fab fa-whatsapp"></i>
                                 </button>
                             </div>
@@ -2581,3 +2581,11 @@ function procesarParametrosURLPaciente() {
         }
     });
 }
+
+
+$(document).on('click', '.btnEnviarWhatsAppDoctor', function() {
+    const reservaId = $(this).data('id');
+    const telefono = $(this).data('telefono');
+    alert('Función de enviar WhatsApp aún no implementada. Reserva ID: ' + reservaId + ', Teléfono: ' + telefono);
+    //enviarPDFReservaWhatsApp(reservaId, telefono);
+});

@@ -132,7 +132,7 @@
 </form>
 <hr>
 
-<div class="form-container">
+<div class="form-container col-md-12">
     <h2>Subir Archivos</h2>    <form id="uploadForm" method="post" enctype="multipart/form-data">
         <input type="hidden" id="id_persona_file" name="id_persona_file">
         <input type="hidden" id="id_usuario" name="id_usuario" value="1"> <!-- Añadido campo id_usuario -->

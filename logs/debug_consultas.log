@@ -241,3 +241,44 @@
 
 )
 
+[2025-06-21 20:03:59][CONSULTA] Iniciando proceso de guardar consulta 
+[POST] => Array
+(
+    [txtdocumento] => 88867676767
+    [txtficha] => 3245435435
+    [txtnombre] => alejandro visconte
+    [idPersona] => 45
+    [motivoscomunes] => 3
+    [formatoConsulta] => 9
+    [txtmotivo] => Dolor ocular
+    [visionod] => 
+    [visionoi] => 
+    [tensionod] => 
+    [tensionoi] => 
+    [consulta-textarea] => <p><font color="#000000" style="background-color: rgb(255, 255, 0);"><span style="font-size: 24px;"><b>pruebaaaaaaaaaaaaaaaaaa</b></span></font></p>
+    [formatoreceta] => 10
+    [receta-textarea] => <h2 id="section-0" style="box-sizing: inherit; border: 0px; font-variant-numeric: inherit; font-variant-east-asian: inherit; font-variant-alternates: inherit; font-variant-position: inherit; font-variant-emoji: inherit; font-weight: 700; font-stretch: inherit; line-height: 1.15; font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, Oxygen, Ubuntu, Cantarell, &quot;Fira Sans&quot;, &quot;Droid Sans&quot;, &quot;Helvetica Neue&quot;, sans-serif; font-optical-sizing: inherit; font-size-adjust: inherit; font-kerning: inherit; font-feature-settings: inherit; font-variation-settings: inherit; font-size: 2.8rem; margin: 6vmin 0px 0px; padding: 0px; vertical-align: baseline; text-rendering: optimizelegibility; letter-spacing: -0.01em; grid-column: main-start / main-end; color: rgba(255, 255, 255, 0.9);"><span data-huuid="8820397639815213618" style="color: rgb(238, 240, 255); font-family: &quot;Google Sans&quot;, Arial, sans-serif; font-size: 18px; font-weight: 400; letter-spacing: normal; background-color: rgb(31, 31, 31);">Un formato para recetas médicas típicamente incluye la información del médico, del paciente, del medicamento recetado, y las instrucciones de uso, así como la firma y sello del médico.&nbsp;</span><span data-huuid="8820397639815214007" style="color: rgb(238, 240, 255); font-family: &quot;Google Sans&quot;, Arial, sans-serif; font-size: 18px; font-weight: 400; letter-spacing: normal; background-color: rgb(31, 31, 31);">Adicionalmente, algunas recetas pueden requerir información específica según la regulación local o el tipo de medicamento.<span jscontroller="JHnpme" class="pjBG2e" data-cid="3f2eabb5-73d3-4843-b36d-a5af5b433267" jsaction="rcuQ6b:npT2md"><span class="UV3uM" style="text-wrap-mode: nowrap;">&nbsp;</span></span></span></h2>
+    [txtnota] => sdfsdf
+    [proximaconsulta] => 2025-06-27
+    [whatsapptxt] => 
+    [email] => 
+    [id_user] => 9
+    [id_reserva] => 0
+    [medico_id] => 1
+    [id_consulta_actual] => 
+)
+
+[FILES] => Array
+(
+    [files] => Array
+        (
+            [name] => 
+            [full_path] => 
+            [type] => 
+            [tmp_name] => 
+            [error] => 4
+            [size] => 0
+        )
+
+)
+
