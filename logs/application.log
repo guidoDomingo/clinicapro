@@ -371,3 +371,67 @@ Data: {
     "reg_lastname": "isnardi"
 }
 ----------------------------------------
+[2025-06-22 13:07:06] [INFO] [user.controller.php:21] user: angel@angel.com
+Data: angel@angel.com
+----------------------------------------
+[2025-06-22 13:07:06] [INFO] [user.controller.php:22] user: angel123
+Data: angel123
+----------------------------------------
+[2025-06-22 13:07:06] [INFO] [user.controller.php:33] Login attempt for user: angel@angel.com
+Data: {
+    "user_id": 9,
+    "reg_id": 9,
+    "user_email": "angel@angel.com",
+    "user_pass": "$2y$10$SkQZfw11AR9V\/fZt\/eZWkOnwhDFI7CEWX1KGKbNgdYi.j7H0oY.hW",
+    "user_expire": "2025-07-09 07:08:03.380971",
+    "user_first_login": null,
+    "user_last_login": "2025-06-21 14:40:27.817709",
+    "user_is_active": true,
+    "profile_photo": "user_9_1749926118.png",
+    "reg_name": "angel",
+    "reg_lastname": "isnardi"
+}
+----------------------------------------
+[2025-06-22 09:26:07] [INFO] [SysRegisterController.php:84] New registration attempt
+Data: {
+    "reg_document": "789897",
+    "reg_name": "leonardo",
+    "reg_lastname": "castillo",
+    "reg_email": "leo@leo.com",
+    "reg_phone": "0982321321",
+    "reg_bdate": "1995-06-24",
+    "reg_activation": "pending"
+}
+----------------------------------------
+[2025-06-22 09:26:07] [INFO] [SysRegisterController.php:119] New registration attempt
+Data: {
+    "reg_document": "789897",
+    "reg_name": "leonardo",
+    "reg_lastname": "castillo",
+    "reg_email": "leo@leo.com",
+    "reg_phone": "0982321321",
+    "reg_bdate": "1995-06-24",
+    "reg_activation": "7813be803bb5bcadaf2f83c1a4c6d459"
+}
+----------------------------------------
+[2025-06-22 13:28:23] [INFO] [user.controller.php:21] user: leo@leo.com
+Data: leo@leo.com
+----------------------------------------
+[2025-06-22 13:28:23] [INFO] [user.controller.php:22] user: 8e4b8378153981f260c9053cce7cc762
+Data: 8e4b8378153981f260c9053cce7cc762
+----------------------------------------
+[2025-06-22 13:28:23] [INFO] [user.controller.php:33] Login attempt for user: leo@leo.com
+Data: {
+    "user_id": 10,
+    "reg_id": 10,
+    "user_email": "leo@leo.com",
+    "user_pass": "8e4b8378153981f260c9053cce7cc762",
+    "user_expire": "2025-07-22 09:26:07.329741",
+    "user_first_login": null,
+    "user_last_login": null,
+    "user_is_active": true,
+    "profile_photo": null,
+    "reg_name": "leonardo",
+    "reg_lastname": "castillo"
+}
+----------------------------------------

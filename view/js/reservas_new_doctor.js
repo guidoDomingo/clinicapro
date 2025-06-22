@@ -2652,7 +2652,7 @@ $(document).on('click', '.btnEnviarWhatsAppDoctor', function() {
                                 <div class="input-group-prepend">
                                     <span class="input-group-text">+</span>
                                 </div>
-                                <input type="text" id="telefonoWhatsapp" class="form-control" value="${telefono || ''}" placeholder="Ej. 59898765432">
+                                <input type="text" id="telefonoWhatsapp" class="form-control" value="${telefono || '595'}" placeholder="Ej. 59898765432">
                             </div>
                             <small class="form-text text-muted">Incluya el código de país sin el signo +</small>
                         </div>
@@ -2661,7 +2661,7 @@ $(document).on('click', '.btnEnviarWhatsAppDoctor', function() {
                     confirmButtonColor: '#25d366',
                     confirmButtonText: '<i class="fab fa-whatsapp"></i> Enviar WhatsApp',
                     cancelButtonText: 'Cancelar',
-                    footer: '<a href="#" id="btnEnviarPDF">Enviar PDF en vez de mensaje</a>',
+                    footer: '<a href="#" id="btnEnviarPDF">Mi clinica</a>',
                     preConfirm: () => {
                         const telefono = $('#telefonoWhatsapp').val().trim();
                         if (!telefono) {

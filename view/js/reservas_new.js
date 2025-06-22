@@ -2581,3 +2581,210 @@ function procesarParametrosURLPaciente() {
         }
     });
 }
+
+$(document).on('click', '.btnEnviarWhatsApp', function() {
+    const reservaId = $(this).data('id');
+    const telefono = $(this).data('telefono');
+    
+    // Mostrar spinner mientras se cargan los datos
+    Swal.fire({
+        title: 'Cargando datos...',
+        text: 'Obteniendo información de la reserva',
+        icon: 'info',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+    
+    // Obtener los datos de la reserva para mostrarlos en el modal
+    $.ajax({
+        url: 'ajax/servicios.ajax.php',
+        method: 'POST',
+        data: {
+            action: 'obtenerDetallesReserva',
+            reserva_id: reservaId
+        },
+        dataType: 'json',
+        success: function(respuesta) {
+            console.log('Datos de la reserva:', respuesta);
+            
+            if (respuesta.status === 'success' && respuesta.data) {                const reserva = respuesta.data;
+                
+                // Formatear la fecha
+                const fechaPartes = reserva.fecha.split('-');
+                const fechaFormateada = fechaPartes[2] + '/' + fechaPartes[1] + '/' + fechaPartes[0];
+                
+                // Obtener nombres correctamente según la estructura de datos
+                const pacienteNombre = reserva.nombre_paciente || 'Paciente';
+                const medicoNombre = reserva.nombre_medico || 'Doctor';
+                
+                // Crear el contenido del mensaje de WhatsApp
+                const mensajeWhatsApp = 
+                    `👋 Hola Sr/a ${pacienteNombre}\n\n` +
+                    `📅 Su turno médico está agendado para:\n` +
+                    `📆 Fecha: ${fechaFormateada}\n` +
+                    `🕒 Hora: ${reserva.hora}\n` +
+                    `👨‍⚕️ Médico: ${medicoNombre}\n\n` +
+                    `🚶‍♂️ Por favor, llegue 10 minutos antes de su cita.\n` +
+                    `✅ Responda este mensaje si desea confirmar o reprogramar.\n\n` +
+                    `🙏 ¡Gracias!`;
+                
+                // Mostrar modal con los datos y opciones para enviar
+                Swal.fire({
+                    title: 'Enviar recordatorio de cita',
+                    html: `                        <div class="text-left p-3 border rounded bg-light mb-3" style="font-family: Arial, sans-serif;">
+                            <p><span style="font-weight: bold;">👋 Hola Sr/a</span> ${pacienteNombre}</p>
+                            
+                            <p><span style="font-weight: bold;">📅 Su turno médico está agendado para:</span></p>
+                            <p><span style="font-weight: bold;">📆 Fecha:</span> ${fechaFormateada}</p>
+                            <p><span style="font-weight: bold;">🕒 Hora:</span> ${reserva.hora}</p>
+                            <p><span style="font-weight: bold;">👨‍⚕️ Médico:</span> ${medicoNombre}</p>
+                            
+                            <p><span style="font-weight: bold;">🚶‍♂️ Por favor, llegue 10 minutos antes de su cita.</span></p>
+                            <p><span style="font-weight: bold;">✅ Responda este mensaje si desea confirmar o reprogramar.</span></p>
+                            
+                            <p><span style="font-weight: bold;">🙏 ¡Gracias!</span></p>
+                        </div>
+                        <div class="form-group">
+                            <label for="telefonoWhatsapp" class="text-left d-block">Teléfono:</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">+</span>
+                                </div>
+                                <input type="text" id="telefonoWhatsapp" class="form-control" value="${telefono || '595'}" placeholder="Ej. 59898765432">
+                            </div>
+                            <small class="form-text text-muted">Incluya el código de país sin el signo +</small>
+                        </div>
+                    `,
+                    showCancelButton: true,
+                    confirmButtonColor: '#25d366',
+                    confirmButtonText: '<i class="fab fa-whatsapp"></i> Enviar WhatsApp',
+                    cancelButtonText: 'Cancelar',
+                    footer: '<a href="#" id="btnEnviarPDF">Mi clinica</a>',
+                    preConfirm: () => {
+                        const telefono = $('#telefonoWhatsapp').val().trim();
+                        if (!telefono) {
+                            Swal.showValidationMessage('Debe ingresar un número de teléfono');
+                            return false;
+                        }
+                        return telefono;
+                    }                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const telefonoFinal = result.value;
+                        
+                        // Mostrar indicador de carga mientras se envía
+                        Swal.fire({
+                            title: 'Enviando mensaje...',
+                            text: 'Conectando con el servicio de mensajería',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+                        
+                        // Enviar mensaje usando la API interna
+                        $.ajax({
+                            url: 'ajax/servicios.ajax.php',
+                            method: 'POST',
+                            data: {
+                                action: 'enviarWhatsApp',
+                                telefono: telefonoFinal,
+                                mensaje: mensajeWhatsApp
+                            },
+                            dataType: 'json',
+                            success: function(respuesta) {
+                                console.log('Respuesta del envío de WhatsApp:', respuesta);
+                                
+                                if (respuesta.status === 'success') {
+                                    Swal.fire({
+                                        title: '¡Mensaje enviado!',
+                                        text: 'El recordatorio ha sido enviado correctamente',
+                                        icon: 'success'
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        title: 'Error',
+                                        text: respuesta.mensaje || 'Error al enviar el mensaje',
+                                        icon: 'error',
+                                        footer: '<a href="#" id="btnAbrirWhatsAppWeb">Intentar con WhatsApp Web</a>'
+                                    });
+                                    
+                                    // Agregar evento para abrir WhatsApp Web como alternativa
+                                    $(document).on('click', '#btnAbrirWhatsAppWeb', function(e) {
+                                        e.preventDefault();
+                                        const mensajeURL = encodeURIComponent(mensajeWhatsApp);
+                                        const whatsappURL = `https://wa.me/${telefonoFinal}?text=${mensajeURL}`;
+                                        window.open(whatsappURL, '_blank');
+                                    });
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                console.error('Error al enviar WhatsApp:', error);
+                                Swal.fire({
+                                    title: 'Error',
+                                    text: 'No se pudo conectar con el servicio de mensajería',
+                                    icon: 'error',
+                                    footer: '<a href="#" id="btnAbrirWhatsAppWeb">Intentar con WhatsApp Web</a>'
+                                });
+                                
+                                // Agregar evento para abrir WhatsApp Web como alternativa
+                                $(document).on('click', '#btnAbrirWhatsAppWeb', function(e) {
+                                    e.preventDefault();
+                                    const mensajeURL = encodeURIComponent(mensajeWhatsApp);
+                                    const whatsappURL = `https://wa.me/${telefonoFinal}?text=${mensajeURL}`;
+                                    window.open(whatsappURL, '_blank');
+                                });
+                            }
+                        });
+                          // Registrar el envío en los logs
+                        $.ajax({
+                            url: 'ajax/log_whatsapp_envios.php',
+                            method: 'POST',
+                            data: {
+                                reserva_id: reservaId,
+                                telefono: telefonoFinal,
+                                tipo_mensaje: 'recordatorio_cita',
+                                paciente: pacienteNombre
+                            },
+                            success: function(response) {
+                                console.log('Log de envío registrado:', response);
+                            }
+                        });
+                    }
+                });
+                
+                // Añadir evento para el botón de enviar PDF
+                $(document).on('click', '#btnEnviarPDF', function(e) {
+                    e.preventDefault();
+                    
+                    const telefonoActual = $('#telefonoWhatsapp').val().trim();
+                    if (!telefonoActual) {
+                        Swal.showValidationMessage('Debe ingresar un número de teléfono para enviar el PDF');
+                        return;
+                    }
+                    
+                    // Cerrar el modal actual
+                    Swal.close();
+                    
+                    // Llamar a la función para enviar PDF
+                    enviarPDFReservaWhatsApp(reservaId, telefonoActual);
+                });
+            } else {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'No se pudo obtener la información de la reserva',
+                    icon: 'error'
+                });
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Error al obtener detalles de la reserva:', error);
+            Swal.fire({
+                title: 'Error',
+                text: 'No se pudo obtener la información de la reserva: ' + error,
+                icon: 'error'
+            });
+        }
+    });
+});

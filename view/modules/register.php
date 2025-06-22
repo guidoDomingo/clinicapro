@@ -65,9 +65,13 @@
             </div>
           </div>
           
-          <!-- /.col -->
-          <div class="col-4">
-            <button type="submit" class="btn btn-primary btn-block" id="btnregister">Registrarse</button>
+          <!-- /.col -->          <div class="col-4">
+            <button type="submit" class="btn btn-primary btn-block" id="btnregister">
+              <span class="normal-text">Registrarse</span>
+              <span class="spinner-border spinner-border-sm ms-1" role="status" style="display: none;">
+                <span class="visually-hidden">Cargando...</span>
+              </span>
+            </button>
           </div>
           <!-- /.col -->
         </div>
@@ -125,6 +129,14 @@ $(document).ready(function() {
       reg_bdate: $('#reg_bdate').val(),
       reg_activation: 'pending' // Valor por defecto
     };
+      // Mostrar spinner y deshabilitar botón
+    const $button = $('#btnregister');
+    const $spinner = $button.find('.spinner-border');
+    const $text = $button.find('.normal-text');
+    
+    $spinner.show();
+    $text.text('Registrando...');
+    $button.prop('disabled', true);
     
     // Enviar los datos a la API
     $.ajax({
@@ -133,6 +145,11 @@ $(document).ready(function() {
       contentType: 'application/json',
       data: JSON.stringify(formData),
       success: function(response) {
+        // Ocultar spinner y restaurar botón
+        $spinner.hide();
+        $text.text('Registrarse');
+        $button.prop('disabled', false);
+        
         // Mostrar modal de éxito
         $('#successModal').modal('show');
         
@@ -140,6 +157,11 @@ $(document).ready(function() {
         $('#frmRegister')[0].reset();
       },
       error: function(xhr) {
+        // Ocultar spinner y restaurar botón
+        $spinner.hide();
+        $text.text('Registrarse');
+        $button.prop('disabled', false);
+        
         // Mostrar mensaje de error
         var errorMessage = 'Ha ocurrido un error al procesar su registro.';
         if (xhr.responseJSON && xhr.responseJSON.error && xhr.responseJSON.error.message) {

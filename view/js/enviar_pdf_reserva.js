@@ -398,11 +398,11 @@ $(document).ready(function() {
     console.log('Inicializando formulario de envío de PDF...');
     
     // Manejar clic en botón para enviar PDF por WhatsApp
-    $(document).on('click', '.btnEnviarWhatsApp', function() {
-        const reservaId = $(this).data('id');
-        const telefono = $(this).data('telefono');
-        enviarPDFReservaWhatsApp(reservaId, telefono);
-    });
+    // $(document).on('click', '.btnEnviarWhatsApp', function() {
+    //     const reservaId = $(this).data('id');
+    //     const telefono = $(this).data('telefono');
+    //     enviarPDFReservaWhatsApp(reservaId, telefono);
+    // });
     
     // Manejar cambio en modo de envío (URL o archivo)
     $('input[name="modo_envio"]').change(function() {
