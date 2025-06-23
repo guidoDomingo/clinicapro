@@ -2727,11 +2727,88 @@ function descargarPDFConsulta() {
         return;
     }
     
-    // URL para generar el PDF
-    const urlPDF = `generar_pdf_consulta.php?id=${idConsulta}`;
+    // Mostrar indicador de carga
+    Swal.fire({
+        title: 'Procesando PDF...',
+        text: 'Subiendo al servidor FTP, por favor espere',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });    // URL del PDF generado con ruta completa (necesaria para file_get_contents)
+    const currentUrl = window.location.origin;
     
-    // Abrir en una nueva ventana
-    window.open(urlPDF, '_blank');
+    // Determinar la ruta base de la aplicación basada en la URL actual
+    let basePath = '/';
+    const pathSegments = window.location.pathname.split('/');
+    if (pathSegments.length > 2 && pathSegments[1] === 'clinica') {
+        basePath = '/clinica/';
+    }
+    
+    // Construir la URL completa para el PDF
+    const pdfLocalUrl = `${currentUrl}${basePath}generar_pdf_consulta.php?id=${idConsulta}`;
+    
+    // Enviar la URL local al script de subida FTP
+    $.ajax({
+        type: 'POST',
+        url: 'upload_pdf_ftp.php',
+        data: {
+            pdf_url: pdfLocalUrl,
+            custom_filename: `consulta_${idConsulta}.pdf`
+        },
+        dataType: 'json',
+        success: function(response) {
+            Swal.close();
+            
+            if (response.success) {
+                // Mostrar mensaje de éxito
+                Swal.fire({
+                    position: "center",
+                    icon: "success",
+                    title: "PDF subido exitosamente",
+                    text: "El archivo PDF ha sido subido al servidor FTP",
+                    showConfirmButton: true,
+                    confirmButtonText: "Abrir PDF"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Abrir el PDF en una nueva pestaña
+                        window.open(response.url, '_blank');
+                    }
+                });
+            } else {
+                // Mostrar mensaje de error
+                Swal.fire({
+                    position: "center",
+                    icon: "error",
+                    title: "Error al subir el PDF",
+                    text: response.error || "Ocurrió un error desconocido",
+                    showConfirmButton: true
+                });
+                  // Como falló la subida FTP, ofrecer descargar el PDF directamente
+                setTimeout(() => {
+                    // Aquí usamos la URL relativa ya que window.open la abre correctamente
+                    window.open(`generar_pdf_consulta.php?id=${idConsulta}`, '_blank');
+                }, 1000);
+            }
+        },
+        error: function(xhr, status, error) {
+            Swal.close();
+            
+            // Mostrar mensaje de error
+            Swal.fire({
+                position: "center",
+                icon: "error",
+                title: "Error al subir el PDF",
+                text: "Ocurrió un error en la comunicación con el servidor. Se abrirá el PDF directamente.",
+                showConfirmButton: true
+            });
+              // Abrir el PDF directamente como fallback
+            setTimeout(() => {
+                // Aquí usamos la URL relativa ya que window.open la abre correctamente
+                window.open(`generar_pdf_consulta.php?id=${idConsulta}`, '_blank');
+            }, 1000);
+        }
+    });
 }
 
 /**

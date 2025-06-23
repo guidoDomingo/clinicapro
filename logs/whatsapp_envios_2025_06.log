@@ -228,3 +228,91 @@
 2025-06-10 01:35:34 | Usando método: Guzzle
 2025-06-10 01:35:36 | Respuesta Guzzle (código 200): {"status":"ok","usuario":"admin","telefono":"595982313358","mediaUrl":"https:\/\/www.w3.org\/WAI\/ER\/tests\/xhtml\/testfiles\/resources\/pdf\/dummy.pdf","respuesta_waapi":{"data":{"status":"success","instanceId":"71801","data":{"_data":{"id":{"fromMe":true,"remote":"595982313358@c.us","id":"3EB0F9CB352020911B7885","_serialized":"true_595982313358@c.us_3EB0F9CB352020911B7885"},"viewed":false,"body":null,"type":"document","t":1749519334,"from":{"server":"c.us","user":"595974962221","_serialized":"595974962221@c.us"},"to":{"server":"c.us","user":"595982313358","_serialized":"595982313358@c.us"},"ack":0,"isNewMsg":true,"star":false,"kicNotified":false,"caption":"[PRUEBA] Consulta m\u00e9dica de alejandro visconte del 10\/06\/2025 (PDF de prueba)","deprecatedMms3Url":"https:\/\/mmg.whatsapp.net\/v\/t62.7119-24\/13782421_1663618774526209_8573646387350175922_n.enc?ccb=11-4&oh=01_Q5Aa1gGBARdxQBHApmTqQPrWkLU28eUTJAqG-Rxq35P2unvxFw&oe=686881B9&_nc_sid=5e03e0&mms3=true","directPath":"\/v\/t62.7119-24\/22562883_1380927909810602_8637968115195285806_n.enc?ccb=11-4&oh=01_Q5Aa1wHZVvMice1nvpsTN8o7rijeo2n-fG_DcWAI7ryxHokdxA&oe=686EEDAC&_nc_sid=5e03e0","mimetype":"application\/pdf; qs=0.001","filehash":"PfedNKu8qZMI55y5RGHBiTWCYE1oMppB\/UvsGIXmrbQ=","encFilehash":"kFAKSIrHg0C\/Xu7mX0mlQsTyEOtDHJ5xIcIdjVXqJVE=","size":13264,"filename":"dummy.pdf","mediaKey":"6axGGrgdd0RmvPIDjjUsPa0dENUjc9h1C+zpTje8yHo=","mediaKeyTimestamp":1749092855,"streamable":false,"mediaHandle":null,"isFromTemplate":false,"pollInvalidated":false,"isSentCagPollCreation":false,"latestEditMsgKey":null,"latestEditSenderTimestampMs":null,"mentionedJidList":[],"groupMentions":[],"isEventCanceled":false,"eventInvalidated":false,"isVcardOverMmsDocument":false,"isForwarded":false,"labels":[],"hasReaction":false,"productHeaderImageRejected":false,"lastPlaybackProgress":0,"isDynamicReplyButtonsMsg":false,"isCarouselCard":false,"parentMsgId":null,"callSilenceReason":null,"isVideoCall":false,"callDuration":null,"callCreator":null,"callParticipants":null,"isMdHistoryMsg":false,"stickerSentTs":0,"lastUpdateFromServerTs":0,"invokedBotWid":null,"bizBotType":null,"botResponseTargetId":null,"botPluginType":null,"botPluginReferenceIndex":null,"botPluginSearchProvider":null,"botPluginSearchUrl":null,"botPluginSearchQuery":null,"botPluginMaybeParent":false,"botReelPluginThumbnailCdnUrl":null,"botMessageDisclaimerText":null,"botMsgBodyType":null,"requiresDirectConnection":null,"bizContentPlaceholderType":null,"hostedBizEncStateMismatch":false,"senderOrRecipientAccountTypeHosted":false,"placeholderCreatedWhenAccountIsHosted":false,"links":[]},"mediaKey":"6axGGrgdd0RmvPIDjjUsPa0dENUjc9h1C+zpTje8yHo=","id":{"fromMe":true,"remote":"595982313358@c.us","id":"3EB0F9CB352020911B7885","_serialized":"true_595982313358@c.us_3EB0F9CB352020911B7885"},"ack":0,"hasMedia":true,"body":"[PRUEBA] Consulta m\u00e9dica de alejandro visconte del 10\/06\/2025 (PDF de prueba)","type":"document","timestamp":1749519334,"from":"595974962221@c.us","to":"595982313358@c.us","deviceType":"android","isForwarded":false,"forwardingScore":0,"isStatus":false,"isStarred":false,"fromMe":true,"hasQuotedMsg":false,"hasReaction":false,"vCards":[],"mentionedIds":[],"groupMentions":[],"isGif":false,"links":[]}},"links":{"self":"https:\/\/waapi.app\/api\/v1\/instances\/71801\/client\/action\/send-media"},"status":"success"}}
 2025-06-10 01:35:36 | Resultado: ÉXITO | Enviado correctamente
+2025-06-23 03:07:26 | Datos recibidos: Array
+(
+    [id_consulta] => 26
+    [telefono] => 595982313358
+)
+
+2025-06-23 03:07:26 | Número de teléfono limpiado: 595982313358 (longitud: 12)
+2025-06-23 03:07:26 | Intentando obtener consulta ID: 26
+2025-06-23 03:07:26 | Resultado consulta: ENCONTRADA
+2025-06-23 03:07:26 | URL original generada: http://clinica.test/generar_pdf_consulta.php?id=26
+2025-06-23 03:07:26 | ENTORNO LOCAL/DESARROLLO DETECTADO: Cambiando a URL pública de prueba: https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf
+2025-06-23 03:07:26 | URL del PDF generada: https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf
+2025-06-23 03:07:26 | Verificación de URL: ACCESIBLE LOCALMENTE
+2025-06-23 03:07:26 | Estado de accesibilidad: ACCESIBLE
+2025-06-23 03:07:26 | Estructura de consulta: Array
+(
+    [id_consulta] => 26
+    [id_persona] => 45
+    [motivoscomunes] => 3
+    [txtmotivo] => Dolor ocular
+    [visionod] => 
+    [visionoi] => 
+    [tensionod] => 
+    [tensionoi] => 
+    [consulta_textarea] => <p><font color="#000000" style="background-color: rgb(255, 255, 0);"><span style="font-size: 24px;"><b>pruebaaaaaaaaaaaaaaaaaa</b></span></font></p>
+    [receta_textarea] => <h2 id="section-0" style="box-sizing: inherit; border: 0px; font-variant-numeric: inherit; font-variant-east-asian: inherit; font-variant-alternates: inherit; font-variant-position: inherit; font-variant-emoji: inherit; font-weight: 700; font-stretch: inherit; line-height: 1.15; font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, Oxygen, Ubuntu, Cantarell, &quot;Fira Sans&quot;, &quot;Droid Sans&quot;, &quot;Helvetica Neue&quot;, sans-serif; font-optical-sizing: inherit; font-size-adjust: inherit; font-kerning: inherit; font-feature-settings: inherit; font-variation-settings: inherit; font-size: 2.8rem; margin: 6vmin 0px 0px; padding: 0px; vertical-align: baseline; text-rendering: optimizelegibility; letter-spacing: -0.01em; grid-column: main-start / main-end; color: rgba(255, 255, 255, 0.9);"><span data-huuid="8820397639815213618" style="color: rgb(238, 240, 255); font-family: &quot;Google Sans&quot;, Arial, sans-serif; font-size: 18px; font-weight: 400; letter-spacing: normal; background-color: rgb(31, 31, 31);">Un formato para recetas médicas típicamente incluye la información del médico, del paciente, del medicamento recetado, y las instrucciones de uso, así como la firma y sello del médico.&nbsp;</span><span data-huuid="8820397639815214007" style="color: rgb(238, 240, 255); font-family: &quot;Google Sans&quot;, Arial, sans-serif; font-size: 18px; font-weight: 400; letter-spacing: normal; background-color: rgb(31, 31, 31);">Adicionalmente, algunas recetas pueden requerir información específica según la regulación local o el tipo de medicamento.<span jscontroller="JHnpme" class="pjBG2e" data-cid="3f2eabb5-73d3-4843-b36d-a5af5b433267" jsaction="rcuQ6b:npT2md"><span class="UV3uM" style="text-wrap-mode: nowrap;">&nbsp;</span></span></span></h2>
+    [txtnota] => sdfsdf
+    [proximaconsulta] => 2025-06-27
+    [whatsapptxt] => 
+    [email] => 
+    [id_user] => 9
+    [id_reserva] => 0
+    [fecha_registro] => 2025-06-21 16:04:00.030991
+    [ultima_modificacion] => 
+    [nombre_paciente] => alejandro visconte
+    [document_number] => 88867676767
+    [birth_date] => 2025-04-25
+)
+
+2025-06-23 03:07:26 | Enviando PDF de consulta 26 al número 595982313358
+2025-06-23 03:07:26 | Datos a enviar: {"telefono":"595982313358","mediaUrl":"https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf","mediaCaption":"[PRUEBA] Consulta m\u00e9dica de alejandro visconte del 23/06/2025 (PDF de prueba)"}
+2025-06-23 03:07:26 | Usando método: Guzzle
+2025-06-23 03:07:29 | Respuesta Guzzle (código 200): {"status":"ok","usuario":"admin","telefono":"595982313358","mediaUrl":"https:\/\/www.w3.org\/WAI\/ER\/tests\/xhtml\/testfiles\/resources\/pdf\/dummy.pdf","respuesta_waapi":{"data":{"status":"success","instanceId":"71801","data":{"_data":{"id":{"fromMe":true,"remote":"595982313358@c.us","id":"3EB0A5E2D0528648456A6D","_serialized":"true_595982313358@c.us_3EB0A5E2D0528648456A6D"},"viewed":false,"body":null,"type":"document","t":1750648044,"from":{"server":"c.us","user":"595974962221","_serialized":"595974962221@c.us"},"to":{"server":"c.us","user":"595982313358","_serialized":"595982313358@c.us"},"ack":0,"isNewMsg":true,"star":false,"kicNotified":false,"caption":"[PRUEBA] Consulta m\u00e9dica de alejandro visconte del 23\/06\/2025 (PDF de prueba)","deprecatedMms3Url":"https:\/\/mmg.whatsapp.net\/v\/t62.7119-24\/511210417_1432792934414203_7597350740085695891_n.enc?ccb=11-4&oh=01_Q5Aa1wHSRw29EIGmA9xF-kFQAnls8wjEYT6LFs9CcmK89yNHsw&oe=68801E63&_nc_sid=5e03e0&mms3=true","directPath":"\/v\/t62.7119-24\/511210417_1432792934414203_7597350740085695891_n.enc?ccb=11-4&oh=01_Q5Aa1wHSRw29EIGmA9xF-kFQAnls8wjEYT6LFs9CcmK89yNHsw&oe=68801E63&_nc_sid=5e03e0","mimetype":"application\/pdf; qs=0.001","filehash":"PfedNKu8qZMI55y5RGHBiTWCYE1oMppB\/UvsGIXmrbQ=","encFilehash":"kcvds0BOeSHk+VlI\/F9+\/2CTtGFkvwgxRMAadfFoUEY=","size":13264,"filename":"dummy.pdf","mediaKey":"kJ\/tpX0iA+ObeYyd0SUrKStojVKaG2bQv0Z8oQY+W6o=","mediaKeyTimestamp":1750648043,"streamable":false,"mediaHandle":null,"isFromTemplate":false,"pollInvalidated":false,"isSentCagPollCreation":false,"latestEditMsgKey":null,"latestEditSenderTimestampMs":null,"mentionedJidList":[],"groupMentions":[],"isEventCanceled":false,"eventInvalidated":false,"isVcardOverMmsDocument":false,"isForwarded":false,"labels":[],"hasReaction":false,"productHeaderImageRejected":false,"lastPlaybackProgress":0,"isDynamicReplyButtonsMsg":false,"isCarouselCard":false,"parentMsgId":null,"callSilenceReason":null,"isVideoCall":false,"callDuration":null,"callCreator":null,"callParticipants":null,"isCallLink":null,"callLinkToken":null,"isMdHistoryMsg":false,"stickerSentTs":0,"lastUpdateFromServerTs":0,"invokedBotWid":null,"bizBotType":null,"botResponseTargetId":null,"botPluginType":null,"botPluginReferenceIndex":null,"botPluginSearchProvider":null,"botPluginSearchUrl":null,"botPluginSearchQuery":null,"botPluginMaybeParent":false,"botReelPluginThumbnailCdnUrl":null,"botMessageDisclaimerText":null,"botMsgBodyType":null,"requiresDirectConnection":null,"bizContentPlaceholderType":null,"hostedBizEncStateMismatch":false,"senderOrRecipientAccountTypeHosted":false,"placeholderCreatedWhenAccountIsHosted":false,"links":[]},"mediaKey":"kJ\/tpX0iA+ObeYyd0SUrKStojVKaG2bQv0Z8oQY+W6o=","id":{"fromMe":true,"remote":"595982313358@c.us","id":"3EB0A5E2D0528648456A6D","_serialized":"true_595982313358@c.us_3EB0A5E2D0528648456A6D"},"ack":0,"hasMedia":true,"body":"[PRUEBA] Consulta m\u00e9dica de alejandro visconte del 23\/06\/2025 (PDF de prueba)","type":"document","timestamp":1750648044,"from":"595974962221@c.us","to":"595982313358@c.us","deviceType":"android","isForwarded":false,"forwardingScore":0,"isStatus":false,"isStarred":false,"fromMe":true,"hasQuotedMsg":false,"hasReaction":false,"vCards":[],"mentionedIds":[],"groupMentions":[],"isGif":false,"links":[]}},"links":{"self":"https:\/\/waapi.app\/api\/v1\/instances\/71801\/client\/action\/send-media"},"status":"success"}}
+2025-06-23 03:07:29 | Resultado: ÉXITO | Enviado correctamente
+2025-06-23 04:15:52 | Datos recibidos: Array
+(
+    [id_consulta] => 26
+    [telefono] => 595982313358
+)
+
+2025-06-23 04:15:52 | Número de teléfono limpiado: 595982313358 (longitud: 12)
+2025-06-23 04:15:52 | Intentando obtener consulta ID: 26
+2025-06-23 04:15:52 | Resultado consulta: ENCONTRADA
+2025-06-23 04:15:52 | URL original generada: http://clinica.test/generar_pdf_consulta.php?id=26
+2025-06-23 04:15:52 | ENTORNO LOCAL/DESARROLLO DETECTADO: Cambiando a URL pública de prueba: https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf
+2025-06-23 04:15:52 | URL del PDF generada: https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf
+2025-06-23 04:15:52 | Verificación de URL: ACCESIBLE LOCALMENTE
+2025-06-23 04:15:52 | Estado de accesibilidad: ACCESIBLE
+2025-06-23 04:15:52 | Estructura de consulta: Array
+(
+    [id_consulta] => 26
+    [id_persona] => 45
+    [motivoscomunes] => 3
+    [txtmotivo] => Dolor ocular
+    [visionod] => 
+    [visionoi] => 
+    [tensionod] => 
+    [tensionoi] => 
+    [consulta_textarea] => <p><font color="#000000" style="background-color: rgb(255, 255, 0);"><span style="font-size: 24px;"><b>pruebaaaaaaaaaaaaaaaaaa</b></span></font></p>
+    [receta_textarea] => <h2 id="section-0" style="box-sizing: inherit; border: 0px; font-variant-numeric: inherit; font-variant-east-asian: inherit; font-variant-alternates: inherit; font-variant-position: inherit; font-variant-emoji: inherit; font-weight: 700; font-stretch: inherit; line-height: 1.15; font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, Oxygen, Ubuntu, Cantarell, &quot;Fira Sans&quot;, &quot;Droid Sans&quot;, &quot;Helvetica Neue&quot;, sans-serif; font-optical-sizing: inherit; font-size-adjust: inherit; font-kerning: inherit; font-feature-settings: inherit; font-variation-settings: inherit; font-size: 2.8rem; margin: 6vmin 0px 0px; padding: 0px; vertical-align: baseline; text-rendering: optimizelegibility; letter-spacing: -0.01em; grid-column: main-start / main-end; color: rgba(255, 255, 255, 0.9);"><span data-huuid="8820397639815213618" style="color: rgb(238, 240, 255); font-family: &quot;Google Sans&quot;, Arial, sans-serif; font-size: 18px; font-weight: 400; letter-spacing: normal; background-color: rgb(31, 31, 31);">Un formato para recetas médicas típicamente incluye la información del médico, del paciente, del medicamento recetado, y las instrucciones de uso, así como la firma y sello del médico.&nbsp;</span><span data-huuid="8820397639815214007" style="color: rgb(238, 240, 255); font-family: &quot;Google Sans&quot;, Arial, sans-serif; font-size: 18px; font-weight: 400; letter-spacing: normal; background-color: rgb(31, 31, 31);">Adicionalmente, algunas recetas pueden requerir información específica según la regulación local o el tipo de medicamento.<span jscontroller="JHnpme" class="pjBG2e" data-cid="3f2eabb5-73d3-4843-b36d-a5af5b433267" jsaction="rcuQ6b:npT2md"><span class="UV3uM" style="text-wrap-mode: nowrap;">&nbsp;</span></span></span></h2>
+    [txtnota] => sdfsdf
+    [proximaconsulta] => 2025-06-27
+    [whatsapptxt] => 
+    [email] => 
+    [id_user] => 9
+    [id_reserva] => 0
+    [fecha_registro] => 2025-06-21 16:04:00.030991
+    [ultima_modificacion] => 
+    [nombre_paciente] => alejandro visconte
+    [document_number] => 88867676767
+    [birth_date] => 2025-04-25
+)
+
+2025-06-23 04:15:52 | Enviando PDF de consulta 26 al número 595982313358
+2025-06-23 04:15:52 | Datos a enviar: {"telefono":"595982313358","mediaUrl":"https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf","mediaCaption":"[PRUEBA] Consulta m\u00e9dica de alejandro visconte del 23/06/2025 (PDF de prueba)"}
+2025-06-23 04:15:52 | Usando método: Guzzle
+2025-06-23 04:15:54 | Respuesta Guzzle (código 200): {"status":"ok","usuario":"admin","telefono":"595982313358","mediaUrl":"https:\/\/www.w3.org\/WAI\/ER\/tests\/xhtml\/testfiles\/resources\/pdf\/dummy.pdf","respuesta_waapi":{"data":{"status":"success","instanceId":"71801","data":{"_data":{"id":{"fromMe":true,"remote":"595982313358@c.us","id":"3EB0CE3DF4E68508959BEE","_serialized":"true_595982313358@c.us_3EB0CE3DF4E68508959BEE"},"viewed":false,"body":null,"type":"document","t":1750652149,"from":{"server":"c.us","user":"595974962221","_serialized":"595974962221@c.us"},"to":{"server":"c.us","user":"595982313358","_serialized":"595982313358@c.us"},"ack":0,"isNewMsg":true,"star":false,"kicNotified":false,"caption":"[PRUEBA] Consulta m\u00e9dica de alejandro visconte del 23\/06\/2025 (PDF de prueba)","deprecatedMms3Url":"https:\/\/mmg.whatsapp.net\/v\/t62.7119-24\/511210417_1432792934414203_7597350740085695891_n.enc?ccb=11-4&oh=01_Q5Aa1wHSRw29EIGmA9xF-kFQAnls8wjEYT6LFs9CcmK89yNHsw&oe=68801E63&_nc_sid=5e03e0&mms3=true","directPath":"\/v\/t62.7119-24\/511210417_1432792934414203_7597350740085695891_n.enc?ccb=11-4&oh=01_Q5Aa1wHSRw29EIGmA9xF-kFQAnls8wjEYT6LFs9CcmK89yNHsw&oe=68801E63&_nc_sid=5e03e0","mimetype":"application\/pdf; qs=0.001","filehash":"PfedNKu8qZMI55y5RGHBiTWCYE1oMppB\/UvsGIXmrbQ=","encFilehash":"kcvds0BOeSHk+VlI\/F9+\/2CTtGFkvwgxRMAadfFoUEY=","size":13264,"filename":"dummy.pdf","mediaKey":"kJ\/tpX0iA+ObeYyd0SUrKStojVKaG2bQv0Z8oQY+W6o=","mediaKeyTimestamp":1750648043,"streamable":false,"mediaHandle":null,"isFromTemplate":false,"pollInvalidated":false,"isSentCagPollCreation":false,"latestEditMsgKey":null,"latestEditSenderTimestampMs":null,"mentionedJidList":[],"groupMentions":[],"isEventCanceled":false,"eventInvalidated":false,"isVcardOverMmsDocument":false,"isForwarded":false,"labels":[],"hasReaction":false,"productHeaderImageRejected":false,"lastPlaybackProgress":0,"isDynamicReplyButtonsMsg":false,"isCarouselCard":false,"parentMsgId":null,"callSilenceReason":null,"isVideoCall":false,"callDuration":null,"callCreator":null,"callParticipants":null,"isCallLink":null,"callLinkToken":null,"isMdHistoryMsg":false,"stickerSentTs":0,"lastUpdateFromServerTs":0,"invokedBotWid":null,"bizBotType":null,"botResponseTargetId":null,"botPluginType":null,"botPluginReferenceIndex":null,"botPluginSearchProvider":null,"botPluginSearchUrl":null,"botPluginSearchQuery":null,"botPluginMaybeParent":false,"botReelPluginThumbnailCdnUrl":null,"botMessageDisclaimerText":null,"botMsgBodyType":null,"requiresDirectConnection":null,"bizContentPlaceholderType":null,"hostedBizEncStateMismatch":false,"senderOrRecipientAccountTypeHosted":false,"placeholderCreatedWhenAccountIsHosted":false,"links":[]},"mediaKey":"kJ\/tpX0iA+ObeYyd0SUrKStojVKaG2bQv0Z8oQY+W6o=","id":{"fromMe":true,"remote":"595982313358@c.us","id":"3EB0CE3DF4E68508959BEE","_serialized":"true_595982313358@c.us_3EB0CE3DF4E68508959BEE"},"ack":0,"hasMedia":true,"body":"[PRUEBA] Consulta m\u00e9dica de alejandro visconte del 23\/06\/2025 (PDF de prueba)","type":"document","timestamp":1750652149,"from":"595974962221@c.us","to":"595982313358@c.us","deviceType":"android","isForwarded":false,"forwardingScore":0,"isStatus":false,"isStarred":false,"fromMe":true,"hasQuotedMsg":false,"hasReaction":false,"vCards":[],"mentionedIds":[],"groupMentions":[],"isGif":false,"links":[]}},"links":{"self":"https:\/\/waapi.app\/api\/v1\/instances\/71801\/client\/action\/send-media"},"status":"success"}}
+2025-06-23 04:15:54 | Resultado: ÉXITO | Enviado correctamente
