@@ -1,6 +1,12 @@
 <?php
 
-require_once "../model/ProfesionesModel.php";
+if (file_exists("model/profesiones.model.php")) {
+    // When included from index.php or similar root-level file
+    require_once "model/profesiones.model.php";
+} else if (file_exists("../model/profesiones.model.php")) {
+    // When included from an AJAX file in a subdirectory
+    require_once "../model/profesiones.model.php";
+}
 
 class ProfesionesController {
     
@@ -59,9 +65,9 @@ class ProfesionesController {
         if(isset($_POST["editarProfesion"])) {
             if(preg_match('/^[a-zA-ZñÑáéíóúÁÉÍÓÚüÜ\s]+$/', $_POST["editarProfesion"])) {
                 
-                $resultado = ProfesionesModel::mdlActualizarProfesion($_POST["idProfesion"], $_POST["editarProfesion"]);
-                
-                if($resultado == "ok") {
+                $resultado = ProfesionesModel::mdlActualizarProfesion($_POST["idProfesion"], $_POST["editarProfesion"], $_POST["estado"]);
+
+                if($resultado["status"] == "ok") {
                     echo '<script>
                         swal({
                             type: "success",

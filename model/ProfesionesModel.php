@@ -7,7 +7,7 @@ class ProfesionesModel {
     OBTENER TODAS LAS PROFESIONES ACTIVAS
     =============================================*/
     static public function mdlObtenerProfesiones() {
-        $stmt = Conexion::conectar()->prepare("SELECT id, nombre FROM profesiones WHERE activo = TRUE ORDER BY nombre");
+        $stmt = Conexion::conectar()->prepare("SELECT id, nombre, activo, fecha_creacion FROM profesiones WHERE activo = TRUE ORDER BY id");
         
         $stmt->execute();
         
@@ -23,9 +23,10 @@ class ProfesionesModel {
         $stmt->bindParam(":nombre", $nombre, PDO::PARAM_STR);
         
         if($stmt->execute()) {
-            return "ok";
+            // Devolvemos un array asociativo que puede ser convertido a JSON
+            return ["status" => "ok", "message" => "Profesión creada correctamente"];
         } else {
-            return "error";
+            return ["status" => "error", "message" => "Error al crear la profesión"];
         }
         
         $stmt = null;
@@ -34,16 +35,17 @@ class ProfesionesModel {
     /*=============================================
     ACTUALIZAR PROFESION
     =============================================*/
-    static public function mdlActualizarProfesion($id, $nombre) {
-        $stmt = Conexion::conectar()->prepare("UPDATE profesiones SET nombre = :nombre WHERE id = :id");
+    static public function mdlActualizarProfesion($id, $nombre, $activo) {
+        $stmt = Conexion::conectar()->prepare("UPDATE profesiones SET nombre = :nombre, activo = :activo WHERE id = :id");
         
         $stmt->bindParam(":nombre", $nombre, PDO::PARAM_STR);
+        $stmt->bindParam(":activo", $activo, PDO::PARAM_BOOL);
         $stmt->bindParam(":id", $id, PDO::PARAM_INT);
         
         if($stmt->execute()) {
-            return "ok";
+            return ["status" => "ok", "message" => "Profesión actualizada correctamente"];
         } else {
-            return "error";
+            return ["status" => "error", "message" => "Error al actualizar la profesión"];
         }
         
         $stmt = null;
@@ -58,9 +60,9 @@ class ProfesionesModel {
         $stmt->bindParam(":id", $id, PDO::PARAM_INT);
         
         if($stmt->execute()) {
-            return "ok";
+            return ["status" => "ok", "message" => "Profesión eliminada correctamente"];
         } else {
-            return "error";
+            return ["status" => "error", "message" => "Error al eliminar la profesión"];
         }
         
         $stmt = null;

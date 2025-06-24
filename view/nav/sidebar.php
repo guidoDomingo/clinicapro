@@ -84,12 +84,17 @@
                             Referenciales
                             <i class="fas fa-angle-left right"></i>
                         </p>
-                    </a>
-                    <ul class="nav nav-treeview">
+                    </a>                    <ul class="nav nav-treeview">
                         <li style="padding-left: 20px;" class="nav-item <?php echo mostrar_si_tiene_permiso('administrar_servicios'); ?>">
                             <a href="index.php?ruta=rs_servicios" class="nav-link">
                                 <i class="nav-icon fas fa-briefcase-medical"></i>
                                 <p>Gestión de Servicios</p>
+                            </a>
+                        </li>
+                        <li style="padding-left: 20px;" class="nav-item <?php echo mostrar_si_tiene_permiso('administrar_profesiones'); ?>">
+                            <a href="index.php?ruta=profesiones" class="nav-link">
+                                <i class="nav-icon fas fa-user-md"></i>
+                                <p>Gestión de Profesiones</p>
                             </a>
                         </li>
                         <li class="nav-item" style="padding-left: 20px;">
