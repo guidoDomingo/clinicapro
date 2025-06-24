@@ -282,3 +282,46 @@
 
 )
 
+[2025-06-24 18:32:35][CONSULTA] Iniciando proceso de guardar consulta 
+[POST] => Array
+(
+    [txtdocumento] => 88867676767
+    [txtficha] => 3245435435
+    [txtnombre] => alejandro visconte
+    [idPersona] => 45
+    [motivoscomunes] => 3
+    [formatoConsulta] => 11
+    [txtmotivo] => Adaptación de lentes de contacto, Disminución de la agudeza visual, Dolor ocular
+    [visionod] => 234
+    [visionoi] => 32
+    [tensionod] => 67
+    [tensionoi] => 43
+    [consulta-textarea] => <p><strong>[Diagnóstico ICD-11: 5A14 - Diabetes mellitus, tipo no especificado]</strong></p>
+                        <p><em>No hay descripción detallada disponible para este código.&nbsp;</em></p>
+                        <p>&nbsp;</p><p><b>PRUEBAAAA<span style="box-sizing: border-box; color: rgb(33, 37, 41); font-family: &quot;Source Sans Pro&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(255, 255, 255); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;">PRUEBAAAA</span></b></p>
+    [formatoreceta] => Seleccionar
+    [receta-textarea] => <p><br></p><p><strong>STAMARIL PASTEUR</strong> (SANOFI PASTEUR)</p><p>Indicaciones: cada 5 minutos</p>
+    [txtnota] => pruebaaa
+    [proximaconsulta] => 2025-06-28
+    [whatsapptxt] => 
+    [email] => 
+    [id_user] => 9
+    [id_reserva] => 0
+    [medico_id] => 1
+    [id_consulta_actual] => 
+)
+
+[FILES] => Array
+(
+    [files] => Array
+        (
+            [name] => 
+            [full_path] => 
+            [type] => 
+            [tmp_name] => 
+            [error] => 4
+            [size] => 0
+        )
+
+)
+

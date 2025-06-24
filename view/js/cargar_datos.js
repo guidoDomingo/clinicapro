@@ -35,7 +35,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 selectMotivosComunes.addEventListener('change', function() {
                     const selectedOption = this.options[this.selectedIndex];
                     if (selectedOption.value !== 'Seleccionar') {
-                        document.getElementById('txtmotivo').value = selectedOption.text;
+                        const motivoTexto = document.getElementById('txtmotivo');
+                        // Si el campo ya tiene texto, agregamos una coma antes del nuevo motivo
+                        if (motivoTexto.value && motivoTexto.value.trim() !== '') {
+                            motivoTexto.value = motivoTexto.value.trim() + ', ' + selectedOption.text;
+                        } else {
+                            motivoTexto.value = selectedOption.text;
+                        }
                     }
                 });
                 
@@ -44,7 +50,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     $('#motivoscomunes').on('select2:select', function(e) {
                         console.log('Select2: Motivo común seleccionado:', e.params.data);
                         if (e.params.data.id !== 'Seleccionar') {
-                            document.getElementById('txtmotivo').value = e.params.data.text;
+                            const motivoTexto = document.getElementById('txtmotivo');
+                            // Si el campo ya tiene texto, agregamos una coma antes del nuevo motivo
+                            if (motivoTexto.value && motivoTexto.value.trim() !== '') {
+                                motivoTexto.value = motivoTexto.value.trim() + ', ' + e.params.data.text;
+                            } else {
+                                motivoTexto.value = e.params.data.text;
+                            }
                         }
                     });
                 }
