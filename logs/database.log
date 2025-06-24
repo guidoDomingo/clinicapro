@@ -10696,3 +10696,93 @@ Parameters: {
     "userId": 1
 }
 ----------------------------------------
+[2025-06-24 13:18:02] [INFO] [Database.php:219]
+SQL: SELECT * FROM especialidades WHERE activo = :value
+Parameters: {
+    "value": true
+}
+----------------------------------------
+[2025-06-24 13:18:02] [INFO] [Model.php:175]
+SQL: SELECT * FROM rh_person ORDER BY person_id DESC LIMIT :limit OFFSET :offset
+Parameters: {
+    "limit": 10,
+    "offset": 0
+}
+----------------------------------------
+[2025-06-24 13:18:02] [INFO] [Model.php:175]
+SQL: SELECT COUNT(*) as total FROM rh_person
+----------------------------------------
+[2025-06-24 13:18:05] [INFO] [Model.php:175]
+SQL: SELECT * FROM rh_person WHERE first_name ILIKE :name ORDER BY person_id DESC
+Parameters: {
+    "name": "%angel%"
+}
+----------------------------------------
+[2025-06-24 13:18:07] [INFO] [Database.php:231]
+SQL: SELECT * FROM rh_person WHERE person_id = :id
+Parameters: {
+    "id": "58"
+}
+----------------------------------------
+[2025-06-24 13:18:07] [INFO] [Model.php:175]
+SQL: SELECT e.* FROM especialidades e INNER JOIN persona_especialidad pe ON e.especialidad_id = pe.especialidad_id WHERE pe.persona_id = :persona_id AND e.activo = true
+Parameters: {
+    "persona_id": "58"
+}
+----------------------------------------
+[2025-06-24 13:18:07] [INFO] [Database.php:231]
+SQL: SELECT * FROM rh_person WHERE person_id = :id
+Parameters: {
+    "id": "58"
+}
+----------------------------------------
+[2025-06-24 13:18:11] [INFO] [Model.php:175]
+SQL: DELETE FROM persona_especialidad WHERE persona_id = :persona_id
+Parameters: {
+    "persona_id": "58"
+}
+----------------------------------------
+[2025-06-24 13:18:11] [INFO] [Model.php:175]
+SQL: INSERT INTO persona_especialidad (persona_id, especialidad_id) VALUES (:persona_id, :especialidad_id)
+Parameters: {
+    "persona_id": "58",
+    "especialidad_id": "2"
+}
+----------------------------------------
+[2025-06-24 13:18:11] [INFO] [Model.php:175]
+SQL: INSERT INTO persona_especialidad (persona_id, especialidad_id) VALUES (:persona_id, :especialidad_id)
+Parameters: {
+    "persona_id": "58",
+    "especialidad_id": "3"
+}
+----------------------------------------
+[2025-06-24 13:18:11] [INFO] [Database.php:231]
+SQL: SELECT * FROM rh_person WHERE person_id = :id
+Parameters: {
+    "id": "58"
+}
+----------------------------------------
+[2025-06-24 13:18:11] [INFO] [Model.php:175]
+SQL: SELECT * FROM rh_person WHERE first_name ILIKE :name ORDER BY person_id DESC
+Parameters: {
+    "name": "%angel%"
+}
+----------------------------------------
+[2025-06-24 13:18:13] [INFO] [Database.php:231]
+SQL: SELECT * FROM rh_person WHERE person_id = :id
+Parameters: {
+    "id": "58"
+}
+----------------------------------------
+[2025-06-24 13:18:13] [INFO] [Model.php:175]
+SQL: SELECT e.* FROM especialidades e INNER JOIN persona_especialidad pe ON e.especialidad_id = pe.especialidad_id WHERE pe.persona_id = :persona_id AND e.activo = true
+Parameters: {
+    "persona_id": "58"
+}
+----------------------------------------
+[2025-06-24 13:18:14] [INFO] [Database.php:231]
+SQL: SELECT * FROM rh_person WHERE person_id = :id
+Parameters: {
+    "id": "58"
+}
+----------------------------------------

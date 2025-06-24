@@ -205,10 +205,20 @@ function cargarDatosProfesion(id) {
     },
     dataType: "json",
     success: function(respuesta) {
+      console.log("Datos recibidos para edición:", respuesta);
+      
       if (respuesta) {
         $("#idProfesion").val(respuesta.id);
         $("#editarProfesion").val(respuesta.nombre);
-        $("#editarEstadoProfesion").val(respuesta.activo);
+        
+        // Convertir cualquier tipo de valor a 1 o 0 para el select
+        let estadoValor = 0;
+        if (respuesta.activo === true || respuesta.activo === 1 || respuesta.activo === "1" || respuesta.activo === "true") {
+          estadoValor = 1;
+        }
+        
+        console.log("Estableciendo estado en select:", estadoValor);
+        $("#editarEstadoProfesion").val(estadoValor);
       }
     },
     error: function(xhr, status, error) {

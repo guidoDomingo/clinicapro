@@ -88,22 +88,17 @@ class AjaxProfesiones {
     public function ajaxCargarProfesion() {
         if(isset($_POST['idProfesion'])) {
             try {
-                // Include the necessary controller if it doesn't exist yet
-                if (!class_exists('ProfesionesModel')) {
-                    if (file_exists('../model/profesiones.model.php')) {
-                        require_once '../model/profesiones.model.php';
-                    } else {
-                        require_once 'model/profesiones.model.php';
-                    }
-                }
-
+                $idProfesion = $_POST['idProfesion'];
+                
                 $stmt = Conexion::conectar()->prepare("SELECT id, nombre, activo FROM profesiones WHERE id = :id");
-                $stmt->bindParam(":id", $_POST['idProfesion'], PDO::PARAM_INT);
+                $stmt->bindParam(":id", $idProfesion, PDO::PARAM_INT);
                 $stmt->execute();
                 
                 $profesion = $stmt->fetch(PDO::FETCH_ASSOC);
                 
                 if ($profesion) {
+                    // Asegurarse de que activo sea un número para JavaScript
+                    $profesion['activo'] = (int)$profesion['activo']; 
                     echo json_encode($profesion);
                 } else {
                     echo json_encode(['error' => 'Profesión no encontrada']);
@@ -112,7 +107,7 @@ class AjaxProfesiones {
                 echo json_encode(['error' => 'Error: ' . $e->getMessage()]);
             }
         } else {
-            echo json_encode(['error' => 'ID de profesión no especificado']);
+            echo json_encode(['error' => 'ID no proporcionado']);
         }
     }
 

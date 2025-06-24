@@ -141,8 +141,8 @@ require_once "controller/ProfesionesController.php";
           <div class="form-group">
             <label for="editarEstadoProfesion">Estado</label>
             <select id="editarEstadoProfesion" name="editarEstadoProfesion" class="form-control">
-              <option value="true">Activo</option>
-              <option value="false">Inactivo</option>
+              <option value="1">Activo</option>
+              <option value="0">Inactivo</option>
             </select>
           </div>
           <div class="modal-footer">
