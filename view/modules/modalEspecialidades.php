@@ -16,13 +16,8 @@
                     <div class="form-group">
                         <label for="modalPerProfesion">Profesión</label>
                         <select id="modalPerProfesion" name="modalPerProfesion" class="form-control">
-                            <option value="">Seleccionar...</option>
-                            <option value="Médico">Médico</option>
-                            <option value="Oftalmólogo">Oftalmólogo</option>
-                            <option value="Pediatra">Pediatra</option>
-                            <option value="Cardiólogo">Cardiólogo</option>
-                            <option value="Dermatólogo">Dermatólogo</option>
-                            <option value="Otro">Otro</option>
+                            <option value="">Seleccionar profesión...</option>
+                            <!-- Las opciones se cargarán dinámicamente desde JavaScript -->
                         </select>
                     </div>
 

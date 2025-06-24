@@ -3056,3 +3056,5 @@ function actualizarTablaConsultas() {
         initializeDataTableWithData(idPaciente);
     }
 }
+
+

@@ -73,13 +73,44 @@
                         <p>Servicios</p>
                     </a>
                 </li>
-                <li class="nav-item <?php echo mostrar_si_tiene_permiso('administrar_servicios'); ?>">
-                    <a href="index.php?ruta=rs_servicios" class="nav-link">
-                        <i class="nav-icon fas fa-briefcase-medical"></i>
-                        <p>Gestión de Servicios</p>
-                    </a>
-                </li>
+
                 <li class="nav-header">CONFIGURACIÓN</li>
+
+
+                <li class="nav-item has-treeview <?php echo mostrar_si_tiene_permiso('administrar_roles'); ?>">
+                    <a href="#" class="nav-link">
+                        <i class="nav-icon fas fa-list"></i>
+                        <p>
+                            Referenciales
+                            <i class="fas fa-angle-left right"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li style="padding-left: 20px;" class="nav-item <?php echo mostrar_si_tiene_permiso('administrar_servicios'); ?>">
+                            <a href="index.php?ruta=rs_servicios" class="nav-link">
+                                <i class="nav-icon fas fa-briefcase-medical"></i>
+                                <p>Gestión de Servicios</p>
+                            </a>
+                        </li>
+                        <li class="nav-item" style="padding-left: 20px;">
+                            <a href="index.php?ruta=referencial2" class="nav-link">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Referencial 2</p>
+                            </a>
+                        </li>
+                        <li class="nav-item" style="padding-left: 20px;">
+                            <a href="index.php?ruta=referencial3" class="nav-link">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Referencial 3</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+
+
+
+
                 <li class="nav-item <?php echo mostrar_si_tiene_permiso('administrar_roles'); ?>">
                     <a href="index.php?ruta=roles" class="nav-link">
                         <i class="nav-icon fas fa-user-tag"></i>

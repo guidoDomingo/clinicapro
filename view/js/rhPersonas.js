@@ -9,6 +9,13 @@ let tablaPersonas;
 // Inicializar componentes cuando el documento esté listo
 $(document).ready(function () {
   // Inicializar DataTable
+  $('#modalEspecialidades').on('shown.bs.modal', function() {
+      // Cargar las profesiones
+      //cargarProfesiones();
+      
+      // También puede cargar otros datos aquí, como especialidades o empresas
+  });
+
   inicializarTabla();
 
   // Cargar especialidades disponibles
@@ -16,6 +23,7 @@ $(document).ready(function () {
 
   // Cargar departamentos y ciudades
   cargarDepartamentos();
+
 
   // Inicializar Select2 para especialidades
   $("#perEspecialidades").select2({
@@ -1075,6 +1083,7 @@ function abrirModalEspecialidades() {
       // Cargar las especialidades de la persona
       cargarEspecialidadesPersonaModal(data.person_id);
 
+      cargarProfesiones();
       // Cargar datos profesionales si existen
       cargarDatosProfesionales(data.person_id);
 
@@ -1508,3 +1517,49 @@ function cargarEmpresas() {
       console.error("Error al cargar empresas:", error);
     });
 }
+
+
+/*SE OBTIENE DINAMICAMENTE LAS PROFESIONES*/
+// Cargar profesiones en el select
+
+/**
+ * Carga las profesiones disponibles desde el servidor
+ */
+function cargarProfesiones() {
+    console.log("Iniciando carga de profesiones...");
+    
+    $.ajax({
+        url: "ajax/profesiones.ajax.php",
+        method: "POST",
+        data: {
+            accion: "listar"
+        },
+        dataType: "json",
+        success: function(respuesta) {
+            console.log("Profesiones cargadas correctamente:", respuesta);
+            
+            // Limpiar el select
+            $('#modalPerProfesion').empty();
+            
+            // Agregar la opción predeterminada
+            $('#modalPerProfesion').append('<option value="">Seleccionar profesión...</option>');
+            
+            // Si hay profesiones, cargarlas
+            if (Array.isArray(respuesta)) {
+                respuesta.forEach(function(profesion) {
+                    $('#modalPerProfesion').append('<option value="' + profesion.nombre + '">' + profesion.nombre + '</option>');
+                });
+            } else {
+                // Si no hay datos, cargar opciones predeterminadas
+                console.log("No se recibieron datos de profesiones, usando valores predeterminados");
+            }
+            
+        },
+        error: function(xhr, status, error) {
+            console.error("Error al cargar profesiones:", error);
+            console.log("Respuesta del servidor:", xhr.responseText);
+          
+        }
+    });
+}
+
