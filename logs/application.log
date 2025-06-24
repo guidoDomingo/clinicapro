@@ -459,3 +459,9 @@ Data: {
 [2025-06-24 09:32:16] [INFO] [RhPersonController.php:566] 
 Data: Eliminado registro de médico para la persona ID 58
 ----------------------------------------
+[2025-06-24 13:45:03] [INFO] [RhPersonController.php:550] 
+Data: Agregado nuevo registro de médico para la persona ID 58 con empresa ID 4
+----------------------------------------
+[2025-06-24 13:45:13] [INFO] [RhPersonController.php:566] 
+Data: Eliminado registro de médico para la persona ID 58
+----------------------------------------
