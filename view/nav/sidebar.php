@@ -95,11 +95,16 @@
                                 <i class="nav-icon fas fa-user-md"></i>
                                 <p>Gestión de Profesiones</p>
                             </a>
-                        </li>
-                        <li style="padding-left: 20px;" class="nav-item <?php echo mostrar_si_tiene_permiso('administrar_especialidades'); ?>">
+                        </li>                        <li style="padding-left: 20px;" class="nav-item <?php echo mostrar_si_tiene_permiso('administrar_especialidades'); ?>">
                             <a href="index.php?ruta=especialidades" class="nav-link">
                                 <i class="nav-icon fas fa-stethoscope"></i>
                                 <p>Gestión de Especialidades</p>
+                            </a>
+                        </li>
+                        <li style="padding-left: 20px;" class="nav-item <?php echo mostrar_si_tiene_permiso('administrar_motivos'); ?>">
+                            <a href="index.php?ruta=motivos" class="nav-link">
+                                <i class="nav-icon fas fa-clipboard-list"></i>
+                                <p>Motivos Comunes</p>
                             </a>
                         </li>
                         <li class="nav-item" style="padding-left: 20px;">

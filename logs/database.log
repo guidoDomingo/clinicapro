@@ -11651,3 +11651,533 @@ Parameters: {
     "id": "58"
 }
 ----------------------------------------
+[2025-06-24 13:57:40] [INFO] [Database.php:219]
+SQL: SELECT * FROM especialidades WHERE activo = :value
+Parameters: {
+    "value": true
+}
+----------------------------------------
+[2025-06-24 13:57:41] [INFO] [Model.php:175]
+SQL: SELECT * FROM rh_person ORDER BY person_id DESC LIMIT :limit OFFSET :offset
+Parameters: {
+    "limit": 10,
+    "offset": 0
+}
+----------------------------------------
+[2025-06-24 13:57:41] [INFO] [Model.php:175]
+SQL: SELECT COUNT(*) as total FROM rh_person
+----------------------------------------
+[2025-06-24 13:58:15] [INFO] [Model.php:175]
+SQL: SELECT u.*, r.reg_name, r.reg_lastname, r.reg_email, r.reg_document, ARRAY_AGG(DISTINCT jsonb_build_object('role_id', ro.role_id, 'role_name', ro.role_name)) FILTER (WHERE ro.role_id IS NOT NULL) as roles FROM sys_users u JOIN sys_register r ON u.reg_id = r.reg_id LEFT JOIN sys_user_roles ur ON u.user_id = ur.user_id LEFT JOIN sys_roles ro ON ur.role_id = ro.role_id GROUP BY u.user_id, r.reg_name, r.reg_lastname, r.reg_email, r.reg_document ORDER BY u.user_id DESC LIMIT :limit OFFSET :offset
+Parameters: {
+    "limit": 10,
+    "offset": 0
+}
+----------------------------------------
+[2025-06-24 13:58:15] [INFO] [Model.php:175]
+SQL: SELECT COUNT(*) as total FROM sys_users
+----------------------------------------
+[2025-06-24 13:58:15] [INFO] [Model.php:175]
+SQL: SELECT r.*, 
+                       array_agg(DISTINCT p.perm_id) as permission_ids,
+                       array_agg(DISTINCT p.perm_name) as permission_names
+                FROM sys_roles r
+                LEFT JOIN sys_role_permissions rp ON r.role_id = rp.role_id
+                LEFT JOIN sys_permissions p ON rp.perm_id = p.perm_id
+                GROUP BY r.role_id, r.role_name, r.role_description
+                ORDER BY r.role_id
+----------------------------------------
+[2025-06-24 13:58:15] [INFO] [Model.php:175]
+SQL: SELECT p.*, 
+                       array_agg(DISTINCT r.role_id) as role_ids,
+                       array_agg(DISTINCT r.role_name) as role_names
+                FROM sys_permissions p
+                LEFT JOIN sys_role_permissions rp ON p.perm_id = rp.perm_id
+                LEFT JOIN sys_roles r ON rp.role_id = r.role_id
+                GROUP BY p.perm_id, p.perm_name, p.perm_description
+                ORDER BY p.perm_id
+----------------------------------------
+[2025-06-24 13:58:15] [INFO] [Model.php:175]
+SQL: SELECT p.*, 
+                       array_agg(DISTINCT r.role_id) as role_ids,
+                       array_agg(DISTINCT r.role_name) as role_names
+                FROM sys_permissions p
+                LEFT JOIN sys_role_permissions rp ON p.perm_id = rp.perm_id
+                LEFT JOIN sys_roles r ON rp.role_id = r.role_id
+                GROUP BY p.perm_id, p.perm_name, p.perm_description
+                ORDER BY p.perm_id
+----------------------------------------
+[2025-06-24 13:58:15] [INFO] [Database.php:231]
+SQL: SELECT * FROM sys_users WHERE user_id = :id
+Parameters: {
+    "id": 10
+}
+----------------------------------------
+[2025-06-24 13:58:15] [INFO] [Model.php:175]
+SQL: SELECT r.* FROM sys_roles r JOIN sys_user_roles ur ON r.role_id = ur.role_id WHERE ur.user_id = :userId
+Parameters: {
+    "userId": 10
+}
+----------------------------------------
+[2025-06-24 13:58:15] [INFO] [Database.php:231]
+SQL: SELECT * FROM sys_users WHERE user_id = :id
+Parameters: {
+    "id": 9
+}
+----------------------------------------
+[2025-06-24 13:58:15] [INFO] [Model.php:175]
+SQL: SELECT r.* FROM sys_roles r JOIN sys_user_roles ur ON r.role_id = ur.role_id WHERE ur.user_id = :userId
+Parameters: {
+    "userId": 9
+}
+----------------------------------------
+[2025-06-24 13:58:15] [INFO] [Database.php:231]
+SQL: SELECT * FROM sys_users WHERE user_id = :id
+Parameters: {
+    "id": 8
+}
+----------------------------------------
+[2025-06-24 13:58:15] [INFO] [Model.php:175]
+SQL: SELECT r.* FROM sys_roles r JOIN sys_user_roles ur ON r.role_id = ur.role_id WHERE ur.user_id = :userId
+Parameters: {
+    "userId": 8
+}
+----------------------------------------
+[2025-06-24 13:58:15] [INFO] [Database.php:231]
+SQL: SELECT * FROM sys_users WHERE user_id = :id
+Parameters: {
+    "id": 7
+}
+----------------------------------------
+[2025-06-24 13:58:15] [INFO] [Model.php:175]
+SQL: SELECT r.* FROM sys_roles r JOIN sys_user_roles ur ON r.role_id = ur.role_id WHERE ur.user_id = :userId
+Parameters: {
+    "userId": 7
+}
+----------------------------------------
+[2025-06-24 13:58:15] [INFO] [Database.php:231]
+SQL: SELECT * FROM sys_users WHERE user_id = :id
+Parameters: {
+    "id": 6
+}
+----------------------------------------
+[2025-06-24 13:58:15] [INFO] [Model.php:175]
+SQL: SELECT r.* FROM sys_roles r JOIN sys_user_roles ur ON r.role_id = ur.role_id WHERE ur.user_id = :userId
+Parameters: {
+    "userId": 6
+}
+----------------------------------------
+[2025-06-24 13:58:15] [INFO] [Database.php:231]
+SQL: SELECT * FROM sys_users WHERE user_id = :id
+Parameters: {
+    "id": 5
+}
+----------------------------------------
+[2025-06-24 13:58:16] [INFO] [Model.php:175]
+SQL: SELECT r.* FROM sys_roles r JOIN sys_user_roles ur ON r.role_id = ur.role_id WHERE ur.user_id = :userId
+Parameters: {
+    "userId": 5
+}
+----------------------------------------
+[2025-06-24 13:58:16] [INFO] [Database.php:231]
+SQL: SELECT * FROM sys_users WHERE user_id = :id
+Parameters: {
+    "id": 4
+}
+----------------------------------------
+[2025-06-24 13:58:16] [INFO] [Model.php:175]
+SQL: SELECT r.* FROM sys_roles r JOIN sys_user_roles ur ON r.role_id = ur.role_id WHERE ur.user_id = :userId
+Parameters: {
+    "userId": 4
+}
+----------------------------------------
+[2025-06-24 13:58:16] [INFO] [Database.php:231]
+SQL: SELECT * FROM sys_users WHERE user_id = :id
+Parameters: {
+    "id": 3
+}
+----------------------------------------
+[2025-06-24 13:58:16] [INFO] [Model.php:175]
+SQL: SELECT r.* FROM sys_roles r JOIN sys_user_roles ur ON r.role_id = ur.role_id WHERE ur.user_id = :userId
+Parameters: {
+    "userId": 3
+}
+----------------------------------------
+[2025-06-24 13:58:16] [INFO] [Database.php:231]
+SQL: SELECT * FROM sys_users WHERE user_id = :id
+Parameters: {
+    "id": 2
+}
+----------------------------------------
+[2025-06-24 13:58:16] [INFO] [Model.php:175]
+SQL: SELECT r.* FROM sys_roles r JOIN sys_user_roles ur ON r.role_id = ur.role_id WHERE ur.user_id = :userId
+Parameters: {
+    "userId": 2
+}
+----------------------------------------
+[2025-06-24 13:58:16] [INFO] [Database.php:231]
+SQL: SELECT * FROM sys_users WHERE user_id = :id
+Parameters: {
+    "id": 1
+}
+----------------------------------------
+[2025-06-24 13:58:16] [INFO] [Model.php:175]
+SQL: SELECT r.* FROM sys_roles r JOIN sys_user_roles ur ON r.role_id = ur.role_id WHERE ur.user_id = :userId
+Parameters: {
+    "userId": 1
+}
+----------------------------------------
+[2025-06-24 13:58:21] [INFO] [Model::create]
+Table: sys_permissions
+Original Data: {
+    "perm_name": "administrar_motivos",
+    "perm_description": "administrar_motivos"
+}
+Filtered Data: {
+    "perm_name": "administrar_motivos",
+    "perm_description": "administrar_motivos"
+}
+Excluded Data: []
+----------------------------------------
+[2025-06-24 13:58:21] [INFO] [Model.php:110]
+SQL: INSERT INTO sys_permissions (perm_name, perm_description) VALUES (:perm_name, :perm_description)
+Parameters: {
+    "perm_name": "administrar_motivos",
+    "perm_description": "administrar_motivos"
+}
+----------------------------------------
+[2025-06-24 13:58:21] [INFO] [Database.php:255]
+SQL: INSERT INTO sys_permissions (perm_name, perm_description) VALUES (:perm_name, :perm_description)
+Parameters: {
+    "perm_name": "administrar_motivos",
+    "perm_description": "administrar_motivos"
+}
+----------------------------------------
+[2025-06-24 13:58:21] [INFO] [Model.php:175]
+SQL: SELECT p.*, 
+                       array_agg(DISTINCT r.role_id) as role_ids,
+                       array_agg(DISTINCT r.role_name) as role_names
+                FROM sys_permissions p
+                LEFT JOIN sys_role_permissions rp ON p.perm_id = rp.perm_id
+                LEFT JOIN sys_roles r ON rp.role_id = r.role_id
+                WHERE p.perm_id = :permId
+                GROUP BY p.perm_id, p.perm_name, p.perm_description
+Parameters: {
+    "permId": "28"
+}
+----------------------------------------
+[2025-06-24 13:58:21] [INFO] [Model.php:175]
+SQL: SELECT p.*, 
+                       array_agg(DISTINCT r.role_id) as role_ids,
+                       array_agg(DISTINCT r.role_name) as role_names
+                FROM sys_permissions p
+                LEFT JOIN sys_role_permissions rp ON p.perm_id = rp.perm_id
+                LEFT JOIN sys_roles r ON rp.role_id = r.role_id
+                GROUP BY p.perm_id, p.perm_name, p.perm_description
+                ORDER BY p.perm_id
+----------------------------------------
+[2025-06-24 13:58:21] [INFO] [Model.php:175]
+SQL: SELECT p.*, 
+                       array_agg(DISTINCT r.role_id) as role_ids,
+                       array_agg(DISTINCT r.role_name) as role_names
+                FROM sys_permissions p
+                LEFT JOIN sys_role_permissions rp ON p.perm_id = rp.perm_id
+                LEFT JOIN sys_roles r ON rp.role_id = r.role_id
+                GROUP BY p.perm_id, p.perm_name, p.perm_description
+                ORDER BY p.perm_id
+----------------------------------------
+[2025-06-24 13:58:24] [INFO] [Model.php:175]
+SQL: SELECT r.*, 
+                       array_agg(DISTINCT p.perm_id) as permission_ids,
+                       array_agg(DISTINCT p.perm_name) as permission_names
+                FROM sys_roles r
+                LEFT JOIN sys_role_permissions rp ON r.role_id = rp.role_id
+                LEFT JOIN sys_permissions p ON rp.perm_id = p.perm_id
+                WHERE r.role_id = :roleId
+                GROUP BY r.role_id, r.role_name, r.role_description
+Parameters: {
+    "roleId": "16"
+}
+----------------------------------------
+[2025-06-24 13:58:28] [INFO] [Model.php:143]
+SQL: UPDATE sys_roles SET role_name = :role_name, role_description = :role_description WHERE role_id = :id
+Parameters: {
+    "role_name": "admin",
+    "role_description": "super usuario",
+    "id": "16"
+}
+----------------------------------------
+[2025-06-24 13:58:28] [INFO] [Database.php:281]
+SQL: UPDATE sys_roles SET role_name = :role_name, role_description = :role_description WHERE role_id = :id
+Parameters: {
+    "role_name": "admin",
+    "role_description": "super usuario",
+    "id": "16"
+}
+----------------------------------------
+[2025-06-24 13:58:28] [INFO] [Model.php:175]
+SQL: DELETE FROM sys_role_permissions WHERE role_id = :roleId
+Parameters: {
+    "roleId": "16"
+}
+----------------------------------------
+[2025-06-24 13:58:28] [INFO] [Model.php:175]
+SQL: INSERT INTO sys_role_permissions (role_id, perm_id) VALUES (:roleId, :permId)
+Parameters: {
+    "roleId": "16",
+    "permId": "9"
+}
+----------------------------------------
+[2025-06-24 13:58:28] [INFO] [Model.php:175]
+SQL: INSERT INTO sys_role_permissions (role_id, perm_id) VALUES (:roleId, :permId)
+Parameters: {
+    "roleId": "16",
+    "permId": "10"
+}
+----------------------------------------
+[2025-06-24 13:58:28] [INFO] [Model.php:175]
+SQL: INSERT INTO sys_role_permissions (role_id, perm_id) VALUES (:roleId, :permId)
+Parameters: {
+    "roleId": "16",
+    "permId": "11"
+}
+----------------------------------------
+[2025-06-24 13:58:28] [INFO] [Model.php:175]
+SQL: INSERT INTO sys_role_permissions (role_id, perm_id) VALUES (:roleId, :permId)
+Parameters: {
+    "roleId": "16",
+    "permId": "15"
+}
+----------------------------------------
+[2025-06-24 13:58:28] [INFO] [Model.php:175]
+SQL: INSERT INTO sys_role_permissions (role_id, perm_id) VALUES (:roleId, :permId)
+Parameters: {
+    "roleId": "16",
+    "permId": "19"
+}
+----------------------------------------
+[2025-06-24 13:58:28] [INFO] [Model.php:175]
+SQL: INSERT INTO sys_role_permissions (role_id, perm_id) VALUES (:roleId, :permId)
+Parameters: {
+    "roleId": "16",
+    "permId": "23"
+}
+----------------------------------------
+[2025-06-24 13:58:28] [INFO] [Model.php:175]
+SQL: INSERT INTO sys_role_permissions (role_id, perm_id) VALUES (:roleId, :permId)
+Parameters: {
+    "roleId": "16",
+    "permId": "24"
+}
+----------------------------------------
+[2025-06-24 13:58:28] [INFO] [Model.php:175]
+SQL: INSERT INTO sys_role_permissions (role_id, perm_id) VALUES (:roleId, :permId)
+Parameters: {
+    "roleId": "16",
+    "permId": "25"
+}
+----------------------------------------
+[2025-06-24 13:58:28] [INFO] [Model.php:175]
+SQL: INSERT INTO sys_role_permissions (role_id, perm_id) VALUES (:roleId, :permId)
+Parameters: {
+    "roleId": "16",
+    "permId": "26"
+}
+----------------------------------------
+[2025-06-24 13:58:28] [INFO] [Model.php:175]
+SQL: INSERT INTO sys_role_permissions (role_id, perm_id) VALUES (:roleId, :permId)
+Parameters: {
+    "roleId": "16",
+    "permId": "27"
+}
+----------------------------------------
+[2025-06-24 13:58:28] [INFO] [Model.php:175]
+SQL: INSERT INTO sys_role_permissions (role_id, perm_id) VALUES (:roleId, :permId)
+Parameters: {
+    "roleId": "16",
+    "permId": "28"
+}
+----------------------------------------
+[2025-06-24 13:58:28] [INFO] [Model.php:175]
+SQL: SELECT r.*, 
+                       array_agg(DISTINCT p.perm_id) as permission_ids,
+                       array_agg(DISTINCT p.perm_name) as permission_names
+                FROM sys_roles r
+                LEFT JOIN sys_role_permissions rp ON r.role_id = rp.role_id
+                LEFT JOIN sys_permissions p ON rp.perm_id = p.perm_id
+                WHERE r.role_id = :roleId
+                GROUP BY r.role_id, r.role_name, r.role_description
+Parameters: {
+    "roleId": "16"
+}
+----------------------------------------
+[2025-06-24 13:58:28] [INFO] [Model.php:175]
+SQL: SELECT r.*, 
+                       array_agg(DISTINCT p.perm_id) as permission_ids,
+                       array_agg(DISTINCT p.perm_name) as permission_names
+                FROM sys_roles r
+                LEFT JOIN sys_role_permissions rp ON r.role_id = rp.role_id
+                LEFT JOIN sys_permissions p ON rp.perm_id = p.perm_id
+                GROUP BY r.role_id, r.role_name, r.role_description
+                ORDER BY r.role_id
+----------------------------------------
+[2025-06-24 13:58:32] [INFO] [Model.php:175]
+SQL: SELECT u.*, r.reg_name, r.reg_lastname, r.reg_email, r.reg_document, ARRAY_AGG(DISTINCT jsonb_build_object('role_id', ro.role_id, 'role_name', ro.role_name)) FILTER (WHERE ro.role_id IS NOT NULL) as roles FROM sys_users u JOIN sys_register r ON u.reg_id = r.reg_id LEFT JOIN sys_user_roles ur ON u.user_id = ur.user_id LEFT JOIN sys_roles ro ON ur.role_id = ro.role_id GROUP BY u.user_id, r.reg_name, r.reg_lastname, r.reg_email, r.reg_document ORDER BY u.user_id DESC LIMIT :limit OFFSET :offset
+Parameters: {
+    "limit": 10,
+    "offset": 0
+}
+----------------------------------------
+[2025-06-24 13:58:32] [INFO] [Model.php:175]
+SQL: SELECT COUNT(*) as total FROM sys_users
+----------------------------------------
+[2025-06-24 13:58:32] [INFO] [Model.php:175]
+SQL: SELECT r.*, 
+                       array_agg(DISTINCT p.perm_id) as permission_ids,
+                       array_agg(DISTINCT p.perm_name) as permission_names
+                FROM sys_roles r
+                LEFT JOIN sys_role_permissions rp ON r.role_id = rp.role_id
+                LEFT JOIN sys_permissions p ON rp.perm_id = p.perm_id
+                GROUP BY r.role_id, r.role_name, r.role_description
+                ORDER BY r.role_id
+----------------------------------------
+[2025-06-24 13:58:32] [INFO] [Model.php:175]
+SQL: SELECT p.*, 
+                       array_agg(DISTINCT r.role_id) as role_ids,
+                       array_agg(DISTINCT r.role_name) as role_names
+                FROM sys_permissions p
+                LEFT JOIN sys_role_permissions rp ON p.perm_id = rp.perm_id
+                LEFT JOIN sys_roles r ON rp.role_id = r.role_id
+                GROUP BY p.perm_id, p.perm_name, p.perm_description
+                ORDER BY p.perm_id
+----------------------------------------
+[2025-06-24 13:58:32] [INFO] [Model.php:175]
+SQL: SELECT p.*, 
+                       array_agg(DISTINCT r.role_id) as role_ids,
+                       array_agg(DISTINCT r.role_name) as role_names
+                FROM sys_permissions p
+                LEFT JOIN sys_role_permissions rp ON p.perm_id = rp.perm_id
+                LEFT JOIN sys_roles r ON rp.role_id = r.role_id
+                GROUP BY p.perm_id, p.perm_name, p.perm_description
+                ORDER BY p.perm_id
+----------------------------------------
+[2025-06-24 13:58:32] [INFO] [Database.php:231]
+SQL: SELECT * FROM sys_users WHERE user_id = :id
+Parameters: {
+    "id": 10
+}
+----------------------------------------
+[2025-06-24 13:58:32] [INFO] [Model.php:175]
+SQL: SELECT r.* FROM sys_roles r JOIN sys_user_roles ur ON r.role_id = ur.role_id WHERE ur.user_id = :userId
+Parameters: {
+    "userId": 10
+}
+----------------------------------------
+[2025-06-24 13:58:32] [INFO] [Database.php:231]
+SQL: SELECT * FROM sys_users WHERE user_id = :id
+Parameters: {
+    "id": 9
+}
+----------------------------------------
+[2025-06-24 13:58:32] [INFO] [Model.php:175]
+SQL: SELECT r.* FROM sys_roles r JOIN sys_user_roles ur ON r.role_id = ur.role_id WHERE ur.user_id = :userId
+Parameters: {
+    "userId": 9
+}
+----------------------------------------
+[2025-06-24 13:58:32] [INFO] [Database.php:231]
+SQL: SELECT * FROM sys_users WHERE user_id = :id
+Parameters: {
+    "id": 8
+}
+----------------------------------------
+[2025-06-24 13:58:32] [INFO] [Model.php:175]
+SQL: SELECT r.* FROM sys_roles r JOIN sys_user_roles ur ON r.role_id = ur.role_id WHERE ur.user_id = :userId
+Parameters: {
+    "userId": 8
+}
+----------------------------------------
+[2025-06-24 13:58:32] [INFO] [Database.php:231]
+SQL: SELECT * FROM sys_users WHERE user_id = :id
+Parameters: {
+    "id": 7
+}
+----------------------------------------
+[2025-06-24 13:58:32] [INFO] [Model.php:175]
+SQL: SELECT r.* FROM sys_roles r JOIN sys_user_roles ur ON r.role_id = ur.role_id WHERE ur.user_id = :userId
+Parameters: {
+    "userId": 7
+}
+----------------------------------------
+[2025-06-24 13:58:32] [INFO] [Database.php:231]
+SQL: SELECT * FROM sys_users WHERE user_id = :id
+Parameters: {
+    "id": 6
+}
+----------------------------------------
+[2025-06-24 13:58:32] [INFO] [Model.php:175]
+SQL: SELECT r.* FROM sys_roles r JOIN sys_user_roles ur ON r.role_id = ur.role_id WHERE ur.user_id = :userId
+Parameters: {
+    "userId": 6
+}
+----------------------------------------
+[2025-06-24 13:58:32] [INFO] [Database.php:231]
+SQL: SELECT * FROM sys_users WHERE user_id = :id
+Parameters: {
+    "id": 5
+}
+----------------------------------------
+[2025-06-24 13:58:32] [INFO] [Model.php:175]
+SQL: SELECT r.* FROM sys_roles r JOIN sys_user_roles ur ON r.role_id = ur.role_id WHERE ur.user_id = :userId
+Parameters: {
+    "userId": 5
+}
+----------------------------------------
+[2025-06-24 13:58:32] [INFO] [Database.php:231]
+SQL: SELECT * FROM sys_users WHERE user_id = :id
+Parameters: {
+    "id": 4
+}
+----------------------------------------
+[2025-06-24 13:58:32] [INFO] [Model.php:175]
+SQL: SELECT r.* FROM sys_roles r JOIN sys_user_roles ur ON r.role_id = ur.role_id WHERE ur.user_id = :userId
+Parameters: {
+    "userId": 4
+}
+----------------------------------------
+[2025-06-24 13:58:32] [INFO] [Database.php:231]
+SQL: SELECT * FROM sys_users WHERE user_id = :id
+Parameters: {
+    "id": 3
+}
+----------------------------------------
+[2025-06-24 13:58:32] [INFO] [Model.php:175]
+SQL: SELECT r.* FROM sys_roles r JOIN sys_user_roles ur ON r.role_id = ur.role_id WHERE ur.user_id = :userId
+Parameters: {
+    "userId": 3
+}
+----------------------------------------
+[2025-06-24 13:58:32] [INFO] [Database.php:231]
+SQL: SELECT * FROM sys_users WHERE user_id = :id
+Parameters: {
+    "id": 2
+}
+----------------------------------------
+[2025-06-24 13:58:32] [INFO] [Model.php:175]
+SQL: SELECT r.* FROM sys_roles r JOIN sys_user_roles ur ON r.role_id = ur.role_id WHERE ur.user_id = :userId
+Parameters: {
+    "userId": 2
+}
+----------------------------------------
+[2025-06-24 13:58:32] [INFO] [Database.php:231]
+SQL: SELECT * FROM sys_users WHERE user_id = :id
+Parameters: {
+    "id": 1
+}
+----------------------------------------
+[2025-06-24 13:58:32] [INFO] [Model.php:175]
+SQL: SELECT r.* FROM sys_roles r JOIN sys_user_roles ur ON r.role_id = ur.role_id WHERE ur.user_id = :userId
+Parameters: {
+    "userId": 1
+}
+----------------------------------------
