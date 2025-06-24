@@ -468,3 +468,6 @@ Data: Eliminado registro de médico para la persona ID 58
 [2025-06-24 14:26:35] [INFO] [RhPersonController.php:550] 
 Data: Agregado nuevo registro de médico para la persona ID 58 con empresa ID 2
 ----------------------------------------
+[2025-06-24 15:24:43] [INFO] [RhPersonController.php:138] {"document_number":"741852","birth_date":"1995-08-04","first_name":"mario","last_name":"ferreira","phone_number":"0982313358","gender":"M","record_number":"555555555555","address":"Lambare","email":"mario@mario.com","department_id":11,"city_id":458,"is_minor":false,"guardian_name":null,"guardian_document":null,"is_active":true,"created_at":"2025-06-24 15:24:43"}
+Data: Creating person
+----------------------------------------

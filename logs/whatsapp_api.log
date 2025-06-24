@@ -93,3 +93,22 @@ Enviando WhatsApp a 595982313358: 👋 Hola Sr/a guido - benitez
     [destinatario] => 595982313358@c.us
     [id_mensaje] => true_595982313358@c.us_3EB05357E6A9857B86A303
 )
+Enviando WhatsApp a 595982313358: 👋 Hola Sr/a mario - ferreira
+
+📅 Su turno mé...Respuesta API WhatsApp: Array
+(
+    [estado] => success
+    [mensaje] => 👋 Hola Sr/a mario - ferreira
+
+📅 Su turno médico está agendado para:
+📆 Fecha: 24/06/2025
+🕒 Hora: 20:00:00
+👨‍⚕️ Médico: Antonio - Galeano
+
+🚶‍♂️ Por favor, llegue 10 minutos antes de su cita.
+✅ Responda este mensaje si desea confirmar o reprogramar.
+
+🙏 ¡Gracias!
+    [destinatario] => 595982313358@c.us
+    [id_mensaje] => true_595982313358@c.us_3EB00EC35621519344EDE4
+)

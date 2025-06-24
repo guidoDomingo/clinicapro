@@ -48,6 +48,12 @@ document.addEventListener('DOMContentLoaded', function() {
         btnEnviarWhatsApp.addEventListener('click', enviarPDFPorWhatsApp);
     }
     
+    // Event listener para el botón de confirmación de envío por WhatsApp desde el modal
+    const btnConfirmarEnvioWhatsApp = document.getElementById('btnConfirmarEnvioWhatsApp');
+    if (btnConfirmarEnvioWhatsApp) {
+        btnConfirmarEnvioWhatsApp.addEventListener('click', enviarPDFWhatsAppDesdeModal);
+    }
+    
     // Inicializar tabla de consultas
     inicializarTablaConsultas();
     
@@ -2759,20 +2765,47 @@ function descargarPDFConsulta() {
         dataType: 'json',
         success: function(response) {
             Swal.close();
-            
-            if (response.success) {
-                // Mostrar mensaje de éxito
+              if (response.success) {
+                // Mostrar mensaje de éxito con opción de WhatsApp
                 Swal.fire({
                     position: "center",
                     icon: "success",
                     title: "PDF subido exitosamente",
                     text: "El archivo PDF ha sido subido al servidor FTP",
                     showConfirmButton: true,
-                    confirmButtonText: "Abrir PDF"
+                    confirmButtonText: "Abrir PDF",
+                    showDenyButton: true,
+                    denyButtonText: "Enviar por WhatsApp"
                 }).then((result) => {
                     if (result.isConfirmed) {
                         // Abrir el PDF en una nueva pestaña
                         window.open(response.url, '_blank');
+                    } else if (result.isDenied) {
+                        // Guardar la URL del PDF y abrir el modal de WhatsApp
+                        document.getElementById('pdfUrlWhatsApp').value = response.url;
+                        document.getElementById('pdfFileName').value = response.filename;
+                        
+                        // Si hay un teléfono disponible en el formulario de persona, prellenarlo
+                        const phoneInput = document.getElementById('perPhone');
+                        const whatsAppInput = document.getElementById('whatsAppNumber');
+                        
+                        if (phoneInput && phoneInput.value && whatsAppInput) {
+                            // Eliminar espacios y guiones del número telefónico
+                            let phoneNumber = phoneInput.value.replace(/[\s-]/g, '');
+                            
+                            // Si no tiene código de país, agregar el código de Paraguay por defecto
+                            if (!phoneNumber.startsWith('595')) {
+                                // Eliminar el 0 inicial si existe
+                                if (phoneNumber.startsWith('0')) {
+                                    phoneNumber = phoneNumber.substring(1);
+                                }
+                                phoneNumber = '595' + phoneNumber;
+                            }
+                            
+                            whatsAppInput.value = phoneNumber;
+                        }
+                        
+                        $('#modalEnviarWhatsApp').modal('show');
                     }
                 });
             } else {
@@ -3037,24 +3070,98 @@ window.testParametrosURL = function(pacienteId, reservaId) {
     procesarParametrosURL();
 };
 
-function actualizarTablaConsultas() {
-    console.log('Actualizando tabla de consultas...');
+/**
+ * Función para enviar el PDF por WhatsApp desde el modal
+ */
+function enviarPDFWhatsAppDesdeModal() {
+    const whatsAppNumber = document.getElementById('whatsAppNumber').value.trim();
+    const pdfUrl = document.getElementById('pdfUrlWhatsApp').value;
     
-    if (window.tablaConsultasInstance && $.fn.DataTable.isDataTable('#tabla-consultas')) {
-        // Guardar la página actual antes de recargar
-        const currentPage = window.tablaConsultasInstance.page();
-        
-        // Recargar manteniendo la página actual 
-        window.tablaConsultasInstance.ajax.reload(function() {
-            // Volver a la misma página si existía
-            if (currentPage !== undefined) {
-                window.tablaConsultasInstance.page(currentPage).draw('page');
-            }
-        }, false); // false = no resetear paginación
-    } else {
-        const idPaciente = $('#id_persona').val() || null;
-        initializeDataTableWithData(idPaciente);
+    // Validar número de WhatsApp
+    if (!whatsAppNumber) {
+        Swal.fire({
+            position: "center",
+            icon: "warning",
+            title: "Número de WhatsApp requerido",
+            text: "Por favor ingrese un número de WhatsApp válido",
+            showConfirmButton: true
+        });
+        return;
     }
+    
+    // Mostrar indicador de carga
+    Swal.fire({
+        title: 'Enviando PDF...',
+        text: 'Enviando documento por WhatsApp, por favor espere',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+    
+    // Crear un objeto con las credenciales para Basic Auth
+    const username = 'admin';
+    const password = '1234';
+      // Enviar el PDF por WhatsApp usando nuestro proxy para evitar problemas de CORS
+    $.ajax({
+        type: 'POST',
+        url: 'proxy_whatsapp.php',
+        data: {
+            telefono: whatsAppNumber,
+            mediaUrl: pdfUrl
+        },
+        // No necesitamos configurar Basic Auth aquí porque el proxy lo maneja
+        dataType: 'json',
+        success: function(response) {
+            Swal.close();
+            // Cerrar el modal de WhatsApp
+            $('#modalEnviarWhatsApp').modal('hide');
+            
+            // Mostrar mensaje de éxito
+            Swal.fire({
+                position: "center",
+                icon: "success",
+                title: "PDF enviado exitosamente",
+                text: "El PDF ha sido enviado por WhatsApp al número " + whatsAppNumber,
+                showConfirmButton: true
+            });
+            
+            console.log('Respuesta del servidor WhatsApp:', response);
+        },        error: function(xhr, status, error) {
+            Swal.close();
+            
+            // Intentar analizar la respuesta como JSON para obtener más detalles
+            let errorDetails = "Ocurrió un error al enviar el PDF por WhatsApp.";
+            try {
+                if (xhr.responseText) {
+                    const errorResponse = JSON.parse(xhr.responseText);
+                    if (errorResponse.error) {
+                        errorDetails = errorResponse.error;
+                    }
+                }
+            } catch (e) {
+                // Si no es JSON, usar el texto plano de la respuesta
+                if (xhr.responseText) {
+                    errorDetails += " " + xhr.responseText;
+                }
+            }
+            
+            // Mostrar mensaje de error
+            Swal.fire({
+                position: "center",
+                icon: "error",
+                title: "Error al enviar el PDF",
+                text: errorDetails,
+                showConfirmButton: true
+            });
+            
+            // Registrar información detallada en la consola
+            console.error("Error al enviar PDF por WhatsApp:", error);
+            console.error("Estado de la petición:", status);
+            console.error("Respuesta del servidor:", xhr.responseText);
+            console.error("Código de estado HTTP:", xhr.status);
+        }
+    });
 }
 
 

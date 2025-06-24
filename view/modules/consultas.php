@@ -237,6 +237,37 @@
         </div>    </div>
 </div>
 
+<!-- Modal Enviar PDF por WhatsApp -->
+<div class="modal fade" id="modalEnviarWhatsApp" tabindex="-1" role="dialog"
+    aria-labelledby="modalEnviarWhatsAppLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalEnviarWhatsAppLabel">Enviar PDF por WhatsApp</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="whatsAppForm">
+                    <input type="hidden" id="pdfUrlWhatsApp">
+                    <input type="hidden" id="pdfFileName">
+                    
+                    <div class="form-group">
+                        <label for="whatsAppNumber">Número de WhatsApp (con código de país)</label>
+                        <input type="text" class="form-control" id="whatsAppNumber" placeholder="Ejemplo: 595982313358" required>
+                        <small class="form-text text-muted">Ingrese el número con código de país sin el signo +</small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" id="btnConfirmarEnvioWhatsApp">Enviar PDF</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Scripts para la funcionalidad del módulo de consultas -->
 <!-- <script src="view/js/icd11-client.js"></script> -->
 <script src="view/js/icd11-integration.js"></script>
