@@ -1367,20 +1367,8 @@ function inicializarReservasNew() {
                                 confirmButtonText: 'Aceptar'
                             }).then(() => {
                                 // Reset form and refresh data
-                                limpiarFormularioReserva();
-
-                                // Recargar las reservas por fecha
-                                const fechaActual = $('#fechaReservaNew').val();
-                                if (fechaActual) {
-                                    cargarReservasPorFecha(fechaActual);
-                                }
-
-                                // Reload reservations if we're showing them (for other tabs)
-                                if (typeof cargarReservas === 'function') {
-                                    cargarReservas();
-                                }
-
-                                //quiero recargar la pagina una vez que se guarde la reserva
+                                limpiarFormularioReserva();                                // Recargar la página para reflejar todos los cambios correctamente
+                                // Evitamos cargar las reservas y luego recargar la página, lo que causa el error DataTables
                                 setTimeout(function () {
                                     location.reload();
                                 }, 1000);
@@ -2189,20 +2177,30 @@ function procesarParametrosURLPaciente() {
    /**
      * Cargar reservas por fecha seleccionada 
      * @param {string} fecha - Fecha en formato YYYY-MM-DD
-     */
-    function cargarReservasPorFecha(fecha) {
+     */    function cargarReservasPorFecha(fecha) {
         console.log('Cargando reservas para la fecha:', fecha);
+        
+        // Verificar que la tabla exista en el DOM antes de procesarla
+        if (!$('#tablaReservasPorFecha').length) {
+            console.log('Tabla no encontrada en el DOM, operación cancelada');
+            return;
+        }
 
         // Añadir clase de carga para efecto visual
         $('.reservas-existentes').addClass('loading');
         
-        // Destruir la tabla actual si existe
-        if ($.fn.DataTable.isDataTable('#tablaReservasPorFecha')) {
-            $('#tablaReservasPorFecha').DataTable().destroy();
+        // Destruir la tabla actual si existe, con manejo de errores
+        try {
+            if ($.fn.DataTable.isDataTable('#tablaReservasPorFecha')) {
+                $('#tablaReservasPorFecha').DataTable().destroy();
+            }
+            
+            // Resetear el contenido de la tabla
+            $('#tablaReservasPorFecha tbody').empty();
+        } catch (error) {
+            console.log('Error al resetear la tabla de reservas:', error);
+            return; // Detener la ejecución si hay un error
         }
-        
-        // Resetear el contenido de la tabla
-        $('#tablaReservasPorFecha tbody').empty();
 
         if (!fecha) {
             console.error('No se proporcionó una fecha válida');
