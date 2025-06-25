@@ -474,3 +474,6 @@ Data: Creating person
 [2025-06-24 22:46:28] [INFO] [RhPersonController.php:138] {"document_number":"778889","birth_date":"1995-08-04","first_name":"damian ","last_name":"bobadilla","phone_number":"0982313358","gender":"M","record_number":"100100100","address":"capiata","email":"damian@damian.com","department_id":11,"city_id":453,"is_minor":false,"guardian_name":null,"guardian_document":null,"is_active":true,"created_at":"2025-06-24 22:46:28"}
 Data: Creating person
 ----------------------------------------
+[2025-06-24 23:09:50] [INFO] [RhPersonController.php:138] {"document_number":"789456","birth_date":"1995-08-04","first_name":"donald","last_name":"tramp","phone_number":"0982313358","gender":"M","record_number":"200200200","address":"estados unidos","email":"donald@donald.com","department_id":17,"city_id":516,"is_minor":false,"guardian_name":null,"guardian_document":null,"is_active":true,"created_at":"2025-06-24 23:09:50"}
+Data: Creating person
+----------------------------------------

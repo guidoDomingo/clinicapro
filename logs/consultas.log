@@ -29,3 +29,7 @@
 2025-06-25 02:52:59 - Consulta guardada exitosamente con ID: 41
 2025-06-25 02:56:37 - Guardando consulta: {"id_persona":"62","txtmotivo":"Dolor de diente, Dolor ocular","consulta-textarea":"<p><b>PRUEBAAAA<span style=\"box-sizing: border-box; color: rgb(33, 37, 41); font-family: &quot;Sourc..."}
 2025-06-25 02:56:37 - Consulta guardada exitosamente con ID: 42
+2025-06-25 03:13:45 - Guardando consulta: {"id_persona":"63","txtmotivo":"Adaptaci\u00f3n de lentes de contacto, Dolor ocular","consulta-textarea":"<p><strong>[Diagn\u00f3stico ICD-11: CA09.2 - Faringitis cr\u00f3nica]<\/strong><\/p>\r\n                       ..."}
+2025-06-25 03:13:45 - Consulta guardada exitosamente con ID: 43
+2025-06-25 03:16:07 - Guardando consulta: {"id_persona":"63","txtmotivo":"Enrojecimiento ocular","consulta-textarea":"<p><b>PRUEBAAAA<span style=\"box-sizing: border-box; color: rgb(33, 37, 41); font-family: &quot;Sourc..."}
+2025-06-25 03:16:07 - Consulta guardada exitosamente con ID: 44

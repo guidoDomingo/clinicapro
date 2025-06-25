@@ -789,3 +789,87 @@
 
 )
 
+[2025-06-25 03:13:45][CONSULTA] Iniciando proceso de guardar consulta 
+[POST] => Array
+(
+    [txtdocumento] => 789456
+    [txtficha] => 200200200
+    [txtnombre] => donald tramp
+    [idPersona] => 63
+    [motivoscomunes] => 3
+    [formatoConsulta] => 11
+    [txtmotivo] => Adaptación de lentes de contacto, Dolor ocular
+    [visionod] => 200
+    [visionoi] => 200
+    [tensionod] => 200
+    [tensionoi] => 200
+    [consulta-textarea] => <p><strong>[Diagnóstico ICD-11: CA09.2 - Faringitis crónica]</strong></p>
+                        <p>Inflamación persistente o recurrente de la faringe (conducto fibromuscular en forma de embudo que conduce la comida al esófago y el aire a la laringe).</p>
+                        <p>&nbsp;</p><p><b>PRUEBAAAA<span style="box-sizing: border-box; color: rgb(33, 37, 41); font-family: &quot;Source Sans Pro&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(255, 255, 255); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;">PRUEBAAAA</span></b></p>
+    [formatoreceta] => Seleccionar
+    [receta-textarea] => <p><br></p><p><strong>GADOCAL</strong> (GADOR)</p><p>Indicaciones: cada 15 horas</p>
+    [txtnota] => 
+    [proximaconsulta] => 
+    [whatsapptxt] => 
+    [email] => 
+    [id_user] => 9
+    [id_reserva] => 0
+    [medico_id] => 1
+    [id_consulta_actual] => 
+)
+
+[FILES] => Array
+(
+    [files] => Array
+        (
+            [name] => 
+            [full_path] => 
+            [type] => 
+            [tmp_name] => 
+            [error] => 4
+            [size] => 0
+        )
+
+)
+
+[2025-06-25 03:16:07][CONSULTA] Iniciando proceso de guardar consulta 
+[POST] => Array
+(
+    [txtdocumento] => 789456
+    [txtficha] => 200200200
+    [txtnombre] => donald tramp
+    [idPersona] => 63
+    [motivoscomunes] => 4
+    [formatoConsulta] => 11
+    [txtmotivo] => Enrojecimiento ocular
+    [visionod] => 300
+    [visionoi] => 300
+    [tensionod] => 300
+    [tensionoi] => 300
+    [consulta-textarea] => <p><b>PRUEBAAAA<span style="box-sizing: border-box; color: rgb(33, 37, 41); font-family: &quot;Source Sans Pro&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(255, 255, 255); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;">PRUEBAAAA</span></b></p>
+    [formatoreceta] => Seleccionar
+    [receta-textarea] => <p>dsfsdfsdf</p>
+    [txtnota] => 
+    [proximaconsulta] => 
+    [whatsapptxt] => 
+    [email] => 
+    [id_user] => 9
+    [id_reserva] => 0
+    [medico_id] => 1
+    [id_consulta_actual] => 43
+)
+
+[FILES] => Array
+(
+    [files] => Array
+        (
+            [name] => 
+            [full_path] => 
+            [type] => 
+            [tmp_name] => 
+            [error] => 4
+            [size] => 0
+        )
+
+)
+
