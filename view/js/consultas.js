@@ -2048,6 +2048,23 @@ function inicializarTablaConsultas(idPaciente) {
                             // Proceder con la inicialización de la tabla
                             mostrarHistorialConsultas(idPaciente);
                             initializeDataTableWithData(idPaciente);
+                            // Agregar estilo CSS para resaltar la última consulta
+                            const style = document.createElement('style');
+                            style.innerHTML = `
+                                .ultima-consulta-highlight {
+                                    background-color: #e8f5e9 !important; /* Verde muy claro */
+                                    font-weight: bold;
+                                }
+                                .ultima-consulta-highlight td {
+                                    border-left: 3px solid #4caf50 !important; /* Borde verde */
+                                }
+                                /* Mantener el resaltado incluso después de ordenar o buscar */
+                                .ultima-consulta-highlight:hover {
+                                    background-color: #c8e6c9 !important; /* Verde un poco más oscuro al pasar el mouse */
+                                }
+                            `;
+                            document.head.appendChild(style);
+                            
                         } catch (parseError) {
                             console.error('Error al parsear respuesta de pre-verificación:', parseError);
                             console.log('Respuesta original de pre-verificación:', preCheck);
@@ -2117,6 +2134,12 @@ function inicializarTablaConsultas(idPaciente) {
                                 console.error('Respuesta del servidor:', xhr.responseText);
                             }
                         },
+                        createdRow: function(row, data, dataIndex) {
+                            // Si es la primera fila (índice 0), aplicar la clase
+                            if (dataIndex === 0) {
+                                $(row).addClass('ultima-consulta-highlight');
+                            }
+                        },
                         columns: [
                             // Coincide con la estructura de la tabla HTML (3 columnas)
                             { 
@@ -2147,9 +2170,16 @@ function inicializarTablaConsultas(idPaciente) {
                                     if (!row.id_consulta) {
                                         return '<button class="btn btn-secondary btn-sm" disabled>Sin ID</button>';
                                     }
-                                    return `<button class="btn btn-info btn-sm ver-consulta" data-id="${row.id_consulta}" data-idpersona="${row.id_persona || ''}">
+                                        return `<div class="btn-group">
+                                            <button class="btn btn-info btn-sm ver-consulta" data-id="${row.id_consulta}" data-idpersona="${row.id_persona || ''}">
                                                 <i class="fas fa-eye"></i> Ver
-                                            </button>`;
+                                            </button>
+                                
+                                            <button type="button" class="ml-2 btn btn-success btn-sm enviar-whatsapp" data-id="${row.id_consulta}" data-idpersona="${row.id_persona || ''}">
+                                                <i class="fab fa-whatsapp"></i>
+                                            </button>
+
+                                        </div>`;
                                 },
                                 orderable: false
                             }
@@ -3181,7 +3211,233 @@ function actualizarTablaConsultas() {
     } else {
         const idPaciente = $('#id_persona').val() || null;
         initializeDataTableWithData(idPaciente);
+        // Agregar estilo CSS para resaltar la última consulta
+        const style = document.createElement('style');
+        style.innerHTML = `
+            .ultima-consulta-highlight {
+                background-color: #e8f5e9 !important; /* Verde muy claro */
+                font-weight: bold;
+            }
+            .ultima-consulta-highlight td {
+                border-left: 3px solid #4caf50 !important; /* Borde verde */
+            }
+            /* Mantener el resaltado incluso después de ordenar o buscar */
+            .ultima-consulta-highlight:hover {
+                background-color: #c8e6c9 !important; /* Verde un poco más oscuro al pasar el mouse */
+            }
+        `;
+        document.head.appendChild(style);
     }
+}
+
+
+
+
+
+
+// Agregar evento para enviar por WhatsApp desde la tabla
+$('#tabla-consultas tbody').on('click', 'button.enviar-whatsapp', function() {
+    const idConsulta = $(this).data('id');
+    console.log('Descargar PDF de consulta:', idConsulta);
+    descargarPDFConsultaDesdeTabla(idConsulta);
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/**
+ * Función para descargar el PDF de una consulta médica directamente desde la tabla
+ * @param {number} idConsulta - ID de la consulta a procesar
+ */
+function descargarPDFConsultaDesdeTabla(idConsulta) {
+    // Verificar que tengamos un ID de consulta válido
+    if (!idConsulta) {
+        Swal.fire({
+            position: "center",
+            icon: "warning",
+            title: "No se puede procesar la consulta",
+            text: "No se ha proporcionado un ID de consulta válido",
+            showConfirmButton: false,
+            timer: 2000
+        });
+        return;
+    }
+    
+    // Mostrar indicador de carga
+    Swal.fire({
+        title: 'Procesando PDF...',
+        text: 'Subiendo al servidor FTP, por favor espere',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+    
+    // URL del PDF generado con ruta completa (necesaria para file_get_contents)
+    const currentUrl = window.location.origin;
+    
+    // Determinar la ruta base de la aplicación basada en la URL actual
+    let basePath = '/';
+    const pathSegments = window.location.pathname.split('/');
+    if (pathSegments.length > 2 && pathSegments[1] === 'clinica') {
+        basePath = '/clinica/';
+    }
+    
+    // Construir la URL completa para el PDF
+    const pdfLocalUrl = `${currentUrl}${basePath}generar_pdf_consulta.php?id=${idConsulta}`;
+    
+    // Enviar la URL local al script de subida FTP
+    $.ajax({
+        type: 'POST',
+        url: 'upload_pdf_ftp.php',
+        data: {
+            pdf_url: pdfLocalUrl,
+            custom_filename: `consulta_${idConsulta}.pdf`
+        },
+        dataType: 'json',
+        success: function(response) {
+            Swal.close();
+            
+            if (response.success) {
+                // Mostrar mensaje de éxito con opción de WhatsApp
+                Swal.fire({
+                    position: "center",
+                    icon: "success",
+                    title: "PDF subido exitosamente",
+                    text: "El archivo PDF ha sido subido al servidor FTP",
+                    showConfirmButton: true,
+                    confirmButtonText: "Abrir PDF",
+                    showDenyButton: true,
+                    denyButtonText: "Enviar por WhatsApp"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Abrir el PDF en una nueva pestaña
+                        window.open(response.url, '_blank');
+                    } else if (result.isDenied) {
+                        // Guardar el ID de la consulta actual para el proceso de envío
+                        if (document.getElementById('id_consulta_actual')) {
+                            document.getElementById('id_consulta_actual').value = idConsulta;
+                        } else {
+                            const input = document.createElement('input');
+                            input.type = 'hidden';
+                            input.id = 'id_consulta_actual';
+                            input.value = idConsulta;
+                            document.body.appendChild(input);
+                        }
+                        
+                        // Guardar la URL del PDF y abrir el modal de WhatsApp
+                        document.getElementById('pdfUrlWhatsApp').value = response.url;
+                        document.getElementById('pdfFileName').value = response.filename;
+                        
+                        // Buscar número de teléfono del paciente para esta consulta
+                        buscarTelefonoParaConsulta(idConsulta, function(telefono) {
+                            const whatsAppInput = document.getElementById('whatsAppNumber');
+                            
+                            if (telefono && whatsAppInput) {
+                                // Eliminar espacios y guiones del número telefónico
+                                let phoneNumber = telefono.replace(/[\s-]/g, '');
+                                
+                                // Si no tiene código de país, agregar el código de Paraguay por defecto
+                                if (!phoneNumber.startsWith('595')) {
+                                    // Eliminar el 0 inicial si existe
+                                    if (phoneNumber.startsWith('0')) {
+                                        phoneNumber = phoneNumber.substring(1);
+                                    }
+                                    phoneNumber = '595' + phoneNumber;
+                                }
+                                
+                                whatsAppInput.value = phoneNumber;
+                            }
+                            
+                            $('#modalEnviarWhatsApp').modal('show');
+                        });
+                    }
+                });
+            } else {
+                // Mostrar mensaje de error
+                Swal.fire({
+                    position: "center",
+                    icon: "error",
+                    title: "Error al subir el PDF",
+                    text: response.error || "Ocurrió un error desconocido",
+                    showConfirmButton: true
+                });
+                
+                // Como falló la subida FTP, ofrecer descargar el PDF directamente
+                setTimeout(() => {
+                    // Aquí usamos la URL relativa ya que window.open la abre correctamente
+                    window.open(`generar_pdf_consulta.php?id=${idConsulta}`, '_blank');
+                }, 1000);
+            }
+        },
+        error: function(xhr, status, error) {
+            Swal.close();
+            
+            // Mostrar mensaje de error
+            Swal.fire({
+                position: "center",
+                icon: "error",
+                title: "Error al subir el PDF",
+                text: "Ocurrió un error en la comunicación con el servidor. Se abrirá el PDF directamente.",
+                showConfirmButton: true
+            });
+            
+            // Abrir el PDF directamente como fallback
+            setTimeout(() => {
+                // Aquí usamos la URL relativa ya que window.open la abre correctamente
+                window.open(`generar_pdf_consulta.php?id=${idConsulta}`, '_blank');
+            }, 1000);
+        }
+    });
+}
+
+/**
+ * Función auxiliar para buscar el teléfono del paciente para una consulta específica
+ * @param {number} idConsulta - ID de la consulta
+ * @param {function} callback - Función de callback que recibe el número de teléfono
+ */
+function buscarTelefonoParaConsulta(idConsulta, callback) {
+    // Crear objeto FormData para enviar los datos
+    const formData = new FormData();
+    formData.append('id_consulta', idConsulta);
+    formData.append('operacion', 'getTelefonoConsulta');
+    
+    // Realizar petición AJAX para obtener el teléfono del paciente
+    $.ajax({
+        type: 'POST',
+        url: 'ajax/consultas.ajax.php',
+        data: formData,
+        dataType: "json",
+        processData: false,
+        contentType: false,
+        success: function(response) {
+            if (response.status === 'success' && response.telefono) {
+                callback(response.telefono);
+            } else {
+                console.error("Error al obtener teléfono:", response.message || "No se encontró el teléfono");
+                callback(null);
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error("Error en la petición AJAX:", error);
+            callback(null);
+        }
+    });
 }
 
 
