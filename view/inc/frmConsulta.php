@@ -124,8 +124,8 @@
     <input type="hidden" id="id_reserva" name="id_reserva" value="0">
     <input type="hidden" id="medico_id" name="medico_id" value="<?php echo isset($_SESSION['doctor_id']) ? $_SESSION['doctor_id'] : (isset($_SESSION['usuario_id']) ? $_SESSION['usuario_id'] : '1'); ?>">
     <input type="hidden" id="id_consulta_actual" name="id_consulta_actual">
-    <button type="button" class="btn btn-primary" id="btnGuardarConsulta">Guardar</button>    <button type="button" class="btn btn-info" id="btnDescargarPDF" disabled>Descargar PDF</button>
-    <button type="button" class="btn btn-success" id="btnEnviarWhatsApp" disabled>
+    <button type="button" class="btn btn-primary" id="btnGuardarConsulta">Guardar</button>    <button type="button" class="btn btn-info" id="btnDescargarPDF" disabled>Enviar por WhatsApp</button>
+    <!-- <button type="button" class="btn btn-success" id="btnEnviarWhatsApp" disabled>
         <i class="fa-brands fa-whatsapp"></i> Enviar WhatsApp
     </button>
     <button type="button" class="btn btn-warning" id="btnEnviarWhatsAppDirecto" disabled>
@@ -133,7 +133,7 @@
     </button>
     <button type="button" class="btn btn-danger" id="btnEnviarWhatsAppFTP" disabled>
         <i class="fa-brands fa-whatsapp"></i> WhatsApp vía FTP
-    </button>
+    </button> -->
 </form>
 <hr>
 

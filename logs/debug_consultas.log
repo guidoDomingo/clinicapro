@@ -325,3 +325,296 @@
 
 )
 
+[2025-06-25 01:14:51][CONSULTA] Iniciando proceso de guardar consulta 
+[POST] => Array
+(
+    [txtdocumento] => 88867676767
+    [txtficha] => 3245435435
+    [txtnombre] => alejandro visconte
+    [idPersona] => 45
+    [motivoscomunes] => 2
+    [formatoConsulta] => 11
+    [txtmotivo] => Adaptación de lentes de contacto, Disminución de la agudeza visual
+    [visionod] => 345
+    [visionoi] => 345
+    [tensionod] => 345
+    [tensionoi] => 345
+    [consulta-textarea] => <p><b>PRUEBAAAA<span style="box-sizing: border-box; color: rgb(33, 37, 41); font-family: &quot;Source Sans Pro&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(255, 255, 255); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;">PRUEBAAAAf</span></b></p>
+    [formatoreceta] => Seleccionar
+    [receta-textarea] => <p>sdfsdfsdf</p>
+    [txtnota] => 
+    [proximaconsulta] => 2025-06-28
+    [whatsapptxt] => 
+    [email] => 
+    [id_user] => 9
+    [id_reserva] => 0
+    [medico_id] => 1
+    [id_consulta_actual] => 
+)
+
+[FILES] => Array
+(
+    [files] => Array
+        (
+            [name] => 
+            [full_path] => 
+            [type] => 
+            [tmp_name] => 
+            [error] => 4
+            [size] => 0
+        )
+
+)
+
+[2025-06-25 01:20:19][CONSULTA] Iniciando proceso de guardar consulta 
+[POST] => Array
+(
+    [txtdocumento] => 88867676767
+    [txtficha] => 3245435435
+    [txtnombre] => alejandro visconte
+    [idPersona] => 45
+    [motivoscomunes] => 2
+    [formatoConsulta] => 11
+    [txtmotivo] => Adaptación de lentes de contacto, Disminución de la agudeza visual
+    [visionod] => 345
+    [visionoi] => 345
+    [tensionod] => 345
+    [tensionoi] => 345
+    [consulta-textarea] => <p><b>PRUEBAAAA<span style="box-sizing: border-box; color: rgb(33, 37, 41); font-family: &quot;Source Sans Pro&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(255, 255, 255); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;">PRUEBAAAA</span></b></p>
+    [formatoreceta] => Seleccionar
+    [receta-textarea] => <p>fgfdgdfgdf</p>
+    [txtnota] => 
+    [proximaconsulta] => 2025-06-30
+    [whatsapptxt] => 
+    [email] => 
+    [id_user] => 9
+    [id_reserva] => 0
+    [medico_id] => 1
+    [id_consulta_actual] => 
+)
+
+[FILES] => Array
+(
+    [files] => Array
+        (
+            [name] => 
+            [full_path] => 
+            [type] => 
+            [tmp_name] => 
+            [error] => 4
+            [size] => 0
+        )
+
+)
+
+[2025-06-25 01:23:22][CONSULTA] Iniciando proceso de guardar consulta 
+[POST] => Array
+(
+    [txtdocumento] => 465
+    [txtficha] => 34543
+    [txtnombre] => guido benitez
+    [idPersona] => 11
+    [motivoscomunes] => 1
+    [formatoConsulta] => Seleccionar
+    [txtmotivo] => sfsdfsdf, Dolor de diente
+    [visionod] => 4534
+    [visionoi] => 345345
+    [tensionod] => 345345
+    [tensionoi] => 34534
+    [consulta-textarea] => <p>fdgfdgfd</p>
+    [formatoreceta] => Seleccionar
+    [receta-textarea] => <p>dfgdfgdfg</p>
+    [txtnota] => dfgdfgdfgdfg
+    [proximaconsulta] => 2025-04-20
+    [whatsapptxt] => 546546
+    [email] => sdfsd@sdfsdf.com
+    [id_user] => 9
+    [id_reserva] => 0
+    [medico_id] => 1
+    [id_consulta_actual] => 16
+    [id_consulta] => 16
+)
+
+[FILES] => Array
+(
+    [files] => Array
+        (
+            [name] => 
+            [full_path] => 
+            [type] => 
+            [tmp_name] => 
+            [error] => 4
+            [size] => 0
+        )
+
+)
+
+[2025-06-25 01:28:26][CONSULTA] Iniciando proceso de guardar consulta 
+[POST] => Array
+(
+    [txtdocumento] => 465
+    [txtficha] => 34543
+    [txtnombre] => guido benitez
+    [idPersona] => 11
+    [motivoscomunes] => 2
+    [formatoConsulta] => 11
+    [txtmotivo] => Adaptación de lentes de contacto, Disminución de la agudeza visual
+    [visionod] => 345
+    [visionoi] => 345
+    [tensionod] => 345
+    [tensionoi] => 345
+    [consulta-textarea] => <p><strong>[Diagnóstico ICD-11: MD12 - Tos]</strong></p>
+                        <p>La tos es un mecanismo de defensa natural y un reflejo protector importante que despeja las vías respiratorias altas y bajas por eliminación de las secreciones excesivas, como el moco y las partículas inhaladas. La tos es un síntoma frecuente de la mayoría de los trastornos respiratorios y puede apuntar a la presencia de una afección de las vías respiratorias o del pulmón que puede ser o insignificante o sumamente grave.</p>
+                        <p>&nbsp;</p><p><b>PRUEBAAAA<span style="box-sizing: border-box; color: rgb(33, 37, 41); font-family: &quot;Source Sans Pro&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(255, 255, 255); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;">PRUEBAAAA</span></b></p>
+    [formatoreceta] => Seleccionar
+    [receta-textarea] => <p><br></p><p><strong>GADOCAL</strong> (GADOR)</p><p>Indicaciones: cada 2 horas</p>
+    [txtnota] => 
+    [proximaconsulta] => 2025-06-30
+    [whatsapptxt] => 
+    [email] => 
+    [id_user] => 9
+    [id_reserva] => 0
+    [medico_id] => 1
+    [id_consulta_actual] => 
+)
+
+[FILES] => Array
+(
+    [files] => Array
+        (
+            [name] => 
+            [full_path] => 
+            [type] => 
+            [tmp_name] => 
+            [error] => 4
+            [size] => 0
+        )
+
+)
+
+[2025-06-25 01:30:02][CONSULTA] Iniciando proceso de guardar consulta 
+[POST] => Array
+(
+    [txtdocumento] => 465
+    [txtficha] => 34543
+    [txtnombre] => guido benitez
+    [idPersona] => 11
+    [motivoscomunes] => 2
+    [formatoConsulta] => 11
+    [txtmotivo] => Adaptación de lentes de contacto, Disminución de la agudeza visual
+    [visionod] => 34
+    [visionoi] => 435
+    [tensionod] => 345
+    [tensionoi] => 345
+    [consulta-textarea] => <p><b>PRUEBAAAA<span style="box-sizing: border-box; color: rgb(33, 37, 41); font-family: &quot;Source Sans Pro&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(255, 255, 255); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;">PRUEBAAAA</span></b></p>
+    [formatoreceta] => Seleccionar
+    [receta-textarea] => <p>fdgdfgfdg</p>
+    [txtnota] => 
+    [proximaconsulta] => 
+    [whatsapptxt] => 
+    [email] => 
+    [id_user] => 9
+    [id_reserva] => 0
+    [medico_id] => 1
+    [id_consulta_actual] => 
+)
+
+[FILES] => Array
+(
+    [files] => Array
+        (
+            [name] => 
+            [full_path] => 
+            [type] => 
+            [tmp_name] => 
+            [error] => 4
+            [size] => 0
+        )
+
+)
+
+[2025-06-25 01:40:54][CONSULTA] Iniciando proceso de guardar consulta 
+[POST] => Array
+(
+    [txtdocumento] => 465
+    [txtficha] => 34543
+    [txtnombre] => guido benitez
+    [idPersona] => 11
+    [motivoscomunes] => 2
+    [formatoConsulta] => 11
+    [txtmotivo] => Adaptación de lentes de contacto, Disminución de la agudeza visual
+    [visionod] => 345
+    [visionoi] => 345
+    [tensionod] => 345
+    [tensionoi] => 345
+    [consulta-textarea] => <p><b>PRUEBAAAA<span style="box-sizing: border-box; color: rgb(33, 37, 41); font-family: &quot;Source Sans Pro&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(255, 255, 255); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;">PRUEBAAAA</span></b></p>
+    [formatoreceta] => Seleccionar
+    [receta-textarea] => <p>gdfgdfgdf</p>
+    [txtnota] => 
+    [proximaconsulta] => 
+    [whatsapptxt] => 
+    [email] => 
+    [id_user] => 9
+    [id_reserva] => 0
+    [medico_id] => 1
+    [id_consulta_actual] => 
+)
+
+[FILES] => Array
+(
+    [files] => Array
+        (
+            [name] => 
+            [full_path] => 
+            [type] => 
+            [tmp_name] => 
+            [error] => 4
+            [size] => 0
+        )
+
+)
+
+[2025-06-25 01:42:12][CONSULTA] Iniciando proceso de guardar consulta 
+[POST] => Array
+(
+    [txtdocumento] => 465
+    [txtficha] => 34543
+    [txtnombre] => guido benitez
+    [idPersona] => 11
+    [motivoscomunes] => 2
+    [formatoConsulta] => Seleccionar
+    [txtmotivo] => Adaptación de lentes de contacto, Disminución de la agudeza visual, Disminución de la agudeza visual
+    [visionod] => 345
+    [visionoi] => 345
+    [tensionod] => 345
+    [tensionoi] => 345
+    [consulta-textarea] => <p><strong>[Diagnóstico ICD-11: MD12 - Tos]</strong></p>
+                        <p>La tos es un mecanismo de defensa natural y un reflejo protector importante que despeja las vías respiratorias altas y bajas por eliminación de las secreciones excesivas, como el moco y las partículas inhaladas. La tos es un síntoma frecuente de la mayoría de los trastornos respiratorios y puede apuntar a la presencia de una afección de las vías respiratorias o del pulmón que puede ser o insignificante o sumamente grave.</p>
+                        <p>&nbsp;</p><p><b>PRUEBAAAA<span style="box-sizing: border-box; color: rgb(33, 37, 41); font-family: &quot;Source Sans Pro&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(255, 255, 255); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;">PRUEBAAAA</span></b></p>
+    [formatoreceta] => Seleccionar
+    [receta-textarea] => <p>gdfgdfgdf</p><p><strong>GADOCAL</strong> (GADOR)</p><p>Indicaciones: </p>
+    [txtnota] => 
+    [proximaconsulta] => 
+    [whatsapptxt] => 
+    [email] => 
+    [id_user] => 9
+    [id_reserva] => 0
+    [medico_id] => 1
+    [id_consulta_actual] => 39
+    [id_consulta] => 39
+)
+
+[FILES] => Array
+(
+    [files] => Array
+        (
+            [name] => 
+            [full_path] => 
+            [type] => 
+            [tmp_name] => 
+            [error] => 4
+            [size] => 0
+        )
+
+)
+

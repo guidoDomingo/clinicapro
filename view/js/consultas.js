@@ -3164,4 +3164,27 @@ function enviarPDFWhatsAppDesdeModal() {
     });
 }
 
+function actualizarTablaConsultas() {
+    console.log('Actualizando tabla de consultas...');
+    
+    if (window.tablaConsultasInstance && $.fn.DataTable.isDataTable('#tabla-consultas')) {
+        // Guardar la página actual antes de recargar
+        const currentPage = window.tablaConsultasInstance.page();
+        
+        // Recargar manteniendo la página actual 
+        window.tablaConsultasInstance.ajax.reload(function() {
+            // Volver a la misma página si existía
+            if (currentPage !== undefined) {
+                window.tablaConsultasInstance.page(currentPage).draw('page');
+            }
+        }, false); // false = no resetear paginación
+    } else {
+        const idPaciente = $('#id_persona').val() || null;
+        initializeDataTableWithData(idPaciente);
+    }
+}
+
+
+
+
 

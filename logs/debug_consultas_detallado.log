@@ -5702,3 +5702,4799 @@
 [PDO_PGSQL] Extensión cargada 
 [id_consulta] => 27
 -----------------------------------------------------
+[2025-06-25 01:14:51][INFO] [INICIO] (desconocido) Iniciando proceso de guardar consulta
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[POST] => Array
+(
+    [txtdocumento] => 88867676767
+    [txtficha] => 3245435435
+    [txtnombre] => alejandro visconte
+    [idPersona] => 45
+    [motivoscomunes] => 2
+    [formatoConsulta] => 11
+    [txtmotivo] => Adaptación de lentes de contacto, Disminución de la agudeza visual
+    [visionod] => 345
+    [visionoi] => 345
+    [tensionod] => 345
+    [tensionoi] => 345
+    [consulta-textarea] => <p><b>PRUEBAAAA<span style="box-sizing: border-box; color: rgb(33, 37, 41); font-family: &quot;Source Sans Pro&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(255, 255, 255); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;">PRUEBAAAAf</span></b></p>
+    [formatoreceta] => Seleccionar
+    [receta-textarea] => <p>sdfsdfsdf</p>
+    [txtnota] => 
+    [proximaconsulta] => 2025-06-28
+    [whatsapptxt] => 
+    [email] => 
+    [id_user] => 9
+    [id_reserva] => 0
+    [medico_id] => 1
+    [id_consulta_actual] => 
+)
+
+-----------------------------------------------------
+[2025-06-25 01:14:51][DEBUG] [CONFIG] (desconocido) Verificando configuración PHP
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[version_php] => 8.3.11
+[extensiones] => Array
+(
+    [0] => Core
+    [1] => bcmath
+    [2] => calendar
+    [3] => ctype
+    [4] => date
+    [5] => filter
+    [6] => hash
+    [7] => iconv
+    [8] => json
+    [9] => SPL
+    [10] => pcre
+    [11] => random
+    [12] => readline
+    [13] => Reflection
+    [14] => session
+    [15] => standard
+    [16] => mysqlnd
+    [17] => tokenizer
+    [18] => zlib
+    [19] => libxml
+    [20] => dom
+    [21] => PDO
+    [22] => openssl
+    [23] => SimpleXML
+    [24] => xml
+    [25] => xmlreader
+    [26] => xmlwriter
+    [27] => apache2handler
+    [28] => ftp
+    [29] => fileinfo
+    [30] => gd
+    [31] => gmp
+    [32] => intl
+    [33] => mbstring
+    [34] => exif
+    [35] => mysqli
+    [36] => Phar
+    [37] => pdo_mysql
+    [38] => pdo_pgsql
+    [39] => pdo_sqlite
+    [40] => pgsql
+    [41] => sqlite3
+    [42] => xsl
+    [43] => zip
+)
+
+[memoria_limite] => 512M
+[tiempo_ejecucion] => 36000
+-----------------------------------------------------
+[2025-06-25 01:14:51][INFO] [ARCHIVOS] (desconocido) Verificando carga de archivos
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[controller_existe] => 1
+[model_existe] => 1
+-----------------------------------------------------
+[2025-06-25 01:14:52][INFO] [ESTRUCTURA] (guardar-consulta.ajax.php:28) Estructura de la tabla consultas
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[columnas] => Array
+(
+    [0] => Array
+        (
+            [column_name] => id_consulta
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => NO
+        )
+
+    [1] => Array
+        (
+            [column_name] => id_persona
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => NO
+        )
+
+    [2] => Array
+        (
+            [column_name] => motivoscomunes
+            [data_type] => character varying
+            [character_maximum_length] => 255
+            [is_nullable] => YES
+        )
+
+    [3] => Array
+        (
+            [column_name] => txtmotivo
+            [data_type] => character varying
+            [character_maximum_length] => 255
+            [is_nullable] => YES
+        )
+
+    [4] => Array
+        (
+            [column_name] => visionod
+            [data_type] => character varying
+            [character_maximum_length] => 50
+            [is_nullable] => YES
+        )
+
+    [5] => Array
+        (
+            [column_name] => visionoi
+            [data_type] => character varying
+            [character_maximum_length] => 50
+            [is_nullable] => YES
+        )
+
+    [6] => Array
+        (
+            [column_name] => tensionod
+            [data_type] => character varying
+            [character_maximum_length] => 50
+            [is_nullable] => YES
+        )
+
+    [7] => Array
+        (
+            [column_name] => tensionoi
+            [data_type] => character varying
+            [character_maximum_length] => 50
+            [is_nullable] => YES
+        )
+
+    [8] => Array
+        (
+            [column_name] => consulta_textarea
+            [data_type] => text
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [9] => Array
+        (
+            [column_name] => receta_textarea
+            [data_type] => text
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [10] => Array
+        (
+            [column_name] => txtnota
+            [data_type] => text
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [11] => Array
+        (
+            [column_name] => proximaconsulta
+            [data_type] => date
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [12] => Array
+        (
+            [column_name] => whatsapptxt
+            [data_type] => character varying
+            [character_maximum_length] => 50
+            [is_nullable] => YES
+        )
+
+    [13] => Array
+        (
+            [column_name] => email
+            [data_type] => character varying
+            [character_maximum_length] => 100
+            [is_nullable] => YES
+        )
+
+    [14] => Array
+        (
+            [column_name] => id_user
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [15] => Array
+        (
+            [column_name] => id_reserva
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [16] => Array
+        (
+            [column_name] => fecha_registro
+            [data_type] => timestamp without time zone
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [17] => Array
+        (
+            [column_name] => ultima_modificacion
+            [data_type] => timestamp without time zone
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+)
+
+-----------------------------------------------------
+[2025-06-25 01:14:52][INFO] [ESTRUCTURA] (guardar-consulta.ajax.php:29) Estructura de la tabla rh_person
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[columnas] => Array
+(
+    [0] => Array
+        (
+            [column_name] => person_id
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => NO
+        )
+
+    [1] => Array
+        (
+            [column_name] => document_number
+            [data_type] => character varying
+            [character_maximum_length] => 20
+            [is_nullable] => NO
+        )
+
+    [2] => Array
+        (
+            [column_name] => birth_date
+            [data_type] => date
+            [character_maximum_length] => 
+            [is_nullable] => NO
+        )
+
+    [3] => Array
+        (
+            [column_name] => first_name
+            [data_type] => character varying
+            [character_maximum_length] => 255
+            [is_nullable] => NO
+        )
+
+    [4] => Array
+        (
+            [column_name] => last_name
+            [data_type] => character varying
+            [character_maximum_length] => 255
+            [is_nullable] => NO
+        )
+
+    [5] => Array
+        (
+            [column_name] => phone_number
+            [data_type] => character varying
+            [character_maximum_length] => 50
+            [is_nullable] => YES
+        )
+
+    [6] => Array
+        (
+            [column_name] => gender
+            [data_type] => character
+            [character_maximum_length] => 1
+            [is_nullable] => YES
+        )
+
+    [7] => Array
+        (
+            [column_name] => record_number
+            [data_type] => character varying
+            [character_maximum_length] => 50
+            [is_nullable] => YES
+        )
+
+    [8] => Array
+        (
+            [column_name] => address
+            [data_type] => character varying
+            [character_maximum_length] => 255
+            [is_nullable] => YES
+        )
+
+    [9] => Array
+        (
+            [column_name] => email
+            [data_type] => character varying
+            [character_maximum_length] => 100
+            [is_nullable] => YES
+        )
+
+    [10] => Array
+        (
+            [column_name] => department_id
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [11] => Array
+        (
+            [column_name] => city_id
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [12] => Array
+        (
+            [column_name] => is_minor
+            [data_type] => boolean
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [13] => Array
+        (
+            [column_name] => guardian_name
+            [data_type] => character varying
+            [character_maximum_length] => 255
+            [is_nullable] => YES
+        )
+
+    [14] => Array
+        (
+            [column_name] => guardian_document
+            [data_type] => character varying
+            [character_maximum_length] => 20
+            [is_nullable] => YES
+        )
+
+    [15] => Array
+        (
+            [column_name] => created_at
+            [data_type] => timestamp with time zone
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [16] => Array
+        (
+            [column_name] => registered_by
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [17] => Array
+        (
+            [column_name] => modified_by
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [18] => Array
+        (
+            [column_name] => last_modified_at
+            [data_type] => timestamp with time zone
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [19] => Array
+        (
+            [column_name] => last_accessed_at
+            [data_type] => timestamp with time zone
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [20] => Array
+        (
+            [column_name] => owner_id
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [21] => Array
+        (
+            [column_name] => is_active
+            [data_type] => boolean
+            [character_maximum_length] => 
+            [is_nullable] => NO
+        )
+
+    [22] => Array
+        (
+            [column_name] => business_id
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [23] => Array
+        (
+            [column_name] => profile_photo
+            [data_type] => character varying
+            [character_maximum_length] => 255
+            [is_nullable] => YES
+        )
+
+)
+
+-----------------------------------------------------
+[2025-06-25 01:14:52][INFO] [PROCESO] (desconocido) Iniciando procesamiento de consulta
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[motivoscomunes] => 2
+[formatoConsulta] => 11
+-----------------------------------------------------
+[2025-06-25 01:14:52][INFO] [DATOS] (desconocido) Campo crítico recibido
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[idPersona] => 45
+-----------------------------------------------------
+[2025-06-25 01:14:52][INFO] [DATOS] (desconocido) Campo crítico recibido
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[txtmotivo] => Adaptación de lentes de contacto, Disminución de la agudeza visual
+-----------------------------------------------------
+[2025-06-25 01:14:52][INFO] [DATOS] (desconocido) Campo crítico recibido
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[id_user] => 9
+-----------------------------------------------------
+[2025-06-25 01:14:52][INFO] [DATOS] (desconocido) Campo crítico recibido
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[id_reserva] => 0
+-----------------------------------------------------
+[2025-06-25 01:14:52][INFO] [ARCHIVOS] (desconocido) Procesando archivos adjuntos
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[files] => Array
+(
+    [0] => files
+)
+
+-----------------------------------------------------
+[2025-06-25 01:14:52][INFO] [INSERCION] (desconocido) Detectada creación de nueva consulta
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+-----------------------------------------------------
+[2025-06-25 01:14:52][INFO] [INSERCION] (desconocido) Llamando al controlador para guardar nueva consulta
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[datos_clave] => Array
+(
+    [id_persona] => 45
+    [id_user] => 9
+)
+
+-----------------------------------------------------
+[2025-06-25 01:14:52][INFO] [CONTROLLER] (guardar-consulta.ajax.php:183) Iniciando ctrSetConsulta en el controlador
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[datos_recibidos] => Array
+(
+    [0] => txtdocumento
+    [1] => txtficha
+    [2] => txtnombre
+    [3] => idPersona
+    [4] => motivoscomunes
+    [5] => formatoConsulta
+    [6] => txtmotivo
+    [7] => visionod
+    [8] => visionoi
+    [9] => tensionod
+    [10] => tensionoi
+    [11] => consulta-textarea
+    [12] => formatoreceta
+    [13] => receta-textarea
+    [14] => txtnota
+    [15] => proximaconsulta
+    [16] => whatsapptxt
+    [17] => email
+    [18] => id_user
+    [19] => id_reserva
+    [20] => medico_id
+    [21] => id_consulta_actual
+)
+
+-----------------------------------------------------
+[2025-06-25 01:14:52][INFO] [CONTROLLER] (guardar-consulta.ajax.php:183) Llamando al modelo mdlSetConsulta
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+-----------------------------------------------------
+[2025-06-25 01:14:52][INFO] [MODELO] (consultas.controller.php:33) Iniciando mdlSetConsulta
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[datos] => Array
+(
+    [0] => txtdocumento
+    [1] => txtficha
+    [2] => txtnombre
+    [3] => idPersona
+    [4] => motivoscomunes
+    [5] => formatoConsulta
+    [6] => txtmotivo
+    [7] => visionod
+    [8] => visionoi
+    [9] => tensionod
+    [10] => tensionoi
+    [11] => consulta-textarea
+    [12] => formatoreceta
+    [13] => receta-textarea
+    [14] => txtnota
+    [15] => proximaconsulta
+    [16] => whatsapptxt
+    [17] => email
+    [18] => id_user
+    [19] => id_reserva
+    [20] => medico_id
+    [21] => id_consulta_actual
+)
+
+[es_actualizacion] => 
+-----------------------------------------------------
+[2025-06-25 01:14:52][INFO] [MODELO] (consultas.controller.php:33) Intentando obtener conexión a BD
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+-----------------------------------------------------
+[2025-06-25 01:14:52][ÉXITO] [MODELO] (consultas.controller.php:33) Conexión establecida correctamente
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+-----------------------------------------------------
+[2025-06-25 01:14:52][INFO] [MODELO] (consultas.controller.php:33) Paciente encontrado para la consulta
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[person_id] => 45
+[nombre] => alejandro visconte
+-----------------------------------------------------
+[2025-06-25 01:14:52][INFO] [MODELO] (consultas.controller.php:33) Verificando campos obligatorios
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[motivoscomunes] => OK
+[txtmotivo] => OK
+[id_persona] => OK
+-----------------------------------------------------
+[2025-06-25 01:14:52][INFO] [MODELO] (consultas.controller.php:33) Preparando consulta SQL para inserción
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+-----------------------------------------------------
+[2025-06-25 01:14:52][ÉXITO] [MODELO] (consultas.controller.php:33) Consulta SQL preparada correctamente
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+-----------------------------------------------------
+[2025-06-25 01:14:52][INFO] [MODELO] (consultas.controller.php:33) Comenzando bind de parámetros
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+-----------------------------------------------------
+[2025-06-25 01:14:52][DEBUG] [MODELO] (consultas.controller.php:33) Valores para bind de parámetros
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[:motivoscomunes] => Array
+(
+    [valor] => 2
+    [tipo] => 2
+)
+
+[:txtmotivo] => Array
+(
+    [valor] => Adaptación de lentes de contacto, Disminución de la agudeza visual
+    [tipo] => 2
+)
+
+[:visionod] => Array
+(
+    [valor] => 345
+    [tipo] => 2
+)
+
+[:visionoi] => Array
+(
+    [valor] => 345
+    [tipo] => 2
+)
+
+[:tensionod] => Array
+(
+    [valor] => 345
+    [tipo] => 2
+)
+
+[:tensionoi] => Array
+(
+    [valor] => 345
+    [tipo] => 2
+)
+
+[:consulta_textarea] => Array
+(
+    [valor] => <p><b>PRUEBAAAA<span style="box-sizing: border-box; color: rgb(33, 37, 41); font-family: &quot;Source Sans Pro&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(255, 255, 255); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;">PRUEBAAAAf</span></b></p>
+    [tipo] => 2
+)
+
+[:receta_textarea] => Array
+(
+    [valor] => <p>sdfsdfsdf</p>
+    [tipo] => 2
+)
+
+[:txtnota] => Array
+(
+    [valor] => 
+    [tipo] => 2
+)
+
+[:whatsapptxt] => Array
+(
+    [valor] => 
+    [tipo] => 2
+)
+
+[:email] => Array
+(
+    [valor] => 
+    [tipo] => 2
+)
+
+[:id_user] => Array
+(
+    [valor] => 9
+    [tipo] => 1
+)
+
+[:id_reserva] => Array
+(
+    [valor] => 0
+    [tipo] => 1
+)
+
+[:id_persona] => Array
+(
+    [valor] => 45
+    [tipo] => 1
+)
+
+-----------------------------------------------------
+[2025-06-25 01:14:52][INFO] [MODELO] (consultas.controller.php:33) Campo proximaconsulta tiene valor
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[valor] => 2025-06-28
+-----------------------------------------------------
+[2025-06-25 01:14:52][INFO] [MODELO] (consultas.controller.php:33) IDs después de convertir a enteros
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[id_user] => 9
+[id_reserva] => 0
+[id_persona] => 45
+-----------------------------------------------------
+[2025-06-25 01:14:52][ÉXITO] [MODELO] (consultas.controller.php:33) Todos los parámetros bindeados correctamente
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+-----------------------------------------------------
+[2025-06-25 01:14:52][INFO] [MODELO] (consultas.controller.php:33) Intentando ejecutar la consulta SQL
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+-----------------------------------------------------
+[2025-06-25 01:14:52][ÉXITO] [MODELO] (consultas.controller.php:33) Consulta ejecutada correctamente
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[id_consulta] => 35
+-----------------------------------------------------
+[2025-06-25 01:14:52][INFO] [CONTROLLER] (guardar-consulta.ajax.php:183) Resultado del modelo
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[resultado] => 35
+-----------------------------------------------------
+[2025-06-25 01:14:52][INFO] [INSERCION] (desconocido) Respuesta recibida del controlador
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[response] => 35
+-----------------------------------------------------
+[2025-06-25 01:14:52][ÉXITO] [INSERCION] (desconocido) Consulta guardada exitosamente
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[id_consulta] => 35
+-----------------------------------------------------
+[2025-06-25 01:20:19][INFO] [INICIO] (desconocido) Iniciando proceso de guardar consulta
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[POST] => Array
+(
+    [txtdocumento] => 88867676767
+    [txtficha] => 3245435435
+    [txtnombre] => alejandro visconte
+    [idPersona] => 45
+    [motivoscomunes] => 2
+    [formatoConsulta] => 11
+    [txtmotivo] => Adaptación de lentes de contacto, Disminución de la agudeza visual
+    [visionod] => 345
+    [visionoi] => 345
+    [tensionod] => 345
+    [tensionoi] => 345
+    [consulta-textarea] => <p><b>PRUEBAAAA<span style="box-sizing: border-box; color: rgb(33, 37, 41); font-family: &quot;Source Sans Pro&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(255, 255, 255); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;">PRUEBAAAA</span></b></p>
+    [formatoreceta] => Seleccionar
+    [receta-textarea] => <p>fgfdgdfgdf</p>
+    [txtnota] => 
+    [proximaconsulta] => 2025-06-30
+    [whatsapptxt] => 
+    [email] => 
+    [id_user] => 9
+    [id_reserva] => 0
+    [medico_id] => 1
+    [id_consulta_actual] => 
+)
+
+-----------------------------------------------------
+[2025-06-25 01:20:19][DEBUG] [CONFIG] (desconocido) Verificando configuración PHP
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[version_php] => 8.3.11
+[extensiones] => Array
+(
+    [0] => Core
+    [1] => bcmath
+    [2] => calendar
+    [3] => ctype
+    [4] => date
+    [5] => filter
+    [6] => hash
+    [7] => iconv
+    [8] => json
+    [9] => SPL
+    [10] => pcre
+    [11] => random
+    [12] => readline
+    [13] => Reflection
+    [14] => session
+    [15] => standard
+    [16] => mysqlnd
+    [17] => tokenizer
+    [18] => zlib
+    [19] => libxml
+    [20] => dom
+    [21] => PDO
+    [22] => openssl
+    [23] => SimpleXML
+    [24] => xml
+    [25] => xmlreader
+    [26] => xmlwriter
+    [27] => apache2handler
+    [28] => ftp
+    [29] => fileinfo
+    [30] => gd
+    [31] => gmp
+    [32] => intl
+    [33] => mbstring
+    [34] => exif
+    [35] => mysqli
+    [36] => Phar
+    [37] => pdo_mysql
+    [38] => pdo_pgsql
+    [39] => pdo_sqlite
+    [40] => pgsql
+    [41] => sqlite3
+    [42] => xsl
+    [43] => zip
+)
+
+[memoria_limite] => 512M
+[tiempo_ejecucion] => 36000
+-----------------------------------------------------
+[2025-06-25 01:20:19][INFO] [ARCHIVOS] (desconocido) Verificando carga de archivos
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[controller_existe] => 1
+[model_existe] => 1
+-----------------------------------------------------
+[2025-06-25 01:20:19][INFO] [ESTRUCTURA] (guardar-consulta.ajax.php:28) Estructura de la tabla consultas
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[columnas] => Array
+(
+    [0] => Array
+        (
+            [column_name] => id_consulta
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => NO
+        )
+
+    [1] => Array
+        (
+            [column_name] => id_persona
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => NO
+        )
+
+    [2] => Array
+        (
+            [column_name] => motivoscomunes
+            [data_type] => character varying
+            [character_maximum_length] => 255
+            [is_nullable] => YES
+        )
+
+    [3] => Array
+        (
+            [column_name] => txtmotivo
+            [data_type] => character varying
+            [character_maximum_length] => 255
+            [is_nullable] => YES
+        )
+
+    [4] => Array
+        (
+            [column_name] => visionod
+            [data_type] => character varying
+            [character_maximum_length] => 50
+            [is_nullable] => YES
+        )
+
+    [5] => Array
+        (
+            [column_name] => visionoi
+            [data_type] => character varying
+            [character_maximum_length] => 50
+            [is_nullable] => YES
+        )
+
+    [6] => Array
+        (
+            [column_name] => tensionod
+            [data_type] => character varying
+            [character_maximum_length] => 50
+            [is_nullable] => YES
+        )
+
+    [7] => Array
+        (
+            [column_name] => tensionoi
+            [data_type] => character varying
+            [character_maximum_length] => 50
+            [is_nullable] => YES
+        )
+
+    [8] => Array
+        (
+            [column_name] => consulta_textarea
+            [data_type] => text
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [9] => Array
+        (
+            [column_name] => receta_textarea
+            [data_type] => text
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [10] => Array
+        (
+            [column_name] => txtnota
+            [data_type] => text
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [11] => Array
+        (
+            [column_name] => proximaconsulta
+            [data_type] => date
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [12] => Array
+        (
+            [column_name] => whatsapptxt
+            [data_type] => character varying
+            [character_maximum_length] => 50
+            [is_nullable] => YES
+        )
+
+    [13] => Array
+        (
+            [column_name] => email
+            [data_type] => character varying
+            [character_maximum_length] => 100
+            [is_nullable] => YES
+        )
+
+    [14] => Array
+        (
+            [column_name] => id_user
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [15] => Array
+        (
+            [column_name] => id_reserva
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [16] => Array
+        (
+            [column_name] => fecha_registro
+            [data_type] => timestamp without time zone
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [17] => Array
+        (
+            [column_name] => ultima_modificacion
+            [data_type] => timestamp without time zone
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+)
+
+-----------------------------------------------------
+[2025-06-25 01:20:19][INFO] [ESTRUCTURA] (guardar-consulta.ajax.php:29) Estructura de la tabla rh_person
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[columnas] => Array
+(
+    [0] => Array
+        (
+            [column_name] => person_id
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => NO
+        )
+
+    [1] => Array
+        (
+            [column_name] => document_number
+            [data_type] => character varying
+            [character_maximum_length] => 20
+            [is_nullable] => NO
+        )
+
+    [2] => Array
+        (
+            [column_name] => birth_date
+            [data_type] => date
+            [character_maximum_length] => 
+            [is_nullable] => NO
+        )
+
+    [3] => Array
+        (
+            [column_name] => first_name
+            [data_type] => character varying
+            [character_maximum_length] => 255
+            [is_nullable] => NO
+        )
+
+    [4] => Array
+        (
+            [column_name] => last_name
+            [data_type] => character varying
+            [character_maximum_length] => 255
+            [is_nullable] => NO
+        )
+
+    [5] => Array
+        (
+            [column_name] => phone_number
+            [data_type] => character varying
+            [character_maximum_length] => 50
+            [is_nullable] => YES
+        )
+
+    [6] => Array
+        (
+            [column_name] => gender
+            [data_type] => character
+            [character_maximum_length] => 1
+            [is_nullable] => YES
+        )
+
+    [7] => Array
+        (
+            [column_name] => record_number
+            [data_type] => character varying
+            [character_maximum_length] => 50
+            [is_nullable] => YES
+        )
+
+    [8] => Array
+        (
+            [column_name] => address
+            [data_type] => character varying
+            [character_maximum_length] => 255
+            [is_nullable] => YES
+        )
+
+    [9] => Array
+        (
+            [column_name] => email
+            [data_type] => character varying
+            [character_maximum_length] => 100
+            [is_nullable] => YES
+        )
+
+    [10] => Array
+        (
+            [column_name] => department_id
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [11] => Array
+        (
+            [column_name] => city_id
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [12] => Array
+        (
+            [column_name] => is_minor
+            [data_type] => boolean
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [13] => Array
+        (
+            [column_name] => guardian_name
+            [data_type] => character varying
+            [character_maximum_length] => 255
+            [is_nullable] => YES
+        )
+
+    [14] => Array
+        (
+            [column_name] => guardian_document
+            [data_type] => character varying
+            [character_maximum_length] => 20
+            [is_nullable] => YES
+        )
+
+    [15] => Array
+        (
+            [column_name] => created_at
+            [data_type] => timestamp with time zone
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [16] => Array
+        (
+            [column_name] => registered_by
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [17] => Array
+        (
+            [column_name] => modified_by
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [18] => Array
+        (
+            [column_name] => last_modified_at
+            [data_type] => timestamp with time zone
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [19] => Array
+        (
+            [column_name] => last_accessed_at
+            [data_type] => timestamp with time zone
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [20] => Array
+        (
+            [column_name] => owner_id
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [21] => Array
+        (
+            [column_name] => is_active
+            [data_type] => boolean
+            [character_maximum_length] => 
+            [is_nullable] => NO
+        )
+
+    [22] => Array
+        (
+            [column_name] => business_id
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [23] => Array
+        (
+            [column_name] => profile_photo
+            [data_type] => character varying
+            [character_maximum_length] => 255
+            [is_nullable] => YES
+        )
+
+)
+
+-----------------------------------------------------
+[2025-06-25 01:20:19][INFO] [PROCESO] (desconocido) Iniciando procesamiento de consulta
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[motivoscomunes] => 2
+[formatoConsulta] => 11
+-----------------------------------------------------
+[2025-06-25 01:20:19][INFO] [DATOS] (desconocido) Campo crítico recibido
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[idPersona] => 45
+-----------------------------------------------------
+[2025-06-25 01:20:19][INFO] [DATOS] (desconocido) Campo crítico recibido
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[txtmotivo] => Adaptación de lentes de contacto, Disminución de la agudeza visual
+-----------------------------------------------------
+[2025-06-25 01:20:19][INFO] [DATOS] (desconocido) Campo crítico recibido
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[id_user] => 9
+-----------------------------------------------------
+[2025-06-25 01:20:19][INFO] [DATOS] (desconocido) Campo crítico recibido
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[id_reserva] => 0
+-----------------------------------------------------
+[2025-06-25 01:20:19][INFO] [ARCHIVOS] (desconocido) Procesando archivos adjuntos
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[files] => Array
+(
+    [0] => files
+)
+
+-----------------------------------------------------
+[2025-06-25 01:20:19][INFO] [INSERCION] (desconocido) Detectada creación de nueva consulta
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+-----------------------------------------------------
+[2025-06-25 01:20:19][INFO] [INSERCION] (desconocido) Llamando al controlador para guardar nueva consulta
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[datos_clave] => Array
+(
+    [id_persona] => 45
+    [id_user] => 9
+)
+
+-----------------------------------------------------
+[2025-06-25 01:20:19][INFO] [CONTROLLER] (guardar-consulta.ajax.php:183) Iniciando ctrSetConsulta en el controlador
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[datos_recibidos] => Array
+(
+    [0] => txtdocumento
+    [1] => txtficha
+    [2] => txtnombre
+    [3] => idPersona
+    [4] => motivoscomunes
+    [5] => formatoConsulta
+    [6] => txtmotivo
+    [7] => visionod
+    [8] => visionoi
+    [9] => tensionod
+    [10] => tensionoi
+    [11] => consulta-textarea
+    [12] => formatoreceta
+    [13] => receta-textarea
+    [14] => txtnota
+    [15] => proximaconsulta
+    [16] => whatsapptxt
+    [17] => email
+    [18] => id_user
+    [19] => id_reserva
+    [20] => medico_id
+    [21] => id_consulta_actual
+)
+
+-----------------------------------------------------
+[2025-06-25 01:20:19][INFO] [CONTROLLER] (guardar-consulta.ajax.php:183) Llamando al modelo mdlSetConsulta
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+-----------------------------------------------------
+[2025-06-25 01:20:19][INFO] [MODELO] (consultas.controller.php:33) Iniciando mdlSetConsulta
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[datos] => Array
+(
+    [0] => txtdocumento
+    [1] => txtficha
+    [2] => txtnombre
+    [3] => idPersona
+    [4] => motivoscomunes
+    [5] => formatoConsulta
+    [6] => txtmotivo
+    [7] => visionod
+    [8] => visionoi
+    [9] => tensionod
+    [10] => tensionoi
+    [11] => consulta-textarea
+    [12] => formatoreceta
+    [13] => receta-textarea
+    [14] => txtnota
+    [15] => proximaconsulta
+    [16] => whatsapptxt
+    [17] => email
+    [18] => id_user
+    [19] => id_reserva
+    [20] => medico_id
+    [21] => id_consulta_actual
+)
+
+[es_actualizacion] => 
+-----------------------------------------------------
+[2025-06-25 01:20:19][INFO] [MODELO] (consultas.controller.php:33) Intentando obtener conexión a BD
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+-----------------------------------------------------
+[2025-06-25 01:20:19][ÉXITO] [MODELO] (consultas.controller.php:33) Conexión establecida correctamente
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+-----------------------------------------------------
+[2025-06-25 01:20:19][INFO] [MODELO] (consultas.controller.php:33) Paciente encontrado para la consulta
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[person_id] => 45
+[nombre] => alejandro visconte
+-----------------------------------------------------
+[2025-06-25 01:20:19][INFO] [MODELO] (consultas.controller.php:33) Verificando campos obligatorios
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[motivoscomunes] => OK
+[txtmotivo] => OK
+[id_persona] => OK
+-----------------------------------------------------
+[2025-06-25 01:20:19][INFO] [MODELO] (consultas.controller.php:33) Preparando consulta SQL para inserción
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+-----------------------------------------------------
+[2025-06-25 01:20:19][ÉXITO] [MODELO] (consultas.controller.php:33) Consulta SQL preparada correctamente
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+-----------------------------------------------------
+[2025-06-25 01:20:19][INFO] [MODELO] (consultas.controller.php:33) Comenzando bind de parámetros
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+-----------------------------------------------------
+[2025-06-25 01:20:19][DEBUG] [MODELO] (consultas.controller.php:33) Valores para bind de parámetros
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[:motivoscomunes] => Array
+(
+    [valor] => 2
+    [tipo] => 2
+)
+
+[:txtmotivo] => Array
+(
+    [valor] => Adaptación de lentes de contacto, Disminución de la agudeza visual
+    [tipo] => 2
+)
+
+[:visionod] => Array
+(
+    [valor] => 345
+    [tipo] => 2
+)
+
+[:visionoi] => Array
+(
+    [valor] => 345
+    [tipo] => 2
+)
+
+[:tensionod] => Array
+(
+    [valor] => 345
+    [tipo] => 2
+)
+
+[:tensionoi] => Array
+(
+    [valor] => 345
+    [tipo] => 2
+)
+
+[:consulta_textarea] => Array
+(
+    [valor] => <p><b>PRUEBAAAA<span style="box-sizing: border-box; color: rgb(33, 37, 41); font-family: &quot;Source Sans Pro&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(255, 255, 255); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;">PRUEBAAAA</span></b></p>
+    [tipo] => 2
+)
+
+[:receta_textarea] => Array
+(
+    [valor] => <p>fgfdgdfgdf</p>
+    [tipo] => 2
+)
+
+[:txtnota] => Array
+(
+    [valor] => 
+    [tipo] => 2
+)
+
+[:whatsapptxt] => Array
+(
+    [valor] => 
+    [tipo] => 2
+)
+
+[:email] => Array
+(
+    [valor] => 
+    [tipo] => 2
+)
+
+[:id_user] => Array
+(
+    [valor] => 9
+    [tipo] => 1
+)
+
+[:id_reserva] => Array
+(
+    [valor] => 0
+    [tipo] => 1
+)
+
+[:id_persona] => Array
+(
+    [valor] => 45
+    [tipo] => 1
+)
+
+-----------------------------------------------------
+[2025-06-25 01:20:19][INFO] [MODELO] (consultas.controller.php:33) Campo proximaconsulta tiene valor
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[valor] => 2025-06-30
+-----------------------------------------------------
+[2025-06-25 01:20:19][INFO] [MODELO] (consultas.controller.php:33) IDs después de convertir a enteros
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[id_user] => 9
+[id_reserva] => 0
+[id_persona] => 45
+-----------------------------------------------------
+[2025-06-25 01:20:19][ÉXITO] [MODELO] (consultas.controller.php:33) Todos los parámetros bindeados correctamente
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+-----------------------------------------------------
+[2025-06-25 01:20:19][INFO] [MODELO] (consultas.controller.php:33) Intentando ejecutar la consulta SQL
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+-----------------------------------------------------
+[2025-06-25 01:20:19][ÉXITO] [MODELO] (consultas.controller.php:33) Consulta ejecutada correctamente
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[id_consulta] => 36
+-----------------------------------------------------
+[2025-06-25 01:20:19][INFO] [CONTROLLER] (guardar-consulta.ajax.php:183) Resultado del modelo
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[resultado] => 36
+-----------------------------------------------------
+[2025-06-25 01:20:19][INFO] [INSERCION] (desconocido) Respuesta recibida del controlador
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[response] => 36
+-----------------------------------------------------
+[2025-06-25 01:20:19][ÉXITO] [INSERCION] (desconocido) Consulta guardada exitosamente
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[id_consulta] => 36
+-----------------------------------------------------
+[2025-06-25 01:23:22][INFO] [INICIO] (desconocido) Iniciando proceso de guardar consulta
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[POST] => Array
+(
+    [txtdocumento] => 465
+    [txtficha] => 34543
+    [txtnombre] => guido benitez
+    [idPersona] => 11
+    [motivoscomunes] => 1
+    [formatoConsulta] => Seleccionar
+    [txtmotivo] => sfsdfsdf, Dolor de diente
+    [visionod] => 4534
+    [visionoi] => 345345
+    [tensionod] => 345345
+    [tensionoi] => 34534
+    [consulta-textarea] => <p>fdgfdgfd</p>
+    [formatoreceta] => Seleccionar
+    [receta-textarea] => <p>dfgdfgdfg</p>
+    [txtnota] => dfgdfgdfgdfg
+    [proximaconsulta] => 2025-04-20
+    [whatsapptxt] => 546546
+    [email] => sdfsd@sdfsdf.com
+    [id_user] => 9
+    [id_reserva] => 0
+    [medico_id] => 1
+    [id_consulta_actual] => 16
+    [id_consulta] => 16
+)
+
+-----------------------------------------------------
+[2025-06-25 01:23:22][DEBUG] [CONFIG] (desconocido) Verificando configuración PHP
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[version_php] => 8.3.11
+[extensiones] => Array
+(
+    [0] => Core
+    [1] => bcmath
+    [2] => calendar
+    [3] => ctype
+    [4] => date
+    [5] => filter
+    [6] => hash
+    [7] => iconv
+    [8] => json
+    [9] => SPL
+    [10] => pcre
+    [11] => random
+    [12] => readline
+    [13] => Reflection
+    [14] => session
+    [15] => standard
+    [16] => mysqlnd
+    [17] => tokenizer
+    [18] => zlib
+    [19] => libxml
+    [20] => dom
+    [21] => PDO
+    [22] => openssl
+    [23] => SimpleXML
+    [24] => xml
+    [25] => xmlreader
+    [26] => xmlwriter
+    [27] => apache2handler
+    [28] => ftp
+    [29] => fileinfo
+    [30] => gd
+    [31] => gmp
+    [32] => intl
+    [33] => mbstring
+    [34] => exif
+    [35] => mysqli
+    [36] => Phar
+    [37] => pdo_mysql
+    [38] => pdo_pgsql
+    [39] => pdo_sqlite
+    [40] => pgsql
+    [41] => sqlite3
+    [42] => xsl
+    [43] => zip
+)
+
+[memoria_limite] => 512M
+[tiempo_ejecucion] => 36000
+-----------------------------------------------------
+[2025-06-25 01:23:22][INFO] [ARCHIVOS] (desconocido) Verificando carga de archivos
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[controller_existe] => 1
+[model_existe] => 1
+-----------------------------------------------------
+[2025-06-25 01:23:22][INFO] [ESTRUCTURA] (guardar-consulta.ajax.php:28) Estructura de la tabla consultas
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[columnas] => Array
+(
+    [0] => Array
+        (
+            [column_name] => id_consulta
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => NO
+        )
+
+    [1] => Array
+        (
+            [column_name] => id_persona
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => NO
+        )
+
+    [2] => Array
+        (
+            [column_name] => motivoscomunes
+            [data_type] => character varying
+            [character_maximum_length] => 255
+            [is_nullable] => YES
+        )
+
+    [3] => Array
+        (
+            [column_name] => txtmotivo
+            [data_type] => character varying
+            [character_maximum_length] => 255
+            [is_nullable] => YES
+        )
+
+    [4] => Array
+        (
+            [column_name] => visionod
+            [data_type] => character varying
+            [character_maximum_length] => 50
+            [is_nullable] => YES
+        )
+
+    [5] => Array
+        (
+            [column_name] => visionoi
+            [data_type] => character varying
+            [character_maximum_length] => 50
+            [is_nullable] => YES
+        )
+
+    [6] => Array
+        (
+            [column_name] => tensionod
+            [data_type] => character varying
+            [character_maximum_length] => 50
+            [is_nullable] => YES
+        )
+
+    [7] => Array
+        (
+            [column_name] => tensionoi
+            [data_type] => character varying
+            [character_maximum_length] => 50
+            [is_nullable] => YES
+        )
+
+    [8] => Array
+        (
+            [column_name] => consulta_textarea
+            [data_type] => text
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [9] => Array
+        (
+            [column_name] => receta_textarea
+            [data_type] => text
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [10] => Array
+        (
+            [column_name] => txtnota
+            [data_type] => text
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [11] => Array
+        (
+            [column_name] => proximaconsulta
+            [data_type] => date
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [12] => Array
+        (
+            [column_name] => whatsapptxt
+            [data_type] => character varying
+            [character_maximum_length] => 50
+            [is_nullable] => YES
+        )
+
+    [13] => Array
+        (
+            [column_name] => email
+            [data_type] => character varying
+            [character_maximum_length] => 100
+            [is_nullable] => YES
+        )
+
+    [14] => Array
+        (
+            [column_name] => id_user
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [15] => Array
+        (
+            [column_name] => id_reserva
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [16] => Array
+        (
+            [column_name] => fecha_registro
+            [data_type] => timestamp without time zone
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [17] => Array
+        (
+            [column_name] => ultima_modificacion
+            [data_type] => timestamp without time zone
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+)
+
+-----------------------------------------------------
+[2025-06-25 01:23:22][INFO] [ESTRUCTURA] (guardar-consulta.ajax.php:29) Estructura de la tabla rh_person
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[columnas] => Array
+(
+    [0] => Array
+        (
+            [column_name] => person_id
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => NO
+        )
+
+    [1] => Array
+        (
+            [column_name] => document_number
+            [data_type] => character varying
+            [character_maximum_length] => 20
+            [is_nullable] => NO
+        )
+
+    [2] => Array
+        (
+            [column_name] => birth_date
+            [data_type] => date
+            [character_maximum_length] => 
+            [is_nullable] => NO
+        )
+
+    [3] => Array
+        (
+            [column_name] => first_name
+            [data_type] => character varying
+            [character_maximum_length] => 255
+            [is_nullable] => NO
+        )
+
+    [4] => Array
+        (
+            [column_name] => last_name
+            [data_type] => character varying
+            [character_maximum_length] => 255
+            [is_nullable] => NO
+        )
+
+    [5] => Array
+        (
+            [column_name] => phone_number
+            [data_type] => character varying
+            [character_maximum_length] => 50
+            [is_nullable] => YES
+        )
+
+    [6] => Array
+        (
+            [column_name] => gender
+            [data_type] => character
+            [character_maximum_length] => 1
+            [is_nullable] => YES
+        )
+
+    [7] => Array
+        (
+            [column_name] => record_number
+            [data_type] => character varying
+            [character_maximum_length] => 50
+            [is_nullable] => YES
+        )
+
+    [8] => Array
+        (
+            [column_name] => address
+            [data_type] => character varying
+            [character_maximum_length] => 255
+            [is_nullable] => YES
+        )
+
+    [9] => Array
+        (
+            [column_name] => email
+            [data_type] => character varying
+            [character_maximum_length] => 100
+            [is_nullable] => YES
+        )
+
+    [10] => Array
+        (
+            [column_name] => department_id
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [11] => Array
+        (
+            [column_name] => city_id
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [12] => Array
+        (
+            [column_name] => is_minor
+            [data_type] => boolean
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [13] => Array
+        (
+            [column_name] => guardian_name
+            [data_type] => character varying
+            [character_maximum_length] => 255
+            [is_nullable] => YES
+        )
+
+    [14] => Array
+        (
+            [column_name] => guardian_document
+            [data_type] => character varying
+            [character_maximum_length] => 20
+            [is_nullable] => YES
+        )
+
+    [15] => Array
+        (
+            [column_name] => created_at
+            [data_type] => timestamp with time zone
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [16] => Array
+        (
+            [column_name] => registered_by
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [17] => Array
+        (
+            [column_name] => modified_by
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [18] => Array
+        (
+            [column_name] => last_modified_at
+            [data_type] => timestamp with time zone
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [19] => Array
+        (
+            [column_name] => last_accessed_at
+            [data_type] => timestamp with time zone
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [20] => Array
+        (
+            [column_name] => owner_id
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [21] => Array
+        (
+            [column_name] => is_active
+            [data_type] => boolean
+            [character_maximum_length] => 
+            [is_nullable] => NO
+        )
+
+    [22] => Array
+        (
+            [column_name] => business_id
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [23] => Array
+        (
+            [column_name] => profile_photo
+            [data_type] => character varying
+            [character_maximum_length] => 255
+            [is_nullable] => YES
+        )
+
+)
+
+-----------------------------------------------------
+[2025-06-25 01:23:22][INFO] [PROCESO] (desconocido) Iniciando procesamiento de consulta
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[motivoscomunes] => 1
+[formatoConsulta] => Seleccionar
+-----------------------------------------------------
+[2025-06-25 01:23:22][INFO] [DATOS] (desconocido) Campo crítico recibido
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[idPersona] => 11
+-----------------------------------------------------
+[2025-06-25 01:23:22][INFO] [DATOS] (desconocido) Campo crítico recibido
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[txtmotivo] => sfsdfsdf, Dolor de diente
+-----------------------------------------------------
+[2025-06-25 01:23:22][INFO] [DATOS] (desconocido) Campo crítico recibido
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[id_user] => 9
+-----------------------------------------------------
+[2025-06-25 01:23:22][INFO] [DATOS] (desconocido) Campo crítico recibido
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[id_reserva] => 0
+-----------------------------------------------------
+[2025-06-25 01:23:22][INFO] [ARCHIVOS] (desconocido) Procesando archivos adjuntos
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[files] => Array
+(
+    [0] => files
+)
+
+-----------------------------------------------------
+[2025-06-25 01:23:22][INFO] [ACTUALIZACION] (desconocido) Detectada actualización de consulta existente
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[id_consulta] => 16
+-----------------------------------------------------
+[2025-06-25 01:23:22][INFO] [INSERTAR] (guardar-consulta.ajax.php:148) Llamando al controlador para insertar consulta
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[datos] => Array
+(
+    [0] => txtdocumento
+    [1] => txtficha
+    [2] => txtnombre
+    [3] => idPersona
+    [4] => motivoscomunes
+    [5] => formatoConsulta
+    [6] => txtmotivo
+    [7] => visionod
+    [8] => visionoi
+    [9] => tensionod
+    [10] => tensionoi
+    [11] => consulta-textarea
+    [12] => formatoreceta
+    [13] => receta-textarea
+    [14] => txtnota
+    [15] => proximaconsulta
+    [16] => whatsapptxt
+    [17] => email
+    [18] => id_user
+    [19] => id_reserva
+    [20] => medico_id
+    [21] => id_consulta_actual
+    [22] => id_consulta
+)
+
+-----------------------------------------------------
+[2025-06-25 01:23:22][INFO] [CONTROLLER] (guardar-consulta.ajax.php:34) Iniciando ctrSetConsulta en el controlador
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[datos_recibidos] => Array
+(
+    [0] => txtdocumento
+    [1] => txtficha
+    [2] => txtnombre
+    [3] => idPersona
+    [4] => motivoscomunes
+    [5] => formatoConsulta
+    [6] => txtmotivo
+    [7] => visionod
+    [8] => visionoi
+    [9] => tensionod
+    [10] => tensionoi
+    [11] => consulta-textarea
+    [12] => formatoreceta
+    [13] => receta-textarea
+    [14] => txtnota
+    [15] => proximaconsulta
+    [16] => whatsapptxt
+    [17] => email
+    [18] => id_user
+    [19] => id_reserva
+    [20] => medico_id
+    [21] => id_consulta_actual
+    [22] => id_consulta
+)
+
+-----------------------------------------------------
+[2025-06-25 01:23:22][INFO] [CONTROLLER] (guardar-consulta.ajax.php:34) Llamando al modelo mdlSetConsulta
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+-----------------------------------------------------
+[2025-06-25 01:23:22][INFO] [MODELO] (consultas.controller.php:33) Iniciando mdlSetConsulta
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[datos] => Array
+(
+    [0] => txtdocumento
+    [1] => txtficha
+    [2] => txtnombre
+    [3] => idPersona
+    [4] => motivoscomunes
+    [5] => formatoConsulta
+    [6] => txtmotivo
+    [7] => visionod
+    [8] => visionoi
+    [9] => tensionod
+    [10] => tensionoi
+    [11] => consulta-textarea
+    [12] => formatoreceta
+    [13] => receta-textarea
+    [14] => txtnota
+    [15] => proximaconsulta
+    [16] => whatsapptxt
+    [17] => email
+    [18] => id_user
+    [19] => id_reserva
+    [20] => medico_id
+    [21] => id_consulta_actual
+    [22] => id_consulta
+)
+
+[es_actualizacion] => 1
+-----------------------------------------------------
+[2025-06-25 01:23:22][INFO] [MODELO] (consultas.controller.php:33) Redirigiendo a actualización de consulta
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[id_consulta] => 16
+-----------------------------------------------------
+[2025-06-25 01:23:22][INFO] [CONTROLLER] (guardar-consulta.ajax.php:34) Resultado del modelo
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[resultado] => actualizado
+-----------------------------------------------------
+[2025-06-25 01:23:22][INFO] [INSERTAR] (guardar-consulta.ajax.php:148) Respuesta del controlador
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[response] => actualizado
+-----------------------------------------------------
+[2025-06-25 01:23:22][ÉXITO] [ACTUALIZACION] (desconocido) Consulta actualizada correctamente
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+-----------------------------------------------------
+[2025-06-25 01:28:26][INFO] [INICIO] (desconocido) Iniciando proceso de guardar consulta
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[POST] => Array
+(
+    [txtdocumento] => 465
+    [txtficha] => 34543
+    [txtnombre] => guido benitez
+    [idPersona] => 11
+    [motivoscomunes] => 2
+    [formatoConsulta] => 11
+    [txtmotivo] => Adaptación de lentes de contacto, Disminución de la agudeza visual
+    [visionod] => 345
+    [visionoi] => 345
+    [tensionod] => 345
+    [tensionoi] => 345
+    [consulta-textarea] => <p><strong>[Diagnóstico ICD-11: MD12 - Tos]</strong></p>
+                        <p>La tos es un mecanismo de defensa natural y un reflejo protector importante que despeja las vías respiratorias altas y bajas por eliminación de las secreciones excesivas, como el moco y las partículas inhaladas. La tos es un síntoma frecuente de la mayoría de los trastornos respiratorios y puede apuntar a la presencia de una afección de las vías respiratorias o del pulmón que puede ser o insignificante o sumamente grave.</p>
+                        <p>&nbsp;</p><p><b>PRUEBAAAA<span style="box-sizing: border-box; color: rgb(33, 37, 41); font-family: &quot;Source Sans Pro&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(255, 255, 255); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;">PRUEBAAAA</span></b></p>
+    [formatoreceta] => Seleccionar
+    [receta-textarea] => <p><br></p><p><strong>GADOCAL</strong> (GADOR)</p><p>Indicaciones: cada 2 horas</p>
+    [txtnota] => 
+    [proximaconsulta] => 2025-06-30
+    [whatsapptxt] => 
+    [email] => 
+    [id_user] => 9
+    [id_reserva] => 0
+    [medico_id] => 1
+    [id_consulta_actual] => 
+)
+
+-----------------------------------------------------
+[2025-06-25 01:28:26][DEBUG] [CONFIG] (desconocido) Verificando configuración PHP
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[version_php] => 8.3.11
+[extensiones] => Array
+(
+    [0] => Core
+    [1] => bcmath
+    [2] => calendar
+    [3] => ctype
+    [4] => date
+    [5] => filter
+    [6] => hash
+    [7] => iconv
+    [8] => json
+    [9] => SPL
+    [10] => pcre
+    [11] => random
+    [12] => readline
+    [13] => Reflection
+    [14] => session
+    [15] => standard
+    [16] => mysqlnd
+    [17] => tokenizer
+    [18] => zlib
+    [19] => libxml
+    [20] => dom
+    [21] => PDO
+    [22] => openssl
+    [23] => SimpleXML
+    [24] => xml
+    [25] => xmlreader
+    [26] => xmlwriter
+    [27] => apache2handler
+    [28] => ftp
+    [29] => fileinfo
+    [30] => gd
+    [31] => gmp
+    [32] => intl
+    [33] => mbstring
+    [34] => exif
+    [35] => mysqli
+    [36] => Phar
+    [37] => pdo_mysql
+    [38] => pdo_pgsql
+    [39] => pdo_sqlite
+    [40] => pgsql
+    [41] => sqlite3
+    [42] => xsl
+    [43] => zip
+)
+
+[memoria_limite] => 512M
+[tiempo_ejecucion] => 36000
+-----------------------------------------------------
+[2025-06-25 01:28:26][INFO] [ARCHIVOS] (desconocido) Verificando carga de archivos
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[controller_existe] => 1
+[model_existe] => 1
+-----------------------------------------------------
+[2025-06-25 01:28:26][INFO] [ESTRUCTURA] (guardar-consulta.ajax.php:28) Estructura de la tabla consultas
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[columnas] => Array
+(
+    [0] => Array
+        (
+            [column_name] => id_consulta
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => NO
+        )
+
+    [1] => Array
+        (
+            [column_name] => id_persona
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => NO
+        )
+
+    [2] => Array
+        (
+            [column_name] => motivoscomunes
+            [data_type] => character varying
+            [character_maximum_length] => 255
+            [is_nullable] => YES
+        )
+
+    [3] => Array
+        (
+            [column_name] => txtmotivo
+            [data_type] => character varying
+            [character_maximum_length] => 255
+            [is_nullable] => YES
+        )
+
+    [4] => Array
+        (
+            [column_name] => visionod
+            [data_type] => character varying
+            [character_maximum_length] => 50
+            [is_nullable] => YES
+        )
+
+    [5] => Array
+        (
+            [column_name] => visionoi
+            [data_type] => character varying
+            [character_maximum_length] => 50
+            [is_nullable] => YES
+        )
+
+    [6] => Array
+        (
+            [column_name] => tensionod
+            [data_type] => character varying
+            [character_maximum_length] => 50
+            [is_nullable] => YES
+        )
+
+    [7] => Array
+        (
+            [column_name] => tensionoi
+            [data_type] => character varying
+            [character_maximum_length] => 50
+            [is_nullable] => YES
+        )
+
+    [8] => Array
+        (
+            [column_name] => consulta_textarea
+            [data_type] => text
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [9] => Array
+        (
+            [column_name] => receta_textarea
+            [data_type] => text
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [10] => Array
+        (
+            [column_name] => txtnota
+            [data_type] => text
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [11] => Array
+        (
+            [column_name] => proximaconsulta
+            [data_type] => date
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [12] => Array
+        (
+            [column_name] => whatsapptxt
+            [data_type] => character varying
+            [character_maximum_length] => 50
+            [is_nullable] => YES
+        )
+
+    [13] => Array
+        (
+            [column_name] => email
+            [data_type] => character varying
+            [character_maximum_length] => 100
+            [is_nullable] => YES
+        )
+
+    [14] => Array
+        (
+            [column_name] => id_user
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [15] => Array
+        (
+            [column_name] => id_reserva
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [16] => Array
+        (
+            [column_name] => fecha_registro
+            [data_type] => timestamp without time zone
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [17] => Array
+        (
+            [column_name] => ultima_modificacion
+            [data_type] => timestamp without time zone
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+)
+
+-----------------------------------------------------
+[2025-06-25 01:28:26][INFO] [ESTRUCTURA] (guardar-consulta.ajax.php:29) Estructura de la tabla rh_person
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[columnas] => Array
+(
+    [0] => Array
+        (
+            [column_name] => person_id
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => NO
+        )
+
+    [1] => Array
+        (
+            [column_name] => document_number
+            [data_type] => character varying
+            [character_maximum_length] => 20
+            [is_nullable] => NO
+        )
+
+    [2] => Array
+        (
+            [column_name] => birth_date
+            [data_type] => date
+            [character_maximum_length] => 
+            [is_nullable] => NO
+        )
+
+    [3] => Array
+        (
+            [column_name] => first_name
+            [data_type] => character varying
+            [character_maximum_length] => 255
+            [is_nullable] => NO
+        )
+
+    [4] => Array
+        (
+            [column_name] => last_name
+            [data_type] => character varying
+            [character_maximum_length] => 255
+            [is_nullable] => NO
+        )
+
+    [5] => Array
+        (
+            [column_name] => phone_number
+            [data_type] => character varying
+            [character_maximum_length] => 50
+            [is_nullable] => YES
+        )
+
+    [6] => Array
+        (
+            [column_name] => gender
+            [data_type] => character
+            [character_maximum_length] => 1
+            [is_nullable] => YES
+        )
+
+    [7] => Array
+        (
+            [column_name] => record_number
+            [data_type] => character varying
+            [character_maximum_length] => 50
+            [is_nullable] => YES
+        )
+
+    [8] => Array
+        (
+            [column_name] => address
+            [data_type] => character varying
+            [character_maximum_length] => 255
+            [is_nullable] => YES
+        )
+
+    [9] => Array
+        (
+            [column_name] => email
+            [data_type] => character varying
+            [character_maximum_length] => 100
+            [is_nullable] => YES
+        )
+
+    [10] => Array
+        (
+            [column_name] => department_id
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [11] => Array
+        (
+            [column_name] => city_id
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [12] => Array
+        (
+            [column_name] => is_minor
+            [data_type] => boolean
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [13] => Array
+        (
+            [column_name] => guardian_name
+            [data_type] => character varying
+            [character_maximum_length] => 255
+            [is_nullable] => YES
+        )
+
+    [14] => Array
+        (
+            [column_name] => guardian_document
+            [data_type] => character varying
+            [character_maximum_length] => 20
+            [is_nullable] => YES
+        )
+
+    [15] => Array
+        (
+            [column_name] => created_at
+            [data_type] => timestamp with time zone
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [16] => Array
+        (
+            [column_name] => registered_by
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [17] => Array
+        (
+            [column_name] => modified_by
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [18] => Array
+        (
+            [column_name] => last_modified_at
+            [data_type] => timestamp with time zone
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [19] => Array
+        (
+            [column_name] => last_accessed_at
+            [data_type] => timestamp with time zone
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [20] => Array
+        (
+            [column_name] => owner_id
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [21] => Array
+        (
+            [column_name] => is_active
+            [data_type] => boolean
+            [character_maximum_length] => 
+            [is_nullable] => NO
+        )
+
+    [22] => Array
+        (
+            [column_name] => business_id
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [23] => Array
+        (
+            [column_name] => profile_photo
+            [data_type] => character varying
+            [character_maximum_length] => 255
+            [is_nullable] => YES
+        )
+
+)
+
+-----------------------------------------------------
+[2025-06-25 01:28:26][INFO] [PROCESO] (desconocido) Iniciando procesamiento de consulta
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[motivoscomunes] => 2
+[formatoConsulta] => 11
+-----------------------------------------------------
+[2025-06-25 01:28:26][INFO] [DATOS] (desconocido) Campo crítico recibido
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[idPersona] => 11
+-----------------------------------------------------
+[2025-06-25 01:28:26][INFO] [DATOS] (desconocido) Campo crítico recibido
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[txtmotivo] => Adaptación de lentes de contacto, Disminución de la agudeza visual
+-----------------------------------------------------
+[2025-06-25 01:28:26][INFO] [DATOS] (desconocido) Campo crítico recibido
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[id_user] => 9
+-----------------------------------------------------
+[2025-06-25 01:28:26][INFO] [DATOS] (desconocido) Campo crítico recibido
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[id_reserva] => 0
+-----------------------------------------------------
+[2025-06-25 01:28:26][INFO] [ARCHIVOS] (desconocido) Procesando archivos adjuntos
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[files] => Array
+(
+    [0] => files
+)
+
+-----------------------------------------------------
+[2025-06-25 01:28:26][INFO] [INSERCION] (desconocido) Detectada creación de nueva consulta
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+-----------------------------------------------------
+[2025-06-25 01:28:26][INFO] [INSERCION] (desconocido) Llamando al controlador para guardar nueva consulta
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[datos_clave] => Array
+(
+    [id_persona] => 11
+    [id_user] => 9
+)
+
+-----------------------------------------------------
+[2025-06-25 01:28:26][INFO] [CONTROLLER] (guardar-consulta.ajax.php:183) Iniciando ctrSetConsulta en el controlador
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[datos_recibidos] => Array
+(
+    [0] => txtdocumento
+    [1] => txtficha
+    [2] => txtnombre
+    [3] => idPersona
+    [4] => motivoscomunes
+    [5] => formatoConsulta
+    [6] => txtmotivo
+    [7] => visionod
+    [8] => visionoi
+    [9] => tensionod
+    [10] => tensionoi
+    [11] => consulta-textarea
+    [12] => formatoreceta
+    [13] => receta-textarea
+    [14] => txtnota
+    [15] => proximaconsulta
+    [16] => whatsapptxt
+    [17] => email
+    [18] => id_user
+    [19] => id_reserva
+    [20] => medico_id
+    [21] => id_consulta_actual
+)
+
+-----------------------------------------------------
+[2025-06-25 01:28:26][INFO] [CONTROLLER] (guardar-consulta.ajax.php:183) Llamando al modelo mdlSetConsulta
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+-----------------------------------------------------
+[2025-06-25 01:28:26][INFO] [MODELO] (consultas.controller.php:33) Iniciando mdlSetConsulta
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[datos] => Array
+(
+    [0] => txtdocumento
+    [1] => txtficha
+    [2] => txtnombre
+    [3] => idPersona
+    [4] => motivoscomunes
+    [5] => formatoConsulta
+    [6] => txtmotivo
+    [7] => visionod
+    [8] => visionoi
+    [9] => tensionod
+    [10] => tensionoi
+    [11] => consulta-textarea
+    [12] => formatoreceta
+    [13] => receta-textarea
+    [14] => txtnota
+    [15] => proximaconsulta
+    [16] => whatsapptxt
+    [17] => email
+    [18] => id_user
+    [19] => id_reserva
+    [20] => medico_id
+    [21] => id_consulta_actual
+)
+
+[es_actualizacion] => 
+-----------------------------------------------------
+[2025-06-25 01:28:26][INFO] [MODELO] (consultas.controller.php:33) Intentando obtener conexión a BD
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+-----------------------------------------------------
+[2025-06-25 01:28:27][ÉXITO] [MODELO] (consultas.controller.php:33) Conexión establecida correctamente
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+-----------------------------------------------------
+[2025-06-25 01:28:27][INFO] [MODELO] (consultas.controller.php:33) Paciente encontrado para la consulta
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[person_id] => 11
+[nombre] => guido benitez
+-----------------------------------------------------
+[2025-06-25 01:28:27][INFO] [MODELO] (consultas.controller.php:33) Verificando campos obligatorios
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[motivoscomunes] => OK
+[txtmotivo] => OK
+[id_persona] => OK
+-----------------------------------------------------
+[2025-06-25 01:28:27][INFO] [MODELO] (consultas.controller.php:33) Preparando consulta SQL para inserción
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+-----------------------------------------------------
+[2025-06-25 01:28:27][ÉXITO] [MODELO] (consultas.controller.php:33) Consulta SQL preparada correctamente
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+-----------------------------------------------------
+[2025-06-25 01:28:27][INFO] [MODELO] (consultas.controller.php:33) Comenzando bind de parámetros
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+-----------------------------------------------------
+[2025-06-25 01:28:27][DEBUG] [MODELO] (consultas.controller.php:33) Valores para bind de parámetros
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[:motivoscomunes] => Array
+(
+    [valor] => 2
+    [tipo] => 2
+)
+
+[:txtmotivo] => Array
+(
+    [valor] => Adaptación de lentes de contacto, Disminución de la agudeza visual
+    [tipo] => 2
+)
+
+[:visionod] => Array
+(
+    [valor] => 345
+    [tipo] => 2
+)
+
+[:visionoi] => Array
+(
+    [valor] => 345
+    [tipo] => 2
+)
+
+[:tensionod] => Array
+(
+    [valor] => 345
+    [tipo] => 2
+)
+
+[:tensionoi] => Array
+(
+    [valor] => 345
+    [tipo] => 2
+)
+
+[:consulta_textarea] => Array
+(
+    [valor] => <p><strong>[Diagnóstico ICD-11: MD12 - Tos]</strong></p>
+                        <p>La tos es un mecanismo de defensa natural y un reflejo protector importante que despeja las vías respiratorias altas y bajas por eliminación de las secreciones excesivas, como el moco y las partículas inhaladas. La tos es un síntoma frecuente de la mayoría de los trastornos respiratorios y puede apuntar a la presencia de una afección de las vías respiratorias o del pulmón que puede ser o insignificante o sumamente grave.</p>
+                        <p>&nbsp;</p><p><b>PRUEBAAAA<span style="box-sizing: border-box; color: rgb(33, 37, 41); font-family: &quot;Source Sans Pro&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(255, 255, 255); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;">PRUEBAAAA</span></b></p>
+    [tipo] => 2
+)
+
+[:receta_textarea] => Array
+(
+    [valor] => <p><br></p><p><strong>GADOCAL</strong> (GADOR)</p><p>Indicaciones: cada 2 horas</p>
+    [tipo] => 2
+)
+
+[:txtnota] => Array
+(
+    [valor] => 
+    [tipo] => 2
+)
+
+[:whatsapptxt] => Array
+(
+    [valor] => 
+    [tipo] => 2
+)
+
+[:email] => Array
+(
+    [valor] => 
+    [tipo] => 2
+)
+
+[:id_user] => Array
+(
+    [valor] => 9
+    [tipo] => 1
+)
+
+[:id_reserva] => Array
+(
+    [valor] => 0
+    [tipo] => 1
+)
+
+[:id_persona] => Array
+(
+    [valor] => 11
+    [tipo] => 1
+)
+
+-----------------------------------------------------
+[2025-06-25 01:28:27][INFO] [MODELO] (consultas.controller.php:33) Campo proximaconsulta tiene valor
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[valor] => 2025-06-30
+-----------------------------------------------------
+[2025-06-25 01:28:27][INFO] [MODELO] (consultas.controller.php:33) IDs después de convertir a enteros
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[id_user] => 9
+[id_reserva] => 0
+[id_persona] => 11
+-----------------------------------------------------
+[2025-06-25 01:28:27][ÉXITO] [MODELO] (consultas.controller.php:33) Todos los parámetros bindeados correctamente
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+-----------------------------------------------------
+[2025-06-25 01:28:27][INFO] [MODELO] (consultas.controller.php:33) Intentando ejecutar la consulta SQL
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+-----------------------------------------------------
+[2025-06-25 01:28:27][ÉXITO] [MODELO] (consultas.controller.php:33) Consulta ejecutada correctamente
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[id_consulta] => 37
+-----------------------------------------------------
+[2025-06-25 01:28:27][INFO] [CONTROLLER] (guardar-consulta.ajax.php:183) Resultado del modelo
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[resultado] => 37
+-----------------------------------------------------
+[2025-06-25 01:28:27][INFO] [INSERCION] (desconocido) Respuesta recibida del controlador
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[response] => 37
+-----------------------------------------------------
+[2025-06-25 01:28:27][ÉXITO] [INSERCION] (desconocido) Consulta guardada exitosamente
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[id_consulta] => 37
+-----------------------------------------------------
+[2025-06-25 01:30:02][INFO] [INICIO] (desconocido) Iniciando proceso de guardar consulta
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[POST] => Array
+(
+    [txtdocumento] => 465
+    [txtficha] => 34543
+    [txtnombre] => guido benitez
+    [idPersona] => 11
+    [motivoscomunes] => 2
+    [formatoConsulta] => 11
+    [txtmotivo] => Adaptación de lentes de contacto, Disminución de la agudeza visual
+    [visionod] => 34
+    [visionoi] => 435
+    [tensionod] => 345
+    [tensionoi] => 345
+    [consulta-textarea] => <p><b>PRUEBAAAA<span style="box-sizing: border-box; color: rgb(33, 37, 41); font-family: &quot;Source Sans Pro&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(255, 255, 255); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;">PRUEBAAAA</span></b></p>
+    [formatoreceta] => Seleccionar
+    [receta-textarea] => <p>fdgdfgfdg</p>
+    [txtnota] => 
+    [proximaconsulta] => 
+    [whatsapptxt] => 
+    [email] => 
+    [id_user] => 9
+    [id_reserva] => 0
+    [medico_id] => 1
+    [id_consulta_actual] => 
+)
+
+-----------------------------------------------------
+[2025-06-25 01:30:02][DEBUG] [CONFIG] (desconocido) Verificando configuración PHP
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[version_php] => 8.3.11
+[extensiones] => Array
+(
+    [0] => Core
+    [1] => bcmath
+    [2] => calendar
+    [3] => ctype
+    [4] => date
+    [5] => filter
+    [6] => hash
+    [7] => iconv
+    [8] => json
+    [9] => SPL
+    [10] => pcre
+    [11] => random
+    [12] => readline
+    [13] => Reflection
+    [14] => session
+    [15] => standard
+    [16] => mysqlnd
+    [17] => tokenizer
+    [18] => zlib
+    [19] => libxml
+    [20] => dom
+    [21] => PDO
+    [22] => openssl
+    [23] => SimpleXML
+    [24] => xml
+    [25] => xmlreader
+    [26] => xmlwriter
+    [27] => apache2handler
+    [28] => ftp
+    [29] => fileinfo
+    [30] => gd
+    [31] => gmp
+    [32] => intl
+    [33] => mbstring
+    [34] => exif
+    [35] => mysqli
+    [36] => Phar
+    [37] => pdo_mysql
+    [38] => pdo_pgsql
+    [39] => pdo_sqlite
+    [40] => pgsql
+    [41] => sqlite3
+    [42] => xsl
+    [43] => zip
+)
+
+[memoria_limite] => 512M
+[tiempo_ejecucion] => 36000
+-----------------------------------------------------
+[2025-06-25 01:30:02][INFO] [ARCHIVOS] (desconocido) Verificando carga de archivos
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[controller_existe] => 1
+[model_existe] => 1
+-----------------------------------------------------
+[2025-06-25 01:30:02][INFO] [ESTRUCTURA] (guardar-consulta.ajax.php:28) Estructura de la tabla consultas
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[columnas] => Array
+(
+    [0] => Array
+        (
+            [column_name] => id_consulta
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => NO
+        )
+
+    [1] => Array
+        (
+            [column_name] => id_persona
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => NO
+        )
+
+    [2] => Array
+        (
+            [column_name] => motivoscomunes
+            [data_type] => character varying
+            [character_maximum_length] => 255
+            [is_nullable] => YES
+        )
+
+    [3] => Array
+        (
+            [column_name] => txtmotivo
+            [data_type] => character varying
+            [character_maximum_length] => 255
+            [is_nullable] => YES
+        )
+
+    [4] => Array
+        (
+            [column_name] => visionod
+            [data_type] => character varying
+            [character_maximum_length] => 50
+            [is_nullable] => YES
+        )
+
+    [5] => Array
+        (
+            [column_name] => visionoi
+            [data_type] => character varying
+            [character_maximum_length] => 50
+            [is_nullable] => YES
+        )
+
+    [6] => Array
+        (
+            [column_name] => tensionod
+            [data_type] => character varying
+            [character_maximum_length] => 50
+            [is_nullable] => YES
+        )
+
+    [7] => Array
+        (
+            [column_name] => tensionoi
+            [data_type] => character varying
+            [character_maximum_length] => 50
+            [is_nullable] => YES
+        )
+
+    [8] => Array
+        (
+            [column_name] => consulta_textarea
+            [data_type] => text
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [9] => Array
+        (
+            [column_name] => receta_textarea
+            [data_type] => text
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [10] => Array
+        (
+            [column_name] => txtnota
+            [data_type] => text
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [11] => Array
+        (
+            [column_name] => proximaconsulta
+            [data_type] => date
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [12] => Array
+        (
+            [column_name] => whatsapptxt
+            [data_type] => character varying
+            [character_maximum_length] => 50
+            [is_nullable] => YES
+        )
+
+    [13] => Array
+        (
+            [column_name] => email
+            [data_type] => character varying
+            [character_maximum_length] => 100
+            [is_nullable] => YES
+        )
+
+    [14] => Array
+        (
+            [column_name] => id_user
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [15] => Array
+        (
+            [column_name] => id_reserva
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [16] => Array
+        (
+            [column_name] => fecha_registro
+            [data_type] => timestamp without time zone
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [17] => Array
+        (
+            [column_name] => ultima_modificacion
+            [data_type] => timestamp without time zone
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+)
+
+-----------------------------------------------------
+[2025-06-25 01:30:02][INFO] [ESTRUCTURA] (guardar-consulta.ajax.php:29) Estructura de la tabla rh_person
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[columnas] => Array
+(
+    [0] => Array
+        (
+            [column_name] => person_id
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => NO
+        )
+
+    [1] => Array
+        (
+            [column_name] => document_number
+            [data_type] => character varying
+            [character_maximum_length] => 20
+            [is_nullable] => NO
+        )
+
+    [2] => Array
+        (
+            [column_name] => birth_date
+            [data_type] => date
+            [character_maximum_length] => 
+            [is_nullable] => NO
+        )
+
+    [3] => Array
+        (
+            [column_name] => first_name
+            [data_type] => character varying
+            [character_maximum_length] => 255
+            [is_nullable] => NO
+        )
+
+    [4] => Array
+        (
+            [column_name] => last_name
+            [data_type] => character varying
+            [character_maximum_length] => 255
+            [is_nullable] => NO
+        )
+
+    [5] => Array
+        (
+            [column_name] => phone_number
+            [data_type] => character varying
+            [character_maximum_length] => 50
+            [is_nullable] => YES
+        )
+
+    [6] => Array
+        (
+            [column_name] => gender
+            [data_type] => character
+            [character_maximum_length] => 1
+            [is_nullable] => YES
+        )
+
+    [7] => Array
+        (
+            [column_name] => record_number
+            [data_type] => character varying
+            [character_maximum_length] => 50
+            [is_nullable] => YES
+        )
+
+    [8] => Array
+        (
+            [column_name] => address
+            [data_type] => character varying
+            [character_maximum_length] => 255
+            [is_nullable] => YES
+        )
+
+    [9] => Array
+        (
+            [column_name] => email
+            [data_type] => character varying
+            [character_maximum_length] => 100
+            [is_nullable] => YES
+        )
+
+    [10] => Array
+        (
+            [column_name] => department_id
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [11] => Array
+        (
+            [column_name] => city_id
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [12] => Array
+        (
+            [column_name] => is_minor
+            [data_type] => boolean
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [13] => Array
+        (
+            [column_name] => guardian_name
+            [data_type] => character varying
+            [character_maximum_length] => 255
+            [is_nullable] => YES
+        )
+
+    [14] => Array
+        (
+            [column_name] => guardian_document
+            [data_type] => character varying
+            [character_maximum_length] => 20
+            [is_nullable] => YES
+        )
+
+    [15] => Array
+        (
+            [column_name] => created_at
+            [data_type] => timestamp with time zone
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [16] => Array
+        (
+            [column_name] => registered_by
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [17] => Array
+        (
+            [column_name] => modified_by
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [18] => Array
+        (
+            [column_name] => last_modified_at
+            [data_type] => timestamp with time zone
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [19] => Array
+        (
+            [column_name] => last_accessed_at
+            [data_type] => timestamp with time zone
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [20] => Array
+        (
+            [column_name] => owner_id
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [21] => Array
+        (
+            [column_name] => is_active
+            [data_type] => boolean
+            [character_maximum_length] => 
+            [is_nullable] => NO
+        )
+
+    [22] => Array
+        (
+            [column_name] => business_id
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [23] => Array
+        (
+            [column_name] => profile_photo
+            [data_type] => character varying
+            [character_maximum_length] => 255
+            [is_nullable] => YES
+        )
+
+)
+
+-----------------------------------------------------
+[2025-06-25 01:30:02][INFO] [PROCESO] (desconocido) Iniciando procesamiento de consulta
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[motivoscomunes] => 2
+[formatoConsulta] => 11
+-----------------------------------------------------
+[2025-06-25 01:30:02][INFO] [DATOS] (desconocido) Campo crítico recibido
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[idPersona] => 11
+-----------------------------------------------------
+[2025-06-25 01:30:02][INFO] [DATOS] (desconocido) Campo crítico recibido
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[txtmotivo] => Adaptación de lentes de contacto, Disminución de la agudeza visual
+-----------------------------------------------------
+[2025-06-25 01:30:02][INFO] [DATOS] (desconocido) Campo crítico recibido
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[id_user] => 9
+-----------------------------------------------------
+[2025-06-25 01:30:02][INFO] [DATOS] (desconocido) Campo crítico recibido
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[id_reserva] => 0
+-----------------------------------------------------
+[2025-06-25 01:30:02][INFO] [ARCHIVOS] (desconocido) Procesando archivos adjuntos
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[files] => Array
+(
+    [0] => files
+)
+
+-----------------------------------------------------
+[2025-06-25 01:30:02][INFO] [INSERCION] (desconocido) Detectada creación de nueva consulta
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+-----------------------------------------------------
+[2025-06-25 01:30:02][INFO] [INSERCION] (desconocido) Llamando al controlador para guardar nueva consulta
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[datos_clave] => Array
+(
+    [id_persona] => 11
+    [id_user] => 9
+)
+
+-----------------------------------------------------
+[2025-06-25 01:30:02][INFO] [CONTROLLER] (guardar-consulta.ajax.php:183) Iniciando ctrSetConsulta en el controlador
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[datos_recibidos] => Array
+(
+    [0] => txtdocumento
+    [1] => txtficha
+    [2] => txtnombre
+    [3] => idPersona
+    [4] => motivoscomunes
+    [5] => formatoConsulta
+    [6] => txtmotivo
+    [7] => visionod
+    [8] => visionoi
+    [9] => tensionod
+    [10] => tensionoi
+    [11] => consulta-textarea
+    [12] => formatoreceta
+    [13] => receta-textarea
+    [14] => txtnota
+    [15] => proximaconsulta
+    [16] => whatsapptxt
+    [17] => email
+    [18] => id_user
+    [19] => id_reserva
+    [20] => medico_id
+    [21] => id_consulta_actual
+)
+
+-----------------------------------------------------
+[2025-06-25 01:30:02][INFO] [CONTROLLER] (guardar-consulta.ajax.php:183) Llamando al modelo mdlSetConsulta
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+-----------------------------------------------------
+[2025-06-25 01:30:02][INFO] [MODELO] (consultas.controller.php:33) Iniciando mdlSetConsulta
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[datos] => Array
+(
+    [0] => txtdocumento
+    [1] => txtficha
+    [2] => txtnombre
+    [3] => idPersona
+    [4] => motivoscomunes
+    [5] => formatoConsulta
+    [6] => txtmotivo
+    [7] => visionod
+    [8] => visionoi
+    [9] => tensionod
+    [10] => tensionoi
+    [11] => consulta-textarea
+    [12] => formatoreceta
+    [13] => receta-textarea
+    [14] => txtnota
+    [15] => proximaconsulta
+    [16] => whatsapptxt
+    [17] => email
+    [18] => id_user
+    [19] => id_reserva
+    [20] => medico_id
+    [21] => id_consulta_actual
+)
+
+[es_actualizacion] => 
+-----------------------------------------------------
+[2025-06-25 01:30:02][INFO] [MODELO] (consultas.controller.php:33) Intentando obtener conexión a BD
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+-----------------------------------------------------
+[2025-06-25 01:30:02][ÉXITO] [MODELO] (consultas.controller.php:33) Conexión establecida correctamente
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+-----------------------------------------------------
+[2025-06-25 01:30:02][INFO] [MODELO] (consultas.controller.php:33) Paciente encontrado para la consulta
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[person_id] => 11
+[nombre] => guido benitez
+-----------------------------------------------------
+[2025-06-25 01:30:02][INFO] [MODELO] (consultas.controller.php:33) Verificando campos obligatorios
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[motivoscomunes] => OK
+[txtmotivo] => OK
+[id_persona] => OK
+-----------------------------------------------------
+[2025-06-25 01:30:02][INFO] [MODELO] (consultas.controller.php:33) Preparando consulta SQL para inserción
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+-----------------------------------------------------
+[2025-06-25 01:30:02][ÉXITO] [MODELO] (consultas.controller.php:33) Consulta SQL preparada correctamente
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+-----------------------------------------------------
+[2025-06-25 01:30:02][INFO] [MODELO] (consultas.controller.php:33) Comenzando bind de parámetros
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+-----------------------------------------------------
+[2025-06-25 01:30:02][DEBUG] [MODELO] (consultas.controller.php:33) Valores para bind de parámetros
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[:motivoscomunes] => Array
+(
+    [valor] => 2
+    [tipo] => 2
+)
+
+[:txtmotivo] => Array
+(
+    [valor] => Adaptación de lentes de contacto, Disminución de la agudeza visual
+    [tipo] => 2
+)
+
+[:visionod] => Array
+(
+    [valor] => 34
+    [tipo] => 2
+)
+
+[:visionoi] => Array
+(
+    [valor] => 435
+    [tipo] => 2
+)
+
+[:tensionod] => Array
+(
+    [valor] => 345
+    [tipo] => 2
+)
+
+[:tensionoi] => Array
+(
+    [valor] => 345
+    [tipo] => 2
+)
+
+[:consulta_textarea] => Array
+(
+    [valor] => <p><b>PRUEBAAAA<span style="box-sizing: border-box; color: rgb(33, 37, 41); font-family: &quot;Source Sans Pro&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(255, 255, 255); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;">PRUEBAAAA</span></b></p>
+    [tipo] => 2
+)
+
+[:receta_textarea] => Array
+(
+    [valor] => <p>fdgdfgfdg</p>
+    [tipo] => 2
+)
+
+[:txtnota] => Array
+(
+    [valor] => 
+    [tipo] => 2
+)
+
+[:whatsapptxt] => Array
+(
+    [valor] => 
+    [tipo] => 2
+)
+
+[:email] => Array
+(
+    [valor] => 
+    [tipo] => 2
+)
+
+[:id_user] => Array
+(
+    [valor] => 9
+    [tipo] => 1
+)
+
+[:id_reserva] => Array
+(
+    [valor] => 0
+    [tipo] => 1
+)
+
+[:id_persona] => Array
+(
+    [valor] => 11
+    [tipo] => 1
+)
+
+-----------------------------------------------------
+[2025-06-25 01:30:02][INFO] [MODELO] (consultas.controller.php:33) Campo proximaconsulta está vacío, asignando NULL
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+-----------------------------------------------------
+[2025-06-25 01:30:02][INFO] [MODELO] (consultas.controller.php:33) IDs después de convertir a enteros
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[id_user] => 9
+[id_reserva] => 0
+[id_persona] => 11
+-----------------------------------------------------
+[2025-06-25 01:30:02][ÉXITO] [MODELO] (consultas.controller.php:33) Todos los parámetros bindeados correctamente
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+-----------------------------------------------------
+[2025-06-25 01:30:02][INFO] [MODELO] (consultas.controller.php:33) Intentando ejecutar la consulta SQL
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+-----------------------------------------------------
+[2025-06-25 01:30:02][ÉXITO] [MODELO] (consultas.controller.php:33) Consulta ejecutada correctamente
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[id_consulta] => 38
+-----------------------------------------------------
+[2025-06-25 01:30:02][INFO] [CONTROLLER] (guardar-consulta.ajax.php:183) Resultado del modelo
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[resultado] => 38
+-----------------------------------------------------
+[2025-06-25 01:30:02][INFO] [INSERCION] (desconocido) Respuesta recibida del controlador
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[response] => 38
+-----------------------------------------------------
+[2025-06-25 01:30:02][ÉXITO] [INSERCION] (desconocido) Consulta guardada exitosamente
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[id_consulta] => 38
+-----------------------------------------------------
+[2025-06-25 01:40:54][INFO] [INICIO] (desconocido) Iniciando proceso de guardar consulta
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[POST] => Array
+(
+    [txtdocumento] => 465
+    [txtficha] => 34543
+    [txtnombre] => guido benitez
+    [idPersona] => 11
+    [motivoscomunes] => 2
+    [formatoConsulta] => 11
+    [txtmotivo] => Adaptación de lentes de contacto, Disminución de la agudeza visual
+    [visionod] => 345
+    [visionoi] => 345
+    [tensionod] => 345
+    [tensionoi] => 345
+    [consulta-textarea] => <p><b>PRUEBAAAA<span style="box-sizing: border-box; color: rgb(33, 37, 41); font-family: &quot;Source Sans Pro&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(255, 255, 255); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;">PRUEBAAAA</span></b></p>
+    [formatoreceta] => Seleccionar
+    [receta-textarea] => <p>gdfgdfgdf</p>
+    [txtnota] => 
+    [proximaconsulta] => 
+    [whatsapptxt] => 
+    [email] => 
+    [id_user] => 9
+    [id_reserva] => 0
+    [medico_id] => 1
+    [id_consulta_actual] => 
+)
+
+-----------------------------------------------------
+[2025-06-25 01:40:54][DEBUG] [CONFIG] (desconocido) Verificando configuración PHP
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[version_php] => 8.3.11
+[extensiones] => Array
+(
+    [0] => Core
+    [1] => bcmath
+    [2] => calendar
+    [3] => ctype
+    [4] => date
+    [5] => filter
+    [6] => hash
+    [7] => iconv
+    [8] => json
+    [9] => SPL
+    [10] => pcre
+    [11] => random
+    [12] => readline
+    [13] => Reflection
+    [14] => session
+    [15] => standard
+    [16] => mysqlnd
+    [17] => tokenizer
+    [18] => zlib
+    [19] => libxml
+    [20] => dom
+    [21] => PDO
+    [22] => openssl
+    [23] => SimpleXML
+    [24] => xml
+    [25] => xmlreader
+    [26] => xmlwriter
+    [27] => apache2handler
+    [28] => ftp
+    [29] => fileinfo
+    [30] => gd
+    [31] => gmp
+    [32] => intl
+    [33] => mbstring
+    [34] => exif
+    [35] => mysqli
+    [36] => Phar
+    [37] => pdo_mysql
+    [38] => pdo_pgsql
+    [39] => pdo_sqlite
+    [40] => pgsql
+    [41] => sqlite3
+    [42] => xsl
+    [43] => zip
+)
+
+[memoria_limite] => 512M
+[tiempo_ejecucion] => 36000
+-----------------------------------------------------
+[2025-06-25 01:40:54][INFO] [ARCHIVOS] (desconocido) Verificando carga de archivos
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[controller_existe] => 1
+[model_existe] => 1
+-----------------------------------------------------
+[2025-06-25 01:40:54][INFO] [ESTRUCTURA] (guardar-consulta.ajax.php:28) Estructura de la tabla consultas
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[columnas] => Array
+(
+    [0] => Array
+        (
+            [column_name] => id_consulta
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => NO
+        )
+
+    [1] => Array
+        (
+            [column_name] => id_persona
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => NO
+        )
+
+    [2] => Array
+        (
+            [column_name] => motivoscomunes
+            [data_type] => character varying
+            [character_maximum_length] => 255
+            [is_nullable] => YES
+        )
+
+    [3] => Array
+        (
+            [column_name] => txtmotivo
+            [data_type] => character varying
+            [character_maximum_length] => 255
+            [is_nullable] => YES
+        )
+
+    [4] => Array
+        (
+            [column_name] => visionod
+            [data_type] => character varying
+            [character_maximum_length] => 50
+            [is_nullable] => YES
+        )
+
+    [5] => Array
+        (
+            [column_name] => visionoi
+            [data_type] => character varying
+            [character_maximum_length] => 50
+            [is_nullable] => YES
+        )
+
+    [6] => Array
+        (
+            [column_name] => tensionod
+            [data_type] => character varying
+            [character_maximum_length] => 50
+            [is_nullable] => YES
+        )
+
+    [7] => Array
+        (
+            [column_name] => tensionoi
+            [data_type] => character varying
+            [character_maximum_length] => 50
+            [is_nullable] => YES
+        )
+
+    [8] => Array
+        (
+            [column_name] => consulta_textarea
+            [data_type] => text
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [9] => Array
+        (
+            [column_name] => receta_textarea
+            [data_type] => text
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [10] => Array
+        (
+            [column_name] => txtnota
+            [data_type] => text
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [11] => Array
+        (
+            [column_name] => proximaconsulta
+            [data_type] => date
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [12] => Array
+        (
+            [column_name] => whatsapptxt
+            [data_type] => character varying
+            [character_maximum_length] => 50
+            [is_nullable] => YES
+        )
+
+    [13] => Array
+        (
+            [column_name] => email
+            [data_type] => character varying
+            [character_maximum_length] => 100
+            [is_nullable] => YES
+        )
+
+    [14] => Array
+        (
+            [column_name] => id_user
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [15] => Array
+        (
+            [column_name] => id_reserva
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [16] => Array
+        (
+            [column_name] => fecha_registro
+            [data_type] => timestamp without time zone
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [17] => Array
+        (
+            [column_name] => ultima_modificacion
+            [data_type] => timestamp without time zone
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+)
+
+-----------------------------------------------------
+[2025-06-25 01:40:54][INFO] [ESTRUCTURA] (guardar-consulta.ajax.php:29) Estructura de la tabla rh_person
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[columnas] => Array
+(
+    [0] => Array
+        (
+            [column_name] => person_id
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => NO
+        )
+
+    [1] => Array
+        (
+            [column_name] => document_number
+            [data_type] => character varying
+            [character_maximum_length] => 20
+            [is_nullable] => NO
+        )
+
+    [2] => Array
+        (
+            [column_name] => birth_date
+            [data_type] => date
+            [character_maximum_length] => 
+            [is_nullable] => NO
+        )
+
+    [3] => Array
+        (
+            [column_name] => first_name
+            [data_type] => character varying
+            [character_maximum_length] => 255
+            [is_nullable] => NO
+        )
+
+    [4] => Array
+        (
+            [column_name] => last_name
+            [data_type] => character varying
+            [character_maximum_length] => 255
+            [is_nullable] => NO
+        )
+
+    [5] => Array
+        (
+            [column_name] => phone_number
+            [data_type] => character varying
+            [character_maximum_length] => 50
+            [is_nullable] => YES
+        )
+
+    [6] => Array
+        (
+            [column_name] => gender
+            [data_type] => character
+            [character_maximum_length] => 1
+            [is_nullable] => YES
+        )
+
+    [7] => Array
+        (
+            [column_name] => record_number
+            [data_type] => character varying
+            [character_maximum_length] => 50
+            [is_nullable] => YES
+        )
+
+    [8] => Array
+        (
+            [column_name] => address
+            [data_type] => character varying
+            [character_maximum_length] => 255
+            [is_nullable] => YES
+        )
+
+    [9] => Array
+        (
+            [column_name] => email
+            [data_type] => character varying
+            [character_maximum_length] => 100
+            [is_nullable] => YES
+        )
+
+    [10] => Array
+        (
+            [column_name] => department_id
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [11] => Array
+        (
+            [column_name] => city_id
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [12] => Array
+        (
+            [column_name] => is_minor
+            [data_type] => boolean
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [13] => Array
+        (
+            [column_name] => guardian_name
+            [data_type] => character varying
+            [character_maximum_length] => 255
+            [is_nullable] => YES
+        )
+
+    [14] => Array
+        (
+            [column_name] => guardian_document
+            [data_type] => character varying
+            [character_maximum_length] => 20
+            [is_nullable] => YES
+        )
+
+    [15] => Array
+        (
+            [column_name] => created_at
+            [data_type] => timestamp with time zone
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [16] => Array
+        (
+            [column_name] => registered_by
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [17] => Array
+        (
+            [column_name] => modified_by
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [18] => Array
+        (
+            [column_name] => last_modified_at
+            [data_type] => timestamp with time zone
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [19] => Array
+        (
+            [column_name] => last_accessed_at
+            [data_type] => timestamp with time zone
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [20] => Array
+        (
+            [column_name] => owner_id
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [21] => Array
+        (
+            [column_name] => is_active
+            [data_type] => boolean
+            [character_maximum_length] => 
+            [is_nullable] => NO
+        )
+
+    [22] => Array
+        (
+            [column_name] => business_id
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [23] => Array
+        (
+            [column_name] => profile_photo
+            [data_type] => character varying
+            [character_maximum_length] => 255
+            [is_nullable] => YES
+        )
+
+)
+
+-----------------------------------------------------
+[2025-06-25 01:40:54][INFO] [PROCESO] (desconocido) Iniciando procesamiento de consulta
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[motivoscomunes] => 2
+[formatoConsulta] => 11
+-----------------------------------------------------
+[2025-06-25 01:40:54][INFO] [DATOS] (desconocido) Campo crítico recibido
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[idPersona] => 11
+-----------------------------------------------------
+[2025-06-25 01:40:54][INFO] [DATOS] (desconocido) Campo crítico recibido
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[txtmotivo] => Adaptación de lentes de contacto, Disminución de la agudeza visual
+-----------------------------------------------------
+[2025-06-25 01:40:54][INFO] [DATOS] (desconocido) Campo crítico recibido
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[id_user] => 9
+-----------------------------------------------------
+[2025-06-25 01:40:54][INFO] [DATOS] (desconocido) Campo crítico recibido
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[id_reserva] => 0
+-----------------------------------------------------
+[2025-06-25 01:40:54][INFO] [ARCHIVOS] (desconocido) Procesando archivos adjuntos
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[files] => Array
+(
+    [0] => files
+)
+
+-----------------------------------------------------
+[2025-06-25 01:40:54][INFO] [INSERCION] (desconocido) Detectada creación de nueva consulta
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+-----------------------------------------------------
+[2025-06-25 01:40:54][INFO] [INSERCION] (desconocido) Llamando al controlador para guardar nueva consulta
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[datos_clave] => Array
+(
+    [id_persona] => 11
+    [id_user] => 9
+)
+
+-----------------------------------------------------
+[2025-06-25 01:40:54][INFO] [CONTROLLER] (guardar-consulta.ajax.php:183) Iniciando ctrSetConsulta en el controlador
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[datos_recibidos] => Array
+(
+    [0] => txtdocumento
+    [1] => txtficha
+    [2] => txtnombre
+    [3] => idPersona
+    [4] => motivoscomunes
+    [5] => formatoConsulta
+    [6] => txtmotivo
+    [7] => visionod
+    [8] => visionoi
+    [9] => tensionod
+    [10] => tensionoi
+    [11] => consulta-textarea
+    [12] => formatoreceta
+    [13] => receta-textarea
+    [14] => txtnota
+    [15] => proximaconsulta
+    [16] => whatsapptxt
+    [17] => email
+    [18] => id_user
+    [19] => id_reserva
+    [20] => medico_id
+    [21] => id_consulta_actual
+)
+
+-----------------------------------------------------
+[2025-06-25 01:40:54][INFO] [CONTROLLER] (guardar-consulta.ajax.php:183) Llamando al modelo mdlSetConsulta
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+-----------------------------------------------------
+[2025-06-25 01:40:54][INFO] [MODELO] (consultas.controller.php:33) Iniciando mdlSetConsulta
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[datos] => Array
+(
+    [0] => txtdocumento
+    [1] => txtficha
+    [2] => txtnombre
+    [3] => idPersona
+    [4] => motivoscomunes
+    [5] => formatoConsulta
+    [6] => txtmotivo
+    [7] => visionod
+    [8] => visionoi
+    [9] => tensionod
+    [10] => tensionoi
+    [11] => consulta-textarea
+    [12] => formatoreceta
+    [13] => receta-textarea
+    [14] => txtnota
+    [15] => proximaconsulta
+    [16] => whatsapptxt
+    [17] => email
+    [18] => id_user
+    [19] => id_reserva
+    [20] => medico_id
+    [21] => id_consulta_actual
+)
+
+[es_actualizacion] => 
+-----------------------------------------------------
+[2025-06-25 01:40:54][INFO] [MODELO] (consultas.controller.php:33) Intentando obtener conexión a BD
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+-----------------------------------------------------
+[2025-06-25 01:40:54][ÉXITO] [MODELO] (consultas.controller.php:33) Conexión establecida correctamente
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+-----------------------------------------------------
+[2025-06-25 01:40:54][INFO] [MODELO] (consultas.controller.php:33) Paciente encontrado para la consulta
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[person_id] => 11
+[nombre] => guido benitez
+-----------------------------------------------------
+[2025-06-25 01:40:54][INFO] [MODELO] (consultas.controller.php:33) Verificando campos obligatorios
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[motivoscomunes] => OK
+[txtmotivo] => OK
+[id_persona] => OK
+-----------------------------------------------------
+[2025-06-25 01:40:54][INFO] [MODELO] (consultas.controller.php:33) Preparando consulta SQL para inserción
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+-----------------------------------------------------
+[2025-06-25 01:40:54][ÉXITO] [MODELO] (consultas.controller.php:33) Consulta SQL preparada correctamente
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+-----------------------------------------------------
+[2025-06-25 01:40:54][INFO] [MODELO] (consultas.controller.php:33) Comenzando bind de parámetros
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+-----------------------------------------------------
+[2025-06-25 01:40:54][DEBUG] [MODELO] (consultas.controller.php:33) Valores para bind de parámetros
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[:motivoscomunes] => Array
+(
+    [valor] => 2
+    [tipo] => 2
+)
+
+[:txtmotivo] => Array
+(
+    [valor] => Adaptación de lentes de contacto, Disminución de la agudeza visual
+    [tipo] => 2
+)
+
+[:visionod] => Array
+(
+    [valor] => 345
+    [tipo] => 2
+)
+
+[:visionoi] => Array
+(
+    [valor] => 345
+    [tipo] => 2
+)
+
+[:tensionod] => Array
+(
+    [valor] => 345
+    [tipo] => 2
+)
+
+[:tensionoi] => Array
+(
+    [valor] => 345
+    [tipo] => 2
+)
+
+[:consulta_textarea] => Array
+(
+    [valor] => <p><b>PRUEBAAAA<span style="box-sizing: border-box; color: rgb(33, 37, 41); font-family: &quot;Source Sans Pro&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(255, 255, 255); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;">PRUEBAAAA</span></b></p>
+    [tipo] => 2
+)
+
+[:receta_textarea] => Array
+(
+    [valor] => <p>gdfgdfgdf</p>
+    [tipo] => 2
+)
+
+[:txtnota] => Array
+(
+    [valor] => 
+    [tipo] => 2
+)
+
+[:whatsapptxt] => Array
+(
+    [valor] => 
+    [tipo] => 2
+)
+
+[:email] => Array
+(
+    [valor] => 
+    [tipo] => 2
+)
+
+[:id_user] => Array
+(
+    [valor] => 9
+    [tipo] => 1
+)
+
+[:id_reserva] => Array
+(
+    [valor] => 0
+    [tipo] => 1
+)
+
+[:id_persona] => Array
+(
+    [valor] => 11
+    [tipo] => 1
+)
+
+-----------------------------------------------------
+[2025-06-25 01:40:54][INFO] [MODELO] (consultas.controller.php:33) Campo proximaconsulta está vacío, asignando NULL
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+-----------------------------------------------------
+[2025-06-25 01:40:54][INFO] [MODELO] (consultas.controller.php:33) IDs después de convertir a enteros
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[id_user] => 9
+[id_reserva] => 0
+[id_persona] => 11
+-----------------------------------------------------
+[2025-06-25 01:40:54][ÉXITO] [MODELO] (consultas.controller.php:33) Todos los parámetros bindeados correctamente
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+-----------------------------------------------------
+[2025-06-25 01:40:54][INFO] [MODELO] (consultas.controller.php:33) Intentando ejecutar la consulta SQL
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+-----------------------------------------------------
+[2025-06-25 01:40:54][ÉXITO] [MODELO] (consultas.controller.php:33) Consulta ejecutada correctamente
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[id_consulta] => 39
+-----------------------------------------------------
+[2025-06-25 01:40:54][INFO] [CONTROLLER] (guardar-consulta.ajax.php:183) Resultado del modelo
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[resultado] => 39
+-----------------------------------------------------
+[2025-06-25 01:40:54][INFO] [INSERCION] (desconocido) Respuesta recibida del controlador
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[response] => 39
+-----------------------------------------------------
+[2025-06-25 01:40:54][ÉXITO] [INSERCION] (desconocido) Consulta guardada exitosamente
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[id_consulta] => 39
+-----------------------------------------------------
+[2025-06-25 01:42:12][INFO] [INICIO] (desconocido) Iniciando proceso de guardar consulta
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[POST] => Array
+(
+    [txtdocumento] => 465
+    [txtficha] => 34543
+    [txtnombre] => guido benitez
+    [idPersona] => 11
+    [motivoscomunes] => 2
+    [formatoConsulta] => Seleccionar
+    [txtmotivo] => Adaptación de lentes de contacto, Disminución de la agudeza visual, Disminución de la agudeza visual
+    [visionod] => 345
+    [visionoi] => 345
+    [tensionod] => 345
+    [tensionoi] => 345
+    [consulta-textarea] => <p><strong>[Diagnóstico ICD-11: MD12 - Tos]</strong></p>
+                        <p>La tos es un mecanismo de defensa natural y un reflejo protector importante que despeja las vías respiratorias altas y bajas por eliminación de las secreciones excesivas, como el moco y las partículas inhaladas. La tos es un síntoma frecuente de la mayoría de los trastornos respiratorios y puede apuntar a la presencia de una afección de las vías respiratorias o del pulmón que puede ser o insignificante o sumamente grave.</p>
+                        <p>&nbsp;</p><p><b>PRUEBAAAA<span style="box-sizing: border-box; color: rgb(33, 37, 41); font-family: &quot;Source Sans Pro&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, &quot;Helvetica Neue&quot;, Arial, sans-serif, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, &quot;Segoe UI Symbol&quot;; font-size: 14px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; letter-spacing: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; widows: 2; word-spacing: 0px; -webkit-text-stroke-width: 0px; white-space: normal; background-color: rgb(255, 255, 255); text-decoration-thickness: initial; text-decoration-style: initial; text-decoration-color: initial;">PRUEBAAAA</span></b></p>
+    [formatoreceta] => Seleccionar
+    [receta-textarea] => <p>gdfgdfgdf</p><p><strong>GADOCAL</strong> (GADOR)</p><p>Indicaciones: </p>
+    [txtnota] => 
+    [proximaconsulta] => 
+    [whatsapptxt] => 
+    [email] => 
+    [id_user] => 9
+    [id_reserva] => 0
+    [medico_id] => 1
+    [id_consulta_actual] => 39
+    [id_consulta] => 39
+)
+
+-----------------------------------------------------
+[2025-06-25 01:42:12][DEBUG] [CONFIG] (desconocido) Verificando configuración PHP
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[version_php] => 8.3.11
+[extensiones] => Array
+(
+    [0] => Core
+    [1] => bcmath
+    [2] => calendar
+    [3] => ctype
+    [4] => date
+    [5] => filter
+    [6] => hash
+    [7] => iconv
+    [8] => json
+    [9] => SPL
+    [10] => pcre
+    [11] => random
+    [12] => readline
+    [13] => Reflection
+    [14] => session
+    [15] => standard
+    [16] => mysqlnd
+    [17] => tokenizer
+    [18] => zlib
+    [19] => libxml
+    [20] => dom
+    [21] => PDO
+    [22] => openssl
+    [23] => SimpleXML
+    [24] => xml
+    [25] => xmlreader
+    [26] => xmlwriter
+    [27] => apache2handler
+    [28] => ftp
+    [29] => fileinfo
+    [30] => gd
+    [31] => gmp
+    [32] => intl
+    [33] => mbstring
+    [34] => exif
+    [35] => mysqli
+    [36] => Phar
+    [37] => pdo_mysql
+    [38] => pdo_pgsql
+    [39] => pdo_sqlite
+    [40] => pgsql
+    [41] => sqlite3
+    [42] => xsl
+    [43] => zip
+)
+
+[memoria_limite] => 512M
+[tiempo_ejecucion] => 36000
+-----------------------------------------------------
+[2025-06-25 01:42:12][INFO] [ARCHIVOS] (desconocido) Verificando carga de archivos
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[controller_existe] => 1
+[model_existe] => 1
+-----------------------------------------------------
+[2025-06-25 01:42:12][INFO] [ESTRUCTURA] (guardar-consulta.ajax.php:28) Estructura de la tabla consultas
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[columnas] => Array
+(
+    [0] => Array
+        (
+            [column_name] => id_consulta
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => NO
+        )
+
+    [1] => Array
+        (
+            [column_name] => id_persona
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => NO
+        )
+
+    [2] => Array
+        (
+            [column_name] => motivoscomunes
+            [data_type] => character varying
+            [character_maximum_length] => 255
+            [is_nullable] => YES
+        )
+
+    [3] => Array
+        (
+            [column_name] => txtmotivo
+            [data_type] => character varying
+            [character_maximum_length] => 255
+            [is_nullable] => YES
+        )
+
+    [4] => Array
+        (
+            [column_name] => visionod
+            [data_type] => character varying
+            [character_maximum_length] => 50
+            [is_nullable] => YES
+        )
+
+    [5] => Array
+        (
+            [column_name] => visionoi
+            [data_type] => character varying
+            [character_maximum_length] => 50
+            [is_nullable] => YES
+        )
+
+    [6] => Array
+        (
+            [column_name] => tensionod
+            [data_type] => character varying
+            [character_maximum_length] => 50
+            [is_nullable] => YES
+        )
+
+    [7] => Array
+        (
+            [column_name] => tensionoi
+            [data_type] => character varying
+            [character_maximum_length] => 50
+            [is_nullable] => YES
+        )
+
+    [8] => Array
+        (
+            [column_name] => consulta_textarea
+            [data_type] => text
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [9] => Array
+        (
+            [column_name] => receta_textarea
+            [data_type] => text
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [10] => Array
+        (
+            [column_name] => txtnota
+            [data_type] => text
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [11] => Array
+        (
+            [column_name] => proximaconsulta
+            [data_type] => date
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [12] => Array
+        (
+            [column_name] => whatsapptxt
+            [data_type] => character varying
+            [character_maximum_length] => 50
+            [is_nullable] => YES
+        )
+
+    [13] => Array
+        (
+            [column_name] => email
+            [data_type] => character varying
+            [character_maximum_length] => 100
+            [is_nullable] => YES
+        )
+
+    [14] => Array
+        (
+            [column_name] => id_user
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [15] => Array
+        (
+            [column_name] => id_reserva
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [16] => Array
+        (
+            [column_name] => fecha_registro
+            [data_type] => timestamp without time zone
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [17] => Array
+        (
+            [column_name] => ultima_modificacion
+            [data_type] => timestamp without time zone
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+)
+
+-----------------------------------------------------
+[2025-06-25 01:42:12][INFO] [ESTRUCTURA] (guardar-consulta.ajax.php:29) Estructura de la tabla rh_person
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[columnas] => Array
+(
+    [0] => Array
+        (
+            [column_name] => person_id
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => NO
+        )
+
+    [1] => Array
+        (
+            [column_name] => document_number
+            [data_type] => character varying
+            [character_maximum_length] => 20
+            [is_nullable] => NO
+        )
+
+    [2] => Array
+        (
+            [column_name] => birth_date
+            [data_type] => date
+            [character_maximum_length] => 
+            [is_nullable] => NO
+        )
+
+    [3] => Array
+        (
+            [column_name] => first_name
+            [data_type] => character varying
+            [character_maximum_length] => 255
+            [is_nullable] => NO
+        )
+
+    [4] => Array
+        (
+            [column_name] => last_name
+            [data_type] => character varying
+            [character_maximum_length] => 255
+            [is_nullable] => NO
+        )
+
+    [5] => Array
+        (
+            [column_name] => phone_number
+            [data_type] => character varying
+            [character_maximum_length] => 50
+            [is_nullable] => YES
+        )
+
+    [6] => Array
+        (
+            [column_name] => gender
+            [data_type] => character
+            [character_maximum_length] => 1
+            [is_nullable] => YES
+        )
+
+    [7] => Array
+        (
+            [column_name] => record_number
+            [data_type] => character varying
+            [character_maximum_length] => 50
+            [is_nullable] => YES
+        )
+
+    [8] => Array
+        (
+            [column_name] => address
+            [data_type] => character varying
+            [character_maximum_length] => 255
+            [is_nullable] => YES
+        )
+
+    [9] => Array
+        (
+            [column_name] => email
+            [data_type] => character varying
+            [character_maximum_length] => 100
+            [is_nullable] => YES
+        )
+
+    [10] => Array
+        (
+            [column_name] => department_id
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [11] => Array
+        (
+            [column_name] => city_id
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [12] => Array
+        (
+            [column_name] => is_minor
+            [data_type] => boolean
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [13] => Array
+        (
+            [column_name] => guardian_name
+            [data_type] => character varying
+            [character_maximum_length] => 255
+            [is_nullable] => YES
+        )
+
+    [14] => Array
+        (
+            [column_name] => guardian_document
+            [data_type] => character varying
+            [character_maximum_length] => 20
+            [is_nullable] => YES
+        )
+
+    [15] => Array
+        (
+            [column_name] => created_at
+            [data_type] => timestamp with time zone
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [16] => Array
+        (
+            [column_name] => registered_by
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [17] => Array
+        (
+            [column_name] => modified_by
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [18] => Array
+        (
+            [column_name] => last_modified_at
+            [data_type] => timestamp with time zone
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [19] => Array
+        (
+            [column_name] => last_accessed_at
+            [data_type] => timestamp with time zone
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [20] => Array
+        (
+            [column_name] => owner_id
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [21] => Array
+        (
+            [column_name] => is_active
+            [data_type] => boolean
+            [character_maximum_length] => 
+            [is_nullable] => NO
+        )
+
+    [22] => Array
+        (
+            [column_name] => business_id
+            [data_type] => integer
+            [character_maximum_length] => 
+            [is_nullable] => YES
+        )
+
+    [23] => Array
+        (
+            [column_name] => profile_photo
+            [data_type] => character varying
+            [character_maximum_length] => 255
+            [is_nullable] => YES
+        )
+
+)
+
+-----------------------------------------------------
+[2025-06-25 01:42:12][INFO] [PROCESO] (desconocido) Iniciando procesamiento de consulta
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[motivoscomunes] => 2
+[formatoConsulta] => Seleccionar
+-----------------------------------------------------
+[2025-06-25 01:42:12][INFO] [DATOS] (desconocido) Campo crítico recibido
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[idPersona] => 11
+-----------------------------------------------------
+[2025-06-25 01:42:12][INFO] [DATOS] (desconocido) Campo crítico recibido
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[txtmotivo] => Adaptación de lentes de contacto, Disminución de la agudeza visual, Disminución de la agudeza visual
+-----------------------------------------------------
+[2025-06-25 01:42:12][INFO] [DATOS] (desconocido) Campo crítico recibido
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[id_user] => 9
+-----------------------------------------------------
+[2025-06-25 01:42:12][INFO] [DATOS] (desconocido) Campo crítico recibido
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[id_reserva] => 0
+-----------------------------------------------------
+[2025-06-25 01:42:12][INFO] [ARCHIVOS] (desconocido) Procesando archivos adjuntos
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[files] => Array
+(
+    [0] => files
+)
+
+-----------------------------------------------------
+[2025-06-25 01:42:12][INFO] [ACTUALIZACION] (desconocido) Detectada actualización de consulta existente
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[id_consulta] => 39
+-----------------------------------------------------
+[2025-06-25 01:42:12][INFO] [INSERTAR] (guardar-consulta.ajax.php:148) Llamando al controlador para insertar consulta
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[datos] => Array
+(
+    [0] => txtdocumento
+    [1] => txtficha
+    [2] => txtnombre
+    [3] => idPersona
+    [4] => motivoscomunes
+    [5] => formatoConsulta
+    [6] => txtmotivo
+    [7] => visionod
+    [8] => visionoi
+    [9] => tensionod
+    [10] => tensionoi
+    [11] => consulta-textarea
+    [12] => formatoreceta
+    [13] => receta-textarea
+    [14] => txtnota
+    [15] => proximaconsulta
+    [16] => whatsapptxt
+    [17] => email
+    [18] => id_user
+    [19] => id_reserva
+    [20] => medico_id
+    [21] => id_consulta_actual
+    [22] => id_consulta
+)
+
+-----------------------------------------------------
+[2025-06-25 01:42:12][INFO] [CONTROLLER] (guardar-consulta.ajax.php:34) Iniciando ctrSetConsulta en el controlador
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[datos_recibidos] => Array
+(
+    [0] => txtdocumento
+    [1] => txtficha
+    [2] => txtnombre
+    [3] => idPersona
+    [4] => motivoscomunes
+    [5] => formatoConsulta
+    [6] => txtmotivo
+    [7] => visionod
+    [8] => visionoi
+    [9] => tensionod
+    [10] => tensionoi
+    [11] => consulta-textarea
+    [12] => formatoreceta
+    [13] => receta-textarea
+    [14] => txtnota
+    [15] => proximaconsulta
+    [16] => whatsapptxt
+    [17] => email
+    [18] => id_user
+    [19] => id_reserva
+    [20] => medico_id
+    [21] => id_consulta_actual
+    [22] => id_consulta
+)
+
+-----------------------------------------------------
+[2025-06-25 01:42:12][INFO] [CONTROLLER] (guardar-consulta.ajax.php:34) Llamando al modelo mdlSetConsulta
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+-----------------------------------------------------
+[2025-06-25 01:42:12][INFO] [MODELO] (consultas.controller.php:33) Iniciando mdlSetConsulta
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[datos] => Array
+(
+    [0] => txtdocumento
+    [1] => txtficha
+    [2] => txtnombre
+    [3] => idPersona
+    [4] => motivoscomunes
+    [5] => formatoConsulta
+    [6] => txtmotivo
+    [7] => visionod
+    [8] => visionoi
+    [9] => tensionod
+    [10] => tensionoi
+    [11] => consulta-textarea
+    [12] => formatoreceta
+    [13] => receta-textarea
+    [14] => txtnota
+    [15] => proximaconsulta
+    [16] => whatsapptxt
+    [17] => email
+    [18] => id_user
+    [19] => id_reserva
+    [20] => medico_id
+    [21] => id_consulta_actual
+    [22] => id_consulta
+)
+
+[es_actualizacion] => 1
+-----------------------------------------------------
+[2025-06-25 01:42:12][INFO] [MODELO] (consultas.controller.php:33) Redirigiendo a actualización de consulta
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[id_consulta] => 39
+-----------------------------------------------------
+[2025-06-25 01:42:12][INFO] [CONTROLLER] (guardar-consulta.ajax.php:34) Resultado del modelo
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[resultado] => actualizado
+-----------------------------------------------------
+[2025-06-25 01:42:12][INFO] [INSERTAR] (guardar-consulta.ajax.php:148) Respuesta del controlador
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+[response] => actualizado
+-----------------------------------------------------
+[2025-06-25 01:42:12][ÉXITO] [ACTUALIZACION] (desconocido) Consulta actualizada correctamente
+[PDO] Extensión cargada
+[PDO_PGSQL] Extensión cargada 
+-----------------------------------------------------
