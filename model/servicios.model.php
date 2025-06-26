@@ -1737,8 +1737,9 @@ class ModelServicios {
                 INNER JOIN 
                     cm_tipos_proveedores tp ON pa.tipo_cod = tp.tipo_cod
                 WHERE 
-                    tp.tipo_nombre = 'SEGURO MÉDICO' 
-                    AND pa.prov_is_active = true
+                    -- tp.tipo_nombre = 'SEGURO MÉDICO' 
+                    --AND 
+                    pa.prov_is_active = true
                 ORDER BY 
                     pa.prov_razon, pa.prov_name"
             );

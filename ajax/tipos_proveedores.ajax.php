@@ -100,7 +100,7 @@ if(isset($_POST["validarNombre"])) {
 }
 
 // Mostrar tipos de proveedores
-if(isset($_POST["mostrarTiposProveedores"])) {
+if(isset($_POST["mostrarTiposProveedores"]) || (isset($_POST["accion"]) && $_POST["accion"] == "mostrarTodos")) {
     $mostrar = new AjaxTiposProveedores();
     $mostrar->ajaxMostrarTiposProveedores();
 }
