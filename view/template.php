@@ -137,7 +137,7 @@ if (isset($_SESSION["iniciarSesion"]) && $_SESSION["iniciarSesion"] == "ok") {
     
     // Manejo de páginas con inicio de sesión      
     if(isset($_GET["ruta"])){
-        if ($_GET["ruta"] == "home" || $_GET["ruta"] == "logout"|| $_GET["ruta"] == "consultas" || $_GET["ruta"] == "personas" || $_GET["ruta"] == "roles" || $_GET["ruta"] == "perfil" || $_GET["ruta"] == "rhpersonas" || $_GET["ruta"] == "preformatos" || $_GET["ruta"] == "agendas" || $_GET["ruta"] == "servicios" || $_GET["ruta"] == "rs_servicios" || $_GET["ruta"] == "citas" || $_GET["ruta"] == "citas" || $_GET["ruta"] == "profesiones" || $_GET["ruta"] == "especialidades" || $_GET["ruta"] == "motivos")  {
+        if ($_GET["ruta"] == "home" || $_GET["ruta"] == "logout"|| $_GET["ruta"] == "consultas" || $_GET["ruta"] == "personas" || $_GET["ruta"] == "roles" || $_GET["ruta"] == "perfil" || $_GET["ruta"] == "rhpersonas" || $_GET["ruta"] == "preformatos" || $_GET["ruta"] == "agendas" || $_GET["ruta"] == "servicios" || $_GET["ruta"] == "rs_servicios" || $_GET["ruta"] == "citas" || $_GET["ruta"] == "citas" || $_GET["ruta"] == "profesiones" || $_GET["ruta"] == "especialidades" || $_GET["ruta"] == "motivos" || $_GET["ruta"] == "empresas")  {
             
             // Verificar permisos para acceder a ciertas rutas
             $requierePermiso = false;
@@ -169,6 +169,10 @@ if (isset($_SESSION["iniciarSesion"]) && $_SESSION["iniciarSesion"] == "ok") {
                 case "rs_servicios":
                     $requierePermiso = true;
                     $permisoRequerido = 'administrar_servicios';
+                    break;
+                case "empresas":
+                    $requierePermiso = true;
+                    $permisoRequerido = 'administrar_empresas';
                     break;
                 case "preformatos":
                     $requierePermiso = true;
@@ -289,6 +293,9 @@ switch ($ruta) {
         break;
           case "motivos":
         echo '<script src="view/js/motivos.js"></script>';
+        break;
+          case "empresas":
+        echo '<script src="view/js/empresas.js"></script>';
         break;
           // Caso por defecto para el home o páginas que no requieren JS específico
     default:
