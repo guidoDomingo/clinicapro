@@ -113,6 +113,12 @@
                                 <p>Gestión de Empresas</p>
                             </a>
                         </li>
+                        <li style="padding-left: 20px;" class="nav-item <?php echo mostrar_si_tiene_permiso('administrar_tipos_proveedores'); ?>">
+                            <a href="index.php?ruta=tipos_proveedores" class="nav-link">
+                                <i class="nav-icon fas fa-tags"></i>
+                                <p>Tipos de Proveedores</p>
+                            </a>
+                        </li>
                         <li class="nav-item" style="padding-left: 20px;">
                             <a href="index.php?ruta=referencial2" class="nav-link">
                                 <i class="far fa-circle nav-icon"></i>

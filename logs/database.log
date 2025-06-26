@@ -14079,4 +14079,531 @@ DEBUG - Fecha: 2025-06-25, Número día: 3, Texto día: MIERCOLESBuscando médic
                 ac.medico_id = :doctor_id
                 AND ad.dia_semana = :dia_semana
                 AND ad.detalle_estado = true
-                AND ac.agenda_estado = true ORDER BY ad.hora_inicio ASCmdlObtenerHorariosDisponibles: Se encontraron 1 resultados para DoctorID=14, Dia=MIERCOLESPrimer resultado: {"horario_id":19,"agenda_id":19,"cabecera_agenda_id":18,"turno_id":1,"turno_nombre":"MA\u00d1ANA","sala_id":1,"sala_nombre":"Sala 1","doctor_id":14,"nombre_doctor":"ronal ricardo","dia_semana":"MIERCOLES","hora_inicio":"08:00:00","hora_fin":"12:00:00","intervalo_minutos":30,"cupo_maximo":1}mdlObtenerReservasExistentes: Encontradas 0 reservas para doctor ID 14 en fecha 2025-06-25Verificando reservas existentes para DoctorID=14, Fecha=2025-06-25: 0 encontradasGenerando slots para horario: {"horario_id":19,"agenda_id":19,"cabecera_agenda_id":18,"turno_id":1,"turno_nombre":"MA\u00d1ANA","sala_id":1,"sala_nombre":"Sala 1","doctor_id":14,"nombre_doctor":"ronal ricardo","dia_semana":"MIERCOLES","hora_inicio":"08:00:00","hora_fin":"12:00:00","intervalo_minutos":30,"cupo_maximo":1}, Intervalo: 30 minutosSe generaron 8 slots detalladosDEBUG - Fecha: 2025-06-25, Número día: 3, Texto día: MIERCOLESBuscando médicos para fecha: 2025-06-25, día: MIERCOLESAgendas encontradas para MIERCOLES: [{"agenda_id":10,"dia_semana":"MIERCOLES","agenda_descripcion":"Agenda del m\u00e9dico ID: 13","medico_id":13},{"agenda_id":18,"dia_semana":"MIERCOLES","agenda_descripcion":"prueba ","medico_id":14}]DEBUG - Dia semana utilizado para la consulta: 'MIERCOLES'DEBUG - Días disponibles en agendas_detalle: ["LUNES","MARTES","MIERCOLES","JUEVES","VIERNES","SABADO"]Resultados crudos de la consulta: [{"doctor_id":13,"person_id":53,"nombre_doctor":"Antonio Galeano","doctor_estado":"ACTIVO","agenda_id":10,"medico_id":13,"doctor_match":true,"dia_semana":"MIERCOLES"},{"doctor_id":14,"person_id":56,"nombre_doctor":"ronal ricardo","doctor_estado":"ACTIVO","agenda_id":18,"medico_id":14,"doctor_match":true,"dia_semana":"MIERCOLES"}]Médicos encontrados para 2025-06-25 (MIERCOLES): 2DEBUG - Fecha: 2025-06-25, Número día: 3, Texto día: MIERCOLESBuscando médicos para fecha: 2025-06-25, día: MIERCOLESAgendas encontradas para MIERCOLES: [{"agenda_id":10,"dia_semana":"MIERCOLES","agenda_descripcion":"Agenda del m\u00e9dico ID: 13","medico_id":13},{"agenda_id":18,"dia_semana":"MIERCOLES","agenda_descripcion":"prueba ","medico_id":14}]DEBUG - Dia semana utilizado para la consulta: 'MIERCOLES'DEBUG - Días disponibles en agendas_detalle: ["LUNES","MARTES","MIERCOLES","JUEVES","VIERNES","SABADO"]Resultados crudos de la consulta: [{"doctor_id":13,"person_id":53,"nombre_doctor":"Antonio Galeano","doctor_estado":"ACTIVO","agenda_id":10,"medico_id":13,"doctor_match":true,"dia_semana":"MIERCOLES"},{"doctor_id":14,"person_id":56,"nombre_doctor":"ronal ricardo","doctor_estado":"ACTIVO","agenda_id":18,"medico_id":14,"doctor_match":true,"dia_semana":"MIERCOLES"}]Médicos encontrados para 2025-06-25 (MIERCOLES): 2DEBUG - Fecha: 2025-06-25, Número día: 3, Texto día: MIERCOLESBuscando médicos para fecha: 2025-06-25, día: MIERCOLESAgendas encontradas para MIERCOLES: [{"agenda_id":10,"dia_semana":"MIERCOLES","agenda_descripcion":"Agenda del m\u00e9dico ID: 13","medico_id":13},{"agenda_id":18,"dia_semana":"MIERCOLES","agenda_descripcion":"prueba ","medico_id":14}]DEBUG - Dia semana utilizado para la consulta: 'MIERCOLES'DEBUG - Días disponibles en agendas_detalle: ["LUNES","MARTES","MIERCOLES","JUEVES","VIERNES","SABADO"]Resultados crudos de la consulta: [{"doctor_id":13,"person_id":53,"nombre_doctor":"Antonio Galeano","doctor_estado":"ACTIVO","agenda_id":10,"medico_id":13,"doctor_match":true,"dia_semana":"MIERCOLES"},{"doctor_id":14,"person_id":56,"nombre_doctor":"ronal ricardo","doctor_estado":"ACTIVO","agenda_id":18,"medico_id":14,"doctor_match":true,"dia_semana":"MIERCOLES"}]Médicos encontrados para 2025-06-25 (MIERCOLES): 2DEBUG - Fecha: 2025-06-25, Número día: 3, Texto día: MIERCOLESBuscando médicos para fecha: 2025-06-25, día: MIERCOLESAgendas encontradas para MIERCOLES: [{"agenda_id":10,"dia_semana":"MIERCOLES","agenda_descripcion":"Agenda del m\u00e9dico ID: 13","medico_id":13},{"agenda_id":18,"dia_semana":"MIERCOLES","agenda_descripcion":"prueba ","medico_id":14}]DEBUG - Dia semana utilizado para la consulta: 'MIERCOLES'DEBUG - Días disponibles en agendas_detalle: ["LUNES","MARTES","MIERCOLES","JUEVES","VIERNES","SABADO"]Resultados crudos de la consulta: [{"doctor_id":13,"person_id":53,"nombre_doctor":"Antonio Galeano","doctor_estado":"ACTIVO","agenda_id":10,"medico_id":13,"doctor_match":true,"dia_semana":"MIERCOLES"},{"doctor_id":14,"person_id":56,"nombre_doctor":"ronal ricardo","doctor_estado":"ACTIVO","agenda_id":18,"medico_id":14,"doctor_match":true,"dia_semana":"MIERCOLES"}]Médicos encontrados para 2025-06-25 (MIERCOLES): 2DEBUG - Fecha: 2025-06-25, Número día: 3, Texto día: MIERCOLESBuscando médicos para fecha: 2025-06-25, día: MIERCOLESAgendas encontradas para MIERCOLES: [{"agenda_id":10,"dia_semana":"MIERCOLES","agenda_descripcion":"Agenda del m\u00e9dico ID: 13","medico_id":13},{"agenda_id":18,"dia_semana":"MIERCOLES","agenda_descripcion":"prueba ","medico_id":14}]DEBUG - Dia semana utilizado para la consulta: 'MIERCOLES'DEBUG - Días disponibles en agendas_detalle: ["LUNES","MARTES","MIERCOLES","JUEVES","VIERNES","SABADO"]Resultados crudos de la consulta: [{"doctor_id":13,"person_id":53,"nombre_doctor":"Antonio Galeano","doctor_estado":"ACTIVO","agenda_id":10,"medico_id":13,"doctor_match":true,"dia_semana":"MIERCOLES"},{"doctor_id":14,"person_id":56,"nombre_doctor":"ronal ricardo","doctor_estado":"ACTIVO","agenda_id":18,"medico_id":14,"doctor_match":true,"dia_semana":"MIERCOLES"}]Médicos encontrados para 2025-06-25 (MIERCOLES): 2DEBUG - Fecha: 2025-06-25, Número día: 3, Texto día: MIERCOLESBuscando médicos para fecha: 2025-06-25, día: MIERCOLESAgendas encontradas para MIERCOLES: [{"agenda_id":10,"dia_semana":"MIERCOLES","agenda_descripcion":"Agenda del m\u00e9dico ID: 13","medico_id":13},{"agenda_id":18,"dia_semana":"MIERCOLES","agenda_descripcion":"prueba ","medico_id":14}]DEBUG - Dia semana utilizado para la consulta: 'MIERCOLES'DEBUG - Días disponibles en agendas_detalle: ["LUNES","MARTES","MIERCOLES","JUEVES","VIERNES","SABADO"]Resultados crudos de la consulta: [{"doctor_id":13,"person_id":53,"nombre_doctor":"Antonio Galeano","doctor_estado":"ACTIVO","agenda_id":10,"medico_id":13,"doctor_match":true,"dia_semana":"MIERCOLES"},{"doctor_id":14,"person_id":56,"nombre_doctor":"ronal ricardo","doctor_estado":"ACTIVO","agenda_id":18,"medico_id":14,"doctor_match":true,"dia_semana":"MIERCOLES"}]Médicos encontrados para 2025-06-25 (MIERCOLES): 2DEBUG - Fecha: 2025-06-25, Número día: 3, Texto día: MIERCOLESBuscando médicos para fecha: 2025-06-25, día: MIERCOLESAgendas encontradas para MIERCOLES: [{"agenda_id":10,"dia_semana":"MIERCOLES","agenda_descripcion":"Agenda del m\u00e9dico ID: 13","medico_id":13},{"agenda_id":18,"dia_semana":"MIERCOLES","agenda_descripcion":"prueba ","medico_id":14}]DEBUG - Dia semana utilizado para la consulta: 'MIERCOLES'DEBUG - Días disponibles en agendas_detalle: ["LUNES","MARTES","MIERCOLES","JUEVES","VIERNES","SABADO"]Resultados crudos de la consulta: [{"doctor_id":13,"person_id":53,"nombre_doctor":"Antonio Galeano","doctor_estado":"ACTIVO","agenda_id":10,"medico_id":13,"doctor_match":true,"dia_semana":"MIERCOLES"},{"doctor_id":14,"person_id":56,"nombre_doctor":"ronal ricardo","doctor_estado":"ACTIVO","agenda_id":18,"medico_id":14,"doctor_match":true,"dia_semana":"MIERCOLES"}]Médicos encontrados para 2025-06-25 (MIERCOLES): 2DEBUG - Fecha: 2025-06-25, Número día: 3, Texto día: MIERCOLESBuscando médicos para fecha: 2025-06-25, día: MIERCOLESAgendas encontradas para MIERCOLES: [{"agenda_id":10,"dia_semana":"MIERCOLES","agenda_descripcion":"Agenda del m\u00e9dico ID: 13","medico_id":13},{"agenda_id":18,"dia_semana":"MIERCOLES","agenda_descripcion":"prueba ","medico_id":14}]DEBUG - Dia semana utilizado para la consulta: 'MIERCOLES'DEBUG - Días disponibles en agendas_detalle: ["LUNES","MARTES","MIERCOLES","JUEVES","VIERNES","SABADO"]Resultados crudos de la consulta: [{"doctor_id":13,"person_id":53,"nombre_doctor":"Antonio Galeano","doctor_estado":"ACTIVO","agenda_id":10,"medico_id":13,"doctor_match":true,"dia_semana":"MIERCOLES"},{"doctor_id":14,"person_id":56,"nombre_doctor":"ronal ricardo","doctor_estado":"ACTIVO","agenda_id":18,"medico_id":14,"doctor_match":true,"dia_semana":"MIERCOLES"}]Médicos encontrados para 2025-06-25 (MIERCOLES): 2DEBUG - Fecha: 2025-06-25, Número día: 3, Texto día: MIERCOLESBuscando médicos para fecha: 2025-06-25, día: MIERCOLESAgendas encontradas para MIERCOLES: [{"agenda_id":10,"dia_semana":"MIERCOLES","agenda_descripcion":"Agenda del m\u00e9dico ID: 13","medico_id":13},{"agenda_id":18,"dia_semana":"MIERCOLES","agenda_descripcion":"prueba ","medico_id":14}]DEBUG - Dia semana utilizado para la consulta: 'MIERCOLES'DEBUG - Días disponibles en agendas_detalle: ["LUNES","MARTES","MIERCOLES","JUEVES","VIERNES","SABADO"]Resultados crudos de la consulta: [{"doctor_id":13,"person_id":53,"nombre_doctor":"Antonio Galeano","doctor_estado":"ACTIVO","agenda_id":10,"medico_id":13,"doctor_match":true,"dia_semana":"MIERCOLES"},{"doctor_id":14,"person_id":56,"nombre_doctor":"ronal ricardo","doctor_estado":"ACTIVO","agenda_id":18,"medico_id":14,"doctor_match":true,"dia_semana":"MIERCOLES"}]Médicos encontrados para 2025-06-25 (MIERCOLES): 2
+                AND ac.agenda_estado = true ORDER BY ad.hora_inicio ASCmdlObtenerHorariosDisponibles: Se encontraron 1 resultados para DoctorID=14, Dia=MIERCOLESPrimer resultado: {"horario_id":19,"agenda_id":19,"cabecera_agenda_id":18,"turno_id":1,"turno_nombre":"MA\u00d1ANA","sala_id":1,"sala_nombre":"Sala 1","doctor_id":14,"nombre_doctor":"ronal ricardo","dia_semana":"MIERCOLES","hora_inicio":"08:00:00","hora_fin":"12:00:00","intervalo_minutos":30,"cupo_maximo":1}mdlObtenerReservasExistentes: Encontradas 0 reservas para doctor ID 14 en fecha 2025-06-25Verificando reservas existentes para DoctorID=14, Fecha=2025-06-25: 0 encontradasGenerando slots para horario: {"horario_id":19,"agenda_id":19,"cabecera_agenda_id":18,"turno_id":1,"turno_nombre":"MA\u00d1ANA","sala_id":1,"sala_nombre":"Sala 1","doctor_id":14,"nombre_doctor":"ronal ricardo","dia_semana":"MIERCOLES","hora_inicio":"08:00:00","hora_fin":"12:00:00","intervalo_minutos":30,"cupo_maximo":1}, Intervalo: 30 minutosSe generaron 8 slots detalladosDEBUG - Fecha: 2025-06-25, Número día: 3, Texto día: MIERCOLESBuscando médicos para fecha: 2025-06-25, día: MIERCOLESAgendas encontradas para MIERCOLES: [{"agenda_id":10,"dia_semana":"MIERCOLES","agenda_descripcion":"Agenda del m\u00e9dico ID: 13","medico_id":13},{"agenda_id":18,"dia_semana":"MIERCOLES","agenda_descripcion":"prueba ","medico_id":14}]DEBUG - Dia semana utilizado para la consulta: 'MIERCOLES'DEBUG - Días disponibles en agendas_detalle: ["LUNES","MARTES","MIERCOLES","JUEVES","VIERNES","SABADO"]Resultados crudos de la consulta: [{"doctor_id":13,"person_id":53,"nombre_doctor":"Antonio Galeano","doctor_estado":"ACTIVO","agenda_id":10,"medico_id":13,"doctor_match":true,"dia_semana":"MIERCOLES"},{"doctor_id":14,"person_id":56,"nombre_doctor":"ronal ricardo","doctor_estado":"ACTIVO","agenda_id":18,"medico_id":14,"doctor_match":true,"dia_semana":"MIERCOLES"}]Médicos encontrados para 2025-06-25 (MIERCOLES): 2DEBUG - Fecha: 2025-06-25, Número día: 3, Texto día: MIERCOLESBuscando médicos para fecha: 2025-06-25, día: MIERCOLESAgendas encontradas para MIERCOLES: [{"agenda_id":10,"dia_semana":"MIERCOLES","agenda_descripcion":"Agenda del m\u00e9dico ID: 13","medico_id":13},{"agenda_id":18,"dia_semana":"MIERCOLES","agenda_descripcion":"prueba ","medico_id":14}]DEBUG - Dia semana utilizado para la consulta: 'MIERCOLES'DEBUG - Días disponibles en agendas_detalle: ["LUNES","MARTES","MIERCOLES","JUEVES","VIERNES","SABADO"]Resultados crudos de la consulta: [{"doctor_id":13,"person_id":53,"nombre_doctor":"Antonio Galeano","doctor_estado":"ACTIVO","agenda_id":10,"medico_id":13,"doctor_match":true,"dia_semana":"MIERCOLES"},{"doctor_id":14,"person_id":56,"nombre_doctor":"ronal ricardo","doctor_estado":"ACTIVO","agenda_id":18,"medico_id":14,"doctor_match":true,"dia_semana":"MIERCOLES"}]Médicos encontrados para 2025-06-25 (MIERCOLES): 2DEBUG - Fecha: 2025-06-25, Número día: 3, Texto día: MIERCOLESBuscando médicos para fecha: 2025-06-25, día: MIERCOLESAgendas encontradas para MIERCOLES: [{"agenda_id":10,"dia_semana":"MIERCOLES","agenda_descripcion":"Agenda del m\u00e9dico ID: 13","medico_id":13},{"agenda_id":18,"dia_semana":"MIERCOLES","agenda_descripcion":"prueba ","medico_id":14}]DEBUG - Dia semana utilizado para la consulta: 'MIERCOLES'DEBUG - Días disponibles en agendas_detalle: ["LUNES","MARTES","MIERCOLES","JUEVES","VIERNES","SABADO"]Resultados crudos de la consulta: [{"doctor_id":13,"person_id":53,"nombre_doctor":"Antonio Galeano","doctor_estado":"ACTIVO","agenda_id":10,"medico_id":13,"doctor_match":true,"dia_semana":"MIERCOLES"},{"doctor_id":14,"person_id":56,"nombre_doctor":"ronal ricardo","doctor_estado":"ACTIVO","agenda_id":18,"medico_id":14,"doctor_match":true,"dia_semana":"MIERCOLES"}]Médicos encontrados para 2025-06-25 (MIERCOLES): 2DEBUG - Fecha: 2025-06-25, Número día: 3, Texto día: MIERCOLESBuscando médicos para fecha: 2025-06-25, día: MIERCOLESAgendas encontradas para MIERCOLES: [{"agenda_id":10,"dia_semana":"MIERCOLES","agenda_descripcion":"Agenda del m\u00e9dico ID: 13","medico_id":13},{"agenda_id":18,"dia_semana":"MIERCOLES","agenda_descripcion":"prueba ","medico_id":14}]DEBUG - Dia semana utilizado para la consulta: 'MIERCOLES'DEBUG - Días disponibles en agendas_detalle: ["LUNES","MARTES","MIERCOLES","JUEVES","VIERNES","SABADO"]Resultados crudos de la consulta: [{"doctor_id":13,"person_id":53,"nombre_doctor":"Antonio Galeano","doctor_estado":"ACTIVO","agenda_id":10,"medico_id":13,"doctor_match":true,"dia_semana":"MIERCOLES"},{"doctor_id":14,"person_id":56,"nombre_doctor":"ronal ricardo","doctor_estado":"ACTIVO","agenda_id":18,"medico_id":14,"doctor_match":true,"dia_semana":"MIERCOLES"}]Médicos encontrados para 2025-06-25 (MIERCOLES): 2DEBUG - Fecha: 2025-06-25, Número día: 3, Texto día: MIERCOLESBuscando médicos para fecha: 2025-06-25, día: MIERCOLESAgendas encontradas para MIERCOLES: [{"agenda_id":10,"dia_semana":"MIERCOLES","agenda_descripcion":"Agenda del m\u00e9dico ID: 13","medico_id":13},{"agenda_id":18,"dia_semana":"MIERCOLES","agenda_descripcion":"prueba ","medico_id":14}]DEBUG - Dia semana utilizado para la consulta: 'MIERCOLES'DEBUG - Días disponibles en agendas_detalle: ["LUNES","MARTES","MIERCOLES","JUEVES","VIERNES","SABADO"]Resultados crudos de la consulta: [{"doctor_id":13,"person_id":53,"nombre_doctor":"Antonio Galeano","doctor_estado":"ACTIVO","agenda_id":10,"medico_id":13,"doctor_match":true,"dia_semana":"MIERCOLES"},{"doctor_id":14,"person_id":56,"nombre_doctor":"ronal ricardo","doctor_estado":"ACTIVO","agenda_id":18,"medico_id":14,"doctor_match":true,"dia_semana":"MIERCOLES"}]Médicos encontrados para 2025-06-25 (MIERCOLES): 2DEBUG - Fecha: 2025-06-25, Número día: 3, Texto día: MIERCOLESBuscando médicos para fecha: 2025-06-25, día: MIERCOLESAgendas encontradas para MIERCOLES: [{"agenda_id":10,"dia_semana":"MIERCOLES","agenda_descripcion":"Agenda del m\u00e9dico ID: 13","medico_id":13},{"agenda_id":18,"dia_semana":"MIERCOLES","agenda_descripcion":"prueba ","medico_id":14}]DEBUG - Dia semana utilizado para la consulta: 'MIERCOLES'DEBUG - Días disponibles en agendas_detalle: ["LUNES","MARTES","MIERCOLES","JUEVES","VIERNES","SABADO"]Resultados crudos de la consulta: [{"doctor_id":13,"person_id":53,"nombre_doctor":"Antonio Galeano","doctor_estado":"ACTIVO","agenda_id":10,"medico_id":13,"doctor_match":true,"dia_semana":"MIERCOLES"},{"doctor_id":14,"person_id":56,"nombre_doctor":"ronal ricardo","doctor_estado":"ACTIVO","agenda_id":18,"medico_id":14,"doctor_match":true,"dia_semana":"MIERCOLES"}]Médicos encontrados para 2025-06-25 (MIERCOLES): 2DEBUG - Fecha: 2025-06-25, Número día: 3, Texto día: MIERCOLESBuscando médicos para fecha: 2025-06-25, día: MIERCOLESAgendas encontradas para MIERCOLES: [{"agenda_id":10,"dia_semana":"MIERCOLES","agenda_descripcion":"Agenda del m\u00e9dico ID: 13","medico_id":13},{"agenda_id":18,"dia_semana":"MIERCOLES","agenda_descripcion":"prueba ","medico_id":14}]DEBUG - Dia semana utilizado para la consulta: 'MIERCOLES'DEBUG - Días disponibles en agendas_detalle: ["LUNES","MARTES","MIERCOLES","JUEVES","VIERNES","SABADO"]Resultados crudos de la consulta: [{"doctor_id":13,"person_id":53,"nombre_doctor":"Antonio Galeano","doctor_estado":"ACTIVO","agenda_id":10,"medico_id":13,"doctor_match":true,"dia_semana":"MIERCOLES"},{"doctor_id":14,"person_id":56,"nombre_doctor":"ronal ricardo","doctor_estado":"ACTIVO","agenda_id":18,"medico_id":14,"doctor_match":true,"dia_semana":"MIERCOLES"}]Médicos encontrados para 2025-06-25 (MIERCOLES): 2DEBUG - Fecha: 2025-06-25, Número día: 3, Texto día: MIERCOLESBuscando médicos para fecha: 2025-06-25, día: MIERCOLESAgendas encontradas para MIERCOLES: [{"agenda_id":10,"dia_semana":"MIERCOLES","agenda_descripcion":"Agenda del m\u00e9dico ID: 13","medico_id":13},{"agenda_id":18,"dia_semana":"MIERCOLES","agenda_descripcion":"prueba ","medico_id":14}]DEBUG - Dia semana utilizado para la consulta: 'MIERCOLES'DEBUG - Días disponibles en agendas_detalle: ["LUNES","MARTES","MIERCOLES","JUEVES","VIERNES","SABADO"]Resultados crudos de la consulta: [{"doctor_id":13,"person_id":53,"nombre_doctor":"Antonio Galeano","doctor_estado":"ACTIVO","agenda_id":10,"medico_id":13,"doctor_match":true,"dia_semana":"MIERCOLES"},{"doctor_id":14,"person_id":56,"nombre_doctor":"ronal ricardo","doctor_estado":"ACTIVO","agenda_id":18,"medico_id":14,"doctor_match":true,"dia_semana":"MIERCOLES"}]Médicos encontrados para 2025-06-25 (MIERCOLES): 2DEBUG - Fecha: 2025-06-25, Número día: 3, Texto día: MIERCOLESBuscando médicos para fecha: 2025-06-25, día: MIERCOLESAgendas encontradas para MIERCOLES: [{"agenda_id":10,"dia_semana":"MIERCOLES","agenda_descripcion":"Agenda del m\u00e9dico ID: 13","medico_id":13},{"agenda_id":18,"dia_semana":"MIERCOLES","agenda_descripcion":"prueba ","medico_id":14}]DEBUG - Dia semana utilizado para la consulta: 'MIERCOLES'DEBUG - Días disponibles en agendas_detalle: ["LUNES","MARTES","MIERCOLES","JUEVES","VIERNES","SABADO"]Resultados crudos de la consulta: [{"doctor_id":13,"person_id":53,"nombre_doctor":"Antonio Galeano","doctor_estado":"ACTIVO","agenda_id":10,"medico_id":13,"doctor_match":true,"dia_semana":"MIERCOLES"},{"doctor_id":14,"person_id":56,"nombre_doctor":"ronal ricardo","doctor_estado":"ACTIVO","agenda_id":18,"medico_id":14,"doctor_match":true,"dia_semana":"MIERCOLES"}]Médicos encontrados para 2025-06-25 (MIERCOLES): 2[2025-06-25 21:35:33] [INFO] [Model.php:175]
+SQL: SELECT u.*, r.reg_name, r.reg_lastname, r.reg_email, r.reg_document, ARRAY_AGG(DISTINCT jsonb_build_object('role_id', ro.role_id, 'role_name', ro.role_name)) FILTER (WHERE ro.role_id IS NOT NULL) as roles FROM sys_users u JOIN sys_register r ON u.reg_id = r.reg_id LEFT JOIN sys_user_roles ur ON u.user_id = ur.user_id LEFT JOIN sys_roles ro ON ur.role_id = ro.role_id GROUP BY u.user_id, r.reg_name, r.reg_lastname, r.reg_email, r.reg_document ORDER BY u.user_id DESC LIMIT :limit OFFSET :offset
+Parameters: {
+    "limit": 10,
+    "offset": 0
+}
+----------------------------------------
+[2025-06-25 21:35:33] [INFO] [Model.php:175]
+SQL: SELECT COUNT(*) as total FROM sys_users
+----------------------------------------
+[2025-06-25 21:35:33] [INFO] [Model.php:175]
+SQL: SELECT r.*, 
+                       array_agg(DISTINCT p.perm_id) as permission_ids,
+                       array_agg(DISTINCT p.perm_name) as permission_names
+                FROM sys_roles r
+                LEFT JOIN sys_role_permissions rp ON r.role_id = rp.role_id
+                LEFT JOIN sys_permissions p ON rp.perm_id = p.perm_id
+                GROUP BY r.role_id, r.role_name, r.role_description
+                ORDER BY r.role_id
+----------------------------------------
+[2025-06-25 21:35:33] [INFO] [Model.php:175]
+SQL: SELECT p.*, 
+                       array_agg(DISTINCT r.role_id) as role_ids,
+                       array_agg(DISTINCT r.role_name) as role_names
+                FROM sys_permissions p
+                LEFT JOIN sys_role_permissions rp ON p.perm_id = rp.perm_id
+                LEFT JOIN sys_roles r ON rp.role_id = r.role_id
+                GROUP BY p.perm_id, p.perm_name, p.perm_description
+                ORDER BY p.perm_id
+----------------------------------------
+[2025-06-25 21:35:33] [INFO] [Model.php:175]
+SQL: SELECT p.*, 
+                       array_agg(DISTINCT r.role_id) as role_ids,
+                       array_agg(DISTINCT r.role_name) as role_names
+                FROM sys_permissions p
+                LEFT JOIN sys_role_permissions rp ON p.perm_id = rp.perm_id
+                LEFT JOIN sys_roles r ON rp.role_id = r.role_id
+                GROUP BY p.perm_id, p.perm_name, p.perm_description
+                ORDER BY p.perm_id
+----------------------------------------
+[2025-06-25 21:35:33] [INFO] [Database.php:231]
+SQL: SELECT * FROM sys_users WHERE user_id = :id
+Parameters: {
+    "id": 10
+}
+----------------------------------------
+[2025-06-25 21:35:33] [INFO] [Model.php:175]
+SQL: SELECT r.* FROM sys_roles r JOIN sys_user_roles ur ON r.role_id = ur.role_id WHERE ur.user_id = :userId
+Parameters: {
+    "userId": 10
+}
+----------------------------------------
+[2025-06-25 21:35:33] [INFO] [Database.php:231]
+SQL: SELECT * FROM sys_users WHERE user_id = :id
+Parameters: {
+    "id": 9
+}
+----------------------------------------
+[2025-06-25 21:35:33] [INFO] [Model.php:175]
+SQL: SELECT r.* FROM sys_roles r JOIN sys_user_roles ur ON r.role_id = ur.role_id WHERE ur.user_id = :userId
+Parameters: {
+    "userId": 9
+}
+----------------------------------------
+[2025-06-25 21:35:33] [INFO] [Database.php:231]
+SQL: SELECT * FROM sys_users WHERE user_id = :id
+Parameters: {
+    "id": 8
+}
+----------------------------------------
+[2025-06-25 21:35:33] [INFO] [Model.php:175]
+SQL: SELECT r.* FROM sys_roles r JOIN sys_user_roles ur ON r.role_id = ur.role_id WHERE ur.user_id = :userId
+Parameters: {
+    "userId": 8
+}
+----------------------------------------
+[2025-06-25 21:35:33] [INFO] [Database.php:231]
+SQL: SELECT * FROM sys_users WHERE user_id = :id
+Parameters: {
+    "id": 7
+}
+----------------------------------------
+[2025-06-25 21:35:33] [INFO] [Model.php:175]
+SQL: SELECT r.* FROM sys_roles r JOIN sys_user_roles ur ON r.role_id = ur.role_id WHERE ur.user_id = :userId
+Parameters: {
+    "userId": 7
+}
+----------------------------------------
+[2025-06-25 21:35:33] [INFO] [Database.php:231]
+SQL: SELECT * FROM sys_users WHERE user_id = :id
+Parameters: {
+    "id": 6
+}
+----------------------------------------
+[2025-06-25 21:35:33] [INFO] [Model.php:175]
+SQL: SELECT r.* FROM sys_roles r JOIN sys_user_roles ur ON r.role_id = ur.role_id WHERE ur.user_id = :userId
+Parameters: {
+    "userId": 6
+}
+----------------------------------------
+[2025-06-25 21:35:33] [INFO] [Database.php:231]
+SQL: SELECT * FROM sys_users WHERE user_id = :id
+Parameters: {
+    "id": 5
+}
+----------------------------------------
+[2025-06-25 21:35:34] [INFO] [Model.php:175]
+SQL: SELECT r.* FROM sys_roles r JOIN sys_user_roles ur ON r.role_id = ur.role_id WHERE ur.user_id = :userId
+Parameters: {
+    "userId": 5
+}
+----------------------------------------
+[2025-06-25 21:35:34] [INFO] [Database.php:231]
+SQL: SELECT * FROM sys_users WHERE user_id = :id
+Parameters: {
+    "id": 4
+}
+----------------------------------------
+[2025-06-25 21:35:34] [INFO] [Model.php:175]
+SQL: SELECT r.* FROM sys_roles r JOIN sys_user_roles ur ON r.role_id = ur.role_id WHERE ur.user_id = :userId
+Parameters: {
+    "userId": 4
+}
+----------------------------------------
+[2025-06-25 21:35:34] [INFO] [Database.php:231]
+SQL: SELECT * FROM sys_users WHERE user_id = :id
+Parameters: {
+    "id": 3
+}
+----------------------------------------
+[2025-06-25 21:35:34] [INFO] [Model.php:175]
+SQL: SELECT r.* FROM sys_roles r JOIN sys_user_roles ur ON r.role_id = ur.role_id WHERE ur.user_id = :userId
+Parameters: {
+    "userId": 3
+}
+----------------------------------------
+[2025-06-25 21:35:34] [INFO] [Database.php:231]
+SQL: SELECT * FROM sys_users WHERE user_id = :id
+Parameters: {
+    "id": 2
+}
+----------------------------------------
+[2025-06-25 21:35:34] [INFO] [Model.php:175]
+SQL: SELECT r.* FROM sys_roles r JOIN sys_user_roles ur ON r.role_id = ur.role_id WHERE ur.user_id = :userId
+Parameters: {
+    "userId": 2
+}
+----------------------------------------
+[2025-06-25 21:35:34] [INFO] [Database.php:231]
+SQL: SELECT * FROM sys_users WHERE user_id = :id
+Parameters: {
+    "id": 1
+}
+----------------------------------------
+[2025-06-25 21:35:34] [INFO] [Model.php:175]
+SQL: SELECT r.* FROM sys_roles r JOIN sys_user_roles ur ON r.role_id = ur.role_id WHERE ur.user_id = :userId
+Parameters: {
+    "userId": 1
+}
+----------------------------------------
+[2025-06-25 21:35:39] [INFO] [Model::create]
+Table: sys_permissions
+Original Data: {
+    "perm_name": "administrar_tipos_proveedores",
+    "perm_description": "administrar_tipos_proveedores"
+}
+Filtered Data: {
+    "perm_name": "administrar_tipos_proveedores",
+    "perm_description": "administrar_tipos_proveedores"
+}
+Excluded Data: []
+----------------------------------------
+[2025-06-25 21:35:39] [INFO] [Model.php:110]
+SQL: INSERT INTO sys_permissions (perm_name, perm_description) VALUES (:perm_name, :perm_description)
+Parameters: {
+    "perm_name": "administrar_tipos_proveedores",
+    "perm_description": "administrar_tipos_proveedores"
+}
+----------------------------------------
+[2025-06-25 21:35:39] [INFO] [Database.php:255]
+SQL: INSERT INTO sys_permissions (perm_name, perm_description) VALUES (:perm_name, :perm_description)
+Parameters: {
+    "perm_name": "administrar_tipos_proveedores",
+    "perm_description": "administrar_tipos_proveedores"
+}
+----------------------------------------
+[2025-06-25 21:35:39] [INFO] [Model.php:175]
+SQL: SELECT p.*, 
+                       array_agg(DISTINCT r.role_id) as role_ids,
+                       array_agg(DISTINCT r.role_name) as role_names
+                FROM sys_permissions p
+                LEFT JOIN sys_role_permissions rp ON p.perm_id = rp.perm_id
+                LEFT JOIN sys_roles r ON rp.role_id = r.role_id
+                WHERE p.perm_id = :permId
+                GROUP BY p.perm_id, p.perm_name, p.perm_description
+Parameters: {
+    "permId": "30"
+}
+----------------------------------------
+[2025-06-25 21:35:39] [INFO] [Model.php:175]
+SQL: SELECT p.*, 
+                       array_agg(DISTINCT r.role_id) as role_ids,
+                       array_agg(DISTINCT r.role_name) as role_names
+                FROM sys_permissions p
+                LEFT JOIN sys_role_permissions rp ON p.perm_id = rp.perm_id
+                LEFT JOIN sys_roles r ON rp.role_id = r.role_id
+                GROUP BY p.perm_id, p.perm_name, p.perm_description
+                ORDER BY p.perm_id
+----------------------------------------
+[2025-06-25 21:35:39] [INFO] [Model.php:175]
+SQL: SELECT p.*, 
+                       array_agg(DISTINCT r.role_id) as role_ids,
+                       array_agg(DISTINCT r.role_name) as role_names
+                FROM sys_permissions p
+                LEFT JOIN sys_role_permissions rp ON p.perm_id = rp.perm_id
+                LEFT JOIN sys_roles r ON rp.role_id = r.role_id
+                GROUP BY p.perm_id, p.perm_name, p.perm_description
+                ORDER BY p.perm_id
+----------------------------------------
+[2025-06-25 21:35:42] [INFO] [Model.php:175]
+SQL: SELECT r.*, 
+                       array_agg(DISTINCT p.perm_id) as permission_ids,
+                       array_agg(DISTINCT p.perm_name) as permission_names
+                FROM sys_roles r
+                LEFT JOIN sys_role_permissions rp ON r.role_id = rp.role_id
+                LEFT JOIN sys_permissions p ON rp.perm_id = p.perm_id
+                WHERE r.role_id = :roleId
+                GROUP BY r.role_id, r.role_name, r.role_description
+Parameters: {
+    "roleId": "16"
+}
+----------------------------------------
+[2025-06-25 21:35:45] [INFO] [Model.php:143]
+SQL: UPDATE sys_roles SET role_name = :role_name, role_description = :role_description WHERE role_id = :id
+Parameters: {
+    "role_name": "admin",
+    "role_description": "super usuario",
+    "id": "16"
+}
+----------------------------------------
+[2025-06-25 21:35:45] [INFO] [Database.php:281]
+SQL: UPDATE sys_roles SET role_name = :role_name, role_description = :role_description WHERE role_id = :id
+Parameters: {
+    "role_name": "admin",
+    "role_description": "super usuario",
+    "id": "16"
+}
+----------------------------------------
+[2025-06-25 21:35:45] [INFO] [Model.php:175]
+SQL: DELETE FROM sys_role_permissions WHERE role_id = :roleId
+Parameters: {
+    "roleId": "16"
+}
+----------------------------------------
+[2025-06-25 21:35:45] [INFO] [Model.php:175]
+SQL: INSERT INTO sys_role_permissions (role_id, perm_id) VALUES (:roleId, :permId)
+Parameters: {
+    "roleId": "16",
+    "permId": "9"
+}
+----------------------------------------
+[2025-06-25 21:35:45] [INFO] [Model.php:175]
+SQL: INSERT INTO sys_role_permissions (role_id, perm_id) VALUES (:roleId, :permId)
+Parameters: {
+    "roleId": "16",
+    "permId": "10"
+}
+----------------------------------------
+[2025-06-25 21:35:45] [INFO] [Model.php:175]
+SQL: INSERT INTO sys_role_permissions (role_id, perm_id) VALUES (:roleId, :permId)
+Parameters: {
+    "roleId": "16",
+    "permId": "11"
+}
+----------------------------------------
+[2025-06-25 21:35:45] [INFO] [Model.php:175]
+SQL: INSERT INTO sys_role_permissions (role_id, perm_id) VALUES (:roleId, :permId)
+Parameters: {
+    "roleId": "16",
+    "permId": "15"
+}
+----------------------------------------
+[2025-06-25 21:35:45] [INFO] [Model.php:175]
+SQL: INSERT INTO sys_role_permissions (role_id, perm_id) VALUES (:roleId, :permId)
+Parameters: {
+    "roleId": "16",
+    "permId": "19"
+}
+----------------------------------------
+[2025-06-25 21:35:45] [INFO] [Model.php:175]
+SQL: INSERT INTO sys_role_permissions (role_id, perm_id) VALUES (:roleId, :permId)
+Parameters: {
+    "roleId": "16",
+    "permId": "23"
+}
+----------------------------------------
+[2025-06-25 21:35:45] [INFO] [Model.php:175]
+SQL: INSERT INTO sys_role_permissions (role_id, perm_id) VALUES (:roleId, :permId)
+Parameters: {
+    "roleId": "16",
+    "permId": "24"
+}
+----------------------------------------
+[2025-06-25 21:35:45] [INFO] [Model.php:175]
+SQL: INSERT INTO sys_role_permissions (role_id, perm_id) VALUES (:roleId, :permId)
+Parameters: {
+    "roleId": "16",
+    "permId": "25"
+}
+----------------------------------------
+[2025-06-25 21:35:45] [INFO] [Model.php:175]
+SQL: INSERT INTO sys_role_permissions (role_id, perm_id) VALUES (:roleId, :permId)
+Parameters: {
+    "roleId": "16",
+    "permId": "26"
+}
+----------------------------------------
+[2025-06-25 21:35:45] [INFO] [Model.php:175]
+SQL: INSERT INTO sys_role_permissions (role_id, perm_id) VALUES (:roleId, :permId)
+Parameters: {
+    "roleId": "16",
+    "permId": "27"
+}
+----------------------------------------
+[2025-06-25 21:35:45] [INFO] [Model.php:175]
+SQL: INSERT INTO sys_role_permissions (role_id, perm_id) VALUES (:roleId, :permId)
+Parameters: {
+    "roleId": "16",
+    "permId": "28"
+}
+----------------------------------------
+[2025-06-25 21:35:45] [INFO] [Model.php:175]
+SQL: INSERT INTO sys_role_permissions (role_id, perm_id) VALUES (:roleId, :permId)
+Parameters: {
+    "roleId": "16",
+    "permId": "29"
+}
+----------------------------------------
+[2025-06-25 21:35:45] [INFO] [Model.php:175]
+SQL: INSERT INTO sys_role_permissions (role_id, perm_id) VALUES (:roleId, :permId)
+Parameters: {
+    "roleId": "16",
+    "permId": "30"
+}
+----------------------------------------
+[2025-06-25 21:35:45] [INFO] [Model.php:175]
+SQL: SELECT r.*, 
+                       array_agg(DISTINCT p.perm_id) as permission_ids,
+                       array_agg(DISTINCT p.perm_name) as permission_names
+                FROM sys_roles r
+                LEFT JOIN sys_role_permissions rp ON r.role_id = rp.role_id
+                LEFT JOIN sys_permissions p ON rp.perm_id = p.perm_id
+                WHERE r.role_id = :roleId
+                GROUP BY r.role_id, r.role_name, r.role_description
+Parameters: {
+    "roleId": "16"
+}
+----------------------------------------
+[2025-06-25 21:35:45] [INFO] [Model.php:175]
+SQL: SELECT r.*, 
+                       array_agg(DISTINCT p.perm_id) as permission_ids,
+                       array_agg(DISTINCT p.perm_name) as permission_names
+                FROM sys_roles r
+                LEFT JOIN sys_role_permissions rp ON r.role_id = rp.role_id
+                LEFT JOIN sys_permissions p ON rp.perm_id = p.perm_id
+                GROUP BY r.role_id, r.role_name, r.role_description
+                ORDER BY r.role_id
+----------------------------------------
+[2025-06-25 21:35:51] [INFO] [Model.php:175]
+SQL: SELECT u.*, r.reg_name, r.reg_lastname, r.reg_email, r.reg_document, ARRAY_AGG(DISTINCT jsonb_build_object('role_id', ro.role_id, 'role_name', ro.role_name)) FILTER (WHERE ro.role_id IS NOT NULL) as roles FROM sys_users u JOIN sys_register r ON u.reg_id = r.reg_id LEFT JOIN sys_user_roles ur ON u.user_id = ur.user_id LEFT JOIN sys_roles ro ON ur.role_id = ro.role_id GROUP BY u.user_id, r.reg_name, r.reg_lastname, r.reg_email, r.reg_document ORDER BY u.user_id DESC LIMIT :limit OFFSET :offset
+Parameters: {
+    "limit": 10,
+    "offset": 0
+}
+----------------------------------------
+[2025-06-25 21:35:51] [INFO] [Model.php:175]
+SQL: SELECT COUNT(*) as total FROM sys_users
+----------------------------------------
+[2025-06-25 21:35:51] [INFO] [Model.php:175]
+SQL: SELECT r.*, 
+                       array_agg(DISTINCT p.perm_id) as permission_ids,
+                       array_agg(DISTINCT p.perm_name) as permission_names
+                FROM sys_roles r
+                LEFT JOIN sys_role_permissions rp ON r.role_id = rp.role_id
+                LEFT JOIN sys_permissions p ON rp.perm_id = p.perm_id
+                GROUP BY r.role_id, r.role_name, r.role_description
+                ORDER BY r.role_id
+----------------------------------------
+[2025-06-25 21:35:51] [INFO] [Model.php:175]
+SQL: SELECT p.*, 
+                       array_agg(DISTINCT r.role_id) as role_ids,
+                       array_agg(DISTINCT r.role_name) as role_names
+                FROM sys_permissions p
+                LEFT JOIN sys_role_permissions rp ON p.perm_id = rp.perm_id
+                LEFT JOIN sys_roles r ON rp.role_id = r.role_id
+                GROUP BY p.perm_id, p.perm_name, p.perm_description
+                ORDER BY p.perm_id
+----------------------------------------
+[2025-06-25 21:35:51] [INFO] [Model.php:175]
+SQL: SELECT p.*, 
+                       array_agg(DISTINCT r.role_id) as role_ids,
+                       array_agg(DISTINCT r.role_name) as role_names
+                FROM sys_permissions p
+                LEFT JOIN sys_role_permissions rp ON p.perm_id = rp.perm_id
+                LEFT JOIN sys_roles r ON rp.role_id = r.role_id
+                GROUP BY p.perm_id, p.perm_name, p.perm_description
+                ORDER BY p.perm_id
+----------------------------------------
+[2025-06-25 21:35:51] [INFO] [Database.php:231]
+SQL: SELECT * FROM sys_users WHERE user_id = :id
+Parameters: {
+    "id": 10
+}
+----------------------------------------
+[2025-06-25 21:35:51] [INFO] [Model.php:175]
+SQL: SELECT r.* FROM sys_roles r JOIN sys_user_roles ur ON r.role_id = ur.role_id WHERE ur.user_id = :userId
+Parameters: {
+    "userId": 10
+}
+----------------------------------------
+[2025-06-25 21:35:51] [INFO] [Database.php:231]
+SQL: SELECT * FROM sys_users WHERE user_id = :id
+Parameters: {
+    "id": 9
+}
+----------------------------------------
+[2025-06-25 21:35:51] [INFO] [Model.php:175]
+SQL: SELECT r.* FROM sys_roles r JOIN sys_user_roles ur ON r.role_id = ur.role_id WHERE ur.user_id = :userId
+Parameters: {
+    "userId": 9
+}
+----------------------------------------
+[2025-06-25 21:35:51] [INFO] [Database.php:231]
+SQL: SELECT * FROM sys_users WHERE user_id = :id
+Parameters: {
+    "id": 8
+}
+----------------------------------------
+[2025-06-25 21:35:51] [INFO] [Model.php:175]
+SQL: SELECT r.* FROM sys_roles r JOIN sys_user_roles ur ON r.role_id = ur.role_id WHERE ur.user_id = :userId
+Parameters: {
+    "userId": 8
+}
+----------------------------------------
+[2025-06-25 21:35:51] [INFO] [Database.php:231]
+SQL: SELECT * FROM sys_users WHERE user_id = :id
+Parameters: {
+    "id": 7
+}
+----------------------------------------
+[2025-06-25 21:35:51] [INFO] [Model.php:175]
+SQL: SELECT r.* FROM sys_roles r JOIN sys_user_roles ur ON r.role_id = ur.role_id WHERE ur.user_id = :userId
+Parameters: {
+    "userId": 7
+}
+----------------------------------------
+[2025-06-25 21:35:51] [INFO] [Database.php:231]
+SQL: SELECT * FROM sys_users WHERE user_id = :id
+Parameters: {
+    "id": 6
+}
+----------------------------------------
+[2025-06-25 21:35:51] [INFO] [Model.php:175]
+SQL: SELECT r.* FROM sys_roles r JOIN sys_user_roles ur ON r.role_id = ur.role_id WHERE ur.user_id = :userId
+Parameters: {
+    "userId": 6
+}
+----------------------------------------
+[2025-06-25 21:35:51] [INFO] [Database.php:231]
+SQL: SELECT * FROM sys_users WHERE user_id = :id
+Parameters: {
+    "id": 5
+}
+----------------------------------------
+[2025-06-25 21:35:51] [INFO] [Model.php:175]
+SQL: SELECT r.* FROM sys_roles r JOIN sys_user_roles ur ON r.role_id = ur.role_id WHERE ur.user_id = :userId
+Parameters: {
+    "userId": 5
+}
+----------------------------------------
+[2025-06-25 21:35:51] [INFO] [Database.php:231]
+SQL: SELECT * FROM sys_users WHERE user_id = :id
+Parameters: {
+    "id": 4
+}
+----------------------------------------
+[2025-06-25 21:35:51] [INFO] [Model.php:175]
+SQL: SELECT r.* FROM sys_roles r JOIN sys_user_roles ur ON r.role_id = ur.role_id WHERE ur.user_id = :userId
+Parameters: {
+    "userId": 4
+}
+----------------------------------------
+[2025-06-25 21:35:51] [INFO] [Database.php:231]
+SQL: SELECT * FROM sys_users WHERE user_id = :id
+Parameters: {
+    "id": 3
+}
+----------------------------------------
+[2025-06-25 21:35:52] [INFO] [Model.php:175]
+SQL: SELECT r.* FROM sys_roles r JOIN sys_user_roles ur ON r.role_id = ur.role_id WHERE ur.user_id = :userId
+Parameters: {
+    "userId": 3
+}
+----------------------------------------
+[2025-06-25 21:35:52] [INFO] [Database.php:231]
+SQL: SELECT * FROM sys_users WHERE user_id = :id
+Parameters: {
+    "id": 2
+}
+----------------------------------------
+[2025-06-25 21:35:52] [INFO] [Model.php:175]
+SQL: SELECT r.* FROM sys_roles r JOIN sys_user_roles ur ON r.role_id = ur.role_id WHERE ur.user_id = :userId
+Parameters: {
+    "userId": 2
+}
+----------------------------------------
+[2025-06-25 21:35:52] [INFO] [Database.php:231]
+SQL: SELECT * FROM sys_users WHERE user_id = :id
+Parameters: {
+    "id": 1
+}
+----------------------------------------
+[2025-06-25 21:35:52] [INFO] [Model.php:175]
+SQL: SELECT r.* FROM sys_roles r JOIN sys_user_roles ur ON r.role_id = ur.role_id WHERE ur.user_id = :userId
+Parameters: {
+    "userId": 1
+}
+----------------------------------------
