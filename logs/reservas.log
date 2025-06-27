@@ -15154,4 +15154,173 @@ AJAX obtenerReservas: Fecha=2025-06-03, DoctorID=null, Estado=nullmdlObtenerRese
             INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
             inner join agendas_detalle ad on sr.agenda_id = ad.detalle_id 
             inner join salas s on s.sala_id = ad.sala_id 
-            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 0 reservas
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 0 reservasmdlObtenerReservasPorFecha: Fecha=2025-06-27, DoctorID=undefined, Estado=null, Paciente=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            inner join agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            inner join salas s on s.sala_id = ad.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin AND sr.doctor_id = :doctor_id ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCError al obtener reservas por fecha: SQLSTATE[22P02]: Invalid text representation: 7 ERROR:  invalid input syntax for type integer: "undefined"
+CONTEXT:  unnamed portal parameter $3 = '...'mdlObtenerReservasPorFecha: Fecha=2025-06-27, DoctorID=2, Estado=null, Paciente=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            inner join agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            inner join salas s on s.sala_id = ad.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin AND sr.doctor_id = :doctor_id ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 0 reservasmdlObtenerReservasPorFecha: Fecha=2025-06-26, DoctorID=14, Estado=null, Paciente=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            inner join agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            inner join salas s on s.sala_id = ad.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin AND sr.doctor_id = :doctor_id ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 0 reservasmdlObtenerReservasPorFecha: Fecha=2025-06-26, DoctorID=14, Estado=null, Paciente=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            inner join agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            inner join salas s on s.sala_id = ad.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin AND sr.doctor_id = :doctor_id ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 0 reservasmdlObtenerReservasPorFecha: Fecha=2025-06-27, DoctorID=13, Estado=null, Paciente=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            inner join agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            inner join salas s on s.sala_id = ad.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin AND sr.doctor_id = :doctor_id ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 0 reservasmdlObtenerReservasPorFecha: Fecha=2025-06-27, DoctorID=14, Estado=null, Paciente=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            inner join agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            inner join salas s on s.sala_id = ad.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin AND sr.doctor_id = :doctor_id ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 0 reservas

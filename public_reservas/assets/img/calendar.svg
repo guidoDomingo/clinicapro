@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" width="300" height="300">
+  <style>
+    .primary {fill: #3b7ddd;}
+    .secondary {fill: #6c757d;}
+    .blue-light {fill: #cfe2ff;}
+    .gray-light {fill: #f8f9fa;}
+    .white {fill: #ffffff;}
+    .accent {fill: #28a745;}
+  </style>
+  <rect class="white" width="300" height="300" rx="10" ry="10"/>
+  <rect class="blue-light" x="25" y="25" width="250" height="200" rx="10" ry="10"/>
+  <rect class="gray-light" x="50" y="50" width="200" height="150" rx="5" ry="5"/>
+  <rect class="white" x="60" y="70" width="50" height="40" rx="2" ry="2"/>
+  <rect class="white" x="125" y="70" width="50" height="40" rx="2" ry="2"/>
+  <rect class="white" x="190" y="70" width="50" height="40" rx="2" ry="2"/>
+  <rect class="white" x="60" y="120" width="50" height="40" rx="2" ry="2"/>
+  <rect class="white" x="125" y="120" width="50" height="40" rx="2" ry="2"/>
+  <rect class="white" x="190" y="120" width="50" height="40" rx="2" ry="2"/>
+  <rect class="primary" x="65" y="75" width="40" height="30" rx="2" ry="2"/>
+  <circle class="accent" cx="150" cy="85" r="15"/>
+  <path class="secondary" d="M60 50 H240 V30 H60 V50" />
+  <rect class="primary" x="100" y="240" width="100" height="30" rx="15" ry="15"/>
+  <text x="150" y="260" text-anchor="middle" fill="white" font-family="Arial" font-size="14">Reservar</text>
+</svg>

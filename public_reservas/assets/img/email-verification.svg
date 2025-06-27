@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" width="300" height="300">
+  <style>
+    .primary {fill: #3b7ddd;}
+    .secondary {fill: #6c757d;}
+    .blue-light {fill: #cfe2ff;}
+    .green-light {fill: #d1e7dd;}
+    .yellow-light {fill: #fff3cd;}
+    .white {fill: #ffffff;}
+    .accent {fill: #ffc107;}
+  </style>
+  <rect class="white" width="300" height="300" rx="10" ry="10"/>
+  <rect class="blue-light" x="25" y="25" width="250" height="250" rx="10" ry="10"/>
+  
+  <!-- Envelope -->
+  <path class="white" d="M50,70 L250,70 L250,230 L50,230 Z" />
+  <path class="yellow-light" d="M50,70 L150,150 L250,70 Z" />
+  <path class="green-light" d="M250,230 L175,150 L250,90 Z" />
+  <path class="green-light" d="M50,230 L125,150 L50,90 Z" />
+  
+  <!-- Verification code box -->
+  <rect class="white" x="75" y="120" width="150" height="60" rx="5" ry="5" stroke="#6c757d" stroke-width="2"/>
+  <rect class="accent" x="85" y="135" width="20" height="30" rx="2" ry="2"/>
+  <rect class="accent" x="115" y="135" width="20" height="30" rx="2" ry="2"/>
+  <rect class="accent" x="145" y="135" width="20" height="30" rx="2" ry="2"/>
+  <rect class="accent" x="175" y="135" width="20" height="30" rx="2" ry="2"/>
+  <rect class="accent" x="205" y="135" width="20" height="30" rx="2" ry="2"/>
+  
+  <!-- Checkmark overlay -->
+  <circle class="primary" cx="220" cy="80" r="25"/>
+  <path class="white" d="M210,80 L218,88 L230,72" stroke="white" stroke-width="3" fill="none"/>
+</svg>

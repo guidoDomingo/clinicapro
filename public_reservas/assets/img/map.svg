@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" width="300" height="300">
+  <style>
+    .primary {fill: #3b7ddd;}
+    .secondary {fill: #6c757d;}
+    .blue-light {fill: #cfe2ff;}
+    .gray-light {fill: #f8f9fa;}
+    .white {fill: #ffffff;}
+    .green {fill: #28a745;}
+    .red {fill: #dc3545;}
+    .yellow {fill: #ffc107;}
+  </style>
+  <rect class="white" width="300" height="300" rx="10" ry="10"/>
+  
+  <!-- Map background -->
+  <rect class="gray-light" x="25" y="25" width="250" height="250" rx="10" ry="10"/>
+  
+  <!-- Map grid -->
+  <line x1="25" y1="75" x2="275" y2="75" stroke="#dddddd" stroke-width="1"/>
+  <line x1="25" y1="125" x2="275" y2="125" stroke="#dddddd" stroke-width="1"/>
+  <line x1="25" y1="175" x2="275" y2="175" stroke="#dddddd" stroke-width="1"/>
+  <line x1="25" y1="225" x2="275" y2="225" stroke="#dddddd" stroke-width="1"/>
+  <line x1="75" y1="25" x2="75" y2="275" stroke="#dddddd" stroke-width="1"/>
+  <line x1="125" y1="25" x2="125" y2="275" stroke="#dddddd" stroke-width="1"/>
+  <line x1="175" y1="25" x2="175" y2="275" stroke="#dddddd" stroke-width="1"/>
+  <line x1="225" y1="25" x2="225" y2="275" stroke="#dddddd" stroke-width="1"/>
+  
+  <!-- Roads -->
+  <path d="M25,100 L275,100" stroke="#ffffff" stroke-width="10"/>
+  <path d="M150,25 L150,275" stroke="#ffffff" stroke-width="10"/>
+  <path d="M60,200 C100,180 200,220 240,180" stroke="#ffffff" stroke-width="8" fill="none"/>
+  
+  <!-- Buildings -->
+  <rect class="blue-light" x="60" y="40" width="30" height="30"/>
+  <rect class="blue-light" x="210" y="60" width="40" height="20"/>
+  <rect class="blue-light" x="80" y="200" width="25" height="25"/>
+  <rect class="blue-light" x="190" y="190" width="35" height="35"/>
+  
+  <!-- Main location pin -->
+  <path class="primary" d="M150,150 L150,120 A15,15 0 1,1 150.1,120 Z"/>
+  <circle class="white" cx="150" cy="120" r="7"/>
+  
+  <!-- Other pins -->
+  <path class="green" d="M90,140 L90,125 A8,8 0 1,1 90.1,125 Z" transform="scale(0.7)"/>
+  <path class="red" d="M210,220 L210,205 A8,8 0 1,1 210.1,205 Z" transform="scale(0.7)"/>
+  <path class="yellow" d="M65,220 L65,205 A8,8 0 1,1 65.1,205 Z" transform="scale(0.7)"/>
+  
+  <!-- Information box -->
+  <rect class="white" x="175" y="100" width="80" height="50" rx="5" ry="5"/>
+  <line x1="185" y1="115" x2="245" y2="115" stroke="#dddddd" stroke-width="2"/>
+  <line x1="185" y1="130" x2="235" y2="130" stroke="#dddddd" stroke-width="2"/>
+  <line x1="185" y1="145" x2="225" y2="145" stroke="#dddddd" stroke-width="2"/>
+  <path d="M175,120 L165,120 L170,125 L175,120" fill="white"/>
+</svg>

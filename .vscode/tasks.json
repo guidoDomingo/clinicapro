@@ -8,6 +8,47 @@
 			"group": "test",
 			"isBackground": false,
 			"problemMatcher": []
+		},
+		{
+			"label": "Abrir Módulo de Reservas Públicas en el navegador",
+			"type": "shell",
+			"command": "start http://localhost/clinica/public_reservas",
+			"group": "test",
+			"isBackground": false
+		},
+		{
+			"label": "Abrir Diagnóstico de Reservas Públicas",
+			"type": "shell",
+			"command": "start http://localhost/clinica/public_reservas/diagnostico.php",
+			"group": "test",
+			"isBackground": false
+		},
+		{
+			"label": "Ejecutar verificación del módulo de reservas",
+			"type": "shell",
+			"command": "start http://localhost/clinica/public_reservas/verificar.php",
+			"group": "test",
+			"isBackground": false
+		},
+		{
+			"label": "Ejecutar verificación de reservas en CLI",
+			"type": "shell",
+			"command": "cd ${workspaceFolder}/public_reservas && php verificar_cli.php",
+			"group": "test",
+			"isBackground": false,
+			"presentation": {
+				"reveal": "always",
+				"panel": "new",
+				"focus": true
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "Ver logs de reservas públicas",
+			"type": "shell",
+			"command": "notepad ${workspaceFolder}/logs/public_reservas.log",
+			"group": "test",
+			"isBackground": false
 		}
 	]
-}  {" label\: \Open ICD-11 Advanced Test in browser\, \type\: \shell\, \command\: \start http://localhost/clinica/test_icd11_advanced.php\, \group\: \test\, \isBackground\: false},
+}

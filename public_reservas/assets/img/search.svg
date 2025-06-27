@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" width="300" height="300">
+  <style>
+    .primary {fill: #3b7ddd;}
+    .secondary {fill: #6c757d;}
+    .blue-light {fill: #cfe2ff;}
+    .gray-light {fill: #f8f9fa;}
+    .white {fill: #ffffff;}
+    .accent {fill: #17a2b8;}
+  </style>
+  <rect class="white" width="300" height="300" rx="10" ry="10"/>
+  <circle class="blue-light" cx="150" cy="150" r="125"/>
+  
+  <!-- Magnifying glass -->
+  <circle class="white" cx="130" cy="130" r="80" stroke="#6c757d" stroke-width="8" fill="white"/>
+  <rect class="gray-light" x="130" y="150" width="25" height="100" rx="10" ry="10" 
+        transform="rotate(45, 130, 150)"/>
+  <circle class="accent" cx="130" cy="130" r="40"/>
+  <circle class="white" cx="130" cy="130" r="20"/>
+  
+  <!-- Search results -->
+  <rect class="white" x="50" y="220" width="200" height="15" rx="5" ry="5"/>
+  <rect class="white" x="50" y="245" width="150" height="15" rx="5" ry="5"/>
+  <rect class="white" x="50" y="270" width="180" height="15" rx="5" ry="5"/>
+  
+  <!-- Handle -->
+  <rect class="primary" x="200" y="200" width="20" height="60" rx="10" ry="10" 
+        transform="rotate(45, 210, 230)"/>
+</svg>

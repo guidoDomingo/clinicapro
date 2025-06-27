@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Reservas - Clínica</title>
+    
+    <!-- Bootstrap 4 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    
+    <!-- Datepicker -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
+
+    <!-- Estilos personalizados -->
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+    <!-- Barra de navegación -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="index.php">
+                <i class="fas fa-hospital-alt mr-2"></i>
+                Clínica
+            </a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="index.php">Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.php?accion=consultar">Consultar Reserva</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.php?accion=verificar">Verificar Cita</a>
+                    </li>
+                    <?php if (file_exists(__DIR__ . "/../diagnostico.php")): ?>
+                    <li class="nav-item">
+                        <a class="nav-link text-warning" href="diagnostico.php" target="_blank">
+                            <i class="fas fa-tools"></i> Diagnóstico
+                        </a>
+                    </li>
+                    <?php endif; ?>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Contenido principal -->
+    <main class="container my-4">
+        <?php
+        // Cargar la vista correspondiente según la acción solicitada
+        $accion = isset($_GET['accion']) ? $_GET['accion'] : 'inicio';
+        
+        switch($accion) {
+            case 'consultar':
+                include "view/consultar_reserva.php";
+                break;
+            case 'verificar':
+                include "view/verificar_reserva.php";
+                break;
+            case 'resultado':
+                include "view/resultado_reserva.php";
+                break;
+            default:
+                include "view/inicio.php";
+                break;
+        }
+        ?>
+    </main>
+    
+    <!-- Pie de página -->
+    <footer class="bg-dark text-white text-center py-3 mt-5">
+        <div class="container">
+            <p class="mb-0">&copy; <?php echo date('Y'); ?> Clínica. Todos los derechos reservados.</p>
+            <small>Desarrollado por Clínica</small>
+        </div>
+    </footer>
+    
+    <!-- jQuery y Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js"></script>
+    
+    <!-- Datepicker -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/locales/bootstrap-datepicker.es.min.js"></script>
+    
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+    
+    <!-- Scripts personalizados -->
+    <script src="assets/js/reservas.js"></script>
+</body>
+</html>
