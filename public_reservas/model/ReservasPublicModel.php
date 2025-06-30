@@ -261,5 +261,313 @@ class ReservasPublicModel {
             return false;
         }
     }
+    
+    /* 
+     * MÉTODOS PARA AUTENTICACIÓN DE USUARIOS
+     */
+    
+    /**
+     * Verifica las credenciales de un usuario
+     * @param string $email Email del usuario
+     * @param string $password Contraseña del usuario
+     * @return array Resultado de la verificación
+     */
+    static public function mdlVerificarUsuario($email, $password) {
+        error_log("mdlVerificarUsuario: Verificando usuario con email $email", 3, "c:/laragon/www/clinica/logs/auth.log");
+        
+        try {
+            // Primero buscamos en la tabla de pacientes registrados
+            $stmt = Conexion::conectar()->prepare(
+                "SELECT 
+                    pr.paciente_id,
+                    pr.email,
+                    pr.password,
+                    p.first_name || ' ' || p.last_name AS nombre
+                FROM 
+                    reservas_pacientes_auth pr
+                LEFT JOIN 
+                    rh_person p ON pr.paciente_id = p.person_id
+                WHERE 
+                    pr.email = :email
+                LIMIT 1"
+            );
+            
+            $stmt->bindParam(":email", $email, PDO::PARAM_STR);
+            $stmt->execute();
+            
+            $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if (!$usuario) {
+                error_log("mdlVerificarUsuario: Usuario no encontrado con email $email", 3, "c:/laragon/www/clinica/logs/auth.log");
+                return [
+                    'error' => true,
+                    'mensaje' => 'El email no está registrado en el sistema'
+                ];
+            }
+            
+            // Verificar la contraseña
+            if (password_verify($password, $usuario['password'])) {
+                error_log("mdlVerificarUsuario: Contraseña correcta para usuario ID " . $usuario['paciente_id'], 3, "c:/laragon/www/clinica/logs/auth.log");
+                
+                // Actualizar último login
+                $updateStmt = Conexion::conectar()->prepare(
+                    "UPDATE reservas_pacientes_auth 
+                     SET ultimo_login = CURRENT_TIMESTAMP 
+                     WHERE paciente_id = :paciente_id"
+                );
+                
+                $updateStmt->bindParam(":paciente_id", $usuario['paciente_id'], PDO::PARAM_INT);
+                $updateStmt->execute();
+                
+                return [
+                    'error' => false,
+                    'paciente_id' => $usuario['paciente_id'],
+                    'email' => $usuario['email'],
+                    'nombre' => $usuario['nombre']
+                ];
+            } else {
+                error_log("mdlVerificarUsuario: Contraseña incorrecta para email $email", 3, "c:/laragon/www/clinica/logs/auth.log");
+                return [
+                    'error' => true,
+                    'mensaje' => 'Contraseña incorrecta'
+                ];
+            }
+        } catch (PDOException $e) {
+            error_log("mdlVerificarUsuario: Error de base de datos: " . $e->getMessage(), 3, "c:/laragon/www/clinica/logs/auth.log");
+            return [
+                'error' => true,
+                'mensaje' => 'Error en el proceso de login: ' . $e->getMessage()
+            ];
+        }
+    }
+    
+    /**
+     * Guarda un token de "recordarme" para un usuario
+     * @param int $pacienteId ID del paciente
+     * @param string $token Token de autenticación
+     * @return bool Resultado de la operación
+     */
+    static public function mdlGuardarToken($pacienteId, $token) {
+        error_log("mdlGuardarToken: Guardando token para paciente ID $pacienteId", 3, "c:/laragon/www/clinica/logs/auth.log");
+        
+        try {
+            // Primero eliminamos cualquier token anterior
+            self::mdlEliminarToken($pacienteId);
+            
+            // Luego guardamos el nuevo token
+            $stmt = Conexion::conectar()->prepare(
+                "INSERT INTO reservas_auth_tokens 
+                 (paciente_id, token, fecha_creacion, fecha_expiracion)
+                 VALUES
+                 (:paciente_id, :token, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '30 days')"
+            );
+            
+            $stmt->bindParam(":paciente_id", $pacienteId, PDO::PARAM_INT);
+            $stmt->bindParam(":token", $token, PDO::PARAM_STR);
+            
+            $resultado = $stmt->execute();
+            
+            error_log("mdlGuardarToken: Token guardado: " . ($resultado ? 'sí' : 'no'), 3, "c:/laragon/www/clinica/logs/auth.log");
+            
+            return $resultado;
+        } catch (PDOException $e) {
+            error_log("mdlGuardarToken: Error al guardar token: " . $e->getMessage(), 3, "c:/laragon/www/clinica/logs/auth.log");
+            return false;
+        }
+    }
+    
+    /**
+     * Verifica si un email ya está registrado
+     * @param string $email Email a verificar
+     * @return bool True si el email ya existe, false en caso contrario
+     */
+    static public function mdlVerificarEmailExistente($email) {
+        error_log("mdlVerificarEmailExistente: Verificando si el email $email ya está registrado", 3, "c:/laragon/www/clinica/logs/auth.log");
+        
+        try {
+            $stmt = Conexion::conectar()->prepare(
+                "SELECT COUNT(*) FROM reservas_pacientes_auth WHERE email = :email"
+            );
+            
+            $stmt->bindParam(":email", $email, PDO::PARAM_STR);
+            $stmt->execute();
+            
+            $existe = ($stmt->fetchColumn() > 0);
+            
+            error_log("mdlVerificarEmailExistente: Email ya existe: " . ($existe ? 'sí' : 'no'), 3, "c:/laragon/www/clinica/logs/auth.log");
+            
+            return $existe;
+        } catch (PDOException $e) {
+            error_log("mdlVerificarEmailExistente: Error al verificar email: " . $e->getMessage(), 3, "c:/laragon/www/clinica/logs/auth.log");
+            return false;
+        }
+    }
+    
+    /**
+     * Registra un nuevo usuario en el sistema
+     * @param array $datos Datos del usuario
+     * @return array Resultado del registro
+     */
+    static public function mdlRegistrarUsuario($datos) {
+        error_log("mdlRegistrarUsuario: Registrando nuevo usuario con email " . $datos['email'], 3, "c:/laragon/www/clinica/logs/auth.log");
+        
+        try {
+            // Iniciar una transacción para asegurar la integridad de los datos
+            $db = Conexion::conectar();
+            $db->beginTransaction();
+            
+            // Primero creamos el registro en rh_person
+            $stmtPerson = $db->prepare(
+                "INSERT INTO rh_person 
+                 (first_name, last_name, document_number, email, phone, created_at)
+                 VALUES 
+                 (:first_name, :last_name, :document_number, :email, :phone, CURRENT_TIMESTAMP)
+                 RETURNING person_id"
+            );
+            
+            $stmtPerson->bindParam(":first_name", $datos['nombre'], PDO::PARAM_STR);
+            $stmtPerson->bindParam(":last_name", $datos['apellido'], PDO::PARAM_STR);
+            $stmtPerson->bindParam(":document_number", $datos['documento'], PDO::PARAM_STR);
+            $stmtPerson->bindParam(":email", $datos['email'], PDO::PARAM_STR);
+            $stmtPerson->bindParam(":phone", $datos['telefono'], PDO::PARAM_STR);
+            
+            $stmtPerson->execute();
+            $personId = $stmtPerson->fetchColumn();
+            
+            if (!$personId) {
+                $db->rollBack();
+                error_log("mdlRegistrarUsuario: Error al crear registro en rh_person", 3, "c:/laragon/www/clinica/logs/auth.log");
+                return [
+                    'error' => true,
+                    'mensaje' => 'Error al crear el registro de persona'
+                ];
+            }
+            
+            // Ahora creamos el registro de autenticación
+            $stmtAuth = $db->prepare(
+                "INSERT INTO reservas_pacientes_auth 
+                 (paciente_id, email, password, fecha_registro, ultimo_login)
+                 VALUES 
+                 (:paciente_id, :email, :password, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)"
+            );
+            
+            $stmtAuth->bindParam(":paciente_id", $personId, PDO::PARAM_INT);
+            $stmtAuth->bindParam(":email", $datos['email'], PDO::PARAM_STR);
+            $stmtAuth->bindParam(":password", $datos['password'], PDO::PARAM_STR);
+            
+            if (!$stmtAuth->execute()) {
+                $db->rollBack();
+                error_log("mdlRegistrarUsuario: Error al crear registro de autenticación", 3, "c:/laragon/www/clinica/logs/auth.log");
+                return [
+                    'error' => true,
+                    'mensaje' => 'Error al crear el registro de autenticación'
+                ];
+            }
+            
+            // Si todo está bien, confirmamos la transacción
+            $db->commit();
+            
+            error_log("mdlRegistrarUsuario: Registro exitoso para usuario con ID $personId", 3, "c:/laragon/www/clinica/logs/auth.log");
+            
+            return [
+                'error' => false,
+                'paciente_id' => $personId,
+                'mensaje' => 'Usuario registrado con éxito'
+            ];
+        } catch (PDOException $e) {
+            // En caso de error, revertimos la transacción
+            if (isset($db)) {
+                $db->rollBack();
+            }
+            
+            error_log("mdlRegistrarUsuario: Error de base de datos: " . $e->getMessage(), 3, "c:/laragon/www/clinica/logs/auth.log");
+            
+            return [
+                'error' => true,
+                'mensaje' => 'Error en el proceso de registro: ' . $e->getMessage()
+            ];
+        }
+    }
+    
+    /**
+     * Elimina un token de autenticación
+     * @param int $pacienteId ID del paciente
+     * @return bool Resultado de la operación
+     */
+    static public function mdlEliminarToken($pacienteId) {
+        error_log("mdlEliminarToken: Eliminando token para paciente ID $pacienteId", 3, "c:/laragon/www/clinica/logs/auth.log");
+        
+        try {
+            $stmt = Conexion::conectar()->prepare(
+                "DELETE FROM reservas_auth_tokens WHERE paciente_id = :paciente_id"
+            );
+            
+            $stmt->bindParam(":paciente_id", $pacienteId, PDO::PARAM_INT);
+            $resultado = $stmt->execute();
+            
+            error_log("mdlEliminarToken: Token eliminado: " . ($resultado ? 'sí' : 'no'), 3, "c:/laragon/www/clinica/logs/auth.log");
+            
+            return $resultado;
+        } catch (PDOException $e) {
+            error_log("mdlEliminarToken: Error al eliminar token: " . $e->getMessage(), 3, "c:/laragon/www/clinica/logs/auth.log");
+            return false;
+        }
+    }
+    
+    /**
+     * Verifica si un token es válido
+     * @param string $token Token a verificar
+     * @return array|bool Datos del usuario o false si el token no es válido
+     */
+    static public function mdlVerificarToken($token) {
+        error_log("mdlVerificarToken: Verificando token", 3, "c:/laragon/www/clinica/logs/auth.log");
+        
+        try {
+            $stmt = Conexion::conectar()->prepare(
+                "SELECT 
+                    t.paciente_id,
+                    t.token,
+                    p.email,
+                    p.first_name || ' ' || p.last_name AS nombre
+                FROM 
+                    reservas_auth_tokens t
+                INNER JOIN
+                    reservas_pacientes_auth a ON t.paciente_id = a.paciente_id
+                INNER JOIN
+                    rh_person p ON t.paciente_id = p.person_id
+                WHERE 
+                    t.token = :token
+                    AND t.fecha_expiracion > CURRENT_TIMESTAMP
+                LIMIT 1"
+            );
+            
+            $stmt->bindParam(":token", $token, PDO::PARAM_STR);
+            $stmt->execute();
+            
+            $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($resultado) {
+                error_log("mdlVerificarToken: Token válido para usuario ID " . $resultado['paciente_id'], 3, "c:/laragon/www/clinica/logs/auth.log");
+                return [
+                    'error' => false,
+                    'paciente_id' => $resultado['paciente_id'],
+                    'email' => $resultado['email'],
+                    'nombre' => $resultado['nombre']
+                ];
+            } else {
+                error_log("mdlVerificarToken: Token inválido", 3, "c:/laragon/www/clinica/logs/auth.log");
+                return [
+                    'error' => true,
+                    'mensaje' => 'Token inválido o expirado'
+                ];
+            }
+        } catch (PDOException $e) {
+            error_log("mdlVerificarToken: Error al verificar token: " . $e->getMessage(), 3, "c:/laragon/www/clinica/logs/auth.log");
+            return [
+                'error' => true,
+                'mensaje' => 'Error al verificar token: ' . $e->getMessage()
+            ];
+        }
+    }
 }
 ?>

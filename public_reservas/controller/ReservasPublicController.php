@@ -10,8 +10,9 @@ class ReservasPublicController {
     
     /**
      * Inicia la aplicación y carga la plantilla
+     * @param array|null $resultadoAuth Resultado de operaciones de autenticación
      */
-    public function iniciarAplicacion() {
+    public function iniciarAplicacion($resultadoAuth = null) {
         include "view/template.php";
     }
     

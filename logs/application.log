@@ -498,3 +498,67 @@ Data: {
     "reg_lastname": "isnardi"
 }
 ----------------------------------------
+[2025-06-30 14:44:27] [INFO] [SysRegisterController.php:84] New registration attempt
+Data: {
+    "reg_document": "34534",
+    "reg_name": "dfgdf",
+    "reg_lastname": "dfgfd",
+    "reg_email": "carlos@carlos.com",
+    "reg_phone": "23432",
+    "reg_password": "carlos123",
+    "reg_confirm_password": "carlos123",
+    "reg_activation": "pending"
+}
+----------------------------------------
+[2025-06-30 15:04:54] [INFO] [SysRegisterController.php:84] New registration attempt
+Data: {
+    "reg_document": "3453",
+    "reg_name": "dfgd",
+    "reg_lastname": "dfg",
+    "reg_email": "fdg@fdg",
+    "reg_phone": "34534",
+    "reg_password": "123",
+    "reg_confirm_password": "123",
+    "reg_bdate": "2025-06-30",
+    "reg_activation": "pending"
+}
+----------------------------------------
+[2025-06-30 15:04:54] [INFO] [SysRegisterController.php:119] New registration attempt
+Data: {
+    "reg_document": "3453",
+    "reg_name": "dfgd",
+    "reg_lastname": "dfg",
+    "reg_email": "fdg@fdg",
+    "reg_phone": "34534",
+    "reg_password": "123",
+    "reg_confirm_password": "123",
+    "reg_bdate": "2025-06-30",
+    "reg_activation": "dc7ff957899ba25f0d46a519647d942a"
+}
+----------------------------------------
+[2025-06-30 15:29:44] [INFO] [SysRegisterController.php:84] New registration attempt
+Data: {
+    "reg_document": "33333333333",
+    "reg_name": "rolando",
+    "reg_lastname": "flores",
+    "reg_email": "rola@rola.com",
+    "reg_phone": "23455",
+    "reg_password": "rola123",
+    "reg_confirm_password": "rola123",
+    "reg_bdate": "1995-08-04",
+    "reg_activation": "pending"
+}
+----------------------------------------
+[2025-06-30 15:29:44] [INFO] [SysRegisterController.php:119] New registration attempt
+Data: {
+    "reg_document": "33333333333",
+    "reg_name": "rolando",
+    "reg_lastname": "flores",
+    "reg_email": "rola@rola.com",
+    "reg_phone": "23455",
+    "reg_password": "rola123",
+    "reg_confirm_password": "rola123",
+    "reg_bdate": "1995-08-04",
+    "reg_activation": "4517bb10d0b8ef9b727a04ecc6ed8729"
+}
+----------------------------------------

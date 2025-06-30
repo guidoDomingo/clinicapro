@@ -1,3 +1,12 @@
+<?php
+// Iniciar sesión si no está iniciada
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Incluir controlador de autenticación
+require_once "controller/AuthController.php";
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -33,12 +42,58 @@
                     <li class="nav-item active">
                         <a class="nav-link" href="index.php">Inicio</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.php?accion=consultar">Consultar Reserva</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.php?accion=verificar">Verificar Cita</a>
-                    </li>
+                    
+                    <?php if (AuthController::isAuthenticated()): ?>
+                        <!-- Opciones para usuarios autenticados -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="index.php?accion=reservar">
+                                <i class="fas fa-calendar-plus"></i> Nueva Reserva
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="index.php?accion=consultar">
+                                <i class="fas fa-calendar-check"></i> Mis Reservas
+                            </a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown">
+                                <i class="fas fa-user-circle"></i> 
+                                <?php echo isset($_SESSION['paciente_nombre']) ? $_SESSION['paciente_nombre'] : 'Usuario'; ?>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
+                                <a class="dropdown-item" href="index.php?accion=perfil">
+                                    <i class="fas fa-id-card"></i> Mi Perfil
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="index.php?accion=logout">
+                                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                                </a>
+                            </div>
+                        </li>
+                    <?php else: ?>
+                        <!-- Opciones para usuarios no autenticados -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="index.php?accion=consultar">
+                                <i class="fas fa-search"></i> Consultar Reserva
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="index.php?accion=verificar">
+                                <i class="fas fa-check-circle"></i> Verificar Cita
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="index.php?view=login">
+                                <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="index.php?view=register">
+                                <i class="fas fa-user-plus"></i> Registrarse
+                            </a>
+                        </li>
+                    <?php endif; ?>
+                    
                     <?php if (file_exists(__DIR__ . "/../diagnostico.php")): ?>
                     <li class="nav-item">
                         <a class="nav-link text-warning" href="diagnostico.php" target="_blank">
@@ -56,20 +111,59 @@
         <?php
         // Cargar la vista correspondiente según la acción solicitada
         $accion = isset($_GET['accion']) ? $_GET['accion'] : 'inicio';
+        $view = isset($_GET['view']) ? $_GET['view'] : '';
         
-        switch($accion) {
-            case 'consultar':
-                include "view/consultar_reserva.php";
-                break;
-            case 'verificar':
-                include "view/verificar_reserva.php";
-                break;
-            case 'resultado':
-                include "view/resultado_reserva.php";
-                break;
-            default:
-                include "view/inicio.php";
-                break;
+        // Verificar si el usuario está autenticado
+        $authRequired = ['reservar', 'confirmar'];
+        $isAuth = AuthController::isAuthenticated();
+        
+        if (in_array($accion, $authRequired) && !$isAuth) {
+            // Redirigir a login si se necesita autenticación
+            $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
+            include "view/modules/login.php";
+        } else {
+            // Procesar vistas según parámetro 'view'
+            if (!empty($view)) {
+                switch($view) {
+                    case 'login':
+                        include "view/modules/login.php";
+                        break;
+                    case 'register':
+                        include "view/modules/register.php";
+                        break;
+                    case 'forgot_password':
+                        include "view/modules/forgot_password.php";
+                        break;
+                    default:
+                        include "view/modules/home.php";
+                        break;
+                }
+            } else {
+                // Procesar vistas según parámetro 'accion'
+                switch($accion) {
+                    case 'consultar':
+                        include "view/consultar_reserva.php";
+                        break;
+                    case 'verificar':
+                        include "view/verificar_reserva.php";
+                        break;
+                    case 'resultado':
+                        include "view/resultado_reserva.php";
+                        break;
+                    case 'reservar':
+                        include "view/reservar.php";
+                        break;
+                    case 'confirmar':
+                        include "view/confirmar_reserva.php";
+                        break;
+                    case 'logout':
+                        AuthController::ctrLogout();
+                        break;
+                    default:
+                        include "view/modules/home.php";
+                        break;
+                }
+            }
         }
         ?>
     </main>
