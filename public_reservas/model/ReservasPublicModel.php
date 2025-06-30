@@ -109,6 +109,52 @@ class ReservasPublicModel {
     }
     
     /**
+     * Obtiene los datos de un paciente por su ID
+     * @param int $pacienteId ID del paciente
+     * @return array|bool Datos del paciente o false si no existe
+     */
+    static public function mdlObtenerPacientePorId($pacienteId) {
+        try {
+            $stmt = Conexion::conectar()->prepare(
+                "SELECT 
+                    p.person_id, 
+                    p.first_name AS nombre, 
+                    p.last_name AS apellido, 
+                    p.document_number AS documento,
+                    p.email,
+                    p.phone AS telefono,
+                    pa.ultimo_login
+                FROM 
+                    rh_person p
+                LEFT JOIN 
+                    reservas_pacientes_auth pa ON p.person_id = pa.paciente_id
+                WHERE 
+                    p.person_id = :paciente_id
+                LIMIT 1"
+            );
+            
+            $stmt->bindParam(":paciente_id", $pacienteId, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            // Log para depuración
+            error_log("mdlObtenerPacientePorId: Buscando paciente con ID $pacienteId", 3, "c:/laragon/www/clinica/logs/auth.log");
+            
+            $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($resultado) {
+                error_log("mdlObtenerPacientePorId: Paciente encontrado: " . $resultado['nombre'] . ' ' . $resultado['apellido'], 3, "c:/laragon/www/clinica/logs/auth.log");
+            } else {
+                error_log("mdlObtenerPacientePorId: No se encontró paciente con ID $pacienteId", 3, "c:/laragon/www/clinica/logs/auth.log");
+            }
+            
+            return $resultado;
+        } catch (PDOException $e) {
+            error_log("mdlObtenerPacientePorId: Error al buscar paciente: " . $e->getMessage(), 3, "c:/laragon/www/clinica/logs/auth.log");
+            return false;
+        }
+    }
+    
+    /**
      * Guarda una reserva en el sistema
      * @param array $datos Datos de la reserva
      * @return mixed ID de la reserva o false en caso de error

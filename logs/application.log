@@ -562,3 +562,283 @@ Data: {
     "reg_activation": "4517bb10d0b8ef9b727a04ecc6ed8729"
 }
 ----------------------------------------
+[2025-06-30 18:18:19] [INFO] [user.controller.php:137] user: rola@rola.com
+Data: rola@rola.com
+----------------------------------------
+[2025-06-30 18:18:19] [INFO] [user.controller.php:138] user: ad01ac09c16bf1fe26baad37ed69d515
+Data: ad01ac09c16bf1fe26baad37ed69d515
+----------------------------------------
+[2025-06-30 18:36:20] [INFO] [user.controller.php:196] user: rola@rola.com
+Data: rola@rola.com
+----------------------------------------
+[2025-06-30 18:36:20] [INFO] [user.controller.php:197] user: ad01ac09c16bf1fe26baad37ed69d515
+Data: ad01ac09c16bf1fe26baad37ed69d515
+----------------------------------------
+[2025-06-30 18:36:20] [INFO] [user.controller.php:246] Login attempt for user: rola@rola.com
+Data: {
+    "user_id": 12,
+    "reg_id": 12,
+    "user_email": "rola@rola.com",
+    "user_pass": "ad01ac09c16bf1fe26baad37ed69d515",
+    "user_expire": "2025-07-30 15:29:44.068679",
+    "user_first_login": null,
+    "user_last_login": null,
+    "user_is_active": true,
+    "profile_photo": null,
+    "reg_name": "rolando",
+    "reg_lastname": "flores"
+}
+----------------------------------------
+[2025-06-30 18:37:13] [INFO] [user.controller.php:196] user: rola@rola.com
+Data: rola@rola.com
+----------------------------------------
+[2025-06-30 18:37:13] [INFO] [user.controller.php:197] user: ad01ac09c16bf1fe26baad37ed69d515
+Data: ad01ac09c16bf1fe26baad37ed69d515
+----------------------------------------
+[2025-06-30 18:37:13] [INFO] [user.controller.php:246] Login attempt for user: rola@rola.com
+Data: {
+    "user_id": 12,
+    "reg_id": 12,
+    "user_email": "rola@rola.com",
+    "user_pass": "ad01ac09c16bf1fe26baad37ed69d515",
+    "user_expire": "2025-07-30 15:29:44.068679",
+    "user_first_login": null,
+    "user_last_login": "2025-06-30 18:36:20.947155",
+    "user_is_active": true,
+    "profile_photo": null,
+    "reg_name": "rolando",
+    "reg_lastname": "flores"
+}
+----------------------------------------
+[2025-06-30 18:44:15] [INFO] [user.controller.php:196] user: rola@rola.com
+Data: rola@rola.com
+----------------------------------------
+[2025-06-30 18:44:15] [INFO] [user.controller.php:197] user: ad01ac09c16bf1fe26baad37ed69d515
+Data: ad01ac09c16bf1fe26baad37ed69d515
+----------------------------------------
+[2025-06-30 18:44:15] [INFO] [user.controller.php:246] Login attempt for user: rola@rola.com
+Data: {
+    "user_id": 12,
+    "reg_id": 12,
+    "user_email": "rola@rola.com",
+    "user_pass": "ad01ac09c16bf1fe26baad37ed69d515",
+    "user_expire": "2025-07-30 15:29:44.068679",
+    "user_first_login": null,
+    "user_last_login": "2025-06-30 18:37:13.999539",
+    "user_is_active": true,
+    "profile_photo": null,
+    "reg_name": "rolando",
+    "reg_lastname": "flores"
+}
+----------------------------------------
+[2025-06-30 18:50:27] [INFO] [user.controller.php:196] user: rola@rola.com
+Data: rola@rola.com
+----------------------------------------
+[2025-06-30 18:50:27] [INFO] [user.controller.php:197] user: ad01ac09c16bf1fe26baad37ed69d515
+Data: ad01ac09c16bf1fe26baad37ed69d515
+----------------------------------------
+[2025-06-30 18:50:27] [INFO] [user.controller.php:246] Login attempt for user: rola@rola.com
+Data: {
+    "user_id": 12,
+    "reg_id": 12,
+    "user_email": "rola@rola.com",
+    "user_pass": "ad01ac09c16bf1fe26baad37ed69d515",
+    "user_expire": "2025-07-30 15:29:44.068679",
+    "user_first_login": null,
+    "user_last_login": "2025-06-30 18:44:15.346658",
+    "user_is_active": true,
+    "profile_photo": null,
+    "reg_name": "rolando",
+    "reg_lastname": "flores"
+}
+----------------------------------------
+[2025-06-30 18:51:18] [INFO] [user.controller.php:196] user: rola@rola.com
+Data: rola@rola.com
+----------------------------------------
+[2025-06-30 18:51:18] [INFO] [user.controller.php:197] user: ad01ac09c16bf1fe26baad37ed69d515
+Data: ad01ac09c16bf1fe26baad37ed69d515
+----------------------------------------
+[2025-06-30 18:51:19] [INFO] [user.controller.php:246] Login attempt for user: rola@rola.com
+Data: {
+    "user_id": 12,
+    "reg_id": 12,
+    "user_email": "rola@rola.com",
+    "user_pass": "ad01ac09c16bf1fe26baad37ed69d515",
+    "user_expire": "2025-07-30 15:29:44.068679",
+    "user_first_login": null,
+    "user_last_login": "2025-06-30 18:50:27.857802",
+    "user_is_active": true,
+    "profile_photo": null,
+    "reg_name": "rolando",
+    "reg_lastname": "flores"
+}
+----------------------------------------
+[2025-06-30 19:08:11] [INFO] [user.controller.php:196] user: rola@rola.com
+Data: rola@rola.com
+----------------------------------------
+[2025-06-30 19:08:11] [INFO] [user.controller.php:197] user: ad01ac09c16bf1fe26baad37ed69d515
+Data: ad01ac09c16bf1fe26baad37ed69d515
+----------------------------------------
+[2025-06-30 19:08:11] [INFO] [user.controller.php:246] Login attempt for user: rola@rola.com
+Data: {
+    "user_id": 12,
+    "reg_id": 12,
+    "user_email": "rola@rola.com",
+    "user_pass": "ad01ac09c16bf1fe26baad37ed69d515",
+    "user_expire": "2025-07-30 15:29:44.068679",
+    "user_first_login": null,
+    "user_last_login": "2025-06-30 18:51:19.062863",
+    "user_is_active": true,
+    "profile_photo": null,
+    "reg_name": "rolando",
+    "reg_lastname": "flores"
+}
+----------------------------------------
+[2025-06-30 19:24:10] [INFO] [user.controller.php:196] user: rola@rola.com
+Data: rola@rola.com
+----------------------------------------
+[2025-06-30 19:24:10] [INFO] [user.controller.php:197] user: ad01ac09c16bf1fe26baad37ed69d515
+Data: ad01ac09c16bf1fe26baad37ed69d515
+----------------------------------------
+[2025-06-30 19:24:10] [INFO] [user.controller.php:246] Login attempt for user: rola@rola.com
+Data: {
+    "user_id": 12,
+    "reg_id": 12,
+    "user_email": "rola@rola.com",
+    "user_pass": "ad01ac09c16bf1fe26baad37ed69d515",
+    "user_expire": "2025-07-30 15:29:44.068679",
+    "user_first_login": null,
+    "user_last_login": "2025-06-30 19:08:11.394385",
+    "user_is_active": true,
+    "profile_photo": null,
+    "reg_name": "rolando",
+    "reg_lastname": "flores"
+}
+----------------------------------------
+[2025-06-30 19:30:57] [INFO] [user.controller.php:196] user: rola@rola.com
+Data: rola@rola.com
+----------------------------------------
+[2025-06-30 19:30:57] [INFO] [user.controller.php:197] user: ad01ac09c16bf1fe26baad37ed69d515
+Data: ad01ac09c16bf1fe26baad37ed69d515
+----------------------------------------
+[2025-06-30 19:30:57] [INFO] [user.controller.php:246] Login attempt for user: rola@rola.com
+Data: {
+    "user_id": 12,
+    "reg_id": 12,
+    "user_email": "rola@rola.com",
+    "user_pass": "ad01ac09c16bf1fe26baad37ed69d515",
+    "user_expire": "2025-07-30 15:29:44.068679",
+    "user_first_login": null,
+    "user_last_login": "2025-06-30 19:24:10.416546",
+    "user_is_active": true,
+    "profile_photo": null,
+    "reg_name": "rolando",
+    "reg_lastname": "flores"
+}
+----------------------------------------
+[2025-06-30 19:31:27] [INFO] [user.controller.php:196] user: rola@rola.com
+Data: rola@rola.com
+----------------------------------------
+[2025-06-30 19:31:27] [INFO] [user.controller.php:197] user: ad01ac09c16bf1fe26baad37ed69d515
+Data: ad01ac09c16bf1fe26baad37ed69d515
+----------------------------------------
+[2025-06-30 19:31:27] [INFO] [user.controller.php:246] Login attempt for user: rola@rola.com
+Data: {
+    "user_id": 12,
+    "reg_id": 12,
+    "user_email": "rola@rola.com",
+    "user_pass": "ad01ac09c16bf1fe26baad37ed69d515",
+    "user_expire": "2025-07-30 15:29:44.068679",
+    "user_first_login": null,
+    "user_last_login": "2025-06-30 19:30:57.474721",
+    "user_is_active": true,
+    "profile_photo": null,
+    "reg_name": "rolando",
+    "reg_lastname": "flores"
+}
+----------------------------------------
+[2025-06-30 19:34:23] [INFO] [SysRegisterController.php:84] New registration attempt
+Data: {
+    "reg_document": "456456",
+    "reg_name": "Marco",
+    "reg_lastname": "Gozales",
+    "reg_email": "marco@marco.com",
+    "reg_phone": "0982313358",
+    "reg_bdate": "1995-08-04",
+    "reg_activation": "pending"
+}
+----------------------------------------
+[2025-06-30 19:34:23] [INFO] [SysRegisterController.php:119] New registration attempt
+Data: {
+    "reg_document": "456456",
+    "reg_name": "Marco",
+    "reg_lastname": "Gozales",
+    "reg_email": "marco@marco.com",
+    "reg_phone": "0982313358",
+    "reg_bdate": "1995-08-04",
+    "reg_activation": "1053a42b21a6a75b79a080f158fab9c8"
+}
+----------------------------------------
+[2025-06-30 19:35:02] [INFO] [user.controller.php:196] user: marco@marco.com
+Data: marco@marco.com
+----------------------------------------
+[2025-06-30 19:35:02] [INFO] [user.controller.php:197] user: ee0b33abefc6a9cca4ee40dece840235
+Data: ee0b33abefc6a9cca4ee40dece840235
+----------------------------------------
+[2025-06-30 19:35:02] [INFO] [user.controller.php:246] Login attempt for user: marco@marco.com
+Data: {
+    "user_id": 13,
+    "reg_id": 13,
+    "user_email": "marco@marco.com",
+    "user_pass": "ee0b33abefc6a9cca4ee40dece840235",
+    "user_expire": "2025-07-30 19:34:23.667069",
+    "user_first_login": null,
+    "user_last_login": null,
+    "user_is_active": true,
+    "profile_photo": null,
+    "reg_name": "Marco",
+    "reg_lastname": "Gozales"
+}
+----------------------------------------
+[2025-06-30 19:38:34] [INFO] [user.controller.php:196] user: marco@marco.com
+Data: marco@marco.com
+----------------------------------------
+[2025-06-30 19:38:34] [INFO] [user.controller.php:197] user: ee0b33abefc6a9cca4ee40dece840235
+Data: ee0b33abefc6a9cca4ee40dece840235
+----------------------------------------
+[2025-06-30 19:38:34] [INFO] [user.controller.php:246] Login attempt for user: marco@marco.com
+Data: {
+    "user_id": 13,
+    "reg_id": 13,
+    "user_email": "marco@marco.com",
+    "user_pass": "ee0b33abefc6a9cca4ee40dece840235",
+    "user_expire": "2025-07-30 19:34:23.667069",
+    "user_first_login": null,
+    "user_last_login": "2025-06-30 19:35:02.913781",
+    "user_is_active": true,
+    "profile_photo": null,
+    "reg_name": "Marco",
+    "reg_lastname": "Gozales"
+}
+----------------------------------------
+[2025-06-30 23:40:51] [INFO] [user.controller.php:187] user: angel@angel.com
+Data: angel@angel.com
+----------------------------------------
+[2025-06-30 23:40:51] [INFO] [user.controller.php:188] user: $2y$10$SkQZfw11AR9V/fZt/eZWkOnwhDFI7CEWX1KGKbNgdYi.j7H0oY.hW
+Data: $2y$10$SkQZfw11AR9V/fZt/eZWkOnwhDFI7CEWX1KGKbNgdYi.j7H0oY.hW
+----------------------------------------
+[2025-06-30 23:40:51] [INFO] [user.controller.php:246] Login attempt for user: angel@angel.com
+Data: {
+    "user_id": 9,
+    "reg_id": 9,
+    "user_email": "angel@angel.com",
+    "user_pass": "$2y$10$SkQZfw11AR9V\/fZt\/eZWkOnwhDFI7CEWX1KGKbNgdYi.j7H0oY.hW",
+    "user_expire": "2025-07-09 07:08:03.380971",
+    "user_first_login": null,
+    "user_last_login": "2025-06-26 18:10:26.363589",
+    "user_is_active": true,
+    "profile_photo": "user_9_1749926118.png",
+    "reg_name": "angel",
+    "reg_lastname": "isnardi"
+}
+----------------------------------------

@@ -1,8 +1,36 @@
 <?php
+// Verificar que el usuario esté autenticado
+$isAuth = AuthController::isAuthenticated();
+
+// Debug: Mostrar información de sesión
+error_log("inicio.php - Sesión ID: " . session_id() . ", Usuario autenticado: " . 
+    ($isAuth ? 'Sí, ID: ' . $_SESSION['paciente_id'] : 'No'), 
+    3, "c:/laragon/www/clinica/logs/session_debug.log");
+
+// Si no está autenticado, mostrar mensaje y formulario de login
+if (!$isAuth) {
+    // El usuario no está autenticado, mostrar mensaje y formulario de login
+    echo "<div class='alert alert-warning'>
+            <strong>Atención:</strong> Debe iniciar sesión para reservar una cita.
+          </div>";
+          
+    // Guardar la URL actual para redireccionar después del login
+    $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
+    error_log("inicio.php - Guardando URL para redirección: " . $_SERVER['REQUEST_URI'], 
+        3, "c:/laragon/www/clinica/logs/session_debug.log");
+    
+    include "view/modules/login.php";
+    return;
+}
+
 // Procesar la reserva si se envió el formulario
 $resultadoReserva = null;
 $reservasController = new ReservasPublicController();
 $resultadoReserva = $reservasController->ctrProcesarReserva();
+
+// Debug: Usuario autenticado, continuando con el proceso
+error_log("inicio.php - Usuario autenticado, mostrando formulario de reserva. ID: " . $_SESSION['paciente_id'] . 
+    ", Nombre: " . $_SESSION['paciente_nombre'], 3, "c:/laragon/www/clinica/logs/session_debug.log");
 
 // Obtener lista de seguros médicos
 $seguros = ReservasPublicController::ctrObtenerSeguros();

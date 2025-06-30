@@ -15,10 +15,108 @@ class AuthController {
      */
     static public function isAuthenticated() {
         if (session_status() == PHP_SESSION_NONE) {
+            // Configurar las sesiones para compartir entre dominios
+            session_set_cookie_params([
+                'lifetime' => 3600,
+                'path' => '/',
+                'domain' => '.clinica.test',
+                'secure' => false,
+                'httponly' => true,
+                'samesite' => 'Lax'
+            ]);
+            
             session_start();
         }
         
-        return isset($_SESSION['paciente_id']) && $_SESSION['paciente_id'] > 0;
+        // Debug de la sesión actual
+        error_log("AuthController::isAuthenticated - Sesión ID: " . session_id() . ", Data: " . 
+                  json_encode($_SESSION), 3, "c:/laragon/www/clinica/logs/session_debug.log");
+        
+        // Verificar si el usuario está autenticado en la sesión del sistema de reservas
+        $isAuth = isset($_SESSION['paciente_id']) && $_SESSION['paciente_id'] > 0;
+        
+        // Si no está autenticado en el sistema de reservas, verificar si está autenticado en el sistema principal
+        if (!$isAuth && isset($_SESSION['iniciarSesion']) && $_SESSION['iniciarSesion'] === 'ok' && isset($_SESSION['user_id'])) {
+            // El usuario está autenticado en el sistema principal pero no en el sistema de reservas
+            // Convertir la autenticación del sistema principal al sistema de reservas
+            error_log("AuthController::isAuthenticated - Usuario autenticado en sistema principal. Convirtiendo autenticación.", 3, 
+                     "c:/laragon/www/clinica/logs/session_debug.log");
+            
+            $_SESSION['paciente_id'] = $_SESSION['user_id'];
+            $_SESSION['paciente_nombre'] = $_SESSION['usuario'] ?? 'Usuario';
+            $_SESSION['paciente_email'] = '';  // No tenemos esta información, podríamos buscarla en la BD
+            $_SESSION['paciente_tipo'] = 'paciente';
+            
+            $isAuth = true;
+        }
+        
+        error_log("AuthController::isAuthenticated - Verificación inicial: " . ($isAuth ? "Autenticado" : "No autenticado"), 3, 
+                 "c:/laragon/www/clinica/logs/session_debug.log");
+        
+        // Si todavía no está autenticado, verificar si hay un token de recordarme
+        if (!$isAuth && isset($_COOKIE['remember_token'])) {
+            $token = $_COOKIE['remember_token'];
+            error_log("AuthController::isAuthenticated - Intentando autenticar con token: " . $token, 3, 
+                     "c:/laragon/www/clinica/logs/session_debug.log");
+            
+            if (self::ctrVerificarTokenRecordarme()) {
+                $isAuth = true;
+                error_log("AuthController::isAuthenticated - Usuario autenticado por token", 3, 
+                         "c:/laragon/www/clinica/logs/session_debug.log");
+            } else {
+                error_log("AuthController::isAuthenticated - Falló la autenticación por token", 3, 
+                         "c:/laragon/www/clinica/logs/session_debug.log");
+            }
+        }
+        
+        // Verificar si hay variables de sesión incompletas
+        if ($isAuth && isset($_SESSION['paciente_id']) && (!isset($_SESSION['paciente_nombre']) || !isset($_SESSION['paciente_email']))) {
+            error_log("AuthController::isAuthenticated - Variables de sesión incompletas, intentando recuperar datos", 3, 
+                     "c:/laragon/www/clinica/logs/session_debug.log");
+            
+            // Si tenemos el nombre de usuario del sistema principal pero no el paciente_nombre, usarlo
+            if (!isset($_SESSION['paciente_nombre']) && isset($_SESSION['usuario'])) {
+                $_SESSION['paciente_nombre'] = $_SESSION['usuario'];
+                error_log("AuthController::isAuthenticated - Usando nombre de usuario del sistema principal", 3, 
+                         "c:/laragon/www/clinica/logs/session_debug.log");
+            }
+            
+            // Si aún falta algún dato, intentar recuperar desde la base de datos
+            if (!isset($_SESSION['paciente_nombre']) || !isset($_SESSION['paciente_email'])) {
+                try {
+                    require_once __DIR__ . "/../model/ReservasPublicModel.php";
+                    $pacienteData = ReservasPublicModel::mdlObtenerPacientePorId($_SESSION['paciente_id']);
+                    
+                    if ($pacienteData) {
+                        $_SESSION['paciente_nombre'] = $pacienteData['nombre'] . ' ' . $pacienteData['apellido'];
+                        $_SESSION['paciente_email'] = $pacienteData['email'];
+                        $_SESSION['paciente_tipo'] = 'paciente';
+                        
+                        error_log("AuthController::isAuthenticated - Datos de usuario recuperados de la base de datos", 3, 
+                                 "c:/laragon/www/clinica/logs/session_debug.log");
+                    }
+                } catch (Exception $e) {
+                    error_log("AuthController::isAuthenticated - Error recuperando datos: " . $e->getMessage(), 3, 
+                             "c:/laragon/www/clinica/logs/session_debug.log");
+                }
+            }
+            
+            // Si aún falta información crítica, usar valores por defecto
+            if (!isset($_SESSION['paciente_nombre'])) {
+                $_SESSION['paciente_nombre'] = 'Usuario';
+            }
+            if (!isset($_SESSION['paciente_email'])) {
+                $_SESSION['paciente_email'] = '';
+            }
+            if (!isset($_SESSION['paciente_tipo'])) {
+                $_SESSION['paciente_tipo'] = 'paciente';
+            }
+        }
+        
+        error_log("AuthController::isAuthenticated - Resultado final: " . ($isAuth ? "Autenticado" : "No autenticado"), 3, 
+                 "c:/laragon/www/clinica/logs/session_debug.log");
+        
+        return $isAuth;
     }
     
     /**

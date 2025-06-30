@@ -5,12 +5,150 @@ if (session_status() == PHP_SESSION_NONE) {
 }
 
 class ControllerUser {
+    
+    /**
+     * Envía una respuesta JSON para solicitudes de API
+     * 
+     * @param bool $success Indica si la operación fue exitosa
+     * @param string $message Mensaje descriptivo
+     * @param array|null $data Datos adicionales
+     * @param int $statusCode Código de estado HTTP
+     * @return void
+     */
+    private static function sendJsonResponse($success, $message, $data = null, $statusCode = 200) {
+        // Limpiar cualquier salida previa para evitar corromper el JSON
+        if (ob_get_level()) {
+            ob_clean();
+        }
+        
+        // Registrar la respuesta para depuración
+        error_log("API Response - Status: " . ($success ? "Success" : "Error") . ", Message: " . $message);
+        
+        // Crear o verificar el directorio de logs
+        $basePath = '';
+        $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
+        
+        if (strpos($scriptName, '/api/') !== false) {
+            $basePath = dirname(dirname(__DIR__));
+        } else {
+            $basePath = dirname(__DIR__);
+        }
+        
+        $logDir = "$basePath/logs";
+        if (!file_exists($logDir)) {
+            @mkdir($logDir, 0777, true);
+        }
+        
+        // Registrar en un archivo específico para debugging de login API
+        $logFile = "$logDir/login_api_debug.log";
+        $backTrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
+        $caller = isset($backTrace[1]) ? $backTrace[1]['function'] : 'unknown';
+        
+        $logMessage = date('Y-m-d H:i:s') . " - API Response - Status: " . ($success ? "Success" : "Error") . 
+                     ", Message: " . $message . 
+                     ", Caller: " . $caller .
+                     ", Script: " . $_SERVER['SCRIPT_NAME'] . 
+                     ", BasePath: " . $basePath . 
+                     ", Data: " . print_r($data, true);
+                     
+        @file_put_contents($logFile, $logMessage . "\n", FILE_APPEND);
+        
+        // Configurar encabezados
+        http_response_code($statusCode);
+        header('Content-Type: application/json');
+        header('Cache-Control: no-cache, no-store, must-revalidate');
+        
+        $response = [
+            'status' => $success ? 'success' : 'error'
+        ];
+        
+        if ($success) {
+            $response['data'] = [
+                'message' => $message
+            ];
+            if ($data !== null) {
+                $response['data'] = array_merge($response['data'], $data);
+            }
+        } else {
+            $response['error'] = [
+                'message' => $message
+            ];
+            if ($data !== null) {
+                $response['error'] = array_merge($response['error'], $data);
+            }
+        }
+        
+        // Convertir a JSON y asegurarse de que no haya errores
+        $jsonResponse = json_encode($response);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            error_log("API Response - JSON encoding error: " . json_last_error_msg());
+            // Fallback a una respuesta más simple
+            $jsonResponse = json_encode([
+                'status' => 'error',
+                'error' => [
+                    'message' => 'Error al codificar la respuesta: ' . json_last_error_msg()
+                ]
+            ]);
+        }
+        
+        echo $jsonResponse;
+        exit();
+    }
     static public function ctrLoginUser() {
+        // Detectar si la solicitud viene de la API o del formulario web
+        // Primero intentamos con HTTP_CONTENT_TYPE, pero también revisamos CONTENT_TYPE
+        $contentType = isset($_SERVER['HTTP_CONTENT_TYPE']) ? $_SERVER['HTTP_CONTENT_TYPE'] : 
+                     (isset($_SERVER['CONTENT_TYPE']) ? $_SERVER['CONTENT_TYPE'] : '');
+                     
+        // También verificamos si hay algún encabezado que indique que es una solicitud AJAX
+        $isAjax = isset($_SERVER['HTTP_X_REQUESTED_WITH']) && 
+                  strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+                  
+        $isApiRequest = ($contentType && (strpos($contentType, 'application/json') !== false)) || $isAjax;
+        
+        // Registrar información de depuración
+        error_log("API Detection - ContentType: " . $contentType);
+        error_log("API Detection - isAjax: " . ($isAjax ? 'true' : 'false'));
+        error_log("API Detection - isApiRequest: " . ($isApiRequest ? 'true' : 'false'));
 
-        // Si ya hay una sesión activa, redirige al home
-        if (isset($_SESSION["iniciarSesion"]) && $_SESSION["iniciarSesion"] === "ok") {
+        // Si ya hay una sesión activa y no es una solicitud de API, redirige al home
+        if (isset($_SESSION["iniciarSesion"]) && $_SESSION["iniciarSesion"] === "ok" && !$isApiRequest) {
             echo '<script>window.location.href = "home";</script>';
             exit();
+        }
+        
+        // Si es una solicitud de API, respondemos con JSON
+        if ($isApiRequest) {
+            // Para solicitudes API, primero intentamos obtener datos del cuerpo JSON
+            $inputJSON = file_get_contents('php://input');
+            error_log("API Login - Raw input: " . $inputJSON);
+            
+            if (!empty($inputJSON)) {
+                $input = json_decode($inputJSON, TRUE);
+                error_log("API Login - Decoded JSON: " . print_r($input, true));
+                
+                if ($input && isset($input['email']) && isset($input['password'])) {
+                    $_POST['usuario'] = $input['email'];
+                    $_POST['password'] = $input['password'];
+                    error_log("API Login from JSON body for user: " . $_POST['usuario']);
+                }
+            }
+            
+            // Si no hay datos en el cuerpo JSON, verificamos POST
+            if (isset($_POST['usuario']) && isset($_POST['password'])) {
+                error_log("API Login attempt for user: " . $_POST['usuario']);
+            } 
+            // También verificamos si los campos están con nombres diferentes
+            else if (isset($_POST['email']) && isset($_POST['password'])) {
+                $_POST['usuario'] = $_POST['email'];
+                error_log("API Login from POST with email field: " . $_POST['usuario']);
+            }
+            else {
+                // No hay datos suficientes
+                error_log("API Login - Missing credentials");
+                self::sendJsonResponse(false, 'Datos de login incompletos', null, 400);
+                return;
+            }
         }
 
         // Verifica si los datos fueron enviados via POST
@@ -18,9 +156,80 @@ class ControllerUser {
             // Sanitiza los datos de entrada
             $usuario = strip_tags($_POST['usuario']); // Elimina etiquetas HTML/PHP
             $password = htmlspecialchars($_POST['password'], ENT_QUOTES, 'UTF-8'); // Convierte caracteres especiales
-            \Api\Core\Logger::info($usuario, "user: {$usuario}");
-            \Api\Core\Logger::info($password, "user: {$password}");
-            require_once "model/conexion.php";
+            
+            // Determinar si se está ejecutando desde API o desde la web
+            $basePath = '';
+            $calledFromApi = false;
+            $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
+            
+            if (strpos($scriptName, '/api/') !== false) {
+                $basePath = dirname(dirname(__DIR__));
+                $calledFromApi = true;
+                error_log("Ejecutando desde API. BasePath: $basePath");
+            } else {
+                $basePath = dirname(__DIR__);
+                error_log("Ejecutando desde Web. BasePath: $basePath");
+            }
+            
+            // Registrar información básica sin usar el Logger
+            error_log("Login attempt - Usuario: $usuario");
+            
+            // Usar try-catch para evitar que falle todo si hay un problema con el Logger
+            try {
+                // Establecer ruta absoluta para el Logger
+                $loggerPath = $calledFromApi ? 
+                    dirname(dirname(__DIR__)) . "/api/core/Logger.php" : 
+                    dirname(__DIR__) . "/api/core/Logger.php";
+                    
+                if (file_exists($loggerPath)) {
+                    require_once $loggerPath;
+                    if (class_exists('\Api\Core\Logger')) {
+                        \Api\Core\Logger::info($usuario, "user: {$usuario}");
+                        \Api\Core\Logger::info($password, "user: {$password}");
+                    }
+                } else {
+                    // Intentar la ruta absoluta directa como último recurso
+                    $directPath = "C:/laragon/www/clinica/api/core/Logger.php";
+                    if (file_exists($directPath)) {
+                        require_once $directPath;
+                        if (class_exists('\Api\Core\Logger')) {
+                            \Api\Core\Logger::info($usuario, "user: {$usuario}");
+                            \Api\Core\Logger::info($password, "user: {$password}");
+                        }
+                    }
+                }
+            } catch (Exception $e) {
+                error_log("Error al cargar Logger: " . $e->getMessage());
+                // Continuamos con el login aunque no podamos loggear
+            }
+            
+            // Cargar el archivo de conexión con ruta absoluta - intentar varias rutas posibles
+            $conexionPaths = [
+                "$basePath/model/conexion.php",
+                dirname(dirname(__DIR__)) . "/model/conexion.php",
+                dirname(__DIR__) . "/model/conexion.php",
+                "C:/laragon/www/clinica/model/conexion.php"
+            ];
+            
+            $conexionPath = null;
+            foreach ($conexionPaths as $path) {
+                if (file_exists($path)) {
+                    $conexionPath = $path;
+                    error_log("Archivo de conexión encontrado en: $conexionPath");
+                    break;
+                }
+            }
+            
+            if (!$conexionPath) {
+                error_log("ERROR: Archivo de conexión no encontrado en ninguna ruta");
+                if ($isApiRequest) {
+                    self::sendJsonResponse(false, "Error interno: No se encontró el archivo de conexión a la base de datos", null, 500);
+                    exit;
+                }
+                die("Error interno: No se encontró el archivo de conexión a la base de datos");
+            }
+            
+            require_once $conexionPath;
             $db = Conexion::conectar();
             
             try {
@@ -28,9 +237,17 @@ class ControllerUser {
                 $stmt->execute(['email' => $usuario]);
                 $user = $stmt->fetch(PDO::FETCH_ASSOC);
                 
-                // Log the fetched user data
-                require_once "api/core/Logger.php";
-                \Api\Core\Logger::info($user, "Login attempt for user: {$usuario}");
+                // Log the fetched user data sin depender del Logger
+                error_log("User data fetched for: $usuario - " . ($user ? 'Found' : 'Not found'));
+                
+                // Intentar usar el Logger si está disponible
+                if (class_exists('\Api\Core\Logger')) {
+                    try {
+                        \Api\Core\Logger::info($user, "Login attempt for user: {$usuario}");
+                    } catch (Exception $e) {
+                        error_log("Error al usar Logger: " . $e->getMessage());
+                    }
+                }
 
                 if ($user) {
                     $passwordValid = false;
@@ -95,9 +312,55 @@ class ControllerUser {
                         $updateStmt = $db->prepare("UPDATE sys_users SET user_last_login = CURRENT_TIMESTAMP WHERE user_id = :user_id");
                         $updateStmt->execute(['user_id' => $user['user_id']]);
                         
+                        // Si es una solicitud de API, devolver JSON
+                        if ($isApiRequest) {
+                            // Detectar si la solicitud viene del sistema de reservas públicas
+                            $referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
+                            $redirectUrl = 'home';
+                            
+                            // Si la solicitud proviene de public_reservas, ajustamos la redirección
+                            if (strpos($referer, 'public_reservas') !== false || 
+                                strpos($scriptName, 'public_reservas') !== false) {
+                                $redirectUrl = 'index.php?accion=reservar';
+                                error_log("Detectada solicitud desde public_reservas, redirigiendo a: $redirectUrl");
+                            }
+                            
+                            self::sendJsonResponse(true, '¡Bienvenido/a, ' . $user['reg_name'] . ' ' . $user['reg_lastname'] . '!', [
+                                'redirect' => $redirectUrl,
+                                'user' => [
+                                    'id' => $user['user_id'],
+                                    'nombre' => $user['reg_name'] . ' ' . $user['reg_lastname'],
+                                    'perfil' => $_SESSION["perfil_user"] ?? 'USER'
+                                ]
+                            ], 200);
+                            return;
+                        }
+                        
+                        // Si es una solicitud web normal
                         // Verificar si el usuario tiene perfil completo en rh_person
-                        require_once "controller/profile.controller.php";
-                        $hasCompleteProfile = ControllerProfile::ctrHasCompleteProfile($user['user_id']);
+                        try {
+                            $profilePath = $calledFromApi ? 
+                                dirname(dirname(__DIR__)) . "/controller/profile.controller.php" : 
+                                dirname(__DIR__) . "/controller/profile.controller.php";
+                                
+                            if (file_exists($profilePath)) {
+                                require_once $profilePath;
+                            } else {
+                                // Intentar la ruta absoluta directa como último recurso
+                                $directPath = "C:/laragon/www/clinica/controller/profile.controller.php";
+                                if (file_exists($directPath)) {
+                                    require_once $directPath;
+                                } else {
+                                    throw new Exception("No se pudo encontrar el controlador de perfil");
+                                }
+                            }
+                            
+                            $hasCompleteProfile = ControllerProfile::ctrHasCompleteProfile($user['user_id']);
+                        } catch (Exception $e) {
+                            error_log("Error al verificar perfil: " . $e->getMessage());
+                            // Asumimos que tiene perfil completo para continuar
+                            $hasCompleteProfile = true;
+                        }
                         
                         if (!$hasCompleteProfile) {
                             // Si no tiene perfil completo, redirigir a la página de perfil
@@ -120,6 +383,12 @@ class ControllerUser {
                             exit();
                         }
                     } else {
+                        // Credenciales inválidas
+                        if ($isApiRequest) {
+                            self::sendJsonResponse(false, 'Credenciales inválidas', null, 401);
+                            return;
+                        }
+                        
                         echo "<script>
                             Swal.fire({
                                 icon: 'error',
@@ -137,6 +406,12 @@ class ControllerUser {
                         </script>"; 
                     }
                 } else {
+                    // Usuario no encontrado
+                    if ($isApiRequest) {
+                        self::sendJsonResponse(false, 'Credenciales inválidas', null, 401);
+                        return;
+                    }
+                    
                     echo "<script>
                         Swal.fire({
                             icon: 'error',
@@ -155,6 +430,12 @@ class ControllerUser {
                 }   
             } catch (Exception $e) {
                 error_log("Login error: " . $e->getMessage(), 3, "logs/application.log");
+                
+                if ($isApiRequest) {
+                    self::sendJsonResponse(false, 'Error en el sistema: ' . $e->getMessage(), null, 500);
+                    return;
+                }
+                
                 echo "<script>
                     Swal.fire({
                         icon: 'error',

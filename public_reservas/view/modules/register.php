@@ -82,7 +82,7 @@
             </div>
           </div>
         </div>
-        <div class="input-group mb-3">
+        <!-- <div class="input-group mb-3">
           <input type="password" id="regPassword" name="reg_password" class="form-control" placeholder="Contraseña" required>
           <div class="input-group-append">
             <div class="input-group-text">
@@ -97,7 +97,7 @@
               <span class="fas fa-lock"></span>
             </div>
           </div>
-        </div>
+        </div> -->
         <div class="input-group mb-3">
           <input type="date" id="regBdate" name="reg_bdate" class="form-control" placeholder="Fecha de nacimiento" required>
           <div class="input-group-append">
@@ -125,11 +125,11 @@
             </button>
           </div>
           <!-- Botón alternativo en caso de que el submit no funcione -->
-          <div class="col-12 mt-2">
+          <!-- <div class="col-12 mt-2">
             <button type="button" class="btn btn-outline-secondary btn-sm" id="btnRegistrarAlternativo">
               Registrar (Alternativo)
             </button>
-          </div>
+          </div> -->
           <!-- /.col -->
         </div>
       </form>

@@ -1,7 +1,7 @@
 <?php
-// Iniciar sesión si no está iniciada
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
+// Debug: Imprimir información de sesión en log
+if (session_status() !== PHP_SESSION_NONE) {
+    error_log("Template - Sesión ya iniciada antes de template.php - ID: " . session_id(), 3, "c:/laragon/www/clinica/logs/session_debug.log");
 }
 
 // Incluir controlador de autenticación
@@ -72,7 +72,7 @@ require_once "controller/AuthController.php";
                         </li>
                     <?php else: ?>
                         <!-- Opciones para usuarios no autenticados -->
-                        <li class="nav-item">
+                        <!-- <li class="nav-item">
                             <a class="nav-link" href="index.php?accion=consultar">
                                 <i class="fas fa-search"></i> Consultar Reserva
                             </a>
@@ -81,7 +81,7 @@ require_once "controller/AuthController.php";
                             <a class="nav-link" href="index.php?accion=verificar">
                                 <i class="fas fa-check-circle"></i> Verificar Cita
                             </a>
-                        </li>
+                        </li> -->
                         <li class="nav-item">
                             <a class="nav-link" href="index.php?view=login">
                                 <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
@@ -94,12 +94,17 @@ require_once "controller/AuthController.php";
                         </li>
                     <?php endif; ?>
                     
+                    <!-- <li class="nav-item">
+                        <a class="nav-link text-warning" href="debug_session.php" target="_blank">
+                            <i class="fas fa-tools"></i> Diagnóstico Sesión
+                        </a>
+                    </li>
                     <?php if (file_exists(__DIR__ . "/../diagnostico.php")): ?>
                     <li class="nav-item">
                         <a class="nav-link text-warning" href="diagnostico.php" target="_blank">
                             <i class="fas fa-tools"></i> Diagnóstico
                         </a>
-                    </li>
+                    </li> -->
                     <?php endif; ?>
                 </ul>
             </div>
@@ -117,9 +122,13 @@ require_once "controller/AuthController.php";
         $authRequired = ['reservar', 'confirmar'];
         $isAuth = AuthController::isAuthenticated();
         
+        // Debug de la autenticación
+        error_log("Template - Acción: {$accion}, Autenticado: " . ($isAuth ? 'Sí' : 'No'), 3, "c:/laragon/www/clinica/logs/session_debug.log");
+        
         if (in_array($accion, $authRequired) && !$isAuth) {
             // Redirigir a login si se necesita autenticación
             $_SESSION['redirect_after_login'] = $_SERVER['REQUEST_URI'];
+            error_log("Template - Redirigiendo a login, guardando URL para redirección: " . $_SERVER['REQUEST_URI'], 3, "c:/laragon/www/clinica/logs/session_debug.log");
             include "view/modules/login.php";
         } else {
             // Procesar vistas según parámetro 'view'
@@ -151,7 +160,7 @@ require_once "controller/AuthController.php";
                         include "view/resultado_reserva.php";
                         break;
                     case 'reservar':
-                        include "view/reservar.php";
+                        include "view/inicio.php";
                         break;
                     case 'confirmar':
                         include "view/confirmar_reserva.php";

@@ -15768,3 +15768,95 @@ Parameters: {
     "id": 12
 }
 ----------------------------------------
+DEBUG - Fecha: 2025-07-01, Número día: 2, Texto día: MARTESBuscando médicos para fecha: 2025-07-01, día: MARTESAgendas encontradas para MARTES: [{"agenda_id":10,"dia_semana":"MARTES","agenda_descripcion":"Agenda del m\u00e9dico ID: 13","medico_id":13},{"agenda_id":10,"dia_semana":"MARTES","agenda_descripcion":"Agenda del m\u00e9dico ID: 13","medico_id":13},{"agenda_id":18,"dia_semana":"MARTES","agenda_descripcion":"prueba ","medico_id":14}]DEBUG - Dia semana utilizado para la consulta: 'MARTES'DEBUG - Días disponibles en agendas_detalle: ["LUNES","MARTES","MIERCOLES","JUEVES","VIERNES","SABADO"]Resultados crudos de la consulta: [{"doctor_id":13,"person_id":53,"nombre_doctor":"Antonio Galeano","doctor_estado":"ACTIVO","agenda_id":10,"medico_id":13,"doctor_match":true,"dia_semana":"MARTES"},{"doctor_id":14,"person_id":56,"nombre_doctor":"ronal ricardo","doctor_estado":"ACTIVO","agenda_id":18,"medico_id":14,"doctor_match":true,"dia_semana":"MARTES"}]Médicos encontrados para 2025-07-01 (MARTES): 2[2025-06-30 19:34:23] [INFO] [Model.php:175]
+SQL: SELECT * FROM sys_register WHERE reg_email = :email
+Parameters: {
+    "email": "marco@marco.com"
+}
+----------------------------------------
+[2025-06-30 19:34:23] [INFO] [Model.php:175]
+SQL: SELECT * FROM sys_register WHERE reg_document = :document
+Parameters: {
+    "document": "456456"
+}
+----------------------------------------
+[2025-06-30 19:34:23] [INFO] [Model::create]
+Table: sys_register
+Original Data: {
+    "reg_document": "456456",
+    "reg_name": "Marco",
+    "reg_lastname": "Gozales",
+    "reg_email": "marco@marco.com",
+    "reg_phone": "0982313358",
+    "reg_bdate": "1995-08-04",
+    "reg_activation": "1053a42b21a6a75b79a080f158fab9c8"
+}
+Filtered Data: {
+    "reg_document": "456456",
+    "reg_name": "Marco",
+    "reg_lastname": "Gozales",
+    "reg_email": "marco@marco.com",
+    "reg_phone": "0982313358",
+    "reg_bdate": "1995-08-04",
+    "reg_activation": "1053a42b21a6a75b79a080f158fab9c8"
+}
+Excluded Data: []
+----------------------------------------
+[2025-06-30 19:34:23] [INFO] [Model.php:110]
+SQL: INSERT INTO sys_register (reg_document, reg_name, reg_lastname, reg_email, reg_phone, reg_bdate, reg_activation) VALUES (:reg_document, :reg_name, :reg_lastname, :reg_email, :reg_phone, :reg_bdate, :reg_activation)
+Parameters: {
+    "reg_document": "456456",
+    "reg_name": "Marco",
+    "reg_lastname": "Gozales",
+    "reg_email": "marco@marco.com",
+    "reg_phone": "0982313358",
+    "reg_bdate": "1995-08-04",
+    "reg_activation": "1053a42b21a6a75b79a080f158fab9c8"
+}
+----------------------------------------
+[2025-06-30 19:34:23] [INFO] [Database.php:255]
+SQL: INSERT INTO sys_register (reg_document, reg_name, reg_lastname, reg_email, reg_phone, reg_bdate, reg_activation) VALUES (:reg_document, :reg_name, :reg_lastname, :reg_email, :reg_phone, :reg_bdate, :reg_activation)
+Parameters: {
+    "reg_document": "456456",
+    "reg_name": "Marco",
+    "reg_lastname": "Gozales",
+    "reg_email": "marco@marco.com",
+    "reg_phone": "0982313358",
+    "reg_bdate": "1995-08-04",
+    "reg_activation": "1053a42b21a6a75b79a080f158fab9c8"
+}
+----------------------------------------
+[2025-06-30 19:34:23] [INFO] [Database.php:231]
+SQL: SELECT * FROM sys_register WHERE reg_id = :id
+Parameters: {
+    "id": "13"
+}
+----------------------------------------
+[2025-06-30 19:34:23] [INFO] [Model.php:175]
+SQL: SELECT * FROM sys_users WHERE reg_id = :reg_id
+Parameters: {
+    "reg_id": "13"
+}
+----------------------------------------
+[2025-06-30 19:34:23] [INFO] [Model.php:175]
+SQL: INSERT INTO sys_user_roles (user_id, role_id) VALUES (:userId, :roleId)
+Parameters: {
+    "userId": 13,
+    "roleId": 2
+}
+----------------------------------------
+[2025-06-30 19:34:27] [INFO] [Model.php:143]
+SQL: UPDATE sys_users SET user_is_active = :user_is_active WHERE user_id = :id
+Parameters: {
+    "user_is_active": true,
+    "id": 13
+}
+----------------------------------------
+[2025-06-30 19:34:27] [INFO] [Database.php:281]
+SQL: UPDATE sys_users SET user_is_active = :user_is_active WHERE user_id = :id
+Parameters: {
+    "user_is_active": true,
+    "id": 13
+}
+----------------------------------------
+DEBUG - Fecha: 2025-07-01, Número día: 2, Texto día: MARTESBuscando médicos para fecha: 2025-07-01, día: MARTESAgendas encontradas para MARTES: [{"agenda_id":10,"dia_semana":"MARTES","agenda_descripcion":"Agenda del m\u00e9dico ID: 13","medico_id":13},{"agenda_id":10,"dia_semana":"MARTES","agenda_descripcion":"Agenda del m\u00e9dico ID: 13","medico_id":13},{"agenda_id":18,"dia_semana":"MARTES","agenda_descripcion":"prueba ","medico_id":14}]DEBUG - Dia semana utilizado para la consulta: 'MARTES'DEBUG - Días disponibles en agendas_detalle: ["LUNES","MARTES","MIERCOLES","JUEVES","VIERNES","SABADO"]Resultados crudos de la consulta: [{"doctor_id":13,"person_id":53,"nombre_doctor":"Antonio Galeano","doctor_estado":"ACTIVO","agenda_id":10,"medico_id":13,"doctor_match":true,"dia_semana":"MARTES"},{"doctor_id":14,"person_id":56,"nombre_doctor":"ronal ricardo","doctor_estado":"ACTIVO","agenda_id":18,"medico_id":14,"doctor_match":true,"dia_semana":"MARTES"}]Médicos encontrados para 2025-07-01 (MARTES): 2[2025-06-30 23:40:19] Verificando perfil completo para usuario ID: 13[2025-06-30 23:40:19] Perfil incompleto: No existe vinculación en person_system_user para user_id 13[2025-06-30 23:40:51] Verificando perfil completo para usuario ID: 9[2025-06-30 23:40:51] Vinculación encontrada en person_system_user para user_id 9[2025-06-30 23:40:51] Datos de persona encontrados para user_id 9: {"person_id":58,"document_number":"3654123","birth_date":"1995-06-04","first_name":"angel","last_name":"isnardi","phone_number":"0982313359","gender":"M","record_number":"7985465123","address":"asuncion","email":"angel@angel.com","department_id":2,"city_id":2,"is_minor":false,"guardian_name":null,"guardian_document":null,"created_at":"2025-06-09 07:17:19.294402-04","registered_by":null,"modified_by":null,"last_modified_at":"2025-06-09 07:18:25-04","last_accessed_at":null,"owner_id":null,"is_active":true,"business_id":null,"profile_photo":null}[2025-06-30 23:40:51] Perfil COMPLETO para user_id 9[2025-06-30 23:40:51] Verificando perfil completo para usuario ID: 9[2025-06-30 23:40:51] Vinculación encontrada en person_system_user para user_id 9[2025-06-30 23:40:51] Datos de persona encontrados para user_id 9: {"person_id":58,"document_number":"3654123","birth_date":"1995-06-04","first_name":"angel","last_name":"isnardi","phone_number":"0982313359","gender":"M","record_number":"7985465123","address":"asuncion","email":"angel@angel.com","department_id":2,"city_id":2,"is_minor":false,"guardian_name":null,"guardian_document":null,"created_at":"2025-06-09 07:17:19.294402-04","registered_by":null,"modified_by":null,"last_modified_at":"2025-06-09 07:18:25-04","last_accessed_at":null,"owner_id":null,"is_active":true,"business_id":null,"profile_photo":null}[2025-06-30 23:40:51] Perfil COMPLETO para user_id 9DEBUG - Fecha: 2025-06-30, Número día: 1, Texto día: LUNESBuscando médicos para fecha: 2025-06-30, día: LUNESAgendas encontradas para LUNES: [{"agenda_id":10,"dia_semana":"LUNES","agenda_descripcion":"Agenda del m\u00e9dico ID: 13","medico_id":13},{"agenda_id":10,"dia_semana":"LUNES","agenda_descripcion":"Agenda del m\u00e9dico ID: 13","medico_id":13},{"agenda_id":18,"dia_semana":"LUNES","agenda_descripcion":"prueba ","medico_id":14},{"agenda_id":18,"dia_semana":"LUNES","agenda_descripcion":"prueba ","medico_id":14}]DEBUG - Dia semana utilizado para la consulta: 'LUNES'DEBUG - Días disponibles en agendas_detalle: ["LUNES","MARTES","MIERCOLES","JUEVES","VIERNES","SABADO"]Resultados crudos de la consulta: [{"doctor_id":13,"person_id":53,"nombre_doctor":"Antonio Galeano","doctor_estado":"ACTIVO","agenda_id":10,"medico_id":13,"doctor_match":true,"dia_semana":"LUNES"},{"doctor_id":14,"person_id":56,"nombre_doctor":"ronal ricardo","doctor_estado":"ACTIVO","agenda_id":18,"medico_id":14,"doctor_match":true,"dia_semana":"LUNES"}]Médicos encontrados para 2025-06-30 (LUNES): 2DEBUG - Fecha: 2025-06-30, Número día: 1, Texto día: LUNESBuscando médicos para fecha: 2025-06-30, día: LUNESAgendas encontradas para LUNES: [{"agenda_id":10,"dia_semana":"LUNES","agenda_descripcion":"Agenda del m\u00e9dico ID: 13","medico_id":13},{"agenda_id":10,"dia_semana":"LUNES","agenda_descripcion":"Agenda del m\u00e9dico ID: 13","medico_id":13},{"agenda_id":18,"dia_semana":"LUNES","agenda_descripcion":"prueba ","medico_id":14},{"agenda_id":18,"dia_semana":"LUNES","agenda_descripcion":"prueba ","medico_id":14}]DEBUG - Dia semana utilizado para la consulta: 'LUNES'DEBUG - Días disponibles en agendas_detalle: ["LUNES","MARTES","MIERCOLES","JUEVES","VIERNES","SABADO"]Resultados crudos de la consulta: [{"doctor_id":13,"person_id":53,"nombre_doctor":"Antonio Galeano","doctor_estado":"ACTIVO","agenda_id":10,"medico_id":13,"doctor_match":true,"dia_semana":"LUNES"},{"doctor_id":14,"person_id":56,"nombre_doctor":"ronal ricardo","doctor_estado":"ACTIVO","agenda_id":18,"medico_id":14,"doctor_match":true,"dia_semana":"LUNES"}]Médicos encontrados para 2025-06-30 (LUNES): 2DEBUG - Fecha: 2025-06-30, Número día: 1, Texto día: LUNESBuscando médicos para fecha: 2025-06-30, día: LUNESAgendas encontradas para LUNES: [{"agenda_id":10,"dia_semana":"LUNES","agenda_descripcion":"Agenda del m\u00e9dico ID: 13","medico_id":13},{"agenda_id":10,"dia_semana":"LUNES","agenda_descripcion":"Agenda del m\u00e9dico ID: 13","medico_id":13},{"agenda_id":18,"dia_semana":"LUNES","agenda_descripcion":"prueba ","medico_id":14},{"agenda_id":18,"dia_semana":"LUNES","agenda_descripcion":"prueba ","medico_id":14}]DEBUG - Dia semana utilizado para la consulta: 'LUNES'DEBUG - Días disponibles en agendas_detalle: ["LUNES","MARTES","MIERCOLES","JUEVES","VIERNES","SABADO"]Resultados crudos de la consulta: [{"doctor_id":13,"person_id":53,"nombre_doctor":"Antonio Galeano","doctor_estado":"ACTIVO","agenda_id":10,"medico_id":13,"doctor_match":true,"dia_semana":"LUNES"},{"doctor_id":14,"person_id":56,"nombre_doctor":"ronal ricardo","doctor_estado":"ACTIVO","agenda_id":18,"medico_id":14,"doctor_match":true,"dia_semana":"LUNES"}]Médicos encontrados para 2025-06-30 (LUNES): 2

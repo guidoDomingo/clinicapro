@@ -11,6 +11,16 @@ use Api\Core\Router;
  * @var Router $router
  */
 
+// Authentication routes
+// Usar el controlador existente pero con ruta absoluta y asegurar que está incluido
+$controllerPath = realpath(__DIR__ . '/../../controller/user.controller.php');
+if (!$controllerPath) {
+    die('Error: No se puede encontrar el archivo controller/user.controller.php');
+}
+require_once $controllerPath;
+$router->post('auth/login', '\\ControllerUser', 'ctrLoginUser');
+$router->post('auth/logout', 'Api\\Controllers\\AuthController', 'logout');
+
 // User Registration routes
 $router->get('register', 'Api\\Controllers\\SysRegisterController', 'index');
 $router->get('register/show', 'Api\\Controllers\\SysRegisterController', 'show');
