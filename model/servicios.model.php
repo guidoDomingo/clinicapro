@@ -1618,7 +1618,17 @@ class ModelServicios {
      */
     static public function mdlGuardarReserva($datos) {
         try {
-            error_log("Intentando guardar reserva: " . json_encode($datos), 3, 'c:/laragon/www/clinica/logs/reservas.log');
+            error_log("[" . date('Y-m-d H:i:s') . "] Intentando guardar reserva: " . json_encode($datos), 3, 'c:/laragon/www/clinica/logs/reservas.log');
+            
+            // Mostrar backtrace para saber quién llama a esta función
+            $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 3);
+            $callers = array_map(function($trace) {
+                return isset($trace['class']) ? 
+                    $trace['class'] . '::' . $trace['function'] : 
+                    $trace['function'];
+            }, $backtrace);
+            
+            error_log("[" . date('Y-m-d H:i:s') . "] Llamado desde: " . implode(' <- ', $callers), 3, 'c:/laragon/www/clinica/logs/reservas.log');
               // Verificar si ya existe una reserva en el mismo horario para el mismo doctor
             // La lógica modificada permite reservas adyacentes (cuando una termina exactamente cuando la otra comienza)
             $stmtVerificar = Conexion::conectar()->prepare(

@@ -42,10 +42,29 @@ class AuthController {
             error_log("AuthController::isAuthenticated - Usuario autenticado en sistema principal. Convirtiendo autenticación.", 3, 
                      "c:/laragon/www/clinica/logs/session_debug.log");
             
+            // Primero asignar valores básicos desde la sesión
             $_SESSION['paciente_id'] = $_SESSION['user_id'];
             $_SESSION['paciente_nombre'] = $_SESSION['usuario'] ?? 'Usuario';
-            $_SESSION['paciente_email'] = '';  // No tenemos esta información, podríamos buscarla en la BD
+            $_SESSION['paciente_email'] = '';
             $_SESSION['paciente_tipo'] = 'paciente';
+            
+            // Intentar obtener más datos desde la base de datos
+            try {
+                $pacienteData = ReservasPublicModel::mdlObtenerPacientePorId($_SESSION['paciente_id']);
+                if ($pacienteData) {
+                    $_SESSION['paciente_email'] = $pacienteData['email'] ?? '';
+                    $_SESSION['paciente_documento'] = $pacienteData['documento'] ?? '';
+                    $_SESSION['paciente_telefono'] = $pacienteData['telefono'] ?? '';
+                    error_log("AuthController::isAuthenticated - Datos adicionales obtenidos de la BD: " . json_encode([
+                        'email' => $_SESSION['paciente_email'],
+                        'documento' => $_SESSION['paciente_documento'],
+                        'telefono' => $_SESSION['paciente_telefono']
+                    ]), 3, "c:/laragon/www/clinica/logs/session_debug.log");
+                }
+            } catch (Exception $e) {
+                error_log("AuthController::isAuthenticated - Error obteniendo datos adicionales: " . $e->getMessage(), 3, 
+                         "c:/laragon/www/clinica/logs/session_debug.log");
+            }
             
             $isAuth = true;
         }

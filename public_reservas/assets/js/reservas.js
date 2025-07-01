@@ -387,6 +387,9 @@ function initFormValidation() {
                     Swal.showLoading();
                 }
             });
+            
+            // Permitir que el formulario continúe su envío normal
+            return true;
         }
         
         return isValid;

@@ -32,6 +32,42 @@ $resultadoReserva = $reservasController->ctrProcesarReserva();
 error_log("inicio.php - Usuario autenticado, mostrando formulario de reserva. ID: " . $_SESSION['paciente_id'] . 
     ", Nombre: " . $_SESSION['paciente_nombre'], 3, "c:/laragon/www/clinica/logs/session_debug.log");
 
+// Obtener los datos del paciente desde la BD para rellenar el formulario
+$pacienteData = null;
+try {
+    require_once __DIR__ . "/../model/ReservasPublicModel.php";
+    $pacienteData = ReservasPublicModel::mdlObtenerPacientePorId($_SESSION['paciente_id']);
+    
+    if ($pacienteData) {
+        error_log("inicio.php - Datos del paciente recuperados de la BD: " . json_encode($pacienteData), 
+            3, "c:/laragon/www/clinica/logs/session_debug.log");
+    } else {
+        error_log("inicio.php - No se encontraron datos del paciente en la BD", 
+            3, "c:/laragon/www/clinica/logs/session_debug.log");
+    }
+} catch (Exception $e) {
+    error_log("inicio.php - Error recuperando datos del paciente: " . $e->getMessage(), 
+        3, "c:/laragon/www/clinica/logs/session_debug.log");
+}
+
+// Si no hay datos en la BD, usar los de sesión
+if (!$pacienteData && isset($_SESSION['paciente_nombre'])) {
+    // Intentar separar el nombre y apellido desde la sesión
+    $nombreCompleto = $_SESSION['paciente_nombre'];
+    $partes = explode(' ', $nombreCompleto);
+    
+    $pacienteData = [
+        'nombre' => $partes[0],
+        'apellido' => isset($partes[1]) ? implode(' ', array_slice($partes, 1)) : '',
+        'email' => $_SESSION['paciente_email'] ?? '',
+        'telefono' => $_SESSION['paciente_telefono'] ?? '',
+        'documento' => $_SESSION['paciente_documento'] ?? ''
+    ];
+    
+    error_log("inicio.php - Usando datos de sesión para el formulario: " . json_encode($pacienteData), 
+        3, "c:/laragon/www/clinica/logs/session_debug.log");
+}
+
 // Obtener lista de seguros médicos
 $seguros = ReservasPublicController::ctrObtenerSeguros();
 ?>
@@ -113,17 +149,25 @@ $seguros = ReservasPublicController::ctrObtenerSeguros();
                     <div class="form-section d-none" id="paso5">
                         <h5 class="border-bottom pb-2 mb-3">5. Ingrese sus Datos</h5>
                         
+                        <?php if ($pacienteData && !empty($pacienteData['nombre'])): ?>
+                        <div class="alert alert-success mb-3">
+                            <i class="fas fa-user-check mr-2"></i> Sus datos se han cargado automáticamente. Verifique que sean correctos.
+                        </div>
+                        <?php endif; ?>
+                        
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="nombre_paciente">Nombre <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="nombre_paciente" name="nombre_paciente" required>
+                                    <input type="text" class="form-control" id="nombre_paciente" name="nombre_paciente" 
+                                           value="<?php echo htmlspecialchars($pacienteData['nombre'] ?? ''); ?>" required>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="apellido_paciente">Apellido <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="apellido_paciente" name="apellido_paciente" required>
+                                    <input type="text" class="form-control" id="apellido_paciente" name="apellido_paciente" 
+                                           value="<?php echo htmlspecialchars($pacienteData['apellido'] ?? ''); ?>" required>
                                 </div>
                             </div>
                         </div>
@@ -132,7 +176,8 @@ $seguros = ReservasPublicController::ctrObtenerSeguros();
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="documento_paciente">Documento de Identidad <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="documento_paciente" name="documento_paciente" required>
+                                    <input type="text" class="form-control" id="documento_paciente" name="documento_paciente" 
+                                           value="<?php echo htmlspecialchars($pacienteData['documento'] ?? ''); ?>" required>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -152,14 +197,16 @@ $seguros = ReservasPublicController::ctrObtenerSeguros();
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="email_paciente">Email <span class="text-danger">*</span></label>
-                                    <input type="email" class="form-control" id="email_paciente" name="email_paciente" required>
+                                    <input type="email" class="form-control" id="email_paciente" name="email_paciente" 
+                                           value="<?php echo htmlspecialchars($pacienteData['email'] ?? ''); ?>" required>
                                     <small class="form-text text-muted">Recibirá confirmación en este email</small>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="telefono_paciente">Teléfono <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="telefono_paciente" name="telefono_paciente" required>
+                                    <input type="text" class="form-control" id="telefono_paciente" name="telefono_paciente" 
+                                           value="<?php echo htmlspecialchars($pacienteData['telefono'] ?? ''); ?>" required>
                                 </div>
                             </div>
                         </div>
@@ -171,7 +218,7 @@ $seguros = ReservasPublicController::ctrObtenerSeguros();
 
                         <div class="btn-group">
                             <button type="button" class="btn btn-secondary prev-step" data-prev="paso4"><i class="fas fa-arrow-left mr-1"></i> Anterior</button>
-                            <button type="submit" name="guardarReserva" class="btn btn-success ml-2"><i class="fas fa-save mr-1"></i> Guardar Reserva</button>
+                            <button type="submit" name="guardarReserva" value="1" class="btn btn-success ml-2"><i class="fas fa-save mr-1"></i> Guardar Reserva</button>
                         </div>
                     </div>
                 </form>

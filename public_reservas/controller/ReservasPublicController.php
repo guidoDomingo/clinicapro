@@ -227,6 +227,16 @@ class ReservasPublicController {
      * Procesa la reserva de una cita
      */
     public function ctrProcesarReserva() {
+        // Agregar registro para depuración
+        error_log("ctrProcesarReserva: Recibiendo solicitud POST. guardarReserva=" . 
+            (isset($_POST['guardarReserva']) ? 'true' : 'false'), 
+            3, "c:/laragon/www/clinica/logs/public_reservas.log");
+            
+        if (isset($_POST)) {
+            error_log("ctrProcesarReserva: Contenido de POST: " . json_encode($_POST), 
+                3, "c:/laragon/www/clinica/logs/public_reservas.log");
+        }
+        
         if (isset($_POST['guardarReserva'])) {
             // Validar datos obligatorios
             if (
