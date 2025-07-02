@@ -48,18 +48,40 @@ class AuthController {
             $_SESSION['paciente_email'] = '';
             $_SESSION['paciente_tipo'] = 'paciente';
             
-            // Intentar obtener más datos desde la base de datos
+            // Intentar obtener más datos desde la base de datos - primero buscamos el perfil completo en rh_person
             try {
-                $pacienteData = ReservasPublicModel::mdlObtenerPacientePorId($_SESSION['paciente_id']);
-                if ($pacienteData) {
-                    $_SESSION['paciente_email'] = $pacienteData['email'] ?? '';
-                    $_SESSION['paciente_documento'] = $pacienteData['documento'] ?? '';
-                    $_SESSION['paciente_telefono'] = $pacienteData['telefono'] ?? '';
-                    error_log("AuthController::isAuthenticated - Datos adicionales obtenidos de la BD: " . json_encode([
+                // Buscar el perfil completo en rh_person a través de la relación con sys_users
+                $personData = ReservasPublicModel::mdlObtenerPacienteDesdeUsuario($_SESSION['user_id']);
+                if ($personData) {
+                    // Guardar el person_id y demás datos del paciente
+                    $_SESSION['person_id'] = $personData['person_id'];
+                    $_SESSION['paciente_nombre'] = $personData['first_name'];
+                    $_SESSION['paciente_apellido'] = $personData['last_name'];
+                    $_SESSION['paciente_email'] = $personData['email'] ?? '';
+                    $_SESSION['paciente_documento'] = $personData['document_number'] ?? '';
+                    $_SESSION['paciente_telefono'] = $personData['phone_number'] ?? '';
+                    
+                    error_log("AuthController::isAuthenticated - Datos completos obtenidos de rh_person: " . json_encode([
+                        'person_id' => $_SESSION['person_id'],
+                        'nombre' => $_SESSION['paciente_nombre'],
+                        'apellido' => $_SESSION['paciente_apellido'],
                         'email' => $_SESSION['paciente_email'],
                         'documento' => $_SESSION['paciente_documento'],
                         'telefono' => $_SESSION['paciente_telefono']
                     ]), 3, "c:/laragon/www/clinica/logs/session_debug.log");
+                } else {
+                    // Si no hay perfil completo, intentar con el método básico
+                    $pacienteData = ReservasPublicModel::mdlObtenerPacientePorId($_SESSION['paciente_id']);
+                    if ($pacienteData) {
+                        $_SESSION['paciente_email'] = $pacienteData['email'] ?? '';
+                        $_SESSION['paciente_documento'] = $pacienteData['documento'] ?? '';
+                        $_SESSION['paciente_telefono'] = $pacienteData['telefono'] ?? '';
+                        error_log("AuthController::isAuthenticated - Datos básicos obtenidos de la BD: " . json_encode([
+                            'email' => $_SESSION['paciente_email'],
+                            'documento' => $_SESSION['paciente_documento'],
+                            'telefono' => $_SESSION['paciente_telefono']
+                        ]), 3, "c:/laragon/www/clinica/logs/session_debug.log");
+                    }
                 }
             } catch (Exception $e) {
                 error_log("AuthController::isAuthenticated - Error obteniendo datos adicionales: " . $e->getMessage(), 3, 
@@ -104,15 +126,33 @@ class AuthController {
             if (!isset($_SESSION['paciente_nombre']) || !isset($_SESSION['paciente_email'])) {
                 try {
                     require_once __DIR__ . "/../model/ReservasPublicModel.php";
-                    $pacienteData = ReservasPublicModel::mdlObtenerPacientePorId($_SESSION['paciente_id']);
                     
-                    if ($pacienteData) {
-                        $_SESSION['paciente_nombre'] = $pacienteData['nombre'] . ' ' . $pacienteData['apellido'];
-                        $_SESSION['paciente_email'] = $pacienteData['email'];
+                    // Intentar primero obtener el perfil completo desde rh_person
+                    $personData = ReservasPublicModel::mdlObtenerPacienteDesdeUsuario($_SESSION['paciente_id']);
+                    
+                    if ($personData) {
+                        $_SESSION['person_id'] = $personData['person_id'];
+                        $_SESSION['paciente_nombre'] = $personData['first_name'];
+                        $_SESSION['paciente_apellido'] = $personData['last_name'];
+                        $_SESSION['paciente_email'] = $personData['email'] ?? '';
+                        $_SESSION['paciente_documento'] = $personData['document_number'] ?? '';
+                        $_SESSION['paciente_telefono'] = $personData['phone_number'] ?? '';
                         $_SESSION['paciente_tipo'] = 'paciente';
                         
-                        error_log("AuthController::isAuthenticated - Datos de usuario recuperados de la base de datos", 3, 
+                        error_log("AuthController::isAuthenticated - Datos completos recuperados desde rh_person", 3, 
                                  "c:/laragon/www/clinica/logs/session_debug.log");
+                    } else {
+                        // Si no hay perfil completo, intentar con el método básico
+                        $pacienteData = ReservasPublicModel::mdlObtenerPacientePorId($_SESSION['paciente_id']);
+                        
+                        if ($pacienteData) {
+                            $_SESSION['paciente_nombre'] = $pacienteData['nombre'] . ' ' . $pacienteData['apellido'];
+                            $_SESSION['paciente_email'] = $pacienteData['email'];
+                            $_SESSION['paciente_tipo'] = 'paciente';
+                            
+                            error_log("AuthController::isAuthenticated - Datos básicos recuperados de la base de datos", 3, 
+                                     "c:/laragon/www/clinica/logs/session_debug.log");
+                        }
                     }
                 } catch (Exception $e) {
                     error_log("AuthController::isAuthenticated - Error recuperando datos: " . $e->getMessage(), 3, 
@@ -420,15 +460,74 @@ class AuthController {
      */
     static public function ctrGetUserData() {
         if (self::isAuthenticated()) {
-            // Usamos paciente_id como person_id para hacer la reserva
+            $userId = $_SESSION['paciente_id'];
+            $personId = isset($_SESSION['person_id']) ? $_SESSION['person_id'] : null;
+            
+            // Primero, intentar obtener el perfil completo desde rh_person si aún no se ha cargado
+            if (!$personId) {
+                try {
+                    require_once __DIR__ . "/../model/ReservasPublicModel.php";
+                    $personData = ReservasPublicModel::mdlObtenerPacienteDesdeUsuario($userId);
+                    
+                    if ($personData) {
+                        // Guardar el person_id en la sesión para futuras referencias
+                        $_SESSION['person_id'] = $personData['person_id'];
+                        $personId = $personData['person_id'];
+                        
+                        // Guardar datos adicionales en la sesión
+                        $_SESSION['paciente_nombre'] = $personData['first_name'];
+                        $_SESSION['paciente_apellido'] = $personData['last_name'];
+                        $_SESSION['paciente_email'] = $personData['email'];
+                        $_SESSION['paciente_documento'] = $personData['document_number'];
+                        $_SESSION['paciente_telefono'] = $personData['phone_number'];
+                        
+                        error_log("ctrGetUserData: Datos de perfil completos cargados desde rh_person. person_id: " . $personId, 
+                                 3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                        
+                        // Devolver datos completos
+                        return [
+                            'id' => $userId,
+                            'person_id' => $personId,
+                            'nombre' => $personData['first_name'],
+                            'apellido' => $personData['last_name'],
+                            'email' => $personData['email'],
+                            'documento' => $personData['document_number'],
+                            'telefono' => $personData['phone_number'],
+                            'datos_completos' => true
+                        ];
+                    } else {
+                        error_log("ctrGetUserData: No se encontró perfil completo. Usando datos básicos de sesión.", 
+                                 3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                    }
+                } catch (Exception $e) {
+                    error_log("ctrGetUserData: Error obteniendo perfil completo: " . $e->getMessage(), 
+                             3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                }
+            } 
+            // Si ya tenemos el person_id en sesión, devolver datos completos
+            else {
+                return [
+                    'id' => $userId,
+                    'person_id' => $personId,
+                    'nombre' => $_SESSION['paciente_nombre'],
+                    'apellido' => isset($_SESSION['paciente_apellido']) ? $_SESSION['paciente_apellido'] : '',
+                    'email' => $_SESSION['paciente_email'],
+                    'documento' => isset($_SESSION['paciente_documento']) ? $_SESSION['paciente_documento'] : '',
+                    'telefono' => isset($_SESSION['paciente_telefono']) ? $_SESSION['paciente_telefono'] : '',
+                    'datos_completos' => true
+                ];
+            }
+            
+            // Datos básicos si no se encontró el perfil completo
             return [
-                'id' => $_SESSION['paciente_id'],
-                'person_id' => $_SESSION['paciente_id'], // Este es el ID que usaremos como paciente_id
+                'id' => $userId,
+                'person_id' => $userId, // Usar el user_id como person_id si no hay uno específico
                 'nombre' => $_SESSION['paciente_nombre'],
                 'apellido' => isset($_SESSION['paciente_apellido']) ? $_SESSION['paciente_apellido'] : '',
                 'email' => $_SESSION['paciente_email'],
                 'documento' => isset($_SESSION['paciente_documento']) ? $_SESSION['paciente_documento'] : '',
-                'telefono' => isset($_SESSION['paciente_telefono']) ? $_SESSION['paciente_telefono'] : ''
+                'telefono' => isset($_SESSION['paciente_telefono']) ? $_SESSION['paciente_telefono'] : '',
+                'datos_completos' => false
             ];
         }
         

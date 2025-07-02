@@ -122,7 +122,7 @@ class ReservasPublicModel {
                     p.last_name AS apellido, 
                     p.document_number AS documento,
                     p.email,
-                    p.phone AS telefono,
+                    p.phone_number AS telefono,
                     pa.ultimo_login
                 FROM 
                     rh_person p
@@ -150,6 +150,49 @@ class ReservasPublicModel {
             return $resultado;
         } catch (PDOException $e) {
             error_log("mdlObtenerPacientePorId: Error al buscar paciente: " . $e->getMessage(), 3, "c:/laragon/www/clinica/logs/auth.log");
+            return false;
+        }
+    }
+    
+    /**
+     * Obtiene los datos completos de un usuario desde rh_person usando la relación con sys_users
+     * @param int $userId ID del usuario del sistema
+     * @return array|bool Datos completos del paciente o false si no existe
+     */
+    static public function mdlObtenerPacienteDesdeUsuario($userId) {
+        try {
+            $stmt = Conexion::conectar()->prepare(
+                "SELECT 
+                    rp.*
+                FROM 
+                    sys_users su 
+                INNER JOIN 
+                    person_system_user psu ON su.user_id = psu.system_user_id  
+                INNER JOIN 
+                    rh_person rp ON rp.person_id = psu.person_id 
+                WHERE 
+                    su.user_id = :user_id
+                LIMIT 1"
+            );
+            
+            $stmt->bindParam(":user_id", $userId, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            // Log para depuración
+            error_log("mdlObtenerPacienteDesdeUsuario: Buscando perfil de usuario con ID $userId", 3, "c:/laragon/www/clinica/logs/auth.log");
+            
+            $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($resultado) {
+                error_log("mdlObtenerPacienteDesdeUsuario: Perfil encontrado para person_id: " . $resultado['person_id'], 3, "c:/laragon/www/clinica/logs/auth.log");
+                error_log("mdlObtenerPacienteDesdeUsuario: Datos completos: " . json_encode($resultado), 3, "c:/laragon/www/clinica/logs/auth.log");
+            } else {
+                error_log("mdlObtenerPacienteDesdeUsuario: No se encontró perfil para el usuario con ID $userId", 3, "c:/laragon/www/clinica/logs/auth.log");
+            }
+            
+            return $resultado;
+        } catch (PDOException $e) {
+            error_log("mdlObtenerPacienteDesdeUsuario: Error al buscar perfil: " . $e->getMessage(), 3, "c:/laragon/www/clinica/logs/auth.log");
             return false;
         }
     }

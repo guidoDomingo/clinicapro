@@ -260,9 +260,9 @@ class ReservasPublicController {
                     ];
                 }
                 
-                // Obtener datos del usuario
+                // Obtener datos completos del usuario (incluido person_id de rh_person)
                 $userData = AuthController::ctrGetUserData();
-                $pacienteId = $userData['person_id']; // Usar el ID del paciente asociado al usuario
+                $pacienteId = $userData['person_id']; // Usar el person_id de rh_person como paciente_id
                 
                 error_log("ctrProcesarReserva: Usando paciente con ID: " . $pacienteId . " de la sesión actual", 
                     3, "c:/laragon/www/clinica/logs/public_reservas.log");
@@ -274,6 +274,15 @@ class ReservasPublicController {
                         'error' => true,
                         'mensaje' => 'El usuario no tiene un perfil de paciente asociado'
                     ];
+                }
+                
+                // Verificar si los datos completos están disponibles
+                if (!isset($userData['datos_completos']) || !$userData['datos_completos']) {
+                    error_log("ctrProcesarReserva: ADVERTENCIA - Usando datos básicos del usuario, perfil posiblemente incompleto", 
+                        3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                } else {
+                    error_log("ctrProcesarReserva: OK - Usando perfil completo de rh_person con person_id: " . $pacienteId, 
+                        3, "c:/laragon/www/clinica/logs/public_reservas.log");
                 }
                 
                 // Procesar el horario (puede venir en formato simple "08:00" o completo "08:00 - 08:30")
