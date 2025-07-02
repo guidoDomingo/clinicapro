@@ -151,7 +151,7 @@ require_once "controller/AuthController.php";
                 // Procesar vistas según parámetro 'accion'
                 switch($accion) {
                     case 'consultar':
-                        include "view/consultar_reserva.php";
+                        include "view/mis_reservas.php";
                         break;
                     case 'verificar':
                         include "view/verificar_reserva.php";

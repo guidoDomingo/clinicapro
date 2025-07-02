@@ -599,5 +599,40 @@ class ReservasPublicController {
     static public function ctrVerificarCodigo($pacienteId, $codigo) {
         return ReservasPublicModel::mdlVerificarCodigo($pacienteId, $codigo);
     }
+    
+    /**
+     * Obtiene todas las reservas de un paciente específico
+     * @param int $pacienteId ID del paciente (person_id)
+     * @return array|bool Lista de reservas o false en caso de error
+     */
+    static public function ctrObtenerReservasPaciente($pacienteId = null) {
+        // Si no se proporciona un ID de paciente, intentar obtenerlo del usuario autenticado
+        if (empty($pacienteId)) {
+            // Verificar si hay un usuario autenticado
+            if (!AuthController::isAuthenticated()) {
+                error_log("ctrObtenerReservasPaciente: No hay usuario autenticado", 
+                    3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                return false;
+            }
+            
+            // Obtener datos del usuario
+            $userData = AuthController::ctrGetUserData();
+            if (empty($userData['person_id'])) {
+                error_log("ctrObtenerReservasPaciente: El usuario no tiene un person_id válido", 
+                    3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                return false;
+            }
+            
+            $pacienteId = $userData['person_id'];
+        }
+        
+        error_log("ctrObtenerReservasPaciente: Obteniendo reservas para paciente_id=$pacienteId", 
+            3, "c:/laragon/www/clinica/logs/public_reservas.log");
+        
+        // Llamar al método del modelo para obtener las reservas
+        $reservas = ReservasPublicModel::mdlObtenerReservasPaciente($pacienteId);
+        
+        return $reservas;
+    }
 }
 ?>

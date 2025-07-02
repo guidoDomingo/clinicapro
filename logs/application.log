@@ -947,3 +947,24 @@ Data: {
     "reg_lastname": "isnardi"
 }
 ----------------------------------------
+[2025-07-02 07:12:46] [INFO] [user.controller.php:195] user: manu@manu.com
+Data: manu@manu.com
+----------------------------------------
+[2025-07-02 07:12:46] [INFO] [user.controller.php:196] user: bb5be9b7c05a64cc49c948dbeac685f8
+Data: bb5be9b7c05a64cc49c948dbeac685f8
+----------------------------------------
+[2025-07-02 07:12:46] [INFO] [user.controller.php:245] Login attempt for user: manu@manu.com
+Data: {
+    "user_id": 15,
+    "reg_id": 15,
+    "user_email": "manu@manu.com",
+    "user_pass": "bb5be9b7c05a64cc49c948dbeac685f8",
+    "user_expire": "2025-07-31 22:09:21.790859",
+    "user_first_login": null,
+    "user_last_login": "2025-07-02 06:29:39.227951",
+    "user_is_active": true,
+    "profile_photo": null,
+    "reg_name": "manu",
+    "reg_lastname": "gonzales"
+}
+----------------------------------------

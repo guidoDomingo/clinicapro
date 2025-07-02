@@ -176,6 +176,8 @@ if (isset($_GET['updated']) && $_GET['updated'] === 'true') {
                     <ul class="nav nav-pills">
                         <li class="nav-item"><a class="nav-link active" href="#userInfo"
                                 data-toggle="tab">Información Personal</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#misReservas"
+                                data-toggle="tab">Mis Reservas</a></li>
                         <li class="nav-item"><a class="nav-link" href="#changePassword"
                                 data-toggle="tab">Cambiar Contraseña</a></li>
                     </ul>
@@ -253,6 +255,98 @@ if (isset($_GET['updated']) && $_GET['updated'] === 'true') {
                                     </div>
                                 </div>
                             </form>
+                        </div>
+                        <!-- /.tab-pane -->
+                        
+                        <div class="tab-pane" id="misReservas">
+                            <?php 
+                            // Cargar las reservas del paciente
+                            $reservas = ReservasPublicController::ctrObtenerReservasPaciente();
+                            ?>
+                            
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">Mis Citas Médicas</h3>
+                                </div>
+                                <div class="card-body">
+                                    <?php if ($reservas && count($reservas) > 0): ?>
+                                        <div class="table-responsive">
+                                            <table class="table table-striped table-hover">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Fecha</th>
+                                                        <th>Horario</th>
+                                                        <th>Doctor</th>
+                                                        <th>Servicio</th>
+                                                        <th>Sala</th>
+                                                        <th>Estado</th>
+                                                        <th>Código</th>
+                                                        <th>Acciones</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <?php foreach ($reservas as $reserva): ?>
+                                                        <tr>
+                                                            <td><?php echo date('d/m/Y', strtotime($reserva['fecha_reserva'])); ?></td>
+                                                            <td><?php echo $reserva['horario']; ?></td>
+                                                            <td><?php echo htmlspecialchars($reserva['doctor']); ?></td>
+                                                            <td><?php echo htmlspecialchars($reserva['nombre_servicio']); ?></td>
+                                                            <td><?php echo htmlspecialchars($reserva['sala_nombre'] ?? '-'); ?></td>
+                                                            <td>
+                                                                <?php 
+                                                                $claseBadge = 'badge-secondary';
+                                                                switch ($reserva['reserva_estado']) {
+                                                                    case 'PENDIENTE':
+                                                                        $claseBadge = 'badge-warning';
+                                                                        break;
+                                                                    case 'CONFIRMADA':
+                                                                        $claseBadge = 'badge-success';
+                                                                        break;
+                                                                    case 'CANCELADA':
+                                                                        $claseBadge = 'badge-danger';
+                                                                        break;
+                                                                    case 'COMPLETADA':
+                                                                        $claseBadge = 'badge-primary';
+                                                                        break;
+                                                                    case 'AUSENTE':
+                                                                        $claseBadge = 'badge-dark';
+                                                                        break;
+                                                                }
+                                                                ?>
+                                                                <span class="badge <?php echo $claseBadge; ?>">
+                                                                    <?php echo htmlspecialchars($reserva['reserva_estado']); ?>
+                                                                </span>
+                                                            </td>
+                                                            <td><?php echo $reserva['codigo_seguimiento']; ?></td>
+                                                            <td>
+                                                                <a href="index.php?accion=consultar_reserva&codigo=<?php echo $reserva['codigo_seguimiento']; ?>" 
+                                                                   class="btn btn-sm btn-info">
+                                                                    <i class="fas fa-eye"></i>
+                                                                </a>
+                                                                <?php if ($reserva['reserva_estado'] === 'PENDIENTE'): ?>
+                                                                <button type="button" class="btn btn-sm btn-danger" 
+                                                                        onclick="solicitarCancelacion('<?php echo $reserva['codigo_seguimiento']; ?>')">
+                                                                    <i class="fas fa-times"></i>
+                                                                </button>
+                                                                <?php endif; ?>
+                                                            </td>
+                                                        </tr>
+                                                    <?php endforeach; ?>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    <?php else: ?>
+                                        <div class="alert alert-info">
+                                            <h5><i class="icon fas fa-info"></i> No hay reservas</h5>
+                                            No tienes citas médicas agendadas en este momento.
+                                            <hr>
+                                            <a href="index.php?accion=reservar" class="btn btn-primary">
+                                                <i class="fas fa-plus"></i> Reservar Nueva Cita
+                                            </a>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
                         </div>
                         <!-- /.tab-pane -->
 
@@ -769,5 +863,82 @@ function getParameterByName(name, url = window.location.href) {
     if (!results) return null;
     if (!results[2]) return '';
     return decodeURIComponent(results[2].replace(/\+/g, ' '));
+}
+
+/**
+ * Solicita la cancelación de una reserva
+ */
+function solicitarCancelacion(codigo) {
+    // Mostrar confirmación
+    Swal.fire({
+        title: '¿Cancelar esta reserva?',
+        text: "Esta acción no se puede deshacer. La cita quedará disponible para otros pacientes.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, cancelar cita',
+        cancelButtonText: 'No, mantener cita'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Mostrar indicador de carga
+            Swal.fire({
+                title: 'Cancelando...',
+                text: 'Procesando tu solicitud',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
+            // Enviar solicitud para cancelar
+            $.ajax({
+                url: 'ajax/reservas.ajax.php',
+                method: 'POST',
+                data: {
+                    action: 'cancelarReserva',
+                    codigo: codigo
+                },
+                success: function(response) {
+                    try {
+                        const data = JSON.parse(response);
+                        if (data.error === false) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: '¡Listo!',
+                                text: 'Tu cita ha sido cancelada correctamente',
+                                confirmButtonText: 'Continuar'
+                            }).then(() => {
+                                window.location.reload(); // Recargar la página para actualizar la lista
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: data.mensaje || 'Error al cancelar la cita',
+                                confirmButtonText: 'Entendido'
+                            });
+                        }
+                    } catch (e) {
+                        console.error('Error al procesar respuesta:', e);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Error al procesar la respuesta del servidor',
+                            confirmButtonText: 'Entendido'
+                        });
+                    }
+                },
+                error: function() {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Error de conexión con el servidor',
+                        confirmButtonText: 'Entendido'
+                    });
+                }
+            });
+        }
+    });
 }
 </script>

@@ -615,6 +615,66 @@ class ReservasPublicModel {
     }
     
     /**
+     * Obtiene todas las reservas de un paciente específico
+     * @param int $pacienteId ID del paciente (person_id)
+     * @return array|bool Lista de reservas o false en caso de error
+     */
+    static public function mdlObtenerReservasPaciente($pacienteId) {
+        try {
+            $stmt = Conexion::conectar()->prepare(
+                "SELECT 
+                    ad.dia_semana,
+                    sr.reserva_id,
+                    sr.fecha_reserva,
+                    sr.hora_inicio || ' - ' || sr.hora_fin as horario,
+                    ad.intervalo_minutos,
+                    s.sala_nombre,
+                    rp.first_name || ' ' || rp.last_name as doctor,
+                    rp2.first_name || ' ' || rp2.last_name as paciente,
+                    rs.serv_descripcion as nombre_servicio,
+                    rs.serv_monto as monto,
+                    sr.reserva_estado,
+                    'RES' || to_char(sr.created_at, 'YYYYMMDDHH24MISS') || sr.reserva_id as codigo_seguimiento
+                FROM 
+                    servicios_reservas sr 
+                LEFT JOIN 
+                    agendas_detalle ad ON sr.agenda_id = ad.detalle_id 
+                LEFT JOIN 
+                    salas s ON ad.sala_id = s.sala_id
+                INNER JOIN 
+                    rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+                INNER JOIN 
+                    rh_person rp ON rd.person_id = rp.person_id
+                INNER JOIN 
+                    rh_person rp2 ON sr.paciente_id = rp2.person_id 
+                INNER JOIN 
+                    rs_servicios rs ON sr.servicio_id = rs.serv_id 
+                WHERE 
+                    rp2.person_id = :paciente_id
+                ORDER BY 
+                    sr.fecha_reserva DESC, sr.hora_inicio ASC"
+            );
+            
+            $stmt->bindParam(':paciente_id', $pacienteId, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            error_log("mdlObtenerReservasPaciente: Consultando reservas para paciente_id=$pacienteId", 
+                3, "c:/laragon/www/clinica/logs/public_reservas.log");
+            
+            $reservas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            error_log("mdlObtenerReservasPaciente: Se encontraron " . count($reservas) . " reservas", 
+                3, "c:/laragon/www/clinica/logs/public_reservas.log");
+            
+            return $reservas;
+            
+        } catch (PDOException $e) {
+            error_log("Error al obtener reservas del paciente: " . $e->getMessage(), 
+                3, "c:/laragon/www/clinica/logs/public_reservas.log");
+            return false;
+        }
+    }
+    
+    /**
      * Actualiza los datos de perfil de un paciente
      * @param array $datos Datos del paciente
      * @return array Resultado de la operación
