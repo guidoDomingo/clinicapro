@@ -122,7 +122,6 @@ class ControllerUser {
             // Para solicitudes API, primero intentamos obtener datos del cuerpo JSON
             $inputJSON = file_get_contents('php://input');
             error_log("API Login - Raw input: " . $inputJSON);
-            
             if (!empty($inputJSON)) {
                 $input = json_decode($inputJSON, TRUE);
                 error_log("API Login - Decoded JSON: " . print_r($input, true));
@@ -314,15 +313,54 @@ class ControllerUser {
                         
                         // Si es una solicitud de API, devolver JSON
                         if ($isApiRequest) {
+                            // Verificar si el usuario tiene perfil completo en rh_person
+                            try {
+                                $profilePath = $calledFromApi ? 
+                                    dirname(dirname(__DIR__)) . "/controller/profile.controller.php" : 
+                                    dirname(__DIR__) . "/controller/profile.controller.php";
+                                    
+                                if (file_exists($profilePath)) {
+                                    require_once $profilePath;
+                                } else {
+                                    // Intentar la ruta absoluta directa como último recurso
+                                    $directPath = "C:/laragon/www/clinica/controller/profile.controller.php";
+                                    if (file_exists($directPath)) {
+                                        require_once $directPath;
+                                    } else {
+                                        throw new Exception("No se pudo encontrar el controlador de perfil");
+                                    }
+                                }
+                                
+                                $hasCompleteProfile = ControllerProfile::ctrHasCompleteProfile($user['user_id']);
+                                error_log("API: Verificación de perfil para usuario: " . ($hasCompleteProfile ? 'Completo' : 'Incompleto'));
+                            } catch (Exception $e) {
+                                error_log("API: Error al verificar perfil: " . $e->getMessage());
+                                // Asumimos que tiene perfil completo para continuar
+                                $hasCompleteProfile = true;
+                            }
+                            
                             // Detectar si la solicitud viene del sistema de reservas públicas
                             $referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
                             $redirectUrl = 'home';
+                            $isFromPublicReservas = strpos($referer, 'public_reservas') !== false || 
+                                                    strpos($scriptName, 'public_reservas') !== false;
                             
-                            // Si la solicitud proviene de public_reservas, ajustamos la redirección
-                            if (strpos($referer, 'public_reservas') !== false || 
-                                strpos($scriptName, 'public_reservas') !== false) {
+                            // Si no tiene perfil completo, redirigir a la página de perfil
+                            if (!$hasCompleteProfile) {
+                                // Usar ruta absoluta o relativa según de donde viene la solicitud
+                                if ($isFromPublicReservas) {
+                                    // Para solicitudes de public_reservas, redirigir al módulo de perfil dentro de public_reservas
+                                    // Con origen=reservas para indicar de dónde viene y permitir redirigir de vuelta
+                                    $redirectUrl = 'index.php?accion=perfil&origen=reservas';
+                                } else {
+                                    $redirectUrl = 'perfil';
+                                }
+                                error_log("API: Usuario con perfil incompleto, redirigiendo a: $redirectUrl");
+                            } 
+                            // Si tiene perfil completo, usar la redirección normal
+                            else if ($isFromPublicReservas) {
                                 $redirectUrl = 'index.php?accion=reservar';
-                                error_log("Detectada solicitud desde public_reservas, redirigiendo a: $redirectUrl");
+                                error_log("API: Detectada solicitud desde public_reservas, redirigiendo a: $redirectUrl");
                             }
                             
                             self::sendJsonResponse(true, '¡Bienvenido/a, ' . $user['reg_name'] . ' ' . $user['reg_lastname'] . '!', [
@@ -330,8 +368,10 @@ class ControllerUser {
                                 'user' => [
                                     'id' => $user['user_id'],
                                     'nombre' => $user['reg_name'] . ' ' . $user['reg_lastname'],
-                                    'perfil' => $_SESSION["perfil_user"] ?? 'USER'
-                                ]
+                                    'perfil' => $_SESSION["perfil_user"] ?? 'USER',
+                                    'perfilCompleto' => $hasCompleteProfile
+                                ],
+                                'requiereCompletarPerfil' => !$hasCompleteProfile
                             ], 200);
                             return;
                         }
@@ -364,6 +404,18 @@ class ControllerUser {
                         
                         if (!$hasCompleteProfile) {
                             // Si no tiene perfil completo, redirigir a la página de perfil
+                            
+                            // Detectar si la solicitud viene del sistema de reservas públicas
+                            $referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
+                            $isFromPublicReservas = strpos($referer, 'public_reservas') !== false || 
+                                                  strpos($scriptName, 'public_reservas') !== false;
+                            
+                            // Para public_reservas, usar su módulo de perfil con origen=reservas
+                            // para que sepa dónde redirigir después
+                            $perfilUrl = $isFromPublicReservas ? 
+                                "index.php?accion=perfil&origen=reservas" : 
+                                "perfil";
+                                                  
                             echo '<script>
                                 Swal.fire({
                                     icon: "info",
@@ -373,7 +425,7 @@ class ControllerUser {
                                     allowOutsideClick: false,
                                     allowEscapeKey: false
                                 }).then((result) => {
-                                    window.location.href = "perfil";
+                                    window.location.href = "' . $perfilUrl . '";
                                 });
                             </script>';
                             exit();

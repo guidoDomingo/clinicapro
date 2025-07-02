@@ -420,10 +420,15 @@ class AuthController {
      */
     static public function ctrGetUserData() {
         if (self::isAuthenticated()) {
+            // Usamos paciente_id como person_id para hacer la reserva
             return [
                 'id' => $_SESSION['paciente_id'],
+                'person_id' => $_SESSION['paciente_id'], // Este es el ID que usaremos como paciente_id
                 'nombre' => $_SESSION['paciente_nombre'],
-                'email' => $_SESSION['paciente_email']
+                'apellido' => isset($_SESSION['paciente_apellido']) ? $_SESSION['paciente_apellido'] : '',
+                'email' => $_SESSION['paciente_email'],
+                'documento' => isset($_SESSION['paciente_documento']) ? $_SESSION['paciente_documento'] : '',
+                'telefono' => isset($_SESSION['paciente_telefono']) ? $_SESSION['paciente_telefono'] : ''
             ];
         }
         

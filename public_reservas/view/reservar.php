@@ -261,6 +261,34 @@ $(document).ready(function() {
     $('#formReserva').submit(function(e) {
         e.preventDefault();
         
+        // Validar que todos los campos requeridos estén completos
+        var formData = $(this).serialize();
+        var isValid = true;
+        var errorMessage = '';
+        
+        if (!$('#servicio').val()) {
+            isValid = false;
+            errorMessage = 'Por favor seleccione un servicio';
+        } else if (!$('#fecha').val()) {
+            isValid = false;
+            errorMessage = 'Por favor seleccione una fecha';
+        } else if (!$('#doctor').val()) {
+            isValid = false;
+            errorMessage = 'Por favor seleccione un doctor';
+        } else if (!$('#horario').val()) {
+            isValid = false;
+            errorMessage = 'Por favor seleccione un horario';
+        }
+        
+        if (!isValid) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: errorMessage
+            });
+            return;
+        }
+        
         Swal.fire({
             title: '¿Confirmar reserva?',
             text: "¿Está seguro que desea reservar esta cita?",
@@ -272,12 +300,51 @@ $(document).ready(function() {
             if (result.isConfirmed) {
                 console.log('Enviando formulario de reserva...');
                 
-                // Aquí se enviaría el formulario
-                // Por ahora mostrar mensaje de prueba
+                // Mostrar indicador de carga
                 Swal.fire({
-                    icon: 'success',
-                    title: '¡Reserva creada!',
-                    text: 'La funcionalidad de reservas estará disponible próximamente.'
+                    title: 'Procesando reserva...',
+                    text: 'Por favor espere',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                
+                // Enviar formulario por AJAX para procesamiento
+                $.ajax({
+                    url: 'ajax/reservas_public.ajax.php',
+                    method: 'POST',
+                    data: formData + '&accion=guardarReserva&guardarReserva=1',
+                    dataType: 'json',
+                    success: function(response) {
+                        console.log('Respuesta de reserva:', response);
+                        
+                        if (response.error === false) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: '¡Reserva creada!',
+                                text: response.mensaje + '. Su código de seguimiento es: ' + response.codigo,
+                                confirmButtonText: 'Continuar'
+                            }).then(() => {
+                                // Redirigir a la página de resultado
+                                window.location.href = 'index.php?accion=resultado&codigo=' + response.codigo;
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.mensaje || 'No se pudo procesar la reserva'
+                            });
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error en la solicitud AJAX:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error de conexión',
+                            text: 'No se pudo procesar la solicitud. Por favor intente nuevamente.'
+                        });
+                    }
                 });
             }
         });

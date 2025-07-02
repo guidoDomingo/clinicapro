@@ -238,17 +238,12 @@ class ReservasPublicController {
         }
         
         if (isset($_POST['guardarReserva'])) {
-            // Validar datos obligatorios
+            // Validar datos obligatorios para la reserva
             if (
                 empty($_POST['fecha_reserva']) || 
                 empty($_POST['servicio_id']) || 
                 empty($_POST['doctor_id']) || 
-                empty($_POST['horario']) || 
-                empty($_POST['nombre_paciente']) || 
-                empty($_POST['apellido_paciente']) || 
-                empty($_POST['documento_paciente']) || 
-                empty($_POST['email_paciente']) || 
-                empty($_POST['telefono_paciente'])
+                empty($_POST['horario'])
             ) {
                 return [
                     'error' => true,
@@ -256,48 +251,105 @@ class ReservasPublicController {
                 ];
             }
             
-            // Validar email
-            if (!filter_var($_POST['email_paciente'], FILTER_VALIDATE_EMAIL)) {
-                return [
-                    'error' => true,
-                    'mensaje' => 'El email ingresado no es válido'
-                ];
-            }
-            
             try {
-                // Guardar datos del paciente primero
-                $datosPaciente = [
-                    'first_name' => $_POST['nombre_paciente'],
-                    'last_name' => $_POST['apellido_paciente'],
-                    'document_number' => $_POST['documento_paciente'],
-                    'email' => $_POST['email_paciente'],
-                    'phone' => $_POST['telefono_paciente']
-                ];
+                // Obtener el ID del paciente desde la sesión del usuario autenticado
+                if (!AuthController::isAuthenticated()) {
+                    return [
+                        'error' => true,
+                        'mensaje' => 'No hay usuario autenticado para realizar la reserva'
+                    ];
+                }
                 
-                // Guardar o recuperar paciente
-                $pacienteId = ReservasPublicModel::mdlGuardarPaciente($datosPaciente);
+                // Obtener datos del usuario
+                $userData = AuthController::ctrGetUserData();
+                $pacienteId = $userData['person_id']; // Usar el ID del paciente asociado al usuario
+                
+                error_log("ctrProcesarReserva: Usando paciente con ID: " . $pacienteId . " de la sesión actual", 
+                    3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                error_log("ctrProcesarReserva: Datos completos del usuario: " . json_encode($userData), 
+                    3, "c:/laragon/www/clinica/logs/public_reservas.log");
                 
                 if (!$pacienteId) {
                     return [
                         'error' => true,
-                        'mensaje' => 'No se pudo registrar al paciente'
+                        'mensaje' => 'El usuario no tiene un perfil de paciente asociado'
                     ];
                 }
                 
-                // Procesar el horario (formato: "08:00 - 08:30")
-                $horasParts = explode(" - ", $_POST['horario']);
-                if (count($horasParts) != 2) {
-                    return [
-                        'error' => true,
-                        'mensaje' => 'Formato de horario inválido'
-                    ];
-                }
+                // Procesar el horario (puede venir en formato simple "08:00" o completo "08:00 - 08:30")
+                $horario = $_POST['horario'];
+                error_log("ctrProcesarReserva: Procesando horario original: " . $horario, 
+                    3, "c:/laragon/www/clinica/logs/public_reservas.log");
                 
-                $horaInicio = trim($horasParts[0]);
-                $horaFin = trim($horasParts[1]);
+                // Verificar si el horario tiene el formato completo con hora inicio y fin
+                if (strpos($horario, " - ") !== false) {
+                    $horasParts = explode(" - ", $horario);
+                    if (count($horasParts) != 2) {
+                        error_log("ctrProcesarReserva: ERROR - Formato de horario inválido: " . $horario, 
+                            3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                        return [
+                            'error' => true,
+                            'mensaje' => 'Formato de horario inválido'
+                        ];
+                    }
+                    
+                    $horaInicio = trim($horasParts[0]);
+                    $horaFin = trim($horasParts[1]);
+                } 
+                // Si viene solo la hora de inicio, buscar la hora fin correspondiente
+                else {
+                    $horaInicio = trim($horario);
+                    
+                    error_log("ctrProcesarReserva: Recibido horario simple, buscando horario fin para: " . $horaInicio, 
+                        3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                    
+                    // Buscar en los horarios disponibles la hora fin correspondiente
+                    $horarioEncontrado = false;
+                    $horariosDisponibles = self::ctrObtenerHorariosDisponibles($_POST['fecha_reserva'], 
+                        $_POST['servicio_id'], $_POST['doctor_id']);
+                    
+                    error_log("ctrProcesarReserva: Horarios disponibles encontrados: " . count($horariosDisponibles), 
+                        3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                    
+                    foreach ($horariosDisponibles as $slot) {
+                        if ($slot['hora'] == $horaInicio) {
+                            $horaFin = $slot['hora_fin'];
+                            $horarioEncontrado = true;
+                            error_log("ctrProcesarReserva: Horario completo encontrado - Inicio: " . $horaInicio . ", Fin: " . $horaFin, 
+                                3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                            break;
+                        }
+                    }
+                    
+                    // Si no se encontró el horario, calcular hora fin sumando 30 min por defecto
+                    if (!$horarioEncontrado) {
+                        $horaObj = new DateTime($horaInicio);
+                        $horaObj->modify('+30 minutes');
+                        $horaFin = $horaObj->format('H:i');
+                        error_log("ctrProcesarReserva: No se encontró el horario completo. Calculando hora fin: " . $horaFin, 
+                            3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                    }
+                }
                 
                 // Generar código de seguimiento único
                 $codigoSeguimiento = 'RES' . date('YmdHis') . rand(100, 999);
+                
+                // Asegurar que las horas tengan formato HH:MM:SS
+                $horaInicioFormateada = $horaInicio;
+                $horaFinFormateada = $horaFin;
+                
+                // Verificar si las horas tienen el formato HH:MM y convertir a HH:MM:SS
+                if (preg_match('/^\d{2}:\d{2}$/', $horaInicioFormateada)) {
+                    $horaInicioFormateada .= ':00';
+                    error_log("ctrProcesarReserva: Formateando hora_inicio de $horaInicio a $horaInicioFormateada", 
+                        3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                }
+                
+                if (preg_match('/^\d{2}:\d{2}$/', $horaFinFormateada)) {
+                    $horaFinFormateada .= ':00';
+                    error_log("ctrProcesarReserva: Formateando hora_fin de $horaFin a $horaFinFormateada", 
+                        3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                }
                 
                 // Preparar datos de la reserva
                 $datosReserva = [
@@ -305,8 +357,8 @@ class ReservasPublicController {
                     'doctor_id' => intval($_POST['doctor_id']),
                     'paciente_id' => $pacienteId,
                     'fecha_reserva' => $_POST['fecha_reserva'],
-                    'hora_inicio' => $horaInicio,
-                    'hora_fin' => $horaFin,
+                    'hora_inicio' => $horaInicioFormateada,
+                    'hora_fin' => $horaFinFormateada,
                     'reserva_estado' => 'PENDIENTE',
                     'observaciones' => isset($_POST['observaciones']) ? $_POST['observaciones'] : '',
                     'codigo_seguimiento' => $codigoSeguimiento
@@ -315,37 +367,74 @@ class ReservasPublicController {
                 // Agregar seguro médico si está seleccionado
                 if (!empty($_POST['seguro_id'])) {
                     $datosReserva['seguro_id'] = intval($_POST['seguro_id']);
+                    error_log("ctrProcesarReserva: Agregando seguro_id: " . intval($_POST['seguro_id']), 
+                        3, "c:/laragon/www/clinica/logs/public_reservas.log");
                 }
                 
-                // Guardar la reserva
-                $reservaId = ReservasPublicModel::mdlGuardarReserva($datosReserva);
+                // Incluir controlador y modelo de servicios principal
+                require_once dirname(__DIR__, 2) . "/controller/servicios.controller.php";
+                require_once dirname(__DIR__, 2) . "/model/servicios.model.php";
+                
+                // Log para depuración
+                error_log("ctrProcesarReserva: Usando ControladorServicios::ctrGuardarReserva con datos: " . 
+                    json_encode($datosReserva), 3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                
+                // Guardar la reserva usando el controlador principal
+                $reservaId = ControladorServicios::ctrGuardarReserva($datosReserva);
+                
+                // Log del resultado
+                error_log("ctrProcesarReserva: Resultado de guardar reserva: " . ($reservaId ? "ID: $reservaId" : "ERROR - No se guardó la reserva"),
+                    3, "c:/laragon/www/clinica/logs/public_reservas.log");
                 
                 if ($reservaId) {
-                    // Generar código de verificación
-                    $codigoVerificacion = strtoupper(substr(md5(uniqid(mt_rand(), true)), 0, 6));
+                    // Obtener los datos del paciente para la confirmación
+                    $userData = AuthController::ctrGetUserData();
+                    $nombrePaciente = $userData['nombre'] . ' ' . $userData['apellido'];
+                    $emailPaciente = $userData['email'];
                     
-                    // Guardar código de verificación
-                    ReservasPublicModel::mdlGuardarCodigoVerificacion(
-                        $pacienteId,
-                        $codigoVerificacion,
-                        $_POST['email_paciente']
-                    );
+                    // Obtener detalles del médico para el correo
+                    $medicos = self::ctrObtenerMedicosDisponibles($_POST['fecha_reserva']);
+                    $nombreMedico = 'Médico Asignado'; // Valor por defecto
+                    foreach ($medicos as $medico) {
+                        if ($medico['doctor_id'] == $datosReserva['doctor_id']) {
+                            $nombreMedico = $medico['nombre'];
+                            break;
+                        }
+                    }
                     
-                    // Enviar notificación por email
+                    // Obtener detalles del servicio para el correo
+                    $servicios = self::ctrObtenerServicios();
+                    $nombreServicio = 'Servicio Reservado'; // Valor por defecto
+                    foreach ($servicios as $servicio) {
+                        if ($servicio['serv_id'] == $datosReserva['servicio_id']) {
+                            $nombreServicio = $servicio['serv_descripcion'];
+                            break;
+                        }
+                    }
+                    
+                    // Registrar información adicional para depuración
+                    error_log("ctrProcesarReserva: Reserva creada exitosamente con ID: $reservaId", 
+                        3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                    error_log("ctrProcesarReserva: Detalles de la reserva - Médico: $nombreMedico, Servicio: $nombreServicio", 
+                        3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                    
+                    // Enviar notificación por email simplificada (sin código de verificación)
                     $this->enviarEmailConfirmacion(
-                        $_POST['email_paciente'],
-                        $_POST['nombre_paciente'] . ' ' . $_POST['apellido_paciente'],
+                        $emailPaciente,
+                        $nombrePaciente,
                         $_POST['fecha_reserva'],
                         $_POST['horario'],
                         $codigoSeguimiento,
-                        $codigoVerificacion
+                        '', // Sin código de verificación
+                        $nombreMedico,
+                        $nombreServicio
                     );
                     
                     return [
                         'error' => false,
                         'mensaje' => 'Reserva creada exitosamente',
                         'codigo' => $codigoSeguimiento,
-                        'email' => $_POST['email_paciente']
+                        'email' => $emailPaciente
                     ];
                 } else {
                     return [
@@ -368,8 +457,16 @@ class ReservasPublicController {
     
     /**
      * Envía email de confirmación al paciente
+     * @param string $email Email del paciente
+     * @param string $nombrePaciente Nombre completo del paciente
+     * @param string $fecha Fecha de la reserva (YYYY-MM-DD)
+     * @param string $horario Horario de la reserva
+     * @param string $codigoSeguimiento Código único de seguimiento
+     * @param string $codigoVerificacion Código de verificación para confirmar la reserva
+     * @param string $nombreMedico Nombre del médico asignado (opcional)
+     * @param string $nombreServicio Nombre del servicio reservado (opcional)
      */
-    private function enviarEmailConfirmacion($email, $nombrePaciente, $fecha, $horario, $codigoSeguimiento, $codigoVerificacion) {
+    private function enviarEmailConfirmacion($email, $nombrePaciente, $fecha, $horario, $codigoSeguimiento, $codigoVerificacion, $nombreMedico = null, $nombreServicio = null) {
         // Formato de la fecha
         $fechaFormato = date('d/m/Y', strtotime($fecha));
         
@@ -401,10 +498,27 @@ class ReservasPublicController {
                     <ul>
                         <li><b>Código de seguimiento:</b> $codigoSeguimiento</li>
                         <li><b>Fecha:</b> $fechaFormato</li>
-                        <li><b>Horario:</b> $horario</li>
-                    </ul>
+                        <li><b>Horario:</b> $horario</li>";
+                        
+        if ($nombreMedico) {
+            $mensaje .= "<li><b>Médico:</b> $nombreMedico</li>";
+        }
+        
+        if ($nombreServicio) {
+            $mensaje .= "<li><b>Servicio:</b> $nombreServicio</li>";
+        }
+                        
+        $mensaje .= "
+                    </ul>";
+        
+        // Solo mostrar el código de verificación si se proporcionó uno
+        if (!empty($codigoVerificacion)) {
+            $mensaje .= "
                     <p>Para confirmar su cita, utilice el siguiente código de verificación:</p>
-                    <div class='code'>$codigoVerificacion</div>
+                    <div class='code'>$codigoVerificacion</div>";
+        }
+        
+        $mensaje .= "
                     <p>Puede verificar el estado de su reserva en cualquier momento ingresando a nuestro sistema con su código de seguimiento.</p>
                     <p>Si tiene alguna pregunta o necesita reprogramar su cita, por favor contáctenos lo antes posible.</p>
                     <p>¡Gracias por confiar en nosotros!</p>

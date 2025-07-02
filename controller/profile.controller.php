@@ -7,6 +7,38 @@ if (file_exists(dirname(__FILE__) . "/../api/core/Response.php")) {
 
 class ControllerProfile {
     /**
+     * Detecta si la solicitud viene del módulo de public_reservas
+     * @return bool True si viene de public_reservas, false en caso contrario
+     */
+    static public function isFromPublicReservas() {
+        $referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
+        $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
+        $requestURI = $_SERVER['REQUEST_URI'] ?? '';
+        
+        return strpos($referer, 'public_reservas') !== false || 
+               strpos($scriptName, 'public_reservas') !== false ||
+               strpos($requestURI, 'public_reservas') !== false;
+    }
+    
+    /**
+     * Obtiene el origen de la solicitud para redirecciones
+     * @return string La URL de redirección basada en el parámetro origen
+     */
+    static public function getRedirectUrl() {
+        $origen = $_GET['origen'] ?? '';
+        
+        if (self::isFromPublicReservas()) {
+            if ($origen === 'reservas') {
+                return "index.php?accion=reservar";
+            }
+            return "index.php?accion=perfil&updated=true";
+        }
+        
+        // Si no es de public_reservas, usar la URL por defecto del sistema principal
+        return "index.php?ruta=perfil&updated=true";
+    }
+    
+    /**
      * Obtiene los datos del perfil del usuario
      * @param int $userId ID del usuario
      * @return array|null Datos del perfil o null si no se encuentra
@@ -32,23 +64,71 @@ class ControllerProfile {
      * @return string|bool "ok" si se cambió correctamente, mensaje de error en caso contrario
      */
     static public function ctrChangePassword($userId, $currentPassword, $newPassword) {
+        // Verificar que los parámetros no estén vacíos
+        if (empty($userId) || empty($currentPassword) || empty($newPassword)) {
+            error_log("ChangePassword: Parámetros incompletos - User ID: $userId");
+            return "Todos los campos son obligatorios";
+        }
+        
+        error_log("ChangePassword: Iniciando cambio de contraseña para el usuario ID: $userId");
+        
+        // Verificar que el usuario existe
+        try {
+            $db = Conexion::conectar();
+            $checkUserStmt = $db->prepare("SELECT user_id, user_pass FROM sys_users WHERE user_id = :user_id AND user_is_active = true");
+            $checkUserStmt->execute(['user_id' => $userId]);
+            $userData = $checkUserStmt->fetch(PDO::FETCH_ASSOC);
+            
+            if (!$userData) {
+                error_log("ChangePassword: Usuario ID: $userId no encontrado o inactivo");
+                return "Usuario no encontrado o inactivo";
+            }
+            
+            error_log("ChangePassword: Usuario encontrado - ID: " . $userData['user_id']);
+        } catch (PDOException $e) {
+            error_log("ChangePassword: Error al verificar usuario: " . $e->getMessage());
+            return "Error al verificar usuario";
+        }
+        
         // Verificar que la contraseña actual sea correcta
-        if (!ModelProfile::mdlVerifyPassword($userId, $currentPassword)) {
+        $passwordVerified = ModelProfile::mdlVerifyPassword($userId, $currentPassword);
+        error_log("ChangePassword: Verificación de contraseña actual: " . ($passwordVerified ? "CORRECTA" : "INCORRECTA"));
+        
+        if (!$passwordVerified) {
             return "La contraseña actual no es correcta";
         }
         
         // Verificar que la nueva contraseña cumpla con los requisitos mínimos
         if (strlen($newPassword) < 6) {
+            error_log("ChangePassword: Nueva contraseña muy corta (menos de 6 caracteres)");
             return "La nueva contraseña debe tener al menos 6 caracteres";
         }
         
-        // Cambiar la contraseña
-        $result = ModelProfile::mdlChangePassword($userId, $newPassword);
-        
-        if ($result === "ok") {
-            return "ok";
-        } else {
-            return "Error al cambiar la contraseña: " . $result;
+        try {
+            // Cambiar la contraseña - usar MD5 para mantener compatibilidad con el sistema existente
+            // Solo si la contraseña actual está en formato MD5
+            $useOldFormat = strlen($userData['user_pass']) == 32 && ctype_xdigit($userData['user_pass']);
+            error_log("ChangePassword: Formato de hash actual: " . ($useOldFormat ? "MD5" : "PASSWORD_HASH"));
+            
+            if ($useOldFormat) {
+                $result = ModelProfile::mdlChangePasswordMD5($userId, $newPassword);
+                error_log("ChangePassword: Usando formato MD5 para la nueva contraseña");
+            } else {
+                $result = ModelProfile::mdlChangePassword($userId, $newPassword);
+                error_log("ChangePassword: Usando PASSWORD_HASH para la nueva contraseña");
+            }
+            
+            if ($result === "ok") {
+                // Registro de éxito para auditoría
+                error_log("ChangePassword: Contraseña cambiada con éxito para el usuario ID: " . $userId);
+                return "ok";
+            } else {
+                error_log("ChangePassword: Error al cambiar contraseña: " . $result);
+                return "Error al cambiar la contraseña: " . $result;
+            }
+        } catch (Exception $e) {
+            error_log("ChangePassword: Excepción al cambiar contraseña: " . $e->getMessage());
+            return "Error del sistema al cambiar la contraseña";
         }
     }
     
@@ -181,7 +261,15 @@ class ControllerProfile {
 
 // Manejador de solicitudes AJAX para el perfil de usuario
 if (isset($_POST['action']) && !empty($_POST['action'])) {
-    session_start();
+    // Limpiar cualquier salida previa
+    if (ob_get_level()) {
+        ob_clean();
+    }
+    
+    // Iniciar sesión solo si no está ya iniciada
+    if (session_status() == PHP_SESSION_NONE) {
+        session_start();
+    }
     $userId = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
     
     if (!$userId) {
@@ -227,6 +315,19 @@ if (isset($_POST['action']) && !empty($_POST['action'])) {
                 // Actualizar el estado del perfil en la sesión
                 $_SESSION['profile_complete'] = ControllerProfile::ctrHasCompleteProfile($userId);
                 
+                // Verificar si la solicitud viene del módulo public_reservas
+                if (ControllerProfile::isFromPublicReservas()) {
+                    // Si viene desde el módulo público y no es una petición AJAX, redirigir
+                    if (!isset($_SERVER['HTTP_X_REQUESTED_WITH']) || 
+                        strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) !== 'xmlhttprequest') {
+                        $redirectUrl = isset($_GET['origen']) && $_GET['origen'] === 'reservas' 
+                            ? "index.php?accion=reservar" 
+                            : "index.php?accion=perfil&updated=true";
+                        header('Location: ' . $redirectUrl);
+                        exit;
+                    }
+                }
+                
                 echo json_encode([
                     "status" => "success",
                     "message" => "Perfil actualizado correctamente",
@@ -241,10 +342,19 @@ if (isset($_POST['action']) && !empty($_POST['action'])) {
             break;
             
         case 'changePassword':
+            // Limpiar cualquier salida previa para evitar problemas con el JSON
+            if (ob_get_level()) {
+                ob_clean();
+            }
+            
             $currentPassword = $_POST['current_password'] ?? '';
             $newPassword = $_POST['new_password'] ?? '';
             
+            // Registrar la solicitud en un log específico
+            error_log(date('Y-m-d H:i:s') . " - Solicitud de cambio de contraseña para usuario ID: $userId", 3, dirname(__DIR__) . "/logs/password_changes.log");
+            
             if (empty($currentPassword) || empty($newPassword)) {
+                error_log(date('Y-m-d H:i:s') . " - ERROR: Campos obligatorios no proporcionados", 3, dirname(__DIR__) . "/logs/password_changes.log");
                 echo json_encode([
                     "status" => "error",
                     "message" => "Todos los campos son obligatorios"
@@ -252,18 +362,40 @@ if (isset($_POST['action']) && !empty($_POST['action'])) {
                 break;
             }
             
+            // Determinar si la solicitud viene de public_reservas
+            $isFromPublicReservas = ControllerProfile::isFromPublicReservas();
+            error_log(date('Y-m-d H:i:s') . " - Solicitud desde public_reservas: " . ($isFromPublicReservas ? "SI" : "NO"), 3, dirname(__DIR__) . "/logs/password_changes.log");
+            
+            // Intentar cambiar la contraseña
             $result = ControllerProfile::ctrChangePassword($userId, $currentPassword, $newPassword);
+            error_log(date('Y-m-d H:i:s') . " - Resultado del cambio: $result", 3, dirname(__DIR__) . "/logs/password_changes.log");
             
             if ($result === "ok") {
-                echo json_encode([
+                $redirectUrl = $isFromPublicReservas ? 'index.php' : 'login';
+                
+                $response = [
                     "status" => "success",
-                    "message" => "Contraseña actualizada correctamente"
-                ]);
+                    "message" => "Contraseña actualizada correctamente",
+                    "redirect" => $redirectUrl,
+                    "logout" => true
+                ];
+                
+                error_log(date('Y-m-d H:i:s') . " - ÉXITO: Contraseña actualizada para usuario ID: $userId", 3, dirname(__DIR__) . "/logs/password_changes.log");
+                error_log(date('Y-m-d H:i:s') . " - Respuesta JSON: " . json_encode($response), 3, dirname(__DIR__) . "/logs/password_changes.log");
+                
+                echo json_encode($response);
+                
+                // Cerrar la sesión es responsabilidad del cliente para evitar problemas con la respuesta JSON
             } else {
-                echo json_encode([
+                $response = [
                     "status" => "error",
                     "message" => $result
-                ]);
+                ];
+                
+                error_log(date('Y-m-d H:i:s') . " - ERROR: " . $result, 3, dirname(__DIR__) . "/logs/password_changes.log");
+                error_log(date('Y-m-d H:i:s') . " - Respuesta JSON: " . json_encode($response), 3, dirname(__DIR__) . "/logs/password_changes.log");
+                
+                echo json_encode($response);
             }
             break;
             

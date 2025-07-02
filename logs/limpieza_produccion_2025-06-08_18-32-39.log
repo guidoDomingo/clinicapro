@@ -1,8 +1,0 @@
-[2025-06-08 18:32:51] Eliminado log antiguo: limpieza_produccion_2025-06-08_18-32-39.log
-[2025-06-08 18:32:51] Eliminado log antiguo: limpieza_whatsapp_2025-06-07_03-04-17.log
-[2025-06-08 18:32:51] Eliminado log antiguo: test_reservas.log
-[2025-06-08 18:32:51] Optimizado archivo .htaccess para producción
-[2025-06-08 18:32:51] ¡Limpieza para producción finalizada!
-[2025-06-08 18:32:51] Total de archivos eliminados: 3487
-[2025-06-08 18:32:51] Total de directorios eliminados: 539
-[2025-06-08 18:32:51] Se ha creado un registro detallado en: C:\laragon\www\clinica/logs/limpieza_produccion_2025-06-08_18-32-39.log

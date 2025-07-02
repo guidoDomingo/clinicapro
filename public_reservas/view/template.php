@@ -165,6 +165,9 @@ require_once "controller/AuthController.php";
                     case 'confirmar':
                         include "view/confirmar_reserva.php";
                         break;
+                    case 'perfil':
+                        include "view/perfil.php";
+                        break;
                     case 'logout':
                         AuthController::ctrLogout();
                         break;

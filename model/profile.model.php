@@ -218,7 +218,12 @@ class ModelProfile {
      */
     public static function mdlChangePassword($userId, $newPassword) {
         try {
+            // Log específico para depuración
+            $logFile = dirname(__DIR__) . "/logs/password_changes.log";
+            file_put_contents($logFile, date('Y-m-d H:i:s') . " - mdlChangePassword: Iniciando cambio para usuario ID: $userId\n", FILE_APPEND);
+            
             $encryptedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+            file_put_contents($logFile, date('Y-m-d H:i:s') . " - mdlChangePassword: Hash generado: " . $encryptedPassword . "\n", FILE_APPEND);
             
             $stmt = Conexion::conectar()->prepare("
                 UPDATE sys_users
@@ -229,13 +234,67 @@ class ModelProfile {
             $stmt->bindParam(":password", $encryptedPassword, PDO::PARAM_STR);
             $stmt->bindParam(":user_id", $userId, PDO::PARAM_INT);
             
-            if ($stmt->execute()) {
+            $result = $stmt->execute();
+            file_put_contents($logFile, date('Y-m-d H:i:s') . " - mdlChangePassword: Ejecución de consulta: " . ($result ? "EXITOSA" : "FALLIDA") . "\n", FILE_APPEND);
+            
+            if ($result) {
+                file_put_contents($logFile, date('Y-m-d H:i:s') . " - mdlChangePassword: Contraseña cambiada correctamente para usuario ID: $userId\n", FILE_APPEND);
                 return "ok";
             } else {
+                file_put_contents($logFile, date('Y-m-d H:i:s') . " - mdlChangePassword: Error al ejecutar la consulta\n", FILE_APPEND);
                 return "error";
             }
         } catch (PDOException $e) {
-            error_log("Error al cambiar contraseña: " . $e->getMessage());
+            $errorMsg = "Error al cambiar contraseña: " . $e->getMessage();
+            error_log($errorMsg);
+            file_put_contents($logFile, date('Y-m-d H:i:s') . " - mdlChangePassword: $errorMsg\n", FILE_APPEND);
+            return "error: " . $e->getMessage();
+        }
+    }
+    
+    /**
+     * Cambia la contraseña del usuario usando formato MD5 (para compatibilidad)
+     * @param int $userId ID del usuario
+     * @param string $newPassword Nueva contraseña
+     * @return string "ok" si se cambió correctamente, mensaje de error en caso contrario
+     */
+    public static function mdlChangePasswordMD5($userId, $newPassword) {
+        try {
+            // Log específico para depuración
+            $logFile = dirname(__DIR__) . "/logs/password_changes.log";
+            file_put_contents($logFile, date('Y-m-d H:i:s') . " - mdlChangePasswordMD5: Iniciando cambio para usuario ID: $userId con hash MD5\n", FILE_APPEND);
+            
+            // Usar MD5 para mantener compatibilidad con el sistema existente
+            $encryptedPassword = md5($newPassword);
+            file_put_contents($logFile, date('Y-m-d H:i:s') . " - mdlChangePasswordMD5: Hash MD5 generado: " . $encryptedPassword . "\n", FILE_APPEND);
+            
+            error_log("mdlChangePasswordMD5: Cambiando contraseña para usuario ID: $userId con hash MD5");
+            
+            $stmt = Conexion::conectar()->prepare("
+                UPDATE sys_users
+                SET user_pass = :password
+                WHERE user_id = :user_id
+            ");
+            
+            $stmt->bindParam(":password", $encryptedPassword, PDO::PARAM_STR);
+            $stmt->bindParam(":user_id", $userId, PDO::PARAM_INT);
+            
+            $result = $stmt->execute();
+            file_put_contents($logFile, date('Y-m-d H:i:s') . " - mdlChangePasswordMD5: Ejecución de consulta: " . ($result ? "EXITOSA" : "FALLIDA") . "\n", FILE_APPEND);
+            
+            if ($result) {
+                error_log("mdlChangePasswordMD5: Contraseña actualizada correctamente");
+                file_put_contents($logFile, date('Y-m-d H:i:s') . " - mdlChangePasswordMD5: Contraseña actualizada correctamente para usuario ID: $userId\n", FILE_APPEND);
+                return "ok";
+            } else {
+                error_log("mdlChangePasswordMD5: Error al ejecutar la consulta");
+                file_put_contents($logFile, date('Y-m-d H:i:s') . " - mdlChangePasswordMD5: Error al ejecutar la consulta\n", FILE_APPEND);
+                return "error";
+            }
+        } catch (PDOException $e) {
+            $errorMsg = "Error al cambiar contraseña: " . $e->getMessage();
+            error_log("mdlChangePasswordMD5: " . $errorMsg);
+            file_put_contents($logFile, date('Y-m-d H:i:s') . " - mdlChangePasswordMD5: $errorMsg\n", FILE_APPEND);
             return "error: " . $e->getMessage();
         }
     }

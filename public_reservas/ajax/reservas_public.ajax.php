@@ -97,6 +97,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 }
                 break;
                 
+            // Guardar una nueva reserva
+            case 'guardarReserva':
+                // Llamar al método del controlador para procesar la reserva
+                $resultado = $reservasController->ctrProcesarReserva();
+                
+                // Registrar el resultado para depuración
+                error_log("reservas_public.ajax.php - guardarReserva: " . json_encode($resultado), 
+                    3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                
+                // Devolver la respuesta en formato JSON
+                echo json_encode($resultado);
+                break;
+                
             // Si no se encuentra la acción solicitada
             default:
                 echo json_encode(['error' => true, 'mensaje' => 'Acción no reconocida']);

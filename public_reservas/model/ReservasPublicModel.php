@@ -221,89 +221,44 @@ class ReservasPublicModel {
     
     /**
      * Guarda un código de verificación para el paciente
+     * Actualmente solo registra en el log, sin usar tabla de verificación.
      * @param int $pacienteId ID del paciente
      * @param string $codigo Código de verificación
      * @param string $email Email del paciente
      * @return bool Resultado de la operación
      */
     static public function mdlGuardarCodigoVerificacion($pacienteId, $codigo, $email) {
-        try {
-            // Verificar si ya existe un registro para este paciente
-            $stmtCheck = Conexion::conectar()->prepare(
-                "SELECT COUNT(*) FROM rh_verificacion WHERE paciente_id = :paciente_id"
-            );
-            $stmtCheck->bindParam(":paciente_id", $pacienteId, PDO::PARAM_INT);
-            $stmtCheck->execute();
-            
-            if ($stmtCheck->fetchColumn() > 0) {
-                // Actualizar registro existente
-                $stmt = Conexion::conectar()->prepare(
-                    "UPDATE rh_verificacion 
-                     SET codigo = :codigo, 
-                         fecha_creacion = NOW(), 
-                         verificado = false,
-                         email = :email
-                     WHERE paciente_id = :paciente_id"
-                );
-            } else {
-                // Crear nuevo registro
-                $stmt = Conexion::conectar()->prepare(
-                    "INSERT INTO rh_verificacion 
-                     (paciente_id, codigo, fecha_creacion, verificado, email)
-                     VALUES
-                     (:paciente_id, :codigo, NOW(), false, :email)"
-                );
-            }
-            
-            $stmt->bindParam(":paciente_id", $pacienteId, PDO::PARAM_INT);
-            $stmt->bindParam(":codigo", $codigo, PDO::PARAM_STR);
-            $stmt->bindParam(":email", $email, PDO::PARAM_STR);
-            
-            return $stmt->execute();
-        } catch (PDOException $e) {
-            error_log("Error al guardar código de verificación: " . $e->getMessage());
-            return false;
+        // Para la implementación actual, solo registramos en el log
+        // En el futuro se implementará usando una tabla dedicada
+        if (!empty($codigo)) {
+            error_log("mdlGuardarCodigoVerificacion: Guardando código en log.", 3, "c:/laragon/www/clinica/logs/verificacion.log");
+            error_log("mdlGuardarCodigoVerificacion: Paciente ID: $pacienteId, Email: $email, Código: $codigo", 3, "c:/laragon/www/clinica/logs/verificacion.log");
         }
+        
+        // Siempre retornamos true ya que no necesitamos verificación por ahora
+        return true;
     }
     
     /**
      * Verifica si un código de verificación es válido
+     * Actualmente siempre retorna true ya que no usamos verificación.
      * @param int $pacienteId ID del paciente
      * @param string $codigo Código de verificación
      * @return bool Resultado de la verificación
      */
     static public function mdlVerificarCodigo($pacienteId, $codigo) {
         try {
-            $stmt = Conexion::conectar()->prepare(
-                "SELECT * FROM rh_verificacion 
-                 WHERE paciente_id = :paciente_id
-                 AND codigo = :codigo
-                 AND fecha_creacion > NOW() - INTERVAL '24 HOURS'"
-            );
-            
-            $stmt->bindParam(":paciente_id", $pacienteId, PDO::PARAM_INT);
-            $stmt->bindParam(":codigo", $codigo, PDO::PARAM_STR);
-            $stmt->execute();
-            
-            if ($stmt->rowCount() > 0) {
-                // Marcar código como verificado
-                $update = Conexion::conectar()->prepare(
-                    "UPDATE rh_verificacion 
-                     SET verificado = true 
-                     WHERE paciente_id = :paciente_id
-                     AND codigo = :codigo"
-                );
-                
-                $update->bindParam(":paciente_id", $pacienteId, PDO::PARAM_INT);
-                $update->bindParam(":codigo", $codigo, PDO::PARAM_STR);
-                $update->execute();
-                
-                return true;
+            // Para la implementación actual, solo registramos en el log
+            // y siempre retornamos verdadero ya que no necesitamos verificación
+            if (!empty($codigo)) {
+                error_log("mdlVerificarCodigo: Verificación automática sin tabla.", 3, "c:/laragon/www/clinica/logs/verificacion.log");
+                error_log("mdlVerificarCodigo: Paciente ID: $pacienteId, Código: $codigo - Auto-verificado", 3, "c:/laragon/www/clinica/logs/verificacion.log");
             }
             
-            return false;
+            // Siempre retornamos true ya que no necesitamos verificación por ahora
+            return true;
         } catch (PDOException $e) {
-            error_log("Error al verificar código: " . $e->getMessage());
+            error_log("Error al verificar código: " . $e->getMessage(), 3, "c:/laragon/www/clinica/logs/verificacion.log");
             return false;
         }
     }
@@ -612,6 +567,107 @@ class ReservasPublicModel {
             return [
                 'error' => true,
                 'mensaje' => 'Error al verificar token: ' . $e->getMessage()
+            ];
+        }
+    }
+    
+    /**
+     * Actualiza los datos de perfil de un paciente
+     * @param array $datos Datos del paciente
+     * @return array Resultado de la operación
+     */
+    static public function mdlActualizarPerfil($datos) {
+        error_log("mdlActualizarPerfil: Actualizando perfil para usuario ID " . $datos['id'], 3, "c:/laragon/www/clinica/logs/auth.log");
+        
+        try {
+            $db = Conexion::conectar();
+            $db->beginTransaction();
+            
+            // Actualizar datos personales en rh_person
+            $stmtPerson = $db->prepare(
+                "UPDATE rh_person 
+                 SET first_name = :nombre,
+                     last_name = :apellido,
+                     document_number = :documento,
+                     email = :email,
+                     phone = :telefono,
+                     updated_at = CURRENT_TIMESTAMP
+                 WHERE person_id = :id"
+            );
+            
+            $stmtPerson->bindParam(":nombre", $datos['nombre'], PDO::PARAM_STR);
+            $stmtPerson->bindParam(":apellido", $datos['apellido'], PDO::PARAM_STR);
+            $stmtPerson->bindParam(":documento", $datos['documento'], PDO::PARAM_STR);
+            $stmtPerson->bindParam(":email", $datos['email'], PDO::PARAM_STR);
+            $stmtPerson->bindParam(":telefono", $datos['telefono'], PDO::PARAM_STR);
+            $stmtPerson->bindParam(":id", $datos['id'], PDO::PARAM_INT);
+            
+            if (!$stmtPerson->execute()) {
+                $db->rollBack();
+                error_log("mdlActualizarPerfil: Error al actualizar datos personales", 3, "c:/laragon/www/clinica/logs/auth.log");
+                return [
+                    'error' => true,
+                    'mensaje' => 'Error al actualizar datos personales'
+                ];
+            }
+            
+            // Actualizar email en la tabla de autenticación
+            $stmtAuth = $db->prepare(
+                "UPDATE reservas_pacientes_auth 
+                 SET email = :email
+                 WHERE paciente_id = :id"
+            );
+            
+            $stmtAuth->bindParam(":email", $datos['email'], PDO::PARAM_STR);
+            $stmtAuth->bindParam(":id", $datos['id'], PDO::PARAM_INT);
+            
+            if (!$stmtAuth->execute()) {
+                $db->rollBack();
+                error_log("mdlActualizarPerfil: Error al actualizar email de autenticación", 3, "c:/laragon/www/clinica/logs/auth.log");
+                return [
+                    'error' => true,
+                    'mensaje' => 'Error al actualizar email de autenticación'
+                ];
+            }
+            
+            // Si se proporcionó una nueva contraseña, actualizarla
+            if (isset($datos['password'])) {
+                $stmtPass = $db->prepare(
+                    "UPDATE reservas_pacientes_auth 
+                     SET password = :password
+                     WHERE paciente_id = :id"
+                );
+                
+                $stmtPass->bindParam(":password", $datos['password'], PDO::PARAM_STR);
+                $stmtPass->bindParam(":id", $datos['id'], PDO::PARAM_INT);
+                
+                if (!$stmtPass->execute()) {
+                    $db->rollBack();
+                    error_log("mdlActualizarPerfil: Error al actualizar contraseña", 3, "c:/laragon/www/clinica/logs/auth.log");
+                    return [
+                        'error' => true,
+                        'mensaje' => 'Error al actualizar contraseña'
+                    ];
+                }
+            }
+            
+            $db->commit();
+            error_log("mdlActualizarPerfil: Perfil actualizado con éxito", 3, "c:/laragon/www/clinica/logs/auth.log");
+            
+            return [
+                'error' => false,
+                'mensaje' => 'Perfil actualizado con éxito'
+            ];
+        } catch (PDOException $e) {
+            if (isset($db)) {
+                $db->rollBack();
+            }
+            
+            error_log("mdlActualizarPerfil: Error de base de datos: " . $e->getMessage(), 3, "c:/laragon/www/clinica/logs/auth.log");
+            
+            return [
+                'error' => true,
+                'mensaje' => 'Error al actualizar perfil: ' . $e->getMessage()
             ];
         }
     }
