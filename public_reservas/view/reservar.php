@@ -326,8 +326,8 @@ $(document).ready(function() {
                                 text: response.mensaje + '. Su código de seguimiento es: ' + response.codigo,
                                 confirmButtonText: 'Continuar'
                             }).then(() => {
-                                // Redirigir a la página de resultado
-                                window.location.href = 'index.php?accion=resultado&codigo=' + response.codigo;
+                                // Redirigir a la página de consulta
+                                window.location.href = 'http://clinica.test/public_reservas/index.php?accion=consultar';
                             });
                         } else {
                             Swal.fire({
