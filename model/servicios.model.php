@@ -1381,7 +1381,8 @@ class ModelServicios {
                 'hora_fin' => $datos['hora_fin'],
                 'agenda_id' => $agendaId,
                 'tarifa_id' => $tarifaId,
-                'seguro_id' => $seguroId
+                'seguro_id' => $seguroId,
+                'sala_id' => $salaId
             ]), 3, 'c:/laragon/www/clinica/logs/reservas.log');
             
             if ($stmtInsertar->execute()) {
@@ -1654,11 +1655,11 @@ class ModelServicios {
                 "INSERT INTO servicios_reservas (
                     servicio_id, doctor_id, paciente_id, fecha_reserva, 
                     hora_inicio, hora_fin, observaciones, reserva_estado, 
-                    business_id, created_by, agenda_id, tarifa_id, seguro_id
+                    business_id, created_by, agenda_id, tarifa_id, seguro_id, sala_id
                 ) VALUES (
                     :servicio_id, :doctor_id, :paciente_id, :fecha_reserva, 
                     :hora_inicio, :hora_fin, :observaciones, :reserva_estado, 
-                    :business_id, :created_by, :agenda_id, :tarifa_id, :seguro_id
+                    :business_id, :created_by, :agenda_id, :tarifa_id, :seguro_id, :sala_id
                 ) RETURNING reserva_id"
             );
             
@@ -1682,16 +1683,30 @@ class ModelServicios {
             $createdBy = isset($datos['created_by']) ? $datos['created_by'] : 1;
             $stmt->bindParam(":created_by", $createdBy, PDO::PARAM_INT);
             
-           
-            // Estos campos no estaban en la consulta original pero sí están en la estructura de la tabla
+            // Estos campos son importantes para la reserva pero no estaban en la consulta original
             $agendaId = isset($datos['agenda_id']) ? $datos['agenda_id'] : null;
+            error_log("mdlGuardarReserva: Usando agenda_id=" . (isset($datos['agenda_id']) ? $datos['agenda_id'] : "null"), 
+                      3, 'c:/laragon/www/clinica/logs/reservas.log');
             $stmt->bindParam(":agenda_id", $agendaId, $agendaId ? PDO::PARAM_INT : PDO::PARAM_NULL);
-              $tarifaId = isset($datos['tarifa_id']) ? $datos['tarifa_id'] : null;
+            
+            $tarifaId = isset($datos['tarifa_id']) ? $datos['tarifa_id'] : null;
             $stmt->bindParam(":tarifa_id", $tarifaId, $tarifaId ? PDO::PARAM_INT : PDO::PARAM_NULL);
             
             $seguroId = isset($datos['seguro_id']) ? $datos['seguro_id'] : null;
             $stmt->bindParam(":seguro_id", $seguroId, $seguroId ? PDO::PARAM_INT : PDO::PARAM_NULL);
             
+            // Bindear sala_id si está disponible
+            $salaId = isset($datos['sala_id']) ? $datos['sala_id'] : null;
+            $stmt->bindParam(":sala_id", $salaId, $salaId ? PDO::PARAM_INT : PDO::PARAM_NULL);
+            error_log("mdlGuardarReserva: Usando sala_id=" . (isset($datos['sala_id']) ? $datos['sala_id'] : "null"), 
+                      3, 'c:/laragon/www/clinica/logs/reservas.log');
+            
+            // Bindear sala_id si está disponible
+            $salaId = isset($datos['sala_id']) ? $datos['sala_id'] : null;
+            $stmt->bindParam(":sala_id", $salaId, $salaId ? PDO::PARAM_INT : PDO::PARAM_NULL);
+            error_log("mdlGuardarReserva: Usando sala_id=" . (isset($datos['sala_id']) ? $datos['sala_id'] : "null"), 
+                      3, 'c:/laragon/www/clinica/logs/reservas.log');
+                      
             error_log("SQL a ejecutar: INSERT INTO servicios_reservas...", 3, 'c:/laragon/www/clinica/logs/reservas.log');
             error_log("Parámetros: " . json_encode([
                 'servicio_id' => $datos['servicio_id'],
@@ -1702,7 +1717,8 @@ class ModelServicios {
                 'hora_fin' => $datos['hora_fin'],
                 'agenda_id' => $agendaId,
                 'tarifa_id' => $tarifaId,
-                'seguro_id' => $seguroId
+                'seguro_id' => $seguroId,
+                'sala_id' => $salaId
             ]), 3, 'c:/laragon/www/clinica/logs/reservas.log');
             
             if ($stmt->execute()) {

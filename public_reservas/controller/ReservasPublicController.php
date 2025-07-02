@@ -210,7 +210,8 @@ class ReservasPublicController {
                         'duracion' => $duracionServicio,
                         'sala_id' => $detalle['sala_id'],
                         'sala_nombre' => $detalle['sala_nombre'],
-                        'turno_nombre' => $detalle['turno_nombre']
+                        'turno_nombre' => $detalle['turno_nombre'],
+                        'detalle_id' => $detalle['detalle_id'] // Agregando el detalle_id para usarlo como agenda_id
                     ];
                 }
             }
@@ -320,10 +321,19 @@ class ReservasPublicController {
                     error_log("ctrProcesarReserva: Horarios disponibles encontrados: " . count($horariosDisponibles), 
                         3, "c:/laragon/www/clinica/logs/public_reservas.log");
                     
+                    $agendaDetalleId = null; // Variable para guardar el detalle_id
                     foreach ($horariosDisponibles as $slot) {
                         if ($slot['hora'] == $horaInicio) {
                             $horaFin = $slot['hora_fin'];
                             $horarioEncontrado = true;
+                            
+                            // Capturar el detalle_id (agenda_id) y sala_id si están disponibles
+                            if (isset($slot['detalle_id'])) {
+                                $agendaDetalleId = $slot['detalle_id'];
+                                error_log("ctrProcesarReserva: Encontrado detalle_id (agenda_id): " . $agendaDetalleId, 
+                                    3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                            }
+                            
                             error_log("ctrProcesarReserva: Horario completo encontrado - Inicio: " . $horaInicio . ", Fin: " . $horaFin, 
                                 3, "c:/laragon/www/clinica/logs/public_reservas.log");
                             break;
@@ -372,6 +382,23 @@ class ReservasPublicController {
                     'observaciones' => isset($_POST['observaciones']) ? $_POST['observaciones'] : '',
                     'codigo_seguimiento' => $codigoSeguimiento
                 ];
+                
+                // Añadir agenda_id si se encontró
+                if (isset($agendaDetalleId)) {
+                    $datosReserva['agenda_id'] = $agendaDetalleId;
+                    error_log("ctrProcesarReserva: Agregando agenda_id: " . $agendaDetalleId, 
+                        3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                    
+                    // Si se encuentra el slot también podemos obtener la sala_id
+                    foreach ($horariosDisponibles as $slot) {
+                        if ($slot['hora'] == $horaInicio && isset($slot['sala_id'])) {
+                            $datosReserva['sala_id'] = $slot['sala_id'];
+                            error_log("ctrProcesarReserva: Agregando sala_id: " . $slot['sala_id'], 
+                                3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                            break;
+                        }
+                    }
+                }
                 
                 // Agregar seguro médico si está seleccionado
                 if (!empty($_POST['seguro_id'])) {
