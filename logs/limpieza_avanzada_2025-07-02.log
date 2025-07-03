@@ -1,0 +1,22 @@
+[2025-07-02 23:42:12] Creada carpeta de respaldo: backups/limpieza_avanzada_2025-07-02_23-42-12
+[2025-07-02 23:42:12] Iniciando proceso de limpieza avanzada...
+[2025-07-02 23:42:12] Los archivos serán respaldados en: backups/limpieza_avanzada_2025-07-02_23-42-12
+[2025-07-02 23:42:12] Respaldado: configurar_especialidades.bat -> backups/limpieza_avanzada_2025-07-02_23-42-12/configurar_especialidades.bat
+[2025-07-02 23:42:12] Eliminado: configurar_especialidades.bat
+[2025-07-02 23:42:12] Respaldado: configurar_limpieza_automatica.bat -> backups/limpieza_avanzada_2025-07-02_23-42-12/configurar_limpieza_automatica.bat
+[2025-07-02 23:42:12] Eliminado: configurar_limpieza_automatica.bat
+[2025-07-02 23:42:12] Respaldado: configurar_motivos_comunes.bat -> backups/limpieza_avanzada_2025-07-02_23-42-12/configurar_motivos_comunes.bat
+[2025-07-02 23:42:12] Eliminado: configurar_motivos_comunes.bat
+[2025-07-02 23:42:12] Respaldado: public_reservas/crear_tabla_verificacion.bat -> backups/limpieza_avanzada_2025-07-02_23-42-12/crear_tabla_verificacion.bat
+[2025-07-02 23:42:12] Eliminado: public_reservas/crear_tabla_verificacion.bat
+[2025-07-02 23:42:12] Respaldado: public_reservas/diagnostico_cambio_password.php -> backups/limpieza_avanzada_2025-07-02_23-42-12/diagnostico_cambio_password.php
+[2025-07-02 23:42:12] Eliminado: public_reservas/diagnostico_cambio_password.php
+[2025-07-02 23:42:12] Respaldado: public_reservas/diagnostico_password.php -> backups/limpieza_avanzada_2025-07-02_23-42-12/diagnostico_password.php
+[2025-07-02 23:42:12] Eliminado: public_reservas/diagnostico_password.php
+[2025-07-02 23:42:12] Respaldado: public_reservas/diagnostico_verificacion.php -> backups/limpieza_avanzada_2025-07-02_23-42-12/diagnostico_verificacion.php
+[2025-07-02 23:42:12] Eliminado: public_reservas/diagnostico_verificacion.php
+[2025-07-02 23:42:12] === RESUMEN DE LA OPERACIÓN ===
+[2025-07-02 23:42:12] Archivos procesados exitosamente: 7
+[2025-07-02 23:42:12] Errores: 0
+[2025-07-02 23:42:12] Operación completada. Revisa el log para más detalles: logs/limpieza_avanzada_2025-07-02.log
+[2025-07-02 23:42:12] Se ha creado un README.md en la carpeta de respaldo con información detallada.

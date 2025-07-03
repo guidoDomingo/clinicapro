@@ -1,0 +1,53 @@
+[2025-07-02 23:48:42] [INFO] === INICIANDO VERIFICACIÓN EXHAUSTIVA DEL SISTEMA ===
+[2025-07-02 23:48:42] [INFO] Fecha y hora: 2025-07-02 23:48:42
+[2025-07-02 23:48:42] [INFO] PHP versión: 8.3.4
+[2025-07-02 23:48:42] [INFO] Sistema operativo: WINNT
+[2025-07-02 23:48:42] [INFO] 
+=== VERIFICACIÓN DE DIRECTORIOS CRÍTICOS ===
+[2025-07-02 23:48:42] [SUCCESS] Directorio config: OK
+[2025-07-02 23:48:42] [SUCCESS] Directorio controller: OK
+[2025-07-02 23:48:42] [SUCCESS] Directorio model: OK
+[2025-07-02 23:48:42] [SUCCESS] Directorio view: OK
+[2025-07-02 23:48:42] [SUCCESS] Directorio uploads: OK
+[2025-07-02 23:48:42] [SUCCESS] Directorio pdf_temp: OK
+[2025-07-02 23:48:42] [SUCCESS] Directorio logs: OK
+[2025-07-02 23:48:42] [SUCCESS] Directorio ajax: OK
+[2025-07-02 23:48:42] [SUCCESS] Directorio api: OK
+[2025-07-02 23:48:42] [SUCCESS] Directorio cache: OK
+[2025-07-02 23:48:42] [INFO] 
+=== VERIFICACIÓN DE ARCHIVOS CRÍTICOS ===
+[2025-07-02 23:48:42] [SUCCESS] Archivo crítico index.php: OK
+[2025-07-02 23:48:42] [SUCCESS] Archivo crítico config/config.php: OK
+[2025-07-02 23:48:42] [SUCCESS] Archivo crítico view/template.php: OK
+[2025-07-02 23:48:42] [SUCCESS] Archivo crítico controller/template.controller.php: OK
+[2025-07-02 23:48:42] [SUCCESS] Archivo crítico ajax/servicios.ajax.php: OK
+[2025-07-02 23:48:42] [SUCCESS] Archivo crítico ajax/reservas.ajax.php: OK
+[2025-07-02 23:48:42] [SUCCESS] Archivo crítico ajax/consultas.ajax.php: OK
+[2025-07-02 23:48:42] [INFO] 
+=== VERIFICACIÓN DE PERMISOS DE ARCHIVOS DE CONFIGURACIÓN ===
+[2025-07-02 23:48:42] [WARNING] El archivo config/config.php tiene permisos muy permisivos: 0666
+[2025-07-02 23:48:42] [INFO] 
+=== VERIFICACIÓN DE PROTECCIÓN DE DIRECTORIOS SENSIBLES ===
+[2025-07-02 23:48:42] [WARNING] Directorio sensible config no tiene archivo .htaccess
+[2025-07-02 23:48:42] [SUCCESS] Creado archivo .htaccess para el directorio config
+[2025-07-02 23:48:42] [SUCCESS] Directorio sensible pdf_temp protegido con .htaccess: OK
+[2025-07-02 23:48:42] [SUCCESS] Directorio sensible uploads protegido con .htaccess: OK
+[2025-07-02 23:48:42] [WARNING] Directorio sensible logs no tiene archivo .htaccess
+[2025-07-02 23:48:42] [SUCCESS] Creado archivo .htaccess para el directorio logs
+[2025-07-02 23:48:42] [WARNING] Directorio sensible backups no tiene archivo .htaccess
+[2025-07-02 23:48:42] [SUCCESS] Creado archivo .htaccess para el directorio backups
+[2025-07-02 23:48:42] [INFO] 
+=== VERIFICACIÓN DE SINTAXIS PHP ===
+[2025-07-02 23:48:54] [SUCCESS] Archivos PHP verificados sin errores: 107
+[2025-07-02 23:48:54] [INFO] 
+=== RESUMEN DE LA VERIFICACIÓN ===
+[2025-07-02 23:48:54] [INFO] Directorios críticos verificados: 10 de 10
+[2025-07-02 23:48:54] [INFO] Archivos críticos verificados: 7 de 7
+[2025-07-02 23:48:54] [INFO] Archivos de configuración con permisos correctos: 0 de 1
+[2025-07-02 23:48:54] [INFO] Directorios sensibles protegidos: 5 de 5
+[2025-07-02 23:48:54] [INFO] Archivos PHP sin errores de sintaxis: 107
+[2025-07-02 23:48:54] [INFO] Archivos PHP con errores de sintaxis: 0
+[2025-07-02 23:48:54] [SUCCESS] 
+¡VERIFICACIÓN COMPLETA: SISTEMA EN BUEN ESTADO!
+[2025-07-02 23:48:54] [INFO] 
+Proceso de verificación completado. Revise el log para más detalles: logs/system_check_2025-07-02.log

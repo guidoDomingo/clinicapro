@@ -1,0 +1,209 @@
+<?php
+/**
+ * Controlador AJAX para operaciones relacionadas con reservas
+ * 
+ * Este archivo maneja las operaciones AJAX específicas para la gestión de
+ * reservas médicas, incluyendo actualizaciones de estado y confirmaciones.
+ * 
+ * @author Sistema Clínico
+ * @version 2.0
+ */
+
+// Aseguramos que todas las rutas sean relativas al directorio raíz
+$rutaBase = dirname(__FILE__, 2); // Obtiene la ruta del directorio raíz (dos niveles arriba)
+require_once $rutaBase . "/model/conexion.php";
+require_once $rutaBase . "/model/reservas.model.php";
+
+// Configurar cabeceras para JSON
+header('Content-Type: application/json');
+header('Cache-Control: no-cache, must-revalidate');
+header('Expires: 0');
+
+// Archivo de log específico para reservas
+$logFile = $rutaBase . '/logs/reservas_ajax.log';
+
+/**
+ * Función para registrar mensajes en el archivo de log
+ * 
+ * @param string $mensaje Mensaje a registrar
+ * @param string $tipo Tipo de mensaje (INFO, ERROR, DEBUG)
+ */
+function logReserva($mensaje, $tipo = 'INFO') {
+    global $logFile;
+    $fecha = date('Y-m-d H:i:s');
+    $mensaje = "[$fecha][$tipo] $mensaje";
+    error_log($mensaje . PHP_EOL, 3, $logFile);
+}
+
+// Iniciar sesión si no está iniciada
+if (!isset($_SESSION)) {
+    session_start();
+}
+
+// Verificar si es una solicitud POST con acción especificada
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion'])) {
+    $accion = $_POST['accion'];
+    $modelo = new ReservasModel();
+    
+    // Registrar inicio de la petición
+    logReserva("Nueva petición recibida: acción=$accion");
+    
+    try {
+        switch ($accion) {
+            /**
+             * Actualiza el estado de una reserva
+             */
+            case 'actualizar_estado':
+                // Verificar parámetros necesarios
+                if (isset($_POST['id']) && isset($_POST['estado'])) {
+                    $id = intval($_POST['id']);
+                    $estado = $_POST['estado'];
+                    
+                    logReserva("Actualizando estado de reserva ID=$id a '$estado'");
+                    
+                    // Actualizar estado
+                    $resultado = $modelo->actualizarEstado($id, $estado);
+                    
+                    if ($resultado) {
+                        logReserva("Estado actualizado correctamente para reserva ID=$id");
+                        echo json_encode([
+                            'exito' => true, 
+                            'mensaje' => 'Estado actualizado correctamente'
+                        ]);
+                    } else {
+                        logReserva("Error al actualizar el estado de reserva ID=$id", "ERROR");
+                        echo json_encode([
+                            'exito' => false, 
+                            'mensaje' => 'Error al actualizar el estado'
+                        ]);
+                    }
+                } else {
+                    logReserva("Faltan parámetros requeridos para actualizar estado", "ERROR");
+                    echo json_encode([
+                        'exito' => false, 
+                        'mensaje' => 'Faltan parámetros requeridos'
+                    ]);
+                }
+                break;
+                
+            /**
+             * Registra la confirmación de una reserva
+             */
+            case 'registrar_confirmacion':
+                // Verificar parámetros necesarios
+                if (isset($_POST['id'])) {
+                    $id = intval($_POST['id']);
+                    $metodo = $_POST['metodo'] ?? 'whatsapp';
+                    
+                    logReserva("Registrando confirmación de reserva ID=$id por método '$metodo'");
+                    
+                    // Registrar confirmación
+                    $resultado = $modelo->registrarConfirmacion($id, $metodo);
+                    
+                    if ($resultado) {
+                        logReserva("Confirmación registrada correctamente para reserva ID=$id");
+                        echo json_encode([
+                            'exito' => true, 
+                            'mensaje' => 'Confirmación registrada correctamente'
+                        ]);
+                    } else {
+                        logReserva("Error al registrar la confirmación para reserva ID=$id", "ERROR");
+                        echo json_encode([
+                            'exito' => false, 
+                            'mensaje' => 'Error al registrar la confirmación'
+                        ]);
+                    }
+                } else {
+                    logReserva("ID de reserva no especificado para confirmación", "ERROR");
+                    echo json_encode([
+                        'exito' => false, 
+                        'mensaje' => 'ID de reserva no especificado'
+                    ]);
+                }
+                break;
+                
+            /**
+             * Cancela una reserva
+             */
+            case 'cancelar_reserva':
+                if (isset($_POST['id']) && isset($_POST['motivo'])) {
+                    $id = intval($_POST['id']);
+                    $motivo = trim($_POST['motivo']);
+                    
+                    logReserva("Cancelando reserva ID=$id, motivo: '$motivo'");
+                    
+                    // Si el modelo tiene un método para cancelar, usarlo
+                    if (method_exists($modelo, 'cancelarReserva')) {
+                        $resultado = $modelo->cancelarReserva($id, $motivo);
+                        
+                        if ($resultado) {
+                            logReserva("Reserva ID=$id cancelada correctamente");
+                            echo json_encode([
+                                'exito' => true, 
+                                'mensaje' => 'Reserva cancelada correctamente'
+                            ]);
+                        } else {
+                            logReserva("Error al cancelar la reserva ID=$id", "ERROR");
+                            echo json_encode([
+                                'exito' => false, 
+                                'mensaje' => 'Error al cancelar la reserva'
+                            ]);
+                        }
+                    } else {
+                        // Alternativa: usar cambio de estado a "CANCELADA"
+                        $resultado = $modelo->actualizarEstado($id, 'CANCELADA');
+                        
+                        // Registrar el motivo en observaciones si existe método
+                        if (method_exists($modelo, 'agregarObservacion')) {
+                            $modelo->agregarObservacion($id, "Cancelada: " . $motivo);
+                        }
+                        
+                        if ($resultado) {
+                            logReserva("Reserva ID=$id marcada como CANCELADA");
+                            echo json_encode([
+                                'exito' => true, 
+                                'mensaje' => 'Reserva cancelada correctamente'
+                            ]);
+                        } else {
+                            logReserva("Error al marcar como CANCELADA la reserva ID=$id", "ERROR");
+                            echo json_encode([
+                                'exito' => false, 
+                                'mensaje' => 'Error al cancelar la reserva'
+                            ]);
+                        }
+                    }
+                } else {
+                    logReserva("Faltan parámetros para cancelar reserva", "ERROR");
+                    echo json_encode([
+                        'exito' => false, 
+                        'mensaje' => 'Faltan parámetros requeridos: ID y motivo'
+                    ]);
+                }
+                break;
+                
+            /**
+             * Acción no reconocida
+             */
+            default:
+                logReserva("Acción no reconocida: $accion", "ERROR");
+                echo json_encode([
+                    'exito' => false, 
+                    'mensaje' => 'Acción no reconocida'
+                ]);
+                break;
+        }
+    } catch (Exception $e) {
+        logReserva("Excepción: " . $e->getMessage(), "ERROR");
+        echo json_encode([
+            'exito' => false,
+            'mensaje' => 'Error en el servidor: ' . $e->getMessage()
+        ]);
+    }
+} else {
+    logReserva("Solicitud no válida o sin acción especificada", "ERROR");
+    echo json_encode([
+        'exito' => false, 
+        'mensaje' => 'Solicitud no válida'
+    ]);
+}
+?>

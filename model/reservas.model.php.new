@@ -1,0 +1,327 @@
+<?php
+/**
+ * Modelo para gestionar reservas en la clínica
+ *
+ * Este archivo contiene la clase ReservasModel que encapsula todas las operaciones
+ * relacionadas con el acceso y manipulación de datos de reservas médicas en la
+ * base de datos.
+ *
+ * @author Sistema Clínico
+ * @version 2.1
+ */
+require_once "conexion.php";
+
+class ReservasModel {
+    /**
+     * Conexión a la base de datos
+     * @var PDO
+     */
+    private $conexion;
+    
+    /**
+     * Constructor de la clase
+     */
+    public function __construct() {
+        try {
+            $this->conexion = Conexion::conectar();
+        } catch (PDOException $e) {
+            error_log("Error al crear instancia de ReservasModel: " . $e->getMessage());
+            throw $e;
+        }
+    }
+    
+    /**
+     * Obtiene una reserva por su ID
+     * 
+     * @param int $id ID de la reserva
+     * @return array|null Datos de la reserva o null si no se encuentra
+     */
+    public function obtenerReservaPorId($id) {
+        try {
+            $stmt = $this->conexion->prepare(
+                "SELECT 
+                sr.reserva_id as id,
+                sr.paciente_id,
+                COALESCE(rp2.first_name || ' - ' || rp2.last_name, 'Paciente #' || sr.paciente_id) as nombre_paciente,
+                rp2.document_number  as documento_paciente,
+                rp2.phone_number  as telefono,
+                COALESCE(rs.serv_descripcion, 'No especificado') as servicio,
+                COALESCE(rp.first_name || ' - ' || rp.last_name, 'Doctor #' || sr.doctor_id) as nombre_medico,
+                sr.fecha_reserva as fecha,
+                sr.hora_inicio as hora,
+                sr.reserva_estado as estado,
+                COALESCE(s.sala_nombre , 'No asignada') as sala_nombre,
+                COALESCE(rs.serv_monto, 0) as serv_monto
+            FROM 
+                servicios_reservas sr
+            LEFT JOIN 
+                rh_doctors rd ON sr.doctor_id = rd.doctor_id
+            LEFT JOIN 
+                rh_person rp ON rd.person_id = rp.person_id
+            LEFT JOIN 
+                rh_person rp2 ON sr.paciente_id = rp2.person_id
+            LEFT JOIN 
+                rs_servicios rs ON sr.servicio_id = rs.serv_id
+            LEFT JOIN 
+                agendas_detalle ad ON sr.agenda_id = ad.detalle_id
+            LEFT JOIN 
+                salas s ON ad.sala_id  = s.sala_id
+            WHERE 
+                sr.reserva_id = :id"
+            );
+            
+            $stmt->bindParam(":id", $id, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            return $resultado ?: null;
+        } catch (PDOException $e) {
+            error_log("Error al obtener reserva: " . $e->getMessage());
+            return null;
+        }
+    }
+    
+    /**
+     * Actualiza el estado de una reserva
+     * 
+     * @param int $id ID de la reserva
+     * @param string $estado Nuevo estado de la reserva
+     * @return bool Éxito de la operación
+     */
+    public function actualizarEstado($id, $estado) {
+        try {
+            $stmt = $this->conexion->prepare(
+                "UPDATE servicios_reservas 
+                 SET reserva_estado = :estado, 
+                     updated_at = NOW() 
+                 WHERE reserva_id = :id"
+            );
+            
+            $stmt->bindParam(":id", $id, PDO::PARAM_INT);
+            $stmt->bindParam(":estado", $estado, PDO::PARAM_STR);
+            
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            error_log("Error al actualizar estado de reserva: " . $e->getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Registra el envío de confirmación para una reserva
+     * 
+     * @param int $id ID de la reserva
+     * @param string $metodo Método de envío (whatsapp, email, etc)
+     * @return bool Éxito de la operación
+     */
+    public function registrarConfirmacion($id, $metodo = 'whatsapp') {
+        try {
+            $stmt = $this->conexion->prepare(
+                "UPDATE servicios_reservas 
+                 SET confirmacion_enviada = TRUE,
+                     metodo_confirmacion = :metodo,
+                     fecha_confirmacion = NOW() 
+                 WHERE reserva_id = :id"
+            );
+            
+            $stmt->bindParam(":id", $id, PDO::PARAM_INT);
+            $stmt->bindParam(":metodo", $metodo, PDO::PARAM_STR);
+            
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            error_log("Error al registrar confirmación: " . $e->getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Agrega una observación a una reserva existente
+     * 
+     * @param int $id ID de la reserva
+     * @param string $observacion Texto de la observación
+     * @return bool Éxito de la operación
+     */
+    public function agregarObservacion($id, $observacion) {
+        try {
+            // Primero obtenemos las observaciones actuales
+            $stmtGet = $this->conexion->prepare(
+                "SELECT observaciones FROM servicios_reservas WHERE reserva_id = :id"
+            );
+            $stmtGet->bindParam(":id", $id, PDO::PARAM_INT);
+            $stmtGet->execute();
+            
+            $resultado = $stmtGet->fetch(PDO::FETCH_ASSOC);
+            $observacionesActuales = $resultado ? $resultado['observaciones'] : '';
+            
+            // Agregamos la nueva observación con fecha y hora
+            $nuevaObservacion = date('Y-m-d H:i:s') . ': ' . $observacion;
+            if (!empty($observacionesActuales)) {
+                $observacionesActuales .= "\n";
+            }
+            $observacionesActuales .= $nuevaObservacion;
+            
+            // Actualizamos las observaciones
+            $stmtUpdate = $this->conexion->prepare(
+                "UPDATE servicios_reservas 
+                 SET observaciones = :observaciones,
+                     updated_at = NOW() 
+                 WHERE reserva_id = :id"
+            );
+            
+            $stmtUpdate->bindParam(":id", $id, PDO::PARAM_INT);
+            $stmtUpdate->bindParam(":observaciones", $observacionesActuales, PDO::PARAM_STR);
+            
+            return $stmtUpdate->execute();
+        } catch (PDOException $e) {
+            error_log("Error al agregar observación a reserva: " . $e->getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Cancela una reserva, cambiando su estado y registrando el motivo
+     * 
+     * @param int $id ID de la reserva
+     * @param string $motivo Motivo de la cancelación
+     * @return bool Éxito de la operación
+     */
+    public function cancelarReserva($id, $motivo) {
+        try {
+            // Iniciar transacción
+            $this->conexion->beginTransaction();
+            
+            // Cambiar estado a CANCELADA
+            $stmtEstado = $this->conexion->prepare(
+                "UPDATE servicios_reservas 
+                 SET reserva_estado = 'CANCELADA',
+                     updated_at = NOW() 
+                 WHERE reserva_id = :id"
+            );
+            
+            $stmtEstado->bindParam(":id", $id, PDO::PARAM_INT);
+            $resultadoEstado = $stmtEstado->execute();
+            
+            if (!$resultadoEstado) {
+                $this->conexion->rollBack();
+                return false;
+            }
+            
+            // Registrar el motivo en las observaciones
+            $resultadoObservacion = $this->agregarObservacion($id, "Cancelación: " . $motivo);
+            
+            if (!$resultadoObservacion) {
+                $this->conexion->rollBack();
+                return false;
+            }
+            
+            // Completar transacción
+            $this->conexion->commit();
+            return true;
+            
+        } catch (PDOException $e) {
+            if ($this->conexion->inTransaction()) {
+                $this->conexion->rollBack();
+            }
+            error_log("Error al cancelar reserva: " . $e->getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Obtiene las próximas reservas para un paciente
+     * 
+     * @param int $pacienteId ID del paciente
+     * @param int $limite Número máximo de reservas a obtener
+     * @return array Lista de próximas reservas
+     */
+    public function obtenerProximasReservasPaciente($pacienteId, $limite = 5) {
+        try {
+            $stmt = $this->conexion->prepare(
+                "SELECT 
+                    sr.reserva_id as id,
+                    sr.fecha_reserva as fecha,
+                    sr.hora_inicio as hora_inicio,
+                    sr.hora_fin as hora_fin,
+                    rs.serv_descripcion as servicio,
+                    COALESCE(rp.first_name || ' ' || rp.last_name, 'Dr. Sin nombre') as nombre_medico,
+                    sr.reserva_estado as estado
+                FROM 
+                    servicios_reservas sr
+                LEFT JOIN 
+                    rh_doctors rd ON sr.doctor_id = rd.doctor_id
+                LEFT JOIN 
+                    rh_person rp ON rd.person_id = rp.person_id
+                LEFT JOIN 
+                    rs_servicios rs ON sr.servicio_id = rs.serv_id
+                WHERE 
+                    sr.paciente_id = :paciente_id
+                    AND sr.fecha_reserva >= CURRENT_DATE
+                    AND sr.reserva_estado NOT IN ('CANCELADA', 'COMPLETADA')
+                ORDER BY 
+                    sr.fecha_reserva ASC, 
+                    sr.hora_inicio ASC
+                LIMIT :limite"
+            );
+            
+            $stmt->bindParam(":paciente_id", $pacienteId, PDO::PARAM_INT);
+            $stmt->bindParam(":limite", $limite, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+        } catch (PDOException $e) {
+            error_log("Error al obtener próximas reservas del paciente: " . $e->getMessage());
+            return [];
+        }
+    }
+    
+    /**
+     * Obtiene el historial de reservas de un paciente
+     * 
+     * @param int $pacienteId ID del paciente
+     * @param int $limite Número máximo de reservas a obtener
+     * @return array Historial de reservas
+     */
+    public function obtenerHistorialReservasPaciente($pacienteId, $limite = 10) {
+        try {
+            $stmt = $this->conexion->prepare(
+                "SELECT 
+                    sr.reserva_id as id,
+                    sr.fecha_reserva as fecha,
+                    sr.hora_inicio as hora_inicio,
+                    sr.hora_fin as hora_fin,
+                    rs.serv_descripcion as servicio,
+                    COALESCE(rp.first_name || ' ' || rp.last_name, 'Dr. Sin nombre') as nombre_medico,
+                    sr.reserva_estado as estado
+                FROM 
+                    servicios_reservas sr
+                LEFT JOIN 
+                    rh_doctors rd ON sr.doctor_id = rd.doctor_id
+                LEFT JOIN 
+                    rh_person rp ON rd.person_id = rp.person_id
+                LEFT JOIN 
+                    rs_servicios rs ON sr.servicio_id = rs.serv_id
+                WHERE 
+                    sr.paciente_id = :paciente_id
+                    AND (sr.fecha_reserva < CURRENT_DATE 
+                         OR sr.reserva_estado IN ('CANCELADA', 'COMPLETADA'))
+                ORDER BY 
+                    sr.fecha_reserva DESC, 
+                    sr.hora_inicio DESC
+                LIMIT :limite"
+            );
+            
+            $stmt->bindParam(":paciente_id", $pacienteId, PDO::PARAM_INT);
+            $stmt->bindParam(":limite", $limite, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+        } catch (PDOException $e) {
+            error_log("Error al obtener historial de reservas del paciente: " . $e->getMessage());
+            return [];
+        }
+    }
+}
+?>

@@ -1,0 +1,70 @@
+[2025-07-02 21:09:47][INFO] Nueva petición AJAX recibida: obtenerProveedoresSeguro
+[2025-07-02 21:09:47][INFO] Proveedores de seguro obtenidos: 2
+[2025-07-02 21:09:47][INFO] Nueva petición AJAX recibida: obtenerServicios
+[2025-07-02 21:09:47][ERROR] Error al obtener servicios: SQLSTATE[42P01]: Undefined table: 7 ERROR:  relation "servicios_medicos" does not exist
+LINE 12:                 servicios_medicos s
+                         ^
+[2025-07-02 21:09:47][INFO] Nueva petición AJAX recibida: buscarReservas
+[2025-07-02 21:09:47][INFO] Buscando reservas con filtros: Fecha=2025-07-02, DoctorID=null, Estado=null, Paciente=null
+[2025-07-02 21:09:47][INFO] Reservas encontradas: 0
+[2025-07-02 21:09:47][INFO] Nueva petición AJAX recibida: obtenerProveedoresSeguro
+[2025-07-02 21:09:47][INFO] Proveedores de seguro obtenidos: 2
+[2025-07-02 21:09:47][INFO] Nueva petición AJAX recibida: obtenerMedicosPorFecha
+[2025-07-02 21:09:47][INFO] Médicos disponibles para fecha 2025-07-02: 2
+[2025-07-02 21:09:47][INFO] Nueva petición AJAX recibida: buscarReservas
+[2025-07-02 21:09:47][INFO] Buscando reservas con filtros: Fecha=2025-07-03, DoctorID=null, Estado=null, Paciente=null
+[2025-07-02 21:09:47][INFO] Reservas encontradas: 4
+[2025-07-02 21:09:47][INFO] Nueva petición AJAX recibida: obtenerMedicos
+[2025-07-02 21:09:47][INFO] Médicos obtenidos: 3
+[2025-07-02 21:09:47][INFO] Nueva petición AJAX recibida: obtenerMedicosPorFecha
+[2025-07-02 21:09:47][INFO] Médicos disponibles para fecha 2025-07-02: 2
+[2025-07-02 21:09:47][INFO] Nueva petición AJAX recibida: obtenerMedicosPorFecha
+[2025-07-02 21:09:48][INFO] Médicos disponibles para fecha 2025-07-02: 2
+[2025-07-02 21:09:48][INFO] Nueva petición AJAX recibida: buscarPacientePorId
+[2025-07-02 21:09:48][INFO] Búsqueda de paciente por ID: 54 - Resultados: 1
+[2025-07-02 21:10:03][INFO] Nueva petición AJAX recibida: obtenerServiciosPorFechaMedico
+[2025-07-02 21:10:04][INFO] Servicios para fecha 2025-07-02 y médico ID 14: 7
+[2025-07-02 21:10:04][INFO] Nueva petición AJAX recibida: obtenerHorariosDisponibles
+[2025-07-02 21:10:04][INFO] Obteniendo horarios disponibles: ServicioID=0, DoctorID=14, Fecha=2025-07-02
+[2025-07-02 21:10:04][INFO] Horarios disponibles encontrados: 8
+[2025-07-02 21:10:04][INFO] Nueva petición AJAX recibida: obtenerHorariosDisponibles
+[2025-07-02 21:10:04][INFO] Obteniendo horarios disponibles: ServicioID=0, DoctorID=14, Fecha=2025-07-02
+[2025-07-02 21:10:04][INFO] Horarios disponibles encontrados: 8
+[2025-07-02 21:10:13][INFO] Nueva petición AJAX recibida: obtenerHorariosDisponibles
+[2025-07-02 21:10:13][INFO] Obteniendo horarios disponibles: ServicioID=2, DoctorID=14, Fecha=2025-07-02
+[2025-07-02 21:10:13][INFO] No se encontraron horarios para el servicio específico. Buscando cualquier horario del doctor.
+[2025-07-02 21:10:13][INFO] Horarios disponibles encontrados: 8
+[2025-07-02 21:10:21][INFO] Nueva petición AJAX recibida: guardarReserva
+[2025-07-02 21:10:21][INFO] Guardando reserva con datos: {"doctor_id":14,"servicio_id":2,"paciente_id":54,"fecha_reserva":"2025-07-02","hora_inicio":"08:30:00","hora_fin":"09:00:00","seguro_id":"2","observaciones":"","agenda_id":19}
+[2025-07-02 21:10:22][INFO] Reserva guardada con éxito, ID: 59
+[2025-07-02 21:10:24][INFO] Nueva petición AJAX recibida: obtenerProveedoresSeguro
+[2025-07-02 21:10:24][INFO] Proveedores de seguro obtenidos: 2
+[2025-07-02 21:10:24][INFO] Nueva petición AJAX recibida: obtenerServicios
+[2025-07-02 21:10:24][ERROR] Error al obtener servicios: SQLSTATE[42P01]: Undefined table: 7 ERROR:  relation "servicios_medicos" does not exist
+LINE 12:                 servicios_medicos s
+                         ^
+[2025-07-02 21:10:24][INFO] Nueva petición AJAX recibida: buscarReservas
+[2025-07-02 21:10:24][INFO] Buscando reservas con filtros: Fecha=2025-07-02, DoctorID=null, Estado=null, Paciente=null
+[2025-07-02 21:10:24][INFO] Reservas encontradas: 1
+[2025-07-02 21:10:24][INFO] Nueva petición AJAX recibida: obtenerProveedoresSeguro
+[2025-07-02 21:10:24][INFO] Proveedores de seguro obtenidos: 2
+[2025-07-02 21:10:24][INFO] Nueva petición AJAX recibida: obtenerMedicosPorFecha
+[2025-07-02 21:10:25][INFO] Médicos disponibles para fecha 2025-07-02: 2
+[2025-07-02 21:10:25][INFO] Nueva petición AJAX recibida: obtenerMedicos
+[2025-07-02 21:10:25][INFO] Médicos obtenidos: 3
+[2025-07-02 21:10:25][INFO] Nueva petición AJAX recibida: obtenerMedicosPorFecha
+[2025-07-02 21:10:25][INFO] Médicos disponibles para fecha 2025-07-02: 2
+[2025-07-02 21:10:25][INFO] Nueva petición AJAX recibida: buscarReservas
+[2025-07-02 21:10:25][INFO] Buscando reservas con filtros: Fecha=2025-07-03, DoctorID=null, Estado=null, Paciente=null
+[2025-07-02 21:10:25][INFO] Reservas encontradas: 4
+[2025-07-02 21:10:25][INFO] Nueva petición AJAX recibida: obtenerMedicosPorFecha
+[2025-07-02 21:10:26][INFO] Médicos disponibles para fecha 2025-07-02: 2
+[2025-07-02 21:10:39][INFO] Nueva petición AJAX recibida: buscarReservas
+[2025-07-02 21:10:39][INFO] Buscando reservas con filtros: Fecha=2025-07-02, DoctorID=null, Estado=null, Paciente=null
+[2025-07-02 21:10:39][INFO] Reservas encontradas: 1
+[2025-07-02 21:10:51][INFO] Nueva petición AJAX recibida: cambiarEstadoReserva
+[2025-07-02 21:10:51][INFO] Cambiando estado de reserva ID 59 a: CONFIRMADA
+[2025-07-02 21:10:52][INFO] Estado de reserva ID 59 cambiado con éxito a: CONFIRMADA
+[2025-07-02 21:10:53][INFO] Nueva petición AJAX recibida: buscarReservas
+[2025-07-02 21:10:53][INFO] Buscando reservas con filtros: Fecha=2025-07-02, DoctorID=null, Estado=null, Paciente=null
+[2025-07-02 21:10:53][INFO] Reservas encontradas: 1

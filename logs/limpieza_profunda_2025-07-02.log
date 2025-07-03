@@ -1,0 +1,52 @@
+[2025-07-02 23:48:29] Creada carpeta de respaldo: backups/limpieza_profunda_2025-07-02_23-48-29
+[2025-07-02 23:48:29] === INICIANDO LIMPIEZA DE LOGS ===
+[2025-07-02 23:48:29] 
+=== INICIANDO LIMPIEZA DE ARCHIVOS TEMPORALES ===
+[2025-07-02 23:48:29] Limpiando directorio temporal: temp
+[2025-07-02 23:48:29]   Eliminado archivo temporal: temp/patch.php
+[2025-07-02 23:48:29] Limpiando directorio temporal: pdf_temp
+[2025-07-02 23:48:29] Limpiando directorio temporal: uploads/temp
+[2025-07-02 23:48:29] Limpiando directorio temporal: ajax/temp
+[2025-07-02 23:48:29] 
+=== ELIMINANDO ARCHIVOS DE DEPURACIÓN Y PRUEBAS ===
+[2025-07-02 23:48:29] Eliminando archivo de depuración: logs/debug_guardar.php
+[2025-07-02 23:48:29] Respaldado: logs/debug_guardar.php -> backups/limpieza_profunda_2025-07-02_23-48-29\logs/debug_guardar.php
+[2025-07-02 23:48:29] Eliminado: logs/debug_guardar.php
+[2025-07-02 23:48:29] Eliminando archivo de depuración: logs/debug_guardar_detallado.php
+[2025-07-02 23:48:29] Respaldado: logs/debug_guardar_detallado.php -> backups/limpieza_profunda_2025-07-02_23-48-29\logs/debug_guardar_detallado.php
+[2025-07-02 23:48:29] Eliminado: logs/debug_guardar_detallado.php
+[2025-07-02 23:48:29] 
+=== LIMPIANDO ARCHIVOS DE RESPALDO Y TEMPORALES DE LA RAÍZ ===
+[2025-07-02 23:48:29] Eliminando archivo de limpieza: limpieza_archivos.php
+[2025-07-02 23:48:30] Respaldado: limpieza_archivos.php -> backups/limpieza_profunda_2025-07-02_23-48-29\limpieza_archivos.php
+[2025-07-02 23:48:30] Eliminado: limpieza_archivos.php
+[2025-07-02 23:48:30] Eliminando archivo de limpieza: limpieza_avanzada.php
+[2025-07-02 23:48:30] Respaldado: limpieza_avanzada.php -> backups/limpieza_profunda_2025-07-02_23-48-29\limpieza_avanzada.php
+[2025-07-02 23:48:30] Eliminado: limpieza_avanzada.php
+[2025-07-02 23:48:30] Eliminando archivo de limpieza: limpieza_final.php
+[2025-07-02 23:48:30] Respaldado: limpieza_final.php -> backups/limpieza_profunda_2025-07-02_23-48-29\limpieza_final.php
+[2025-07-02 23:48:30] Eliminado: limpieza_final.php
+[2025-07-02 23:48:30] 
+=== ELIMINANDO ARCHIVOS PHP VACÍOS ===
+[2025-07-02 23:48:31] Encontrado archivo PHP prácticamente vacío: public_reservas/check_pgsql.php (tamaño efectivo: 0 bytes)
+[2025-07-02 23:48:31] Respaldado: public_reservas/check_pgsql.php -> backups/limpieza_profunda_2025-07-02_23-48-29\public_reservas/check_pgsql.php
+[2025-07-02 23:48:31] Eliminado: public_reservas/check_pgsql.php
+[2025-07-02 23:48:31] Encontrado archivo PHP prácticamente vacío: public_reservas/reservar_directo.php (tamaño efectivo: 0 bytes)
+[2025-07-02 23:48:31] Respaldado: public_reservas/reservar_directo.php -> backups/limpieza_profunda_2025-07-02_23-48-29\public_reservas/reservar_directo.php
+[2025-07-02 23:48:31] Eliminado: public_reservas/reservar_directo.php
+[2025-07-02 23:48:31] 
+Creado archivo README.md en el directorio de respaldo
+[2025-07-02 23:48:31] 
+=== RESUMEN DE LA LIMPIEZA PROFUNDA ===
+[2025-07-02 23:48:31] Logs truncados: 0
+[2025-07-02 23:48:31] Logs antiguos eliminados: 0
+[2025-07-02 23:48:31] Archivos temporales eliminados: 1
+[2025-07-02 23:48:31] Archivos de depuración eliminados: 2
+[2025-07-02 23:48:31] Scripts de limpieza eliminados: 3
+[2025-07-02 23:48:31] Archivos PHP vacíos eliminados: 2
+[2025-07-02 23:48:31] 
+Limpieza profunda completada exitosamente
+[2025-07-02 23:48:31] Los archivos respaldados se encuentran en: backups/limpieza_profunda_2025-07-02_23-48-29
+[2025-07-02 23:48:31] Revise el archivo de registro para más detalles: logs/limpieza_profunda_2025-07-02.log
+[2025-07-02 23:48:31] 
+Este script se eliminará a sí mismo en la próxima ejecución...
