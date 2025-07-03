@@ -1010,3 +1010,46 @@ Data: {
     "reg_lastname": "isnardi"
 }
 ----------------------------------------
+[2025-07-02 21:36:37] [INFO] [SysRegisterController.php:84] New registration attempt
+Data: {
+    "reg_document": "777777777",
+    "reg_name": "Tony",
+    "reg_lastname": "Ullon",
+    "reg_email": "tony@tony.com",
+    "reg_phone": "0982313358",
+    "reg_bdate": "1995-08-04",
+    "reg_activation": "pending"
+}
+----------------------------------------
+[2025-07-02 21:36:37] [INFO] [SysRegisterController.php:119] New registration attempt
+Data: {
+    "reg_document": "777777777",
+    "reg_name": "Tony",
+    "reg_lastname": "Ullon",
+    "reg_email": "tony@tony.com",
+    "reg_phone": "0982313358",
+    "reg_bdate": "1995-08-04",
+    "reg_activation": "dce29d418bbcd21edc8695c7176f57d9"
+}
+----------------------------------------
+[2025-07-02 21:37:16] [INFO] [user.controller.php:195] user: tony@tony.com
+Data: tony@tony.com
+----------------------------------------
+[2025-07-02 21:37:16] [INFO] [user.controller.php:196] user: e27a92df580faf53bd7a8c200eb0829b
+Data: e27a92df580faf53bd7a8c200eb0829b
+----------------------------------------
+[2025-07-02 21:37:16] [INFO] [user.controller.php:245] Login attempt for user: tony@tony.com
+Data: {
+    "user_id": 16,
+    "reg_id": 16,
+    "user_email": "tony@tony.com",
+    "user_pass": "e27a92df580faf53bd7a8c200eb0829b",
+    "user_expire": "2025-08-01 21:36:37.175487",
+    "user_first_login": null,
+    "user_last_login": null,
+    "user_is_active": true,
+    "profile_photo": null,
+    "reg_name": "Tony",
+    "reg_lastname": "Ullon"
+}
+----------------------------------------

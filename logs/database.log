@@ -16029,4 +16029,345 @@ DEBUG - Fecha: 2025-07-02, Número día: 3, Texto día: MIERCOLESBuscando médic
                 ac.medico_id = :doctor_id
                 AND ad.dia_semana = :dia_semana
                 AND ad.detalle_estado = true
-                AND ac.agenda_estado = true ORDER BY ad.hora_inicio ASCmdlObtenerHorariosDisponibles: Se encontraron 1 resultados para DoctorID=14, Dia=MIERCOLESPrimer resultado: {"horario_id":19,"agenda_id":19,"cabecera_agenda_id":18,"turno_id":1,"turno_nombre":"MA\u00d1ANA","sala_id":1,"sala_nombre":"Sala 1","doctor_id":14,"nombre_doctor":"ronal ricardo","dia_semana":"MIERCOLES","hora_inicio":"08:00:00","hora_fin":"12:00:00","intervalo_minutos":30,"cupo_maximo":1}mdlObtenerReservasExistentes: Encontradas 0 reservas para doctor ID 14 en fecha 2025-07-02Verificando reservas existentes para DoctorID=14, Fecha=2025-07-02: 0 encontradasGenerando slots para horario: {"horario_id":19,"agenda_id":19,"cabecera_agenda_id":18,"turno_id":1,"turno_nombre":"MA\u00d1ANA","sala_id":1,"sala_nombre":"Sala 1","doctor_id":14,"nombre_doctor":"ronal ricardo","dia_semana":"MIERCOLES","hora_inicio":"08:00:00","hora_fin":"12:00:00","intervalo_minutos":30,"cupo_maximo":1}, Intervalo: 30 minutosSe generaron 8 slots detalladosDEBUG - Fecha: 2025-07-02, Número día: 3, Texto día: MIERCOLESBuscando médicos para fecha: 2025-07-02, día: MIERCOLESAgendas encontradas para MIERCOLES: [{"agenda_id":10,"dia_semana":"MIERCOLES","agenda_descripcion":"Agenda del m\u00e9dico ID: 13","medico_id":13},{"agenda_id":18,"dia_semana":"MIERCOLES","agenda_descripcion":"prueba ","medico_id":14}]DEBUG - Dia semana utilizado para la consulta: 'MIERCOLES'DEBUG - Días disponibles en agendas_detalle: ["LUNES","MARTES","MIERCOLES","JUEVES","VIERNES","SABADO"]Resultados crudos de la consulta: [{"doctor_id":13,"person_id":53,"nombre_doctor":"Antonio Galeano","doctor_estado":"ACTIVO","agenda_id":10,"medico_id":13,"doctor_match":true,"dia_semana":"MIERCOLES"},{"doctor_id":14,"person_id":56,"nombre_doctor":"ronal ricardo","doctor_estado":"ACTIVO","agenda_id":18,"medico_id":14,"doctor_match":true,"dia_semana":"MIERCOLES"}]Médicos encontrados para 2025-07-02 (MIERCOLES): 2DEBUG - Fecha: 2025-07-02, Número día: 3, Texto día: MIERCOLESBuscando médicos para fecha: 2025-07-02, día: MIERCOLESAgendas encontradas para MIERCOLES: [{"agenda_id":10,"dia_semana":"MIERCOLES","agenda_descripcion":"Agenda del m\u00e9dico ID: 13","medico_id":13},{"agenda_id":18,"dia_semana":"MIERCOLES","agenda_descripcion":"prueba ","medico_id":14}]DEBUG - Dia semana utilizado para la consulta: 'MIERCOLES'DEBUG - Días disponibles en agendas_detalle: ["LUNES","MARTES","MIERCOLES","JUEVES","VIERNES","SABADO"]Resultados crudos de la consulta: [{"doctor_id":13,"person_id":53,"nombre_doctor":"Antonio Galeano","doctor_estado":"ACTIVO","agenda_id":10,"medico_id":13,"doctor_match":true,"dia_semana":"MIERCOLES"},{"doctor_id":14,"person_id":56,"nombre_doctor":"ronal ricardo","doctor_estado":"ACTIVO","agenda_id":18,"medico_id":14,"doctor_match":true,"dia_semana":"MIERCOLES"}]Médicos encontrados para 2025-07-02 (MIERCOLES): 2DEBUG - Fecha: 2025-07-02, Número día: 3, Texto día: MIERCOLESBuscando médicos para fecha: 2025-07-02, día: MIERCOLESAgendas encontradas para MIERCOLES: [{"agenda_id":10,"dia_semana":"MIERCOLES","agenda_descripcion":"Agenda del m\u00e9dico ID: 13","medico_id":13},{"agenda_id":18,"dia_semana":"MIERCOLES","agenda_descripcion":"prueba ","medico_id":14}]DEBUG - Dia semana utilizado para la consulta: 'MIERCOLES'DEBUG - Días disponibles en agendas_detalle: ["LUNES","MARTES","MIERCOLES","JUEVES","VIERNES","SABADO"]Resultados crudos de la consulta: [{"doctor_id":13,"person_id":53,"nombre_doctor":"Antonio Galeano","doctor_estado":"ACTIVO","agenda_id":10,"medico_id":13,"doctor_match":true,"dia_semana":"MIERCOLES"},{"doctor_id":14,"person_id":56,"nombre_doctor":"ronal ricardo","doctor_estado":"ACTIVO","agenda_id":18,"medico_id":14,"doctor_match":true,"dia_semana":"MIERCOLES"}]Médicos encontrados para 2025-07-02 (MIERCOLES): 2
+                AND ac.agenda_estado = true ORDER BY ad.hora_inicio ASCmdlObtenerHorariosDisponibles: Se encontraron 1 resultados para DoctorID=14, Dia=MIERCOLESPrimer resultado: {"horario_id":19,"agenda_id":19,"cabecera_agenda_id":18,"turno_id":1,"turno_nombre":"MA\u00d1ANA","sala_id":1,"sala_nombre":"Sala 1","doctor_id":14,"nombre_doctor":"ronal ricardo","dia_semana":"MIERCOLES","hora_inicio":"08:00:00","hora_fin":"12:00:00","intervalo_minutos":30,"cupo_maximo":1}mdlObtenerReservasExistentes: Encontradas 0 reservas para doctor ID 14 en fecha 2025-07-02Verificando reservas existentes para DoctorID=14, Fecha=2025-07-02: 0 encontradasGenerando slots para horario: {"horario_id":19,"agenda_id":19,"cabecera_agenda_id":18,"turno_id":1,"turno_nombre":"MA\u00d1ANA","sala_id":1,"sala_nombre":"Sala 1","doctor_id":14,"nombre_doctor":"ronal ricardo","dia_semana":"MIERCOLES","hora_inicio":"08:00:00","hora_fin":"12:00:00","intervalo_minutos":30,"cupo_maximo":1}, Intervalo: 30 minutosSe generaron 8 slots detalladosDEBUG - Fecha: 2025-07-02, Número día: 3, Texto día: MIERCOLESBuscando médicos para fecha: 2025-07-02, día: MIERCOLESAgendas encontradas para MIERCOLES: [{"agenda_id":10,"dia_semana":"MIERCOLES","agenda_descripcion":"Agenda del m\u00e9dico ID: 13","medico_id":13},{"agenda_id":18,"dia_semana":"MIERCOLES","agenda_descripcion":"prueba ","medico_id":14}]DEBUG - Dia semana utilizado para la consulta: 'MIERCOLES'DEBUG - Días disponibles en agendas_detalle: ["LUNES","MARTES","MIERCOLES","JUEVES","VIERNES","SABADO"]Resultados crudos de la consulta: [{"doctor_id":13,"person_id":53,"nombre_doctor":"Antonio Galeano","doctor_estado":"ACTIVO","agenda_id":10,"medico_id":13,"doctor_match":true,"dia_semana":"MIERCOLES"},{"doctor_id":14,"person_id":56,"nombre_doctor":"ronal ricardo","doctor_estado":"ACTIVO","agenda_id":18,"medico_id":14,"doctor_match":true,"dia_semana":"MIERCOLES"}]Médicos encontrados para 2025-07-02 (MIERCOLES): 2DEBUG - Fecha: 2025-07-02, Número día: 3, Texto día: MIERCOLESBuscando médicos para fecha: 2025-07-02, día: MIERCOLESAgendas encontradas para MIERCOLES: [{"agenda_id":10,"dia_semana":"MIERCOLES","agenda_descripcion":"Agenda del m\u00e9dico ID: 13","medico_id":13},{"agenda_id":18,"dia_semana":"MIERCOLES","agenda_descripcion":"prueba ","medico_id":14}]DEBUG - Dia semana utilizado para la consulta: 'MIERCOLES'DEBUG - Días disponibles en agendas_detalle: ["LUNES","MARTES","MIERCOLES","JUEVES","VIERNES","SABADO"]Resultados crudos de la consulta: [{"doctor_id":13,"person_id":53,"nombre_doctor":"Antonio Galeano","doctor_estado":"ACTIVO","agenda_id":10,"medico_id":13,"doctor_match":true,"dia_semana":"MIERCOLES"},{"doctor_id":14,"person_id":56,"nombre_doctor":"ronal ricardo","doctor_estado":"ACTIVO","agenda_id":18,"medico_id":14,"doctor_match":true,"dia_semana":"MIERCOLES"}]Médicos encontrados para 2025-07-02 (MIERCOLES): 2DEBUG - Fecha: 2025-07-02, Número día: 3, Texto día: MIERCOLESBuscando médicos para fecha: 2025-07-02, día: MIERCOLESAgendas encontradas para MIERCOLES: [{"agenda_id":10,"dia_semana":"MIERCOLES","agenda_descripcion":"Agenda del m\u00e9dico ID: 13","medico_id":13},{"agenda_id":18,"dia_semana":"MIERCOLES","agenda_descripcion":"prueba ","medico_id":14}]DEBUG - Dia semana utilizado para la consulta: 'MIERCOLES'DEBUG - Días disponibles en agendas_detalle: ["LUNES","MARTES","MIERCOLES","JUEVES","VIERNES","SABADO"]Resultados crudos de la consulta: [{"doctor_id":13,"person_id":53,"nombre_doctor":"Antonio Galeano","doctor_estado":"ACTIVO","agenda_id":10,"medico_id":13,"doctor_match":true,"dia_semana":"MIERCOLES"},{"doctor_id":14,"person_id":56,"nombre_doctor":"ronal ricardo","doctor_estado":"ACTIVO","agenda_id":18,"medico_id":14,"doctor_match":true,"dia_semana":"MIERCOLES"}]Médicos encontrados para 2025-07-02 (MIERCOLES): 2[2025-07-02 21:16:25] [INFO] [Database.php:219]
+SQL: SELECT * FROM especialidades WHERE activo = :value
+Parameters: {
+    "value": true
+}
+----------------------------------------
+[2025-07-02 21:16:25] [INFO] [Model.php:175]
+SQL: SELECT * FROM rh_person ORDER BY person_id DESC LIMIT :limit OFFSET :offset
+Parameters: {
+    "limit": 10,
+    "offset": 0
+}
+----------------------------------------
+[2025-07-02 21:16:25] [INFO] [Model.php:175]
+SQL: SELECT COUNT(*) as total FROM rh_person
+----------------------------------------
+[2025-07-02 21:16:31] [INFO] [Model.php:175]
+SQL: SELECT * FROM rh_person WHERE first_name ILIKE :name ORDER BY person_id DESC
+Parameters: {
+    "name": "%visconte%"
+}
+----------------------------------------
+[2025-07-02 21:16:40] [INFO] [Model.php:175]
+SQL: SELECT * FROM rh_person WHERE last_name ILIKE :lastname ORDER BY person_id DESC
+Parameters: {
+    "lastname": "%visco%"
+}
+----------------------------------------
+[2025-07-02 21:16:43] [INFO] [Database.php:231]
+SQL: SELECT * FROM rh_person WHERE person_id = :id
+Parameters: {
+    "id": "45"
+}
+----------------------------------------
+[2025-07-02 21:16:46] [INFO] [Database.php:231]
+SQL: SELECT * FROM rh_person WHERE person_id = :id
+Parameters: {
+    "id": "45"
+}
+----------------------------------------
+[2025-07-02 21:16:46] [INFO] [Model.php:175]
+SQL: SELECT e.* FROM especialidades e INNER JOIN persona_especialidad pe ON e.especialidad_id = pe.especialidad_id WHERE pe.persona_id = :persona_id AND e.activo = true
+Parameters: {
+    "persona_id": "45"
+}
+----------------------------------------
+[2025-07-02 21:16:46] [INFO] [Database.php:231]
+SQL: SELECT * FROM rh_person WHERE person_id = :id
+Parameters: {
+    "id": "45"
+}
+----------------------------------------
+[2025-07-02 21:16:52] [INFO] [Database.php:231]
+SQL: SELECT * FROM rh_person WHERE person_id = :id
+Parameters: {
+    "id": "45"
+}
+----------------------------------------
+[2025-07-02 21:16:52] [INFO] [Model.php:175]
+SQL: SELECT e.* FROM especialidades e INNER JOIN persona_especialidad pe ON e.especialidad_id = pe.especialidad_id WHERE pe.persona_id = :persona_id AND e.activo = true
+Parameters: {
+    "persona_id": "45"
+}
+----------------------------------------
+DEBUG - Fecha: 2025-07-02, Número día: 3, Texto día: MIERCOLESBuscando médicos para fecha: 2025-07-02, día: MIERCOLESAgendas encontradas para MIERCOLES: [{"agenda_id":10,"dia_semana":"MIERCOLES","agenda_descripcion":"Agenda del m\u00e9dico ID: 13","medico_id":13},{"agenda_id":18,"dia_semana":"MIERCOLES","agenda_descripcion":"prueba ","medico_id":14}]DEBUG - Dia semana utilizado para la consulta: 'MIERCOLES'DEBUG - Días disponibles en agendas_detalle: ["LUNES","MARTES","MIERCOLES","JUEVES","VIERNES","SABADO"]Resultados crudos de la consulta: [{"doctor_id":13,"person_id":53,"nombre_doctor":"Antonio Galeano","doctor_estado":"ACTIVO","agenda_id":10,"medico_id":13,"doctor_match":true,"dia_semana":"MIERCOLES"},{"doctor_id":14,"person_id":56,"nombre_doctor":"ronal ricardo","doctor_estado":"ACTIVO","agenda_id":18,"medico_id":14,"doctor_match":true,"dia_semana":"MIERCOLES"}]Médicos encontrados para 2025-07-02 (MIERCOLES): 2DEBUG - Fecha: 2025-07-02, Número día: 3, Texto día: MIERCOLESBuscando médicos para fecha: 2025-07-02, día: MIERCOLESAgendas encontradas para MIERCOLES: [{"agenda_id":10,"dia_semana":"MIERCOLES","agenda_descripcion":"Agenda del m\u00e9dico ID: 13","medico_id":13},{"agenda_id":18,"dia_semana":"MIERCOLES","agenda_descripcion":"prueba ","medico_id":14}]DEBUG - Dia semana utilizado para la consulta: 'MIERCOLES'DEBUG - Días disponibles en agendas_detalle: ["LUNES","MARTES","MIERCOLES","JUEVES","VIERNES","SABADO"]Resultados crudos de la consulta: [{"doctor_id":13,"person_id":53,"nombre_doctor":"Antonio Galeano","doctor_estado":"ACTIVO","agenda_id":10,"medico_id":13,"doctor_match":true,"dia_semana":"MIERCOLES"},{"doctor_id":14,"person_id":56,"nombre_doctor":"ronal ricardo","doctor_estado":"ACTIVO","agenda_id":18,"medico_id":14,"doctor_match":true,"dia_semana":"MIERCOLES"}]Médicos encontrados para 2025-07-02 (MIERCOLES): 2DEBUG - Fecha: 2025-07-02, Número día: 3, Texto día: MIERCOLESBuscando médicos para fecha: 2025-07-02, día: MIERCOLESAgendas encontradas para MIERCOLES: [{"agenda_id":10,"dia_semana":"MIERCOLES","agenda_descripcion":"Agenda del m\u00e9dico ID: 13","medico_id":13},{"agenda_id":18,"dia_semana":"MIERCOLES","agenda_descripcion":"prueba ","medico_id":14}]DEBUG - Dia semana utilizado para la consulta: 'MIERCOLES'DEBUG - Días disponibles en agendas_detalle: ["LUNES","MARTES","MIERCOLES","JUEVES","VIERNES","SABADO"]Resultados crudos de la consulta: [{"doctor_id":13,"person_id":53,"nombre_doctor":"Antonio Galeano","doctor_estado":"ACTIVO","agenda_id":10,"medico_id":13,"doctor_match":true,"dia_semana":"MIERCOLES"},{"doctor_id":14,"person_id":56,"nombre_doctor":"ronal ricardo","doctor_estado":"ACTIVO","agenda_id":18,"medico_id":14,"doctor_match":true,"dia_semana":"MIERCOLES"}]Médicos encontrados para 2025-07-02 (MIERCOLES): 2mdlObtenerHorariosDisponibles: SQL para DoctorID=14, Dia=MIERCOLES: SELECT 
+                ad.detalle_id as horario_id,
+                ad.detalle_id as agenda_id,
+                ac.agenda_id as cabecera_agenda_id,
+                ad.turno_id,
+                t.turno_nombre,
+                ad.sala_id,
+                s.sala_nombre,
+                ac.medico_id as doctor_id,
+                coalesce(p.first_name, '') || ' ' || coalesce(p.last_name, '') as nombre_doctor,
+                ad.dia_semana,
+                ad.hora_inicio,
+                ad.hora_fin,
+                ad.intervalo_minutos,
+                ad.cupo_maximo
+            FROM
+                agendas_detalle ad
+            INNER JOIN 
+                agendas_cabecera ac ON ad.agenda_id = ac.agenda_id
+            INNER JOIN 
+                turnos t ON ad.turno_id = t.turno_id
+            INNER JOIN 
+                salas s ON ad.sala_id = s.sala_id
+            INNER JOIN
+                rh_doctors rd ON rd.doctor_id = ac.medico_id 
+            INNER JOIN 
+                rh_person p ON p.person_id = rd.person_id
+            WHERE
+                ac.medico_id = :doctor_id
+                AND ad.dia_semana = :dia_semana
+                AND ad.detalle_estado = true
+                AND ac.agenda_estado = true ORDER BY ad.hora_inicio ASCmdlObtenerHorariosDisponibles: Se encontraron 1 resultados para DoctorID=14, Dia=MIERCOLESPrimer resultado: {"horario_id":19,"agenda_id":19,"cabecera_agenda_id":18,"turno_id":1,"turno_nombre":"MA\u00d1ANA","sala_id":1,"sala_nombre":"Sala 1","doctor_id":14,"nombre_doctor":"ronal ricardo","dia_semana":"MIERCOLES","hora_inicio":"08:00:00","hora_fin":"12:00:00","intervalo_minutos":30,"cupo_maximo":1}mdlObtenerReservasExistentes: Encontradas 1 reservas para doctor ID 14 en fecha 2025-07-02Primera reserva: {"reserva_id":59,"servicio_id":2,"agenda_id":19,"doctor_id":14,"fecha_reserva":"2025-07-02","hora_inicio":"08:30:00","hora_fin":"09:00:00"}Verificando reservas existentes para DoctorID=14, Fecha=2025-07-02: 1 encontradasGenerando slots para horario: {"horario_id":19,"agenda_id":19,"cabecera_agenda_id":18,"turno_id":1,"turno_nombre":"MA\u00d1ANA","sala_id":1,"sala_nombre":"Sala 1","doctor_id":14,"nombre_doctor":"ronal ricardo","dia_semana":"MIERCOLES","hora_inicio":"08:00:00","hora_fin":"12:00:00","intervalo_minutos":30,"cupo_maximo":1}, Intervalo: 30 minutosSlot 08:30:00 - 09:00:00 excluido por reserva existente: 08:30:00 - 09:00:00Se generaron 7 slots detalladosmdlObtenerHorariosDisponibles: SQL para DoctorID=14, Dia=MIERCOLES: SELECT 
+                ad.detalle_id as horario_id,
+                ad.detalle_id as agenda_id,
+                ac.agenda_id as cabecera_agenda_id,
+                ad.turno_id,
+                t.turno_nombre,
+                ad.sala_id,
+                s.sala_nombre,
+                ac.medico_id as doctor_id,
+                coalesce(p.first_name, '') || ' ' || coalesce(p.last_name, '') as nombre_doctor,
+                ad.dia_semana,
+                ad.hora_inicio,
+                ad.hora_fin,
+                ad.intervalo_minutos,
+                ad.cupo_maximo
+            FROM
+                agendas_detalle ad
+            INNER JOIN 
+                agendas_cabecera ac ON ad.agenda_id = ac.agenda_id
+            INNER JOIN 
+                turnos t ON ad.turno_id = t.turno_id
+            INNER JOIN 
+                salas s ON ad.sala_id = s.sala_id
+            INNER JOIN
+                rh_doctors rd ON rd.doctor_id = ac.medico_id 
+            INNER JOIN 
+                rh_person p ON p.person_id = rd.person_id
+            WHERE
+                ac.medico_id = :doctor_id
+                AND ad.dia_semana = :dia_semana
+                AND ad.detalle_estado = true
+                AND ac.agenda_estado = true ORDER BY ad.hora_inicio ASCmdlObtenerHorariosDisponibles: Se encontraron 1 resultados para DoctorID=14, Dia=MIERCOLESPrimer resultado: {"horario_id":19,"agenda_id":19,"cabecera_agenda_id":18,"turno_id":1,"turno_nombre":"MA\u00d1ANA","sala_id":1,"sala_nombre":"Sala 1","doctor_id":14,"nombre_doctor":"ronal ricardo","dia_semana":"MIERCOLES","hora_inicio":"08:00:00","hora_fin":"12:00:00","intervalo_minutos":30,"cupo_maximo":1}mdlObtenerReservasExistentes: Encontradas 1 reservas para doctor ID 14 en fecha 2025-07-02Primera reserva: {"reserva_id":59,"servicio_id":2,"agenda_id":19,"doctor_id":14,"fecha_reserva":"2025-07-02","hora_inicio":"08:30:00","hora_fin":"09:00:00"}Verificando reservas existentes para DoctorID=14, Fecha=2025-07-02: 1 encontradasGenerando slots para horario: {"horario_id":19,"agenda_id":19,"cabecera_agenda_id":18,"turno_id":1,"turno_nombre":"MA\u00d1ANA","sala_id":1,"sala_nombre":"Sala 1","doctor_id":14,"nombre_doctor":"ronal ricardo","dia_semana":"MIERCOLES","hora_inicio":"08:00:00","hora_fin":"12:00:00","intervalo_minutos":30,"cupo_maximo":1}, Intervalo: 30 minutosSlot 08:30:00 - 09:00:00 excluido por reserva existente: 08:30:00 - 09:00:00Se generaron 7 slots detalladosmdlObtenerHorariosDisponibles: SQL para DoctorID=14, Dia=MIERCOLES: SELECT 
+                ad.detalle_id as horario_id,
+                ad.detalle_id as agenda_id,
+                ac.agenda_id as cabecera_agenda_id,
+                ad.turno_id,
+                t.turno_nombre,
+                ad.sala_id,
+                s.sala_nombre,
+                ac.medico_id as doctor_id,
+                coalesce(p.first_name, '') || ' ' || coalesce(p.last_name, '') as nombre_doctor,
+                ad.dia_semana,
+                ad.hora_inicio,
+                ad.hora_fin,
+                ad.intervalo_minutos,
+                ad.cupo_maximo
+            FROM
+                agendas_detalle ad
+            INNER JOIN 
+                agendas_cabecera ac ON ad.agenda_id = ac.agenda_id
+            INNER JOIN 
+                turnos t ON ad.turno_id = t.turno_id
+            INNER JOIN 
+                salas s ON ad.sala_id = s.sala_id
+            INNER JOIN
+                rh_doctors rd ON rd.doctor_id = ac.medico_id 
+            INNER JOIN 
+                rh_person p ON p.person_id = rd.person_id
+            WHERE
+                ac.medico_id = :doctor_id
+                AND ad.dia_semana = :dia_semana
+                AND ad.detalle_estado = true
+                AND ac.agenda_estado = true AND ac.servicio_id = :servicio_id ORDER BY ad.hora_inicio ASCmdlObtenerHorariosDisponibles: SQL para DoctorID=14, Dia=MIERCOLES: SELECT 
+                ad.detalle_id as horario_id,
+                ad.detalle_id as agenda_id,
+                ac.agenda_id as cabecera_agenda_id,
+                ad.turno_id,
+                t.turno_nombre,
+                ad.sala_id,
+                s.sala_nombre,
+                ac.medico_id as doctor_id,
+                coalesce(p.first_name, '') || ' ' || coalesce(p.last_name, '') as nombre_doctor,
+                ad.dia_semana,
+                ad.hora_inicio,
+                ad.hora_fin,
+                ad.intervalo_minutos,
+                ad.cupo_maximo
+            FROM
+                agendas_detalle ad
+            INNER JOIN 
+                agendas_cabecera ac ON ad.agenda_id = ac.agenda_id
+            INNER JOIN 
+                turnos t ON ad.turno_id = t.turno_id
+            INNER JOIN 
+                salas s ON ad.sala_id = s.sala_id
+            INNER JOIN
+                rh_doctors rd ON rd.doctor_id = ac.medico_id 
+            INNER JOIN 
+                rh_person p ON p.person_id = rd.person_id
+            WHERE
+                ac.medico_id = :doctor_id
+                AND ad.dia_semana = :dia_semana
+                AND ad.detalle_estado = true
+                AND ac.agenda_estado = true ORDER BY ad.hora_inicio ASCmdlObtenerHorariosDisponibles: Se encontraron 1 resultados para DoctorID=14, Dia=MIERCOLESPrimer resultado: {"horario_id":19,"agenda_id":19,"cabecera_agenda_id":18,"turno_id":1,"turno_nombre":"MA\u00d1ANA","sala_id":1,"sala_nombre":"Sala 1","doctor_id":14,"nombre_doctor":"ronal ricardo","dia_semana":"MIERCOLES","hora_inicio":"08:00:00","hora_fin":"12:00:00","intervalo_minutos":30,"cupo_maximo":1}mdlObtenerReservasExistentes: Encontradas 1 reservas para doctor ID 14 en fecha 2025-07-02Primera reserva: {"reserva_id":59,"servicio_id":2,"agenda_id":19,"doctor_id":14,"fecha_reserva":"2025-07-02","hora_inicio":"08:30:00","hora_fin":"09:00:00"}Verificando reservas existentes para DoctorID=14, Fecha=2025-07-02: 1 encontradasGenerando slots para horario: {"horario_id":19,"agenda_id":19,"cabecera_agenda_id":18,"turno_id":1,"turno_nombre":"MA\u00d1ANA","sala_id":1,"sala_nombre":"Sala 1","doctor_id":14,"nombre_doctor":"ronal ricardo","dia_semana":"MIERCOLES","hora_inicio":"08:00:00","hora_fin":"12:00:00","intervalo_minutos":30,"cupo_maximo":1}, Intervalo: 30 minutosSlot 08:30:00 - 09:00:00 excluido por reserva existente: 08:30:00 - 09:00:00Se generaron 7 slots detalladosDEBUG - Fecha: 2025-07-02, Número día: 3, Texto día: MIERCOLESBuscando médicos para fecha: 2025-07-02, día: MIERCOLESAgendas encontradas para MIERCOLES: [{"agenda_id":10,"dia_semana":"MIERCOLES","agenda_descripcion":"Agenda del m\u00e9dico ID: 13","medico_id":13},{"agenda_id":18,"dia_semana":"MIERCOLES","agenda_descripcion":"prueba ","medico_id":14}]DEBUG - Dia semana utilizado para la consulta: 'MIERCOLES'DEBUG - Días disponibles en agendas_detalle: ["LUNES","MARTES","MIERCOLES","JUEVES","VIERNES","SABADO"]Resultados crudos de la consulta: [{"doctor_id":13,"person_id":53,"nombre_doctor":"Antonio Galeano","doctor_estado":"ACTIVO","agenda_id":10,"medico_id":13,"doctor_match":true,"dia_semana":"MIERCOLES"},{"doctor_id":14,"person_id":56,"nombre_doctor":"ronal ricardo","doctor_estado":"ACTIVO","agenda_id":18,"medico_id":14,"doctor_match":true,"dia_semana":"MIERCOLES"}]Médicos encontrados para 2025-07-02 (MIERCOLES): 2DEBUG - Fecha: 2025-07-02, Número día: 3, Texto día: MIERCOLESBuscando médicos para fecha: 2025-07-02, día: MIERCOLESAgendas encontradas para MIERCOLES: [{"agenda_id":10,"dia_semana":"MIERCOLES","agenda_descripcion":"Agenda del m\u00e9dico ID: 13","medico_id":13},{"agenda_id":18,"dia_semana":"MIERCOLES","agenda_descripcion":"prueba ","medico_id":14}]DEBUG - Dia semana utilizado para la consulta: 'MIERCOLES'DEBUG - Días disponibles en agendas_detalle: ["LUNES","MARTES","MIERCOLES","JUEVES","VIERNES","SABADO"]Resultados crudos de la consulta: [{"doctor_id":13,"person_id":53,"nombre_doctor":"Antonio Galeano","doctor_estado":"ACTIVO","agenda_id":10,"medico_id":13,"doctor_match":true,"dia_semana":"MIERCOLES"},{"doctor_id":14,"person_id":56,"nombre_doctor":"ronal ricardo","doctor_estado":"ACTIVO","agenda_id":18,"medico_id":14,"doctor_match":true,"dia_semana":"MIERCOLES"}]Médicos encontrados para 2025-07-02 (MIERCOLES): 2DEBUG - Fecha: 2025-07-02, Número día: 3, Texto día: MIERCOLESBuscando médicos para fecha: 2025-07-02, día: MIERCOLESAgendas encontradas para MIERCOLES: [{"agenda_id":10,"dia_semana":"MIERCOLES","agenda_descripcion":"Agenda del m\u00e9dico ID: 13","medico_id":13},{"agenda_id":18,"dia_semana":"MIERCOLES","agenda_descripcion":"prueba ","medico_id":14}]DEBUG - Dia semana utilizado para la consulta: 'MIERCOLES'DEBUG - Días disponibles en agendas_detalle: ["LUNES","MARTES","MIERCOLES","JUEVES","VIERNES","SABADO"]Resultados crudos de la consulta: [{"doctor_id":13,"person_id":53,"nombre_doctor":"Antonio Galeano","doctor_estado":"ACTIVO","agenda_id":10,"medico_id":13,"doctor_match":true,"dia_semana":"MIERCOLES"},{"doctor_id":14,"person_id":56,"nombre_doctor":"ronal ricardo","doctor_estado":"ACTIVO","agenda_id":18,"medico_id":14,"doctor_match":true,"dia_semana":"MIERCOLES"}]Médicos encontrados para 2025-07-02 (MIERCOLES): 2mdlObtenerHorariosDisponibles: SQL para DoctorID=14, Dia=MIERCOLES: SELECT 
+                ad.detalle_id as horario_id,
+                ad.detalle_id as agenda_id,
+                ac.agenda_id as cabecera_agenda_id,
+                ad.turno_id,
+                t.turno_nombre,
+                ad.sala_id,
+                s.sala_nombre,
+                ac.medico_id as doctor_id,
+                coalesce(p.first_name, '') || ' ' || coalesce(p.last_name, '') as nombre_doctor,
+                ad.dia_semana,
+                ad.hora_inicio,
+                ad.hora_fin,
+                ad.intervalo_minutos,
+                ad.cupo_maximo
+            FROM
+                agendas_detalle ad
+            INNER JOIN 
+                agendas_cabecera ac ON ad.agenda_id = ac.agenda_id
+            INNER JOIN 
+                turnos t ON ad.turno_id = t.turno_id
+            INNER JOIN 
+                salas s ON ad.sala_id = s.sala_id
+            INNER JOIN
+                rh_doctors rd ON rd.doctor_id = ac.medico_id 
+            INNER JOIN 
+                rh_person p ON p.person_id = rd.person_id
+            WHERE
+                ac.medico_id = :doctor_id
+                AND ad.dia_semana = :dia_semana
+                AND ad.detalle_estado = true
+                AND ac.agenda_estado = true ORDER BY ad.hora_inicio ASCmdlObtenerHorariosDisponibles: Se encontraron 1 resultados para DoctorID=14, Dia=MIERCOLESPrimer resultado: {"horario_id":19,"agenda_id":19,"cabecera_agenda_id":18,"turno_id":1,"turno_nombre":"MA\u00d1ANA","sala_id":1,"sala_nombre":"Sala 1","doctor_id":14,"nombre_doctor":"ronal ricardo","dia_semana":"MIERCOLES","hora_inicio":"08:00:00","hora_fin":"12:00:00","intervalo_minutos":30,"cupo_maximo":1}mdlObtenerReservasExistentes: Encontradas 2 reservas para doctor ID 14 en fecha 2025-07-02Primera reserva: {"reserva_id":60,"servicio_id":2,"agenda_id":19,"doctor_id":14,"fecha_reserva":"2025-07-02","hora_inicio":"08:00:00","hora_fin":"08:30:00"}Verificando reservas existentes para DoctorID=14, Fecha=2025-07-02: 2 encontradasGenerando slots para horario: {"horario_id":19,"agenda_id":19,"cabecera_agenda_id":18,"turno_id":1,"turno_nombre":"MA\u00d1ANA","sala_id":1,"sala_nombre":"Sala 1","doctor_id":14,"nombre_doctor":"ronal ricardo","dia_semana":"MIERCOLES","hora_inicio":"08:00:00","hora_fin":"12:00:00","intervalo_minutos":30,"cupo_maximo":1}, Intervalo: 30 minutosSlot 08:00:00 - 08:30:00 excluido por reserva existente: 08:00:00 - 08:30:00Slot 08:30:00 - 09:00:00 excluido por reserva existente: 08:30:00 - 09:00:00Se generaron 6 slots detalladosmdlObtenerHorariosDisponibles: SQL para DoctorID=14, Dia=MIERCOLES: SELECT 
+                ad.detalle_id as horario_id,
+                ad.detalle_id as agenda_id,
+                ac.agenda_id as cabecera_agenda_id,
+                ad.turno_id,
+                t.turno_nombre,
+                ad.sala_id,
+                s.sala_nombre,
+                ac.medico_id as doctor_id,
+                coalesce(p.first_name, '') || ' ' || coalesce(p.last_name, '') as nombre_doctor,
+                ad.dia_semana,
+                ad.hora_inicio,
+                ad.hora_fin,
+                ad.intervalo_minutos,
+                ad.cupo_maximo
+            FROM
+                agendas_detalle ad
+            INNER JOIN 
+                agendas_cabecera ac ON ad.agenda_id = ac.agenda_id
+            INNER JOIN 
+                turnos t ON ad.turno_id = t.turno_id
+            INNER JOIN 
+                salas s ON ad.sala_id = s.sala_id
+            INNER JOIN
+                rh_doctors rd ON rd.doctor_id = ac.medico_id 
+            INNER JOIN 
+                rh_person p ON p.person_id = rd.person_id
+            WHERE
+                ac.medico_id = :doctor_id
+                AND ad.dia_semana = :dia_semana
+                AND ad.detalle_estado = true
+                AND ac.agenda_estado = true ORDER BY ad.hora_inicio ASCmdlObtenerHorariosDisponibles: Se encontraron 1 resultados para DoctorID=14, Dia=MIERCOLESPrimer resultado: {"horario_id":19,"agenda_id":19,"cabecera_agenda_id":18,"turno_id":1,"turno_nombre":"MA\u00d1ANA","sala_id":1,"sala_nombre":"Sala 1","doctor_id":14,"nombre_doctor":"ronal ricardo","dia_semana":"MIERCOLES","hora_inicio":"08:00:00","hora_fin":"12:00:00","intervalo_minutos":30,"cupo_maximo":1}mdlObtenerReservasExistentes: Encontradas 2 reservas para doctor ID 14 en fecha 2025-07-02Primera reserva: {"reserva_id":60,"servicio_id":2,"agenda_id":19,"doctor_id":14,"fecha_reserva":"2025-07-02","hora_inicio":"08:00:00","hora_fin":"08:30:00"}Verificando reservas existentes para DoctorID=14, Fecha=2025-07-02: 2 encontradasGenerando slots para horario: {"horario_id":19,"agenda_id":19,"cabecera_agenda_id":18,"turno_id":1,"turno_nombre":"MA\u00d1ANA","sala_id":1,"sala_nombre":"Sala 1","doctor_id":14,"nombre_doctor":"ronal ricardo","dia_semana":"MIERCOLES","hora_inicio":"08:00:00","hora_fin":"12:00:00","intervalo_minutos":30,"cupo_maximo":1}, Intervalo: 30 minutosSlot 08:00:00 - 08:30:00 excluido por reserva existente: 08:00:00 - 08:30:00Slot 08:30:00 - 09:00:00 excluido por reserva existente: 08:30:00 - 09:00:00Se generaron 6 slots detallados[2025-07-03 01:28:32] Error: PDO PostgreSQL extension not loaded[2025-07-03 01:28:32] Extensiones cargadas: Core, bcmath, calendar, ctype, date, filter, hash, iconv, json, SPL, pcre, random, readline, Reflection, session, standard, mysqlnd, tokenizer, zlib, libxml, dom, PDO, Phar, SimpleXML, xml, xmlreader, xmlwriter[2025-07-03 01:28:32] Error: PDO PostgreSQL extension not loaded[2025-07-03 01:28:32] Extensiones cargadas: Core, bcmath, calendar, ctype, date, filter, hash, iconv, json, SPL, pcre, random, readline, Reflection, session, standard, mysqlnd, tokenizer, zlib, libxml, dom, PDO, Phar, SimpleXML, xml, xmlreader, xmlwriter[2025-07-02 21:36:37] [INFO] [Model.php:175]
+SQL: SELECT * FROM sys_register WHERE reg_email = :email
+Parameters: {
+    "email": "tony@tony.com"
+}
+----------------------------------------
+[2025-07-02 21:36:37] [INFO] [Model.php:175]
+SQL: SELECT * FROM sys_register WHERE reg_document = :document
+Parameters: {
+    "document": "777777777"
+}
+----------------------------------------
+[2025-07-02 21:36:37] [INFO] [Model::create]
+Table: sys_register
+Original Data: {
+    "reg_document": "777777777",
+    "reg_name": "Tony",
+    "reg_lastname": "Ullon",
+    "reg_email": "tony@tony.com",
+    "reg_phone": "0982313358",
+    "reg_bdate": "1995-08-04",
+    "reg_activation": "dce29d418bbcd21edc8695c7176f57d9"
+}
+Filtered Data: {
+    "reg_document": "777777777",
+    "reg_name": "Tony",
+    "reg_lastname": "Ullon",
+    "reg_email": "tony@tony.com",
+    "reg_phone": "0982313358",
+    "reg_bdate": "1995-08-04",
+    "reg_activation": "dce29d418bbcd21edc8695c7176f57d9"
+}
+Excluded Data: []
+----------------------------------------
+[2025-07-02 21:36:37] [INFO] [Model.php:110]
+SQL: INSERT INTO sys_register (reg_document, reg_name, reg_lastname, reg_email, reg_phone, reg_bdate, reg_activation) VALUES (:reg_document, :reg_name, :reg_lastname, :reg_email, :reg_phone, :reg_bdate, :reg_activation)
+Parameters: {
+    "reg_document": "777777777",
+    "reg_name": "Tony",
+    "reg_lastname": "Ullon",
+    "reg_email": "tony@tony.com",
+    "reg_phone": "0982313358",
+    "reg_bdate": "1995-08-04",
+    "reg_activation": "dce29d418bbcd21edc8695c7176f57d9"
+}
+----------------------------------------
+[2025-07-02 21:36:37] [INFO] [Database.php:255]
+SQL: INSERT INTO sys_register (reg_document, reg_name, reg_lastname, reg_email, reg_phone, reg_bdate, reg_activation) VALUES (:reg_document, :reg_name, :reg_lastname, :reg_email, :reg_phone, :reg_bdate, :reg_activation)
+Parameters: {
+    "reg_document": "777777777",
+    "reg_name": "Tony",
+    "reg_lastname": "Ullon",
+    "reg_email": "tony@tony.com",
+    "reg_phone": "0982313358",
+    "reg_bdate": "1995-08-04",
+    "reg_activation": "dce29d418bbcd21edc8695c7176f57d9"
+}
+----------------------------------------
+[2025-07-02 21:36:37] [INFO] [Database.php:231]
+SQL: SELECT * FROM sys_register WHERE reg_id = :id
+Parameters: {
+    "id": "16"
+}
+----------------------------------------
+[2025-07-02 21:36:37] [INFO] [Model.php:175]
+SQL: SELECT * FROM sys_users WHERE reg_id = :reg_id
+Parameters: {
+    "reg_id": "16"
+}
+----------------------------------------
+[2025-07-02 21:36:37] [INFO] [Model.php:175]
+SQL: INSERT INTO sys_user_roles (user_id, role_id) VALUES (:userId, :roleId)
+Parameters: {
+    "userId": 16,
+    "roleId": 2
+}
+----------------------------------------
+[2025-07-02 21:36:40] [INFO] [Model.php:143]
+SQL: UPDATE sys_users SET user_is_active = :user_is_active WHERE user_id = :id
+Parameters: {
+    "user_is_active": true,
+    "id": 16
+}
+----------------------------------------
+[2025-07-02 21:36:40] [INFO] [Database.php:281]
+SQL: UPDATE sys_users SET user_is_active = :user_is_active WHERE user_id = :id
+Parameters: {
+    "user_is_active": true,
+    "id": 16
+}
+----------------------------------------
+[2025-07-02 21:37:16] Verificando perfil completo para usuario ID: 16[2025-07-02 21:37:16] Perfil incompleto: No existe vinculación en person_system_user para user_id 16[2025-07-03 01:37:17] Verificando perfil completo para usuario ID: 16[2025-07-03 01:37:18] Perfil incompleto: No existe vinculación en person_system_user para user_id 16[2025-07-03 01:37:33] Verificando perfil completo para usuario ID: 16[2025-07-03 01:37:33] Vinculación encontrada en person_system_user para user_id 16[2025-07-03 01:37:33] Datos de persona encontrados para user_id 16: {"person_id":75,"document_number":"777777777","birth_date":"1998-05-01","first_name":"Tony","last_name":"Ullon","phone_number":"0982313358","gender":"M","record_number":null,"address":"luque","email":"tony@tony.com","department_id":null,"city_id":null,"is_minor":false,"guardian_name":null,"guardian_document":null,"created_at":"2025-07-02 21:37:33.57238-04","registered_by":null,"modified_by":null,"last_modified_at":null,"last_accessed_at":null,"owner_id":null,"is_active":false,"business_id":null,"profile_photo":null}[2025-07-03 01:37:33] Perfil COMPLETO para user_id 16DEBUG - Fecha: 2025-07-04, Número día: 5, Texto día: VIERNESBuscando médicos para fecha: 2025-07-04, día: VIERNESAgendas encontradas para VIERNES: [{"agenda_id":10,"dia_semana":"VIERNES","agenda_descripcion":"Agenda del m\u00e9dico ID: 13","medico_id":13},{"agenda_id":18,"dia_semana":"VIERNES","agenda_descripcion":"prueba ","medico_id":14},{"agenda_id":18,"dia_semana":"VIERNES","agenda_descripcion":"prueba ","medico_id":14}]DEBUG - Dia semana utilizado para la consulta: 'VIERNES'DEBUG - Días disponibles en agendas_detalle: ["LUNES","MARTES","MIERCOLES","JUEVES","VIERNES","SABADO"]Resultados crudos de la consulta: [{"doctor_id":13,"person_id":53,"nombre_doctor":"Antonio Galeano","doctor_estado":"ACTIVO","agenda_id":10,"medico_id":13,"doctor_match":true,"dia_semana":"VIERNES"},{"doctor_id":14,"person_id":56,"nombre_doctor":"ronal ricardo","doctor_estado":"ACTIVO","agenda_id":18,"medico_id":14,"doctor_match":true,"dia_semana":"VIERNES"}]Médicos encontrados para 2025-07-04 (VIERNES): 2DEBUG - Fecha: 2025-07-04, Número día: 5, Texto día: VIERNESBuscando médicos para fecha: 2025-07-04, día: VIERNESAgendas encontradas para VIERNES: [{"agenda_id":10,"dia_semana":"VIERNES","agenda_descripcion":"Agenda del m\u00e9dico ID: 13","medico_id":13},{"agenda_id":18,"dia_semana":"VIERNES","agenda_descripcion":"prueba ","medico_id":14},{"agenda_id":18,"dia_semana":"VIERNES","agenda_descripcion":"prueba ","medico_id":14}]DEBUG - Dia semana utilizado para la consulta: 'VIERNES'DEBUG - Días disponibles en agendas_detalle: ["LUNES","MARTES","MIERCOLES","JUEVES","VIERNES","SABADO"]Resultados crudos de la consulta: [{"doctor_id":13,"person_id":53,"nombre_doctor":"Antonio Galeano","doctor_estado":"ACTIVO","agenda_id":10,"medico_id":13,"doctor_match":true,"dia_semana":"VIERNES"},{"doctor_id":14,"person_id":56,"nombre_doctor":"ronal ricardo","doctor_estado":"ACTIVO","agenda_id":18,"medico_id":14,"doctor_match":true,"dia_semana":"VIERNES"}]Médicos encontrados para 2025-07-04 (VIERNES): 2DEBUG - Fecha: 2025-07-02, Número día: 3, Texto día: MIERCOLESBuscando médicos para fecha: 2025-07-02, día: MIERCOLESAgendas encontradas para MIERCOLES: [{"agenda_id":10,"dia_semana":"MIERCOLES","agenda_descripcion":"Agenda del m\u00e9dico ID: 13","medico_id":13},{"agenda_id":18,"dia_semana":"MIERCOLES","agenda_descripcion":"prueba ","medico_id":14}]DEBUG - Dia semana utilizado para la consulta: 'MIERCOLES'DEBUG - Días disponibles en agendas_detalle: ["LUNES","MARTES","MIERCOLES","JUEVES","VIERNES","SABADO"]Resultados crudos de la consulta: [{"doctor_id":13,"person_id":53,"nombre_doctor":"Antonio Galeano","doctor_estado":"ACTIVO","agenda_id":10,"medico_id":13,"doctor_match":true,"dia_semana":"MIERCOLES"},{"doctor_id":14,"person_id":56,"nombre_doctor":"ronal ricardo","doctor_estado":"ACTIVO","agenda_id":18,"medico_id":14,"doctor_match":true,"dia_semana":"MIERCOLES"}]Médicos encontrados para 2025-07-02 (MIERCOLES): 2DEBUG - Fecha: 2025-07-02, Número día: 3, Texto día: MIERCOLESBuscando médicos para fecha: 2025-07-02, día: MIERCOLESAgendas encontradas para MIERCOLES: [{"agenda_id":10,"dia_semana":"MIERCOLES","agenda_descripcion":"Agenda del m\u00e9dico ID: 13","medico_id":13},{"agenda_id":18,"dia_semana":"MIERCOLES","agenda_descripcion":"prueba ","medico_id":14}]DEBUG - Dia semana utilizado para la consulta: 'MIERCOLES'DEBUG - Días disponibles en agendas_detalle: ["LUNES","MARTES","MIERCOLES","JUEVES","VIERNES","SABADO"]Resultados crudos de la consulta: [{"doctor_id":13,"person_id":53,"nombre_doctor":"Antonio Galeano","doctor_estado":"ACTIVO","agenda_id":10,"medico_id":13,"doctor_match":true,"dia_semana":"MIERCOLES"},{"doctor_id":14,"person_id":56,"nombre_doctor":"ronal ricardo","doctor_estado":"ACTIVO","agenda_id":18,"medico_id":14,"doctor_match":true,"dia_semana":"MIERCOLES"}]Médicos encontrados para 2025-07-02 (MIERCOLES): 2DEBUG - Fecha: 2025-07-02, Número día: 3, Texto día: MIERCOLESBuscando médicos para fecha: 2025-07-02, día: MIERCOLESAgendas encontradas para MIERCOLES: [{"agenda_id":10,"dia_semana":"MIERCOLES","agenda_descripcion":"Agenda del m\u00e9dico ID: 13","medico_id":13},{"agenda_id":18,"dia_semana":"MIERCOLES","agenda_descripcion":"prueba ","medico_id":14}]DEBUG - Dia semana utilizado para la consulta: 'MIERCOLES'DEBUG - Días disponibles en agendas_detalle: ["LUNES","MARTES","MIERCOLES","JUEVES","VIERNES","SABADO"]Resultados crudos de la consulta: [{"doctor_id":13,"person_id":53,"nombre_doctor":"Antonio Galeano","doctor_estado":"ACTIVO","agenda_id":10,"medico_id":13,"doctor_match":true,"dia_semana":"MIERCOLES"},{"doctor_id":14,"person_id":56,"nombre_doctor":"ronal ricardo","doctor_estado":"ACTIVO","agenda_id":18,"medico_id":14,"doctor_match":true,"dia_semana":"MIERCOLES"}]Médicos encontrados para 2025-07-02 (MIERCOLES): 2

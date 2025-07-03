@@ -33,3 +33,5 @@
 2025-06-25 03:13:45 - Consulta guardada exitosamente con ID: 43
 2025-06-25 03:16:07 - Guardando consulta: {"id_persona":"63","txtmotivo":"Enrojecimiento ocular","consulta-textarea":"<p><b>PRUEBAAAA<span style=\"box-sizing: border-box; color: rgb(33, 37, 41); font-family: &quot;Sourc..."}
 2025-06-25 03:16:07 - Consulta guardada exitosamente con ID: 44
+2025-07-03 01:30:25 - Guardando consulta: {"id_persona":"45","txtmotivo":"Adaptaci\u00f3n de lentes de contacto, Disminuci\u00f3n de la agudeza visual, Dolor ocular","consulta-textarea":"<p><strong>[Diagn\u00f3stico ICD-11: MD12 - Tos]<\/strong><\/p>\r\n                        <p>La tos es un m..."}
+2025-07-03 01:30:25 - Consulta guardada exitosamente con ID: 45

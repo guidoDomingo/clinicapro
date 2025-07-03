@@ -873,3 +873,9 @@
 
 )
 
+2025-07-03 01:28:32 [CONSULTA] Iniciando proceso de guardar consulta - {"POST":[],"FILES":[]}
+2025-07-03 01:28:32 [ERROR] No se pudo establecer conexión a la base de datos para verificar tabla consultas
+2025-07-03 01:28:32 [ERROR] No se pudo establecer conexión a la base de datos para verificar tabla rh_person
+2025-07-03 01:30:25 [CONSULTA] Iniciando proceso de guardar consulta - {"POST":{"txtdocumento":"88867676767","txtficha":"3245435435","txtnombre":"alejandro visconte","idPersona":"45","motivoscomunes":"3","formatoConsulta":"11","txtmotivo":"Adaptación de lentes de contacto, Disminución de la agudeza visual, Dolor ocular","visionod":"3453","visionoi":"34534","tensionod":"3453","...":"(datos truncados)"},"FILES":{"files":{"name":"","full_path":"","type":"","tmp_name":"","error":4,"size":0}}}
+2025-07-03 01:30:25 [ESTRUCTURA] Estructura de tabla consultas verificada - {"columnas":{"0":"id_consulta","1":"id_persona","2":"proximaconsulta","3":"id_user","4":"id_reserva","5":"fecha_registro","6":"ultima_modificacion","7":"tensionoi","8":"consulta_textarea","9":"receta_textarea","...":"(datos truncados)"}}
+2025-07-03 01:30:25 [ESTRUCTURA] Estructura de tabla rh_person verificada - {"columnas":{"0":"person_id","1":"department_id","2":"city_id","3":"is_minor","4":"created_at","5":"registered_by","6":"modified_by","7":"last_modified_at","8":"last_accessed_at","9":"owner_id","...":"(datos truncados)"}}
