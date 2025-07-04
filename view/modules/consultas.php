@@ -59,7 +59,40 @@
                                 <div class="active tab-pane" id="activity">
                                     <!-- Form Consultas -->
                                     <?php
-                                        include "view/inc/frmConsulta.php";
+                                        // Determinar qué formulario cargar
+                                        $form_type = isset($_GET['form_type']) ? $_GET['form_type'] : 'general';
+                                        
+                                        // Mapeo de tipos de formularios a archivos
+                                        $form_files = [
+                                            'general' => "view/inc/consulta_forms/frmConsultaGeneral.php",
+                                            'anteojos' => "view/inc/consulta_forms/frmConsultaAnteojos.php",
+                                            // Aquí puedes agregar más tipos de formularios cuando los crees
+                                        ];
+                                        
+                                        // Cargar el formulario seleccionado o el predeterminado
+                                        $form_file = isset($form_files[$form_type]) ? $form_files[$form_type] : $form_files['general'];
+                                        
+                                        // Selector de tipo de formulario
+                                        ?>
+                                        <div class="form-row mb-4">
+                                            <div class="col-md-6">
+                                                <label for="form_type_selector">Tipo de formulario:</label>
+                                                <select id="form_type_selector" class="form-control" onchange="cambiarFormulario(this.value)">
+                                                    <option value="general" <?php echo ($form_type == 'general') ? 'selected' : ''; ?>>Consulta General</option>
+                                                    <option value="anteojos" <?php echo ($form_type == 'anteojos') ? 'selected' : ''; ?>>Receta para Anteojos</option>
+                                                    <!-- Agrega más opciones aquí cuando crees nuevos formularios -->
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <script>
+                                            function cambiarFormulario(formType) {
+                                                window.location.href = 'index.php?ruta=consultas&form_type=' + formType;
+                                            }
+                                        </script>
+                                        <?php
+                                        
+                                        // Incluir el archivo del formulario seleccionado
+                                        include $form_file;
                                     ?>
                                     <!-- /.end form Consultas -->
                                 </div>
@@ -273,3 +306,20 @@
 <script src="view/js/icd11-integration.js"></script>
 <script src="view/js/consultas.js"></script>
 <script src="view/js/remedios.js"></script>
+<script src="view/js/anteojos.js"></script>
+
+<script>
+    // Script para detectar el tipo de formulario y cargar los scripts adicionales necesarios
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const formType = urlParams.get('form_type');
+        
+        console.log("Tipo de formulario detectado:", formType);
+        
+        // Cargar scripts específicos según el tipo de formulario
+        if (formType === 'anteojos') {
+            console.log("Inicializando componentes específicos para el formulario de anteojos");
+            // La lógica está en anteojos.js, que se cargará automáticamente
+        }
+    });
+</script>

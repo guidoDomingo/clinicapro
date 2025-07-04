@@ -26,11 +26,12 @@ class MotivosController {
                 
                 $descripcion = isset($_POST["nuevaDescripcionMotivo"]) ? $_POST["nuevaDescripcionMotivo"] : '';
                 $estado = isset($_POST["estadoMotivo"]) ? $_POST["estadoMotivo"] : 1;
+                $tipo_formulario = isset($_POST["tipoFormularioMotivo"]) ? $_POST["tipoFormularioMotivo"] : 'general';
                 
                 // Obtener el ID del usuario que crea el motivo (si está disponible)
                 $creado_por = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
                 
-                $resultado = MotivosModel::mdlCrearMotivo($_POST["nuevoMotivo"], $descripcion, $estado, $creado_por);
+                $resultado = MotivosModel::mdlCrearMotivo($_POST["nuevoMotivo"], $descripcion, $estado, $creado_por, $tipo_formulario);
                 
                 if($resultado["status"] == "ok") {
                     echo '<script>
@@ -75,8 +76,9 @@ class MotivosController {
                 $nombre = $_POST["editarMotivo"];
                 $descripcion = isset($_POST["editarDescripcionMotivo"]) ? $_POST["editarDescripcionMotivo"] : '';
                 $estado = isset($_POST["editarEstadoMotivo"]) ? $_POST["editarEstadoMotivo"] : 1;
+                $tipo_formulario = isset($_POST["editarTipoFormularioMotivo"]) ? $_POST["editarTipoFormularioMotivo"] : 'general';
                 
-                $resultado = MotivosModel::mdlActualizarMotivo($id, $nombre, $descripcion, $estado);
+                $resultado = MotivosModel::mdlActualizarMotivo($id, $nombre, $descripcion, $estado, $tipo_formulario);
 
                 if($resultado["status"] == "ok") {
                     echo '<script>

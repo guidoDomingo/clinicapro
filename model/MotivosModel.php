@@ -7,7 +7,7 @@ class MotivosModel {
     OBTENER TODOS LOS MOTIVOS COMUNES
     =============================================*/
     static public function mdlObtenerMotivos() {
-        $stmt = Conexion::conectar()->prepare("SELECT id_motivo, nombre, descripcion, activo, fecha_creacion, creado_por FROM motivos_comunes ORDER BY id_motivo");
+        $stmt = Conexion::conectar()->prepare("SELECT id_motivo, nombre, descripcion, activo, fecha_creacion, creado_por, tipo_formulario FROM motivos_comunes ORDER BY id_motivo");
         
         $stmt->execute();
         
@@ -17,14 +17,15 @@ class MotivosModel {
     /*=============================================
     CREAR NUEVO MOTIVO COMÚN
     =============================================*/
-    static public function mdlCrearMotivo($nombre, $descripcion = '', $activo = 1, $creado_por = null) {
+    static public function mdlCrearMotivo($nombre, $descripcion = '', $activo = 1, $creado_por = null, $tipo_formulario = 'general') {
         try {
-            $stmt = Conexion::conectar()->prepare("INSERT INTO motivos_comunes(nombre, descripcion, activo, creado_por) VALUES (:nombre, :descripcion, :activo, :creado_por)");
+            $stmt = Conexion::conectar()->prepare("INSERT INTO motivos_comunes(nombre, descripcion, activo, creado_por, tipo_formulario) VALUES (:nombre, :descripcion, :activo, :creado_por, :tipo_formulario)");
             
             $stmt->bindParam(":nombre", $nombre, PDO::PARAM_STR);
             $stmt->bindParam(":descripcion", $descripcion, PDO::PARAM_STR);
             $stmt->bindParam(":activo", $activo, PDO::PARAM_BOOL);
             $stmt->bindParam(":creado_por", $creado_por, PDO::PARAM_INT);
+            $stmt->bindParam(":tipo_formulario", $tipo_formulario, PDO::PARAM_STR);
             
             if($stmt->execute()) {
                 return ["status" => "ok", "message" => "Motivo creado correctamente"];
@@ -41,13 +42,14 @@ class MotivosModel {
     /*=============================================
     ACTUALIZAR MOTIVO COMÚN
     =============================================*/
-    static public function mdlActualizarMotivo($id, $nombre, $descripcion = '', $activo = 1) {
+    static public function mdlActualizarMotivo($id, $nombre, $descripcion = '', $activo = 1, $tipo_formulario = 'general') {
         try {
-            $stmt = Conexion::conectar()->prepare("UPDATE motivos_comunes SET nombre = :nombre, descripcion = :descripcion, activo = :activo WHERE id_motivo = :id");
+            $stmt = Conexion::conectar()->prepare("UPDATE motivos_comunes SET nombre = :nombre, descripcion = :descripcion, activo = :activo, tipo_formulario = :tipo_formulario WHERE id_motivo = :id");
             
             $stmt->bindParam(":nombre", $nombre, PDO::PARAM_STR);
             $stmt->bindParam(":descripcion", $descripcion, PDO::PARAM_STR);
             $stmt->bindParam(":activo", $activo, PDO::PARAM_BOOL);
+            $stmt->bindParam(":tipo_formulario", $tipo_formulario, PDO::PARAM_STR);
             $stmt->bindParam(":id", $id, PDO::PARAM_INT);
             
             if($stmt->execute()) {
@@ -88,7 +90,7 @@ class MotivosModel {
     =============================================*/
     static public function mdlObtenerMotivoPorId($id) {
         try {
-            $stmt = Conexion::conectar()->prepare("SELECT id_motivo, nombre, descripcion, activo FROM motivos_comunes WHERE id_motivo = :id");
+            $stmt = Conexion::conectar()->prepare("SELECT id_motivo, nombre, descripcion, activo, tipo_formulario FROM motivos_comunes WHERE id_motivo = :id");
             
             $stmt->bindParam(":id", $id, PDO::PARAM_INT);
             $stmt->execute();

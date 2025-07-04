@@ -15,12 +15,12 @@ class AjaxMotivos {
             
             // Si hay un término de búsqueda, utilizarlo para filtrar
             if (!empty($termino)) {
-                $stmt = Conexion::conectar()->prepare("SELECT id_motivo, nombre, descripcion, fecha_creacion, activo FROM motivos_comunes WHERE nombre LIKE :termino ORDER BY nombre");
+                $stmt = Conexion::conectar()->prepare("SELECT id_motivo, nombre, descripcion, fecha_creacion, activo, tipo_formulario FROM motivos_comunes WHERE nombre LIKE :termino ORDER BY nombre");
                 $termino = '%' . $termino . '%'; // Agregar comodines para búsqueda parcial
                 $stmt->bindParam(":termino", $termino, PDO::PARAM_STR);
             } else {
                 // Si no hay término de búsqueda, obtener todos los motivos
-                $stmt = Conexion::conectar()->prepare("SELECT id_motivo, nombre, descripcion, fecha_creacion, activo FROM motivos_comunes ORDER BY nombre");
+                $stmt = Conexion::conectar()->prepare("SELECT id_motivo, nombre, descripcion, fecha_creacion, activo, tipo_formulario FROM motivos_comunes ORDER BY nombre");
             }
 
             $stmt->execute();
@@ -55,12 +55,13 @@ class AjaxMotivos {
                 $nombre = $_POST['nuevoMotivo'];
                 $descripcion = isset($_POST['nuevaDescripcion']) ? $_POST['nuevaDescripcion'] : '';
                 $estado = isset($_POST['estado']) ? $_POST['estado'] : 1;
+                $tipo_formulario = isset($_POST['tipo_formulario']) ? $_POST['tipo_formulario'] : 'general';
                 
                 // Obtener el ID del usuario que crea el motivo (si está disponible)
                 $creado_por = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
                 
                 // Llamar al método del modelo
-                $resultado = MotivosModel::mdlCrearMotivo($nombre, $descripcion, $estado, $creado_por);
+                $resultado = MotivosModel::mdlCrearMotivo($nombre, $descripcion, $estado, $creado_por, $tipo_formulario);
                 
                 // Devolver el resultado en formato JSON
                 echo json_encode($resultado);
@@ -82,8 +83,9 @@ class AjaxMotivos {
                 $nombre = $_POST['editarMotivo'];
                 $descripcion = isset($_POST['editarDescripcion']) ? $_POST['editarDescripcion'] : '';
                 $estado = isset($_POST['estado']) ? $_POST['estado'] : 1;
+                $tipo_formulario = isset($_POST['tipo_formulario']) ? $_POST['tipo_formulario'] : 'general';
                 
-                $resultado = MotivosModel::mdlActualizarMotivo($id, $nombre, $descripcion, $estado);
+                $resultado = MotivosModel::mdlActualizarMotivo($id, $nombre, $descripcion, $estado, $tipo_formulario);
                 echo json_encode($resultado);
             } catch (Exception $e) {
                 echo json_encode(['status' => 'error', 'message' => 'Error al actualizar: ' . $e->getMessage()]);
@@ -117,7 +119,7 @@ class AjaxMotivos {
             try {
                 $idMotivo = $_POST['idMotivo'];
                 
-                $stmt = Conexion::conectar()->prepare("SELECT id_motivo, nombre, descripcion, activo FROM motivos_comunes WHERE id_motivo = :id");
+                $stmt = Conexion::conectar()->prepare("SELECT id_motivo, nombre, descripcion, activo, tipo_formulario FROM motivos_comunes WHERE id_motivo = :id");
                 $stmt->bindParam(":id", $idMotivo, PDO::PARAM_INT);
                 $stmt->execute();
                 

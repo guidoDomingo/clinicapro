@@ -101,6 +101,13 @@ function inicializarTabla() {
       { data: "nombre" },
       { data: "descripcion" },
       { 
+        // Mostrar el tipo de formulario
+        data: null,
+        render: function(data, type, row) {
+          return row.tipo_formulario || "general";
+        }
+      },
+      { 
         // Use a default value for fecha_creacion if it's not available
         data: null,
         render: function(data, type, row) {
@@ -210,6 +217,9 @@ function cargarDatosMotivo(id) {
         $("#editarMotivo").val(respuesta.nombre);
         $("#editarDescripcionMotivo").val(respuesta.descripcion);
         
+        // Establecer el tipo de formulario
+        $("#editarTipoFormularioMotivo").val(respuesta.tipo_formulario || 'general');
+        
         // Convertir cualquier tipo de valor a 1 o 0 para el select
         let estadoValor = 0;
         if (respuesta.activo === true || respuesta.activo === 1 || respuesta.activo === "1" || respuesta.activo === "true") {
@@ -292,6 +302,7 @@ function guardarMotivo() {
   const nombre = $("#nuevoMotivo").val();
   const descripcion = $("#nuevaDescripcionMotivo").val();
   const activo = $("#estadoMotivo").val();
+  const tipo_formulario = $("#tipoFormularioMotivo").val();
   
   // Validar que el nombre no esté vacío
   if (nombre.trim() === "") {
@@ -311,7 +322,8 @@ function guardarMotivo() {
       accion: "crear",
       nuevoMotivo: nombre,
       nuevaDescripcion: descripcion,
-      estado: activo
+      estado: activo,
+      tipo_formulario: tipo_formulario
     },
     dataType: "json",
     success: function(respuesta) {
@@ -363,6 +375,7 @@ function actualizarMotivo() {
   const nombre = $("#editarMotivo").val();
   const descripcion = $("#editarDescripcionMotivo").val();
   const activo = $("#editarEstadoMotivo").val();
+  const tipo_formulario = $("#editarTipoFormularioMotivo").val();
   
   // Validar que el nombre no esté vacío
   if (nombre.trim() === "") {
@@ -383,7 +396,8 @@ function actualizarMotivo() {
       idMotivo: id,
       editarMotivo: nombre,
       editarDescripcion: descripcion,
-      estado: activo
+      estado: activo,
+      tipo_formulario: tipo_formulario
     },
     dataType: "json",
     success: function(respuesta) {

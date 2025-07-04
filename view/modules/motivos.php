@@ -60,6 +60,7 @@ require_once "controller/MotivosController.php";
                 <th style="width: 10px">#</th>
                 <th>Nombre</th>
                 <th>Descripción</th>
+                <th>Tipo Formulario</th>
                 <th>Fecha Creación</th>
                 <th>Estado</th>
                 <th style="width: 100px">Acciones</th>
@@ -105,6 +106,14 @@ require_once "controller/MotivosController.php";
             <textarea class="form-control" id="nuevaDescripcionMotivo" name="nuevaDescripcionMotivo" placeholder="Ingrese una descripción" rows="3"></textarea>
           </div>
           <div class="form-group">
+            <label for="tipoFormularioMotivo">Tipo de Formulario</label>
+            <select id="tipoFormularioMotivo" name="tipoFormularioMotivo" class="form-control">
+              <option value="general" selected>General</option>
+              <option value="anteojos">Anteojos</option>
+              <!-- Agregar más tipos según sea necesario -->
+            </select>
+          </div>
+          <div class="form-group">
             <label for="estadoMotivo">Estado</label>
             <select id="estadoMotivo" name="estadoMotivo" class="form-control">
               <option value="1" selected>Activo</option>
@@ -146,6 +155,14 @@ require_once "controller/MotivosController.php";
           <div class="form-group">
             <label for="editarDescripcionMotivo">Descripción</label>
             <textarea class="form-control" id="editarDescripcionMotivo" name="editarDescripcionMotivo" placeholder="Edite la descripción" rows="3"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="editarTipoFormularioMotivo">Tipo de Formulario</label>
+            <select id="editarTipoFormularioMotivo" name="editarTipoFormularioMotivo" class="form-control">
+              <option value="general">General</option>
+              <option value="anteojos">Anteojos</option>
+              <!-- Agregar más tipos según sea necesario -->
+            </select>
           </div>
           <div class="form-group">
             <label for="editarEstadoMotivo">Estado</label>

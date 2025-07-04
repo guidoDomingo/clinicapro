@@ -6,8 +6,8 @@ class ControllerPreformatos {
      * Obtiene todos los motivos comunes activos
      * @return array Arreglo con los motivos comunes
      */
-    public static function ctrGetMotivosComunes() {
-        return ModelPreformatos::mdlGetMotivosComunes();
+    public static function ctrGetMotivosComunes($tipo_formulario = 'general') {
+        return ModelPreformatos::mdlGetMotivosComunes($tipo_formulario);
     }
     
     /**

@@ -1156,8 +1156,18 @@ function cargarConsultaEnFormulario(consulta, archivos) {
     // Seleccionar el motivo común correcto en el selector
     const selectMotivosComunes = document.getElementById('motivoscomunes');
     if (selectMotivosComunes && consulta.motivo) {
-        // Primero asegurarse de que los motivos comunes estén cargados
-        cargarMotivosComunes();
+        // Verificar si ya existen opciones en el selector, no cargar de nuevo
+        if (selectMotivosComunes.options.length <= 1) {
+            // Detectar el tipo de formulario
+            const urlParams = new URLSearchParams(window.location.search);
+            const formType = urlParams.get('form_type') || 'general';
+            console.log("Cargando motivos comunes para el tipo:", formType);
+            
+            // Solo si no hay opciones, cargarlas
+            if (typeof cargarMotivosComunes === 'function') {
+                cargarMotivosComunes(formType);
+            }
+        }
         
         // Buscar la opción que coincida con el motivo de la consulta
         // Usar setTimeout para asegurar que los datos se hayan cargado

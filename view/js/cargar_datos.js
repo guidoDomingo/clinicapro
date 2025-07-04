@@ -19,8 +19,13 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
-        // Cargar los motivos comunes y preformatos
-        cargarMotivosComunes();
+        // Detectar el tipo de formulario para cargar los motivos comunes adecuados
+        const urlParams = new URLSearchParams(window.location.search);
+        const formType = urlParams.get('form_type') || 'general';
+        console.log('Tipo de formulario detectado en cargar_datos.js:', formType);
+        
+        // Cargar los motivos comunes según el tipo de formulario y los preformatos
+        cargarMotivosComunes(formType);
         cargarPreformatosConsulta();
         cargarPreformatosReceta();
         
@@ -118,8 +123,8 @@ document.addEventListener('DOMContentLoaded', function() {
 /**
  * Función para cargar los motivos comunes en el selector
  */
-function cargarMotivosComunes() {
-    console.log('Iniciando carga de motivos comunes...');
+function cargarMotivosComunes(tipoFormulario = 'general') {
+    console.log('Iniciando carga de motivos comunes para tipo:', tipoFormulario);
     const selectMotivosComunes = document.getElementById('motivoscomunes');
     if (!selectMotivosComunes) {
         console.log('Elemento motivoscomunes no encontrado en el DOM');
@@ -135,6 +140,7 @@ function cargarMotivosComunes() {
     // Crear objeto FormData para enviar los datos
     const formData = new FormData();
     formData.append('operacion', 'getMotivosComunes');
+    formData.append('tipo_formulario', tipoFormulario);
     
     console.log('Enviando petición AJAX para obtener motivos comunes...');
     // Realizar petición AJAX

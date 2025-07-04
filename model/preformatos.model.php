@@ -6,14 +6,17 @@ class ModelPreformatos {
      * Obtiene todos los motivos comunes activos
      * @return array Arreglo con los motivos comunes
      */
-    public static function mdlGetMotivosComunes() {
+    public static function mdlGetMotivosComunes($tipo_formulario = 'general') {
         try {
             $stmt = Conexion::conectar()->prepare(
-                "SELECT id_motivo, nombre, descripcion 
+                "SELECT id_motivo, nombre, descripcion, tipo_formulario
                 FROM motivos_comunes 
                 WHERE activo = true 
+                AND tipo_formulario = :tipo_formulario
                 ORDER BY nombre ASC"
             );
+            
+            $stmt->bindParam(":tipo_formulario", $tipo_formulario, PDO::PARAM_STR);
             
             $stmt->execute();
             $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);

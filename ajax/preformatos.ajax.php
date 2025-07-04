@@ -4,9 +4,10 @@ require_once "../controller/preformatos.controller.php";
 class PreformatosAjax {
     /**
      * Obtiene todos los motivos comunes activos
+     * @param string $tipo_formulario Tipo de formulario ('general', 'anteojos', etc.)
      */
-    public function ajaxGetMotivosComunes() {
-        $motivos = ControllerPreformatos::ctrGetMotivosComunes();
+    public function ajaxGetMotivosComunes($tipo_formulario = 'general') {
+        $motivos = ControllerPreformatos::ctrGetMotivosComunes($tipo_formulario);
         echo json_encode([
             'status' => 'success',
             'data' => $motivos
@@ -268,7 +269,8 @@ if (isset($_POST['operacion'])) {
     
     switch ($_POST['operacion']) {
         case 'getMotivosComunes':
-            $preformatos->ajaxGetMotivosComunes();
+            $tipo_formulario = isset($_POST['tipo_formulario']) ? $_POST['tipo_formulario'] : 'general';
+            $preformatos->ajaxGetMotivosComunes($tipo_formulario);
             break;
             
         case 'getPreformatosConsulta':
