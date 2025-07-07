@@ -26,8 +26,8 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Cargar los motivos comunes según el tipo de formulario y los preformatos
         cargarMotivosComunes(formType);
-        cargarPreformatosConsulta();
-        cargarPreformatosReceta();
+        cargarPreformatosConsulta(formType);
+        cargarPreformatosReceta(formType);
         
         // Agregar event listeners a los selectores
         setTimeout(function() {
@@ -100,7 +100,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 selectFormatoReceta.addEventListener('change', function() {
                     console.log('Preformato de receta seleccionado (evento nativo):', this.value);
                     if (this.value !== 'Seleccionar') {
-                        aplicarPreformato('receta', this.value);
+                        // Verificar si estamos en el formulario de anteojos
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const formType = urlParams.get('form_type') || 'general';
+                        
+                        // Si estamos en el formulario de anteojos, usar tipo 'receta_anteojos'
+                        const tipoPreformato = formType === 'anteojos' ? 'receta_anteojos' : 'receta';
+                        console.log(`Aplicando preformato como tipo: ${tipoPreformato} en formulario: ${formType}`);
+                        
+                        // Aplicar el preformato al textarea de receta con el tipo correcto
+                        aplicarPreformato(tipoPreformato, this.value);
                     }
                 });
                 
@@ -109,7 +118,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     $('#formatoreceta').on('select2:select', function(e) {
                         console.log('Select2: Preformato de receta seleccionado:', e.params.data);
                         if (e.params.data.id !== 'Seleccionar') {
-                            aplicarPreformato('receta', e.params.data.id);
+                            // Verificar si estamos en el formulario de anteojos
+                            const urlParams = new URLSearchParams(window.location.search);
+                            const formType = urlParams.get('form_type') || 'general';
+                            
+                            // Si estamos en el formulario de anteojos, usar tipo 'receta_anteojos'
+                            const tipoPreformato = formType === 'anteojos' ? 'receta_anteojos' : 'receta';
+                            console.log(`Select2: Aplicando preformato como tipo: ${tipoPreformato} en formulario: ${formType}`);
+                            
+                            aplicarPreformato(tipoPreformato, e.params.data.id);
                         }
                     });
                 }
@@ -201,8 +218,8 @@ function cargarMotivosComunes(tipoFormulario = 'general') {
 /**
  * Función para cargar los preformatos de consulta en el selector
  */
-function cargarPreformatosConsulta() {
-    console.log('Iniciando carga de preformatos de consulta...');
+function cargarPreformatosConsulta(tipoFormulario = 'general') {
+    console.log('Iniciando carga de preformatos de consulta para tipo:', tipoFormulario);
     const selectFormatoConsulta = document.getElementById('formatoConsulta');
     if (!selectFormatoConsulta) {
         console.log('Elemento formatoConsulta no encontrado en el DOM');
@@ -218,6 +235,7 @@ function cargarPreformatosConsulta() {
     // Crear objeto FormData para enviar los datos
     const formData = new FormData();
     formData.append('operacion', 'getPreformatosConsulta');
+    formData.append('tipo_formulario', tipoFormulario);
     
     // Obtener el ID del usuario logueado del atributo data-user-id del body
     const usuarioId = document.body.getAttribute('data-user-id') || '';
@@ -288,7 +306,7 @@ function cargarPreformatosConsulta() {
 /**
  * Función para cargar los preformatos de receta en el selector
  */
-function cargarPreformatosReceta() {
+function cargarPreformatosReceta(tipoFormulario = 'general') {
     console.log('==== INICIANDO CARGA DE PREFORMATOS DE RECETA ====');
     const selectFormatoReceta = document.getElementById('formatoreceta');
     if (!selectFormatoReceta) {
@@ -304,7 +322,18 @@ function cargarPreformatosReceta() {
     
     // Crear objeto FormData para enviar los datos
     const formData = new FormData();
-    formData.append('operacion', 'getPreformatosReceta');
+    
+    // Determinar qué operación usar según el tipo de formulario
+    if (tipoFormulario === 'anteojos') {
+        // Para formularios de anteojos, intentar primero con preformatos específicos de anteojos
+        // pero tener un plan de respaldo para cargar preformatos de receta normales
+        formData.append('operacion', 'getPreformatosRecetaAnteojos');
+        console.log('Solicitando preformatos de tipo receta_anteojos para formulario de anteojos');
+    } else {
+        formData.append('operacion', 'getPreformatosReceta');
+    }
+    
+    formData.append('tipo_formulario', tipoFormulario);
     
     // Obtener el ID del usuario logueado del atributo data-user-id del body
     const usuarioId = document.body.getAttribute('data-user-id') || '';
@@ -316,6 +345,13 @@ function cargarPreformatosReceta() {
     }
     
     console.log('Enviando petición AJAX para obtener preformatos de receta...');
+    console.log('Tipo de formulario enviado: ' + tipoFormulario);
+    
+    // Depurar contenido del FormData
+    for (var pair of formData.entries()) {
+        console.log(pair[0]+ ': ' + pair[1]); 
+    }
+    
     // Realizar petición AJAX
     $.ajax({
         type: 'POST',
@@ -371,8 +407,16 @@ function cargarPreformatosReceta() {
                     console.log('Selector de preformato de receta cambiado:', this.value);
                     
                     if (this.value !== 'Seleccionar') {
-                        // Aplicar el preformato al textarea de receta
-                        aplicarPreformato('receta', this.value);
+                        // Verificar si estamos en el formulario de anteojos
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const formType = urlParams.get('form_type') || 'general';
+                        
+                        // Si estamos en el formulario de anteojos, usar tipo 'receta_anteojos'
+                        const tipoPreformato = formType === 'anteojos' ? 'receta_anteojos' : 'receta';
+                        console.log(`Aplicando preformato como tipo: ${tipoPreformato} en formulario: ${formType}`);
+                        
+                        // Aplicar el preformato al textarea de receta con el tipo correcto
+                        aplicarPreformato(tipoPreformato, this.value);
                     }
                 };
                 
@@ -384,6 +428,84 @@ function cargarPreformatosReceta() {
                 console.log('Evento change agregado correctamente al selector de preformatos de receta');
             } else {
                 console.log('No se encontraron preformatos de receta o hubo un error:', response);
+                
+                // Plan de respaldo para formularios de anteojos:
+                // Si estamos buscando preformatos de anteojos y no hay resultados, cargar preformatos de receta generales
+                if (tipoFormulario === 'anteojos' && formData.get('operacion') === 'getPreformatosRecetaAnteojos') {
+                    console.log('No se encontraron preformatos específicos de anteojos, cargando preformatos de receta generales como respaldo...');
+                    
+                    // Crear nuevo FormData para la segunda solicitud
+                    const fallbackFormData = new FormData();
+                    fallbackFormData.append('operacion', 'getPreformatosReceta');
+                    fallbackFormData.append('tipo_formulario', 'general'); // Usar el tipo general
+                    
+                    // Mantener el usuario_id si está disponible
+                    const usuarioId = formData.get('usuario_id');
+                    if (usuarioId) {
+                        fallbackFormData.append('usuario_id', usuarioId);
+                    }
+                    
+                    // Realizar segunda petición AJAX como respaldo
+                    $.ajax({
+                        type: 'POST',
+                        url: 'ajax/preformatos.ajax.php',
+                        data: fallbackFormData,
+                        dataType: "json",
+                        processData: false,
+                        contentType: false,
+                        success: function(fallbackResponse) {
+                            console.log('Respuesta de respaldo recibida:', fallbackResponse);
+                            if (fallbackResponse.status === 'success' && fallbackResponse.data.length > 0) {
+                                console.log('Preformatos de receta generales obtenidos como respaldo, cantidad:', fallbackResponse.data.length);
+                                // Agregar opciones al selector
+                                fallbackResponse.data.forEach(function(preformato) {
+                                    const option = document.createElement('option');
+                                    option.value = preformato.id_preformato;
+                                    option.text = preformato.nombre;
+                                    option.setAttribute('data-contenido', preformato.contenido);
+                                    selectFormatoReceta.appendChild(option);
+                                    console.log(`Agregado preformato de respaldo: ${preformato.nombre}, ID: ${preformato.id_preformato}`);
+                                });
+                                
+                                // Inicializar Select2 y eventos como en el caso original
+                                if ($.fn.select2) {
+                                    $('.select2-container--bootstrap4[aria-labelledby="select2-formatoreceta-container"]').remove();
+                                    if ($('#formatoreceta').data('select2')) {
+                                        $('#formatoreceta').select2('destroy');
+                                    }
+                                    $('#formatoreceta').removeClass('select2-hidden-accessible');
+                                    $('#formatoreceta').select2({
+                                        theme: 'bootstrap4',
+                                        width: 'resolve',
+                                        dropdownParent: $('#formatoreceta').parent()
+                                    });
+                                    $('#formatoreceta').trigger('change');
+                                }
+                                
+                                // Configurar eventos
+                                if (selectFormatoReceta._eventAttached) {
+                                    selectFormatoReceta.removeEventListener('change', selectFormatoReceta._changeHandler);
+                                }
+                                selectFormatoReceta._changeHandler = function() {
+                                    if (this.value !== 'Seleccionar') {
+                                        const urlParams = new URLSearchParams(window.location.search);
+                                        const formType = urlParams.get('form_type') || 'general';
+                                        const tipoPreformato = formType === 'anteojos' ? 'receta_anteojos' : 'receta';
+                                        console.log(`Aplicando preformato de respaldo como tipo: ${tipoPreformato} en formulario: ${formType}`);
+                                        aplicarPreformato(tipoPreformato, this.value);
+                                    }
+                                };
+                                selectFormatoReceta.addEventListener('change', selectFormatoReceta._changeHandler);
+                                selectFormatoReceta._eventAttached = true;
+                            } else {
+                                console.log('No se encontraron preformatos de receta de respaldo.');
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error("Error al cargar preformatos de receta de respaldo:", error);
+                        }
+                    });
+                }
             }
         },
         error: function(xhr, status, error) {
@@ -422,8 +544,10 @@ function aplicarPreformato(tipo, idPreformato) {
             textareaId = 'receta-textarea';
             break;
         case 'receta_anteojos':
-            selector = document.querySelector(`select[data-tipo="${tipo}"]`);
-            textareaId = 'receta-anteojos-textarea';
+            // Para recetas de anteojos, probablemente estemos usando el mismo selector que para recetas normales
+            // en el formulario de anteojos
+            selector = document.getElementById('formatoreceta'); 
+            textareaId = 'receta-textarea';
             break;
         case 'orden_estudios':
             selector = document.querySelector(`select[data-tipo="${tipo}"]`);

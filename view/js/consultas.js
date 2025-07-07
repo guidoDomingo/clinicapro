@@ -1217,7 +1217,7 @@ function cargarConsultaEnFormulario(consulta, archivos) {
         // Verificar si los preformatos ya están cargados
         if (selectFormatoConsulta.options.length <= 1) {
             // Si no hay opciones cargadas, cargar los preformatos primero
-            cargarPreformatosConsulta();
+            cargarPreformatosConsulta(formType);
         }
         
         // Esperar un momento para que se carguen las opciones

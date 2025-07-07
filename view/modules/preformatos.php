@@ -74,23 +74,34 @@
                                             </div>
                                         </div>
                                         <div class="row">
-                                            <div class="col-md-6">
+                                            <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label for="titulo-preformato">Título</label>
                                                     <input type="text" class="form-control" id="titulo-preformato" placeholder="Título del preformato" required>
                                                 </div>
                                             </div>
-                                            <div class="col-md-6">
+                                            <div class="col-md-4">
                                                 <div class="form-group">
                                                     <label for="tipo-preformato">Tipo</label>
                                                     <select class="form-control" id="tipo-preformato">
                                                         <option value="" selected disabled>Seleccionar...</option>
                                                         <option value="consulta">Consultas generales</option>
                                                         <option value="receta">Receta de lente</option>
-                                                        <option value="California">California</option>
-                                                        <option value="Delaware">Delaware</option>
-                                                        <option value="Tennessee">Tennessee</option>
-                                                        <option value="Formulario de receta">Formulario de receta</option>
+                                                        <option value="receta_anteojos">Receta de anteojos</option>
+                                                        <option value="orden_estudios">Orden de estudios</option>
+                                                        <option value="orden_cirugias">Orden de cirugías</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label for="tipo-formulario">Tipo de Formulario</label>
+                                                    <select class="form-control" id="tipo-formulario">
+                                                        <option value="general" selected>General</option>
+                                                        <option value="anteojos">Anteojos</option>
+                                                        <option value="dermatologia">Dermatología</option>
+                                                        <option value="pediatria">Pediatría</option>
+                                                        <option value="ginecologia">Ginecología</option>
                                                     </select>
                                                 </div>
                                             </div>
@@ -143,6 +154,7 @@
                                         <th>#</th>
                                         <th>Título</th>
                                         <th>Tipo</th>
+                                        <th>Tipo Formulario</th>
                                         <th>Acciones</th>
                                     </tr>
                                 </thead>

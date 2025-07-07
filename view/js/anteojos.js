@@ -13,6 +13,25 @@ $(document).ready(function() {
         console.log('Detectado formulario de anteojos, inicializando componentes específicos');
         // Inicializar los selectores para esferas, cilindros y adiciones
         inicializarSelectoresAnteojos();
+        
+        // Cargar los preformatos específicos para anteojos
+        // Forzar una pequeña espera para asegurar que cargar_datos.js haya cargado
+        setTimeout(function() {
+            console.log('Cargando preformatos específicos para anteojos');
+            if (typeof cargarPreformatosConsulta === 'function') {
+                console.log('Llamando a cargarPreformatosConsulta con tipo anteojos');
+                cargarPreformatosConsulta('anteojos');
+            } else {
+                console.error('La función cargarPreformatosConsulta no está disponible');
+            }
+            
+            if (typeof cargarPreformatosReceta === 'function') {
+                console.log('Llamando a cargarPreformatosReceta con tipo anteojos');
+                cargarPreformatosReceta('anteojos');
+            } else {
+                console.error('La función cargarPreformatosReceta no está disponible');
+            }
+        }, 500);
     }
 });
 

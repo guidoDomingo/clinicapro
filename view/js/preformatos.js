@@ -161,10 +161,13 @@ function cargarPreformatosPorTipo(tipo) {
                 // Agregar filas a la tabla
                 response.data.forEach(function(preformato, index) {
                     const row = document.createElement('tr');
+                    const tipoFormulario = preformato.tipo_formulario || 'general';
+                    
                     row.innerHTML = `
                         <td>${index + 1}</td>
                         <td>${preformato.nombre}</td>
                         <td>${preformato.tipo}</td>
+                        <td>${tipoFormulario}</td>
                         <td>
                             <div class="btn-group">
                                 <button class="btn btn-info btn-sm btn-editar" data-id="${preformato.id_preformato}" title="Editar preformato">
@@ -238,10 +241,13 @@ function cargarPreformatos(forzarRecarga = false) {
                 // Agregar filas a la tabla
                 response.data.forEach(function(preformato, index) {
                     const row = document.createElement('tr');
+                    const tipoFormulario = preformato.tipo_formulario || 'general';
+                    
                     row.innerHTML = `
                         <td>${index + 1}</td>
                         <td>${preformato.nombre}</td>
                         <td>${preformato.tipo}</td>
+                        <td>${tipoFormulario}</td>
                         <td>
                             <button class="btn btn-info btn-sm btn-editar" data-id="${preformato.id_preformato}" title="Editar">
                                 <i class="fas fa-edit"></i>
@@ -335,6 +341,7 @@ function guardarPreformato() {
     formData.append('nombre', $("#titulo-preformato").val());
     formData.append('contenido', contenido);
     formData.append('tipo', $("#aplicar-a").val());
+    formData.append('tipo_formulario', $("#tipo-formulario").val());
     formData.append('creado_por', $("#propietario").val() || 1);
     
     // Si estamos en modo edición, agregar el ID
@@ -705,6 +712,12 @@ function cargarPreformatoParaEdicion(idPreformato) {
                     if (tipoAplicacion) {
                         $("#aplicar-a").trigger('change');
                     }
+                }
+                
+                // Establecer el tipo de formulario
+                if ($("#tipo-formulario").length) {
+                    const tipoFormulario = respuesta.data.tipo_formulario || "general";
+                    $("#tipo-formulario").val(tipoFormulario);
                 }
                 
                 // Establecer el contenido del editor si se usa Quill

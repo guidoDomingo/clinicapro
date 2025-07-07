@@ -14,10 +14,11 @@ class ControllerPreformatos {
      * Obtiene todos los preformatos activos de un tipo específico
      * @param string $tipo Tipo de preformato ('consulta' o 'receta')
      * @param int $doctorId ID del doctor para filtrar preformatos (opcional)
+     * @param string $tipoFormulario Tipo de formulario ('general', 'anteojos', etc.)
      * @return array Arreglo con los preformatos
      */
-    public static function ctrGetPreformatos($tipo, $doctorId = null) {
-        error_log("ctrGetPreformatos - Tipo: $tipo, Doctor ID: " . ($doctorId ? $doctorId : 'ninguno'));
+    public static function ctrGetPreformatos($tipo, $doctorId = null, $tipoFormulario = 'general') {
+        error_log("ctrGetPreformatos - Tipo: $tipo, Doctor ID: " . ($doctorId ? $doctorId : 'ninguno') . ", Tipo Formulario: $tipoFormulario");
         
         try {
             if ($doctorId) {
@@ -55,8 +56,8 @@ class ControllerPreformatos {
                 }
             }
             
-            // Ahora obtenemos los preformatos filtrando por tipo y opcionalmente por doctor_id
-            return ModelPreformatos::mdlGetPreformatos($tipo, $doctorId);
+            // Ahora obtenemos los preformatos filtrando por tipo, tipo de formulario y opcionalmente por doctor_id
+            return ModelPreformatos::mdlGetPreformatos($tipo, $doctorId, $tipoFormulario);
         } catch (Exception $e) {
             error_log("Error en ctrGetPreformatos: " . $e->getMessage());
             return [];
@@ -128,6 +129,11 @@ class ControllerPreformatos {
             return "error_tipo";
         }
         
+        // Asignar tipo de formulario por defecto si no se especifica
+        if (!isset($datos['tipo_formulario'])) {
+            $datos['tipo_formulario'] = 'general';
+        }
+        
         return ModelPreformatos::mdlCrearPreformato($datos);
     }
     
@@ -150,6 +156,11 @@ class ControllerPreformatos {
         // Validar que el tipo sea válido
         if (!in_array($datos['tipo'], ['consulta', 'receta', 'receta_anteojos', 'orden_estudios', 'orden_cirugias'])) {
             return "error_tipo";
+        }
+        
+        // Asignar tipo de formulario por defecto si no se especifica
+        if (!isset($datos['tipo_formulario'])) {
+            $datos['tipo_formulario'] = 'general';
         }
         
         return ModelPreformatos::mdlActualizarPreformato($datos);

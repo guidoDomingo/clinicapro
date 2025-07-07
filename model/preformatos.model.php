@@ -31,19 +31,21 @@ class ModelPreformatos {
      * Obtiene todos los preformatos activos de un tipo específico
      * @param string $tipo Tipo de preformato ('consulta' o 'receta')
      * @param int $doctorId ID del doctor para filtrar preformatos (opcional)
+     * @param string $tipoFormulario Tipo de formulario ('general', 'anteojos', etc.)
      * @return array Arreglo con los preformatos
      */
-    public static function mdlGetPreformatos($tipo, $doctorId = null) {
-        try {
-            $sql = "SELECT 
-                    p.id_preformato, 
-                    p.nombre, 
+    public static function mdlGetPreformatos($tipo, $doctorId = null, $tipoFormulario = 'general') {
+        try {            $sql = "SELECT
+                    p.id_preformato,
+                    p.nombre,
                     p.contenido,
                     p.tipo,
+                    p.tipo_formulario,
                     p.creado_por
                 FROM preformatos p
-                WHERE p.activo = true 
-                AND p.tipo = :tipo";
+                WHERE p.activo = true
+                AND p.tipo = :tipo
+                AND p.tipo_formulario = :tipo_formulario";
             
             // Si se proporciona un ID de doctor, añadir filtro
             if ($doctorId !== null) {
@@ -55,6 +57,7 @@ class ModelPreformatos {
             
             $stmt = Conexion::conectar()->prepare($sql);
             $stmt->bindParam(":tipo", $tipo, PDO::PARAM_STR);
+            $stmt->bindParam(":tipo_formulario", $tipoFormulario, PDO::PARAM_STR);
             
             // Bind doctor_id si se proporcionó
             if ($doctorId !== null) {
@@ -65,7 +68,7 @@ class ModelPreformatos {
             $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
             // Registrar para depuración
-            error_log("mdlGetPreformatos - Tipo: $tipo, Doctor ID: " . ($doctorId ? $doctorId : 'ninguno') . " - Total registros: " . count($resultado));
+            error_log("mdlGetPreformatos - Tipo: $tipo, Doctor ID: " . ($doctorId ? $doctorId : 'ninguno') . ", Tipo Formulario: $tipoFormulario - Total registros: " . count($resultado));
             
             return $resultado;
         } catch (PDOException $e) {
@@ -357,14 +360,17 @@ class ModelPreformatos {
      */
     public static function mdlCrearPreformato($datos) {
         try {
+            $tipoFormulario = isset($datos['tipo_formulario']) ? $datos['tipo_formulario'] : 'general';
+            
             $stmt = Conexion::conectar()->prepare(
-                "INSERT INTO preformatos (nombre, contenido, tipo, creado_por) 
-                VALUES (:nombre, :contenido, :tipo, :creado_por)"
+                "INSERT INTO preformatos (nombre, contenido, tipo, tipo_formulario, creado_por) 
+                VALUES (:nombre, :contenido, :tipo, :tipo_formulario, :creado_por)"
             );
             
             $stmt->bindParam(":nombre", $datos['nombre'], PDO::PARAM_STR);
             $stmt->bindParam(":contenido", $datos['contenido'], PDO::PARAM_STR);
             $stmt->bindParam(":tipo", $datos['tipo'], PDO::PARAM_STR);
+            $stmt->bindParam(":tipo_formulario", $tipoFormulario, PDO::PARAM_STR);
             $stmt->bindParam(":creado_por", $datos['creado_por'], PDO::PARAM_INT);
             
             if ($stmt->execute()) {
@@ -385,15 +391,18 @@ class ModelPreformatos {
      */
     public static function mdlActualizarPreformato($datos) {
         try {
+            $tipoFormulario = isset($datos['tipo_formulario']) ? $datos['tipo_formulario'] : 'general';
+            
             $stmt = Conexion::conectar()->prepare(
                 "UPDATE preformatos 
-                SET nombre = :nombre, contenido = :contenido, tipo = :tipo, creado_por = :creado_por 
+                SET nombre = :nombre, contenido = :contenido, tipo = :tipo, tipo_formulario = :tipo_formulario, creado_por = :creado_por 
                 WHERE id_preformato = :id_preformato"
             );
             
             $stmt->bindParam(":nombre", $datos['nombre'], PDO::PARAM_STR);
             $stmt->bindParam(":contenido", $datos['contenido'], PDO::PARAM_STR);
             $stmt->bindParam(":tipo", $datos['tipo'], PDO::PARAM_STR);
+            $stmt->bindParam(":tipo_formulario", $tipoFormulario, PDO::PARAM_STR);
             $stmt->bindParam(":creado_por", $datos['creado_por'], PDO::PARAM_INT);
             $stmt->bindParam(":id_preformato", $datos['id_preformato'], PDO::PARAM_INT);
             

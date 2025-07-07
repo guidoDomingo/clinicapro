@@ -18,10 +18,11 @@ class PreformatosAjax {
      * Obtiene todos los preformatos activos de un tipo específico
      * @param string $tipo Tipo de preformato ('consulta', 'receta', etc.)
      * @param integer $userId ID del usuario conectado (opcional)
+     * @param string $tipoFormulario Tipo de formulario ('general', 'anteojos', etc.)
      */
-    public function ajaxGetPreformatos($tipo, $userId = null) {
+    public function ajaxGetPreformatos($tipo, $userId = null, $tipoFormulario = 'general') {
         // Registrar información para depuración
-        error_log("ajaxGetPreformatos - Tipo: " . $tipo . ", User ID: " . ($userId ? $userId : 'ninguno'));
+        error_log("ajaxGetPreformatos - Tipo: " . $tipo . ", User ID: " . ($userId ? $userId : 'ninguno') . ", Tipo Formulario: " . $tipoFormulario);
         
         // Si se proporciona un ID de usuario, buscar sus preformatos usando la relación correcta
         if ($userId) {
@@ -40,19 +41,36 @@ class PreformatosAjax {
                         WHERE psu.system_user_id = :user_id 
                         AND p.tipo = :tipo
                         AND p.activo = true
+                        AND p.tipo_formulario = :tipo_formulario
                         ORDER BY p.nombre ASC";
                 
-                error_log("SQL para obtener preformatos: " . $sql);
+                // Log SQL query to database.log for debugging
+                file_put_contents('logs/database.log', 
+                    date('[Y-m-d H:i:s] ') . 
+                    "SQL para obtener preformatos (user): " . $sql . 
+                    " | Tipo: " . $tipo . 
+                    " | User ID: " . $userId . 
+                    " | Tipo Formulario: " . $tipoFormulario . 
+                    PHP_EOL, 
+                    FILE_APPEND);
                 
                 $stmt = $db->prepare($sql);
                 $stmt->bindParam(":user_id", $userId, PDO::PARAM_INT);
                 $stmt->bindParam(":tipo", $tipo, PDO::PARAM_STR);
+                $stmt->bindParam(":tipo_formulario", $tipoFormulario, PDO::PARAM_STR);
                 $stmt->execute();
                 
                 $preformatos = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 
                 // Registrar información de depuración
-                error_log("Preformatos encontrados: " . count($preformatos));
+                file_put_contents('logs/database.log', 
+                    date('[Y-m-d H:i:s] ') . 
+                    "Preformatos encontrados (user): " . count($preformatos) . 
+                    " | Tipo: " . $tipo . 
+                    " | User ID: " . $userId . 
+                    " | Tipo Formulario: " . $tipoFormulario . 
+                    PHP_EOL, 
+                    FILE_APPEND);
                 
                 echo json_encode([
                     'status' => 'success',
@@ -60,7 +78,16 @@ class PreformatosAjax {
                 ]);
                 return;
             } catch (PDOException $e) {
-                error_log("Error al obtener preformatos por usuario: " . $e->getMessage());
+                // Log error to database.log
+                file_put_contents('logs/database.log', 
+                    date('[Y-m-d H:i:s] ') . 
+                    "ERROR al obtener preformatos por usuario: " . $e->getMessage() . 
+                    " | Tipo: " . $tipo . 
+                    " | User ID: " . $userId . 
+                    " | Tipo Formulario: " . $tipoFormulario . 
+                    PHP_EOL, 
+                    FILE_APPEND);
+                
                 echo json_encode([
                     'status' => 'error',
                     'message' => 'Error al obtener preformatos: ' . $e->getMessage()
@@ -70,11 +97,62 @@ class PreformatosAjax {
         }
         
         // Si no se proporciona usuario_id, usar el método estándar para obtener todos los preformatos del tipo
-        $preformatos = ControllerPreformatos::ctrGetPreformatos($tipo);
-        echo json_encode([
-            'status' => 'success',
-            'data' => $preformatos
-        ]);
+        try {
+            // Conectar a la base de datos
+            $db = Conexion::conectar();
+            
+            $sql = "SELECT 
+                    p.*
+                FROM preformatos p
+                WHERE p.activo = true 
+                AND p.tipo = :tipo
+                AND p.tipo_formulario = :tipo_formulario
+                ORDER BY p.nombre ASC";
+                
+            // Log SQL query to database.log for debugging
+            file_put_contents('logs/database.log', 
+                date('[Y-m-d H:i:s] ') . 
+                "SQL para obtener preformatos (sin user): " . $sql . 
+                " | Tipo: " . $tipo . 
+                " | Tipo Formulario: " . $tipoFormulario . 
+                PHP_EOL, 
+                FILE_APPEND);
+            
+            $stmt = $db->prepare($sql);
+            $stmt->bindParam(":tipo", $tipo, PDO::PARAM_STR);
+            $stmt->bindParam(":tipo_formulario", $tipoFormulario, PDO::PARAM_STR);
+            $stmt->execute();
+            
+            $preformatos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Log results to database.log
+            file_put_contents('logs/database.log', 
+                date('[Y-m-d H:i:s] ') . 
+                "Preformatos encontrados (sin user): " . count($preformatos) . 
+                " | Tipo: " . $tipo . 
+                " | Tipo Formulario: " . $tipoFormulario . 
+                PHP_EOL, 
+                FILE_APPEND);
+            
+            echo json_encode([
+                'status' => 'success',
+                'data' => $preformatos
+            ]);
+        } catch (PDOException $e) {
+            // Log error to database.log
+            file_put_contents('logs/database.log', 
+                date('[Y-m-d H:i:s] ') . 
+                "ERROR al obtener preformatos (sin user): " . $e->getMessage() . 
+                " | Tipo: " . $tipo . 
+                " | Tipo Formulario: " . $tipoFormulario . 
+                PHP_EOL, 
+                FILE_APPEND);
+                
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Error al obtener preformatos: ' . $e->getMessage()
+            ]);
+        }
     }
     
     /**
@@ -267,6 +345,14 @@ if (isset($_POST['operacion'])) {
     // Guardar información de diagnóstico
     error_log("Operación solicitada: " . $_POST['operacion']);
     
+    // Log request parameters
+    file_put_contents('logs/database.log', 
+        date('[Y-m-d H:i:s] ') . 
+        "REQUEST PREFORMATOS - Operación: " . $_POST['operacion'] . 
+        " | Parámetros: " . json_encode($_POST) . 
+        PHP_EOL, 
+        FILE_APPEND);
+    
     switch ($_POST['operacion']) {
         case 'getMotivosComunes':
             $tipo_formulario = isset($_POST['tipo_formulario']) ? $_POST['tipo_formulario'] : 'general';
@@ -275,27 +361,32 @@ if (isset($_POST['operacion'])) {
             
         case 'getPreformatosConsulta':
             $doctorId = isset($_POST['usuario_id']) ? $_POST['usuario_id'] : null;
-            $preformatos->ajaxGetPreformatos('consulta', $doctorId);
+            $tipoFormulario = isset($_POST['tipo_formulario']) ? $_POST['tipo_formulario'] : 'general';
+            $preformatos->ajaxGetPreformatos('consulta', $doctorId, $tipoFormulario);
             break;
             
         case 'getPreformatosReceta':
             $doctorId = isset($_POST['usuario_id']) ? $_POST['usuario_id'] : null;
-            $preformatos->ajaxGetPreformatos('receta', $doctorId);
+            $tipoFormulario = isset($_POST['tipo_formulario']) ? $_POST['tipo_formulario'] : 'general';
+            $preformatos->ajaxGetPreformatos('receta', $doctorId, $tipoFormulario);
             break;
             
         case 'getPreformatosRecetaAnteojos':
             $doctorId = isset($_POST['usuario_id']) ? $_POST['usuario_id'] : null;
-            $preformatos->ajaxGetPreformatos('receta_anteojos', $doctorId);
+            $tipoFormulario = isset($_POST['tipo_formulario']) ? $_POST['tipo_formulario'] : 'anteojos';
+            $preformatos->ajaxGetPreformatos('receta_anteojos', $doctorId, $tipoFormulario);
             break;
             
         case 'getPreformatosOrdenEstudios':
             $doctorId = isset($_POST['usuario_id']) ? $_POST['usuario_id'] : null;
-            $preformatos->ajaxGetPreformatos('orden_estudios', $doctorId);
+            $tipoFormulario = isset($_POST['tipo_formulario']) ? $_POST['tipo_formulario'] : 'general';
+            $preformatos->ajaxGetPreformatos('orden_estudios', $doctorId, $tipoFormulario);
             break;
             
         case 'getPreformatosOrdenCirugias':
             $doctorId = isset($_POST['usuario_id']) ? $_POST['usuario_id'] : null;
-            $preformatos->ajaxGetPreformatos('orden_cirugias', $doctorId);
+            $tipoFormulario = isset($_POST['tipo_formulario']) ? $_POST['tipo_formulario'] : 'general';
+            $preformatos->ajaxGetPreformatos('orden_cirugias', $doctorId, $tipoFormulario);
             break;
             
         case 'getAllPreformatos':
@@ -327,6 +418,7 @@ if (isset($_POST['operacion'])) {
                 'nombre' => $_POST['nombre'],
                 'contenido' => $_POST['contenido'],
                 'tipo' => $_POST['tipo'],
+                'tipo_formulario' => isset($_POST['tipo_formulario']) ? $_POST['tipo_formulario'] : 'general',
                 'creado_por' => $_POST['creado_por']
             ];
             $preformatos->ajaxCrearPreformato($datos);
@@ -338,6 +430,7 @@ if (isset($_POST['operacion'])) {
                 'nombre' => $_POST['nombre'],
                 'contenido' => $_POST['contenido'],
                 'tipo' => $_POST['tipo'],
+                'tipo_formulario' => isset($_POST['tipo_formulario']) ? $_POST['tipo_formulario'] : 'general',
                 'creado_por' => $_POST['creado_por']
             ];
             $preformatos->ajaxActualizarPreformato($datos);
