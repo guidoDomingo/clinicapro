@@ -306,20 +306,15 @@
 <script src="view/js/icd11-integration.js"></script>
 <script src="view/js/consultas.js"></script>
 <script src="view/js/remedios.js"></script>
-<script src="view/js/anteojos.js"></script>
 
 <script>
-    // Script para detectar el tipo de formulario y cargar los scripts adicionales necesarios
+    // Script para detectar el tipo de formulario
     document.addEventListener('DOMContentLoaded', function() {
         const urlParams = new URLSearchParams(window.location.search);
         const formType = urlParams.get('form_type');
         
         console.log("Tipo de formulario detectado:", formType);
         
-        // Cargar scripts específicos según el tipo de formulario
-        if (formType === 'anteojos') {
-            console.log("Inicializando componentes específicos para el formulario de anteojos");
-            // La lógica está en anteojos.js, que se cargará automáticamente
-        }
+        // La lógica específica para cada tipo de formulario ahora está centralizada en cargar_datos.js
     });
 </script>
