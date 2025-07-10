@@ -1125,6 +1125,51 @@ function cargarConsultaEnFormulario(consulta, archivos) {
     }
     idConsultaInput.value = consulta.id_consulta;
     
+    // Detectar el tipo de formulario actual
+    const urlParams = new URLSearchParams(window.location.search);
+    const formType = urlParams.get('form_type') || 'general';
+    console.log("Tipo de formulario actual:", formType);
+    
+    // Si la consulta tiene un tipo de formulario específico y es diferente al actual, avisar al usuario
+    if (consulta.tipo_formulario && consulta.tipo_formulario !== formType) {
+        console.log(`Tipo de formulario diferente. Consulta: ${consulta.tipo_formulario}, Actual: ${formType}`);
+        
+        Swal.fire({
+            title: 'Tipo de formulario diferente',
+            text: `Esta consulta requiere un formulario de tipo "${consulta.tipo_formulario}". Se recomienda cambiar al formulario correcto.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Cambiar de formulario',
+            cancelButtonText: 'Continuar aquí'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Redirigir al tipo de formulario correcto
+                window.location.href = `index.php?ruta=consultas&form_type=${consulta.tipo_formulario}&id_consulta=${consulta.id_consulta}`;
+            } else {
+                // Continuar cargando los datos en el formulario actual
+                cargarDatosGeneralesConsulta(consulta, archivos);
+            }
+        });
+    } else {
+        // Si el tipo de formulario coincide o no está especificado, cargar directamente
+        if (formType === 'anteojos') {
+            cargarDatosAnteojosConsulta(consulta, archivos);
+        } else {
+            cargarDatosGeneralesConsulta(consulta, archivos);
+        }
+    }
+}
+
+/**
+ * Función para cargar los datos generales de una consulta en el formulario
+ * @param {Object} consulta - Datos de la consulta
+ * @param {Array} archivos - Archivos asociados a la consulta (opcional)
+ */
+function cargarDatosGeneralesConsulta(consulta, archivos) {
+    console.log('Cargando datos generales de consulta:', consulta);
+    
     // Mapear los campos normales (no textareas con Summernote ni selects)
     const camposNormales = {
         'txtmotivo': 'txtmotivo',
@@ -1245,6 +1290,8 @@ function cargarConsultaEnFormulario(consulta, archivos) {
         // Verificar si los preformatos ya están cargados
         if (selectFormatoConsulta.options.length <= 1) {
             // Si no hay opciones cargadas, cargar los preformatos primero
+            const urlParams = new URLSearchParams(window.location.search);
+            const formType = urlParams.get('form_type') || 'general';
             cargarPreformatosConsulta(formType);
         }
         
@@ -1309,6 +1356,33 @@ function cargarConsultaEnFormulario(consulta, archivos) {
         }, 800);
     }
     
+    finalizarCargaConsulta(consulta, archivos);
+}
+
+/**
+ * Función para cargar los datos específicos de anteojos en el formulario
+ * @param {Object} consulta - Datos de la consulta
+ * @param {Array} archivos - Archivos asociados a la consulta (opcional)
+ */
+function cargarDatosAnteojosConsulta(consulta, archivos) {
+    console.log('Cargando datos de consulta de anteojos:', consulta);
+    
+    // Primero cargar los datos generales
+    cargarDatosGeneralesConsulta(consulta, archivos);
+    
+    // Ahora cargar datos específicos de anteojos
+    if (consulta.id_consulta) {
+        // Llamar a la función específica para cargar datos de anteojos
+        cargarDatosAnteojos(consulta.id_consulta, consulta.id_persona);
+    }
+}
+
+/**
+ * Función para finalizar la carga de consulta con tareas comunes
+ * @param {Object} consulta - Datos de la consulta
+ * @param {Array} archivos - Archivos asociados a la consulta (opcional)
+ */
+function finalizarCargaConsulta(consulta, archivos) {
     // Si tenemos archivos, mostrarlos en la sección de archivos
     if (archivos && archivos.length > 0) {
         mostrarArchivosEnFormulario(archivos);

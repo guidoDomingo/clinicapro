@@ -89,14 +89,24 @@
                                                 // Verificar si hay un paciente seleccionado
                                                 const idPaciente = document.getElementById('idPersona') ? document.getElementById('idPersona').value : '';
                                                 
+                                                // Verificar si hay una consulta cargada actualmente
+                                                const idConsulta = document.getElementById('id_consulta') ? document.getElementById('id_consulta').value : 
+                                                                 (document.getElementById('id_consulta_actual') ? document.getElementById('id_consulta_actual').value : '');
+                                                
+                                                let nuevaUrl = 'index.php?ruta=consultas&form_type=' + formType;
+                                                
+                                                // Si hay paciente, incluirlo en la URL
                                                 if (idPaciente) {
-                                                    // Si hay un paciente seleccionado, transferirlo al nuevo formulario
-                                                    console.log('Transferir paciente ID:', idPaciente, 'a formulario:', formType);
-                                                    window.location.href = 'index.php?ruta=consultas&form_type=' + formType + '&paciente_id=' + idPaciente;
-                                                } else {
-                                                    // Si no hay paciente, solo cambiar el formulario
-                                                    window.location.href = 'index.php?ruta=consultas&form_type=' + formType;
+                                                    nuevaUrl += '&paciente_id=' + idPaciente;
                                                 }
+                                                
+                                                // Si hay consulta, incluirla en la URL
+                                                if (idConsulta) {
+                                                    nuevaUrl += '&id_consulta=' + idConsulta;
+                                                }
+                                                
+                                                console.log('Cambiando a formulario:', formType, 'URL:', nuevaUrl);
+                                                window.location.href = nuevaUrl;
                                             }
                                         </script>
                                         <?php

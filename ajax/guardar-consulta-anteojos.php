@@ -339,9 +339,19 @@ if (isset($_POST["idPersona"]) && isset($_POST["txtmotivo"])) {
         $usarMetodoDirecto = false;
         $baseResponse = null;
         
-        // Primer intento: Método tradicional (cURL, file_get_contents o include)
+        // Verificar si es una actualización (ya existe id_consulta)
+        $esActualizacion = isset($_POST["id_consulta"]) && !empty($_POST["id_consulta"]);
+        if ($esActualizacion) {
+            if (function_exists('debug_detallado')) {
+                debug_detallado('PROCESO', "Detectada actualización de consulta existente", [
+                    'id_consulta' => $_POST["id_consulta"]
+                ], 'info');
+            }
+        }
+
+        // Primer intento: Método usando cURL (preferido)
         if (!$usarMetodoDirecto) {
-            // Guardar la consulta base a través de una inclusión directa o file_get_contents
+            // Guardar la consulta base a través de cURL
             $consultaData = $_POST;
             
             try {
@@ -366,80 +376,24 @@ if (isset($_POST["idPersona"]) && isset($_POST["txtmotivo"])) {
                             ], 'error');
                         }
                         $usarMetodoDirecto = true;
+                    } else {
+                        // Si cURL fue exitoso, tenemos respuesta y no necesitamos intentar otros métodos
+                        if (function_exists('debug_detallado')) {
+                            debug_detallado('PROCESO', "cURL exitoso", [
+                                'respuesta' => $baseResponse
+                            ], 'success');
+                        }
                     }
                 } else {
-                    // Método 2: Usar file_get_contents con stream context si cURL no está disponible
-                    if (function_exists('debug_detallado')) {
-                        debug_detallado('PROCESO', "cURL no está disponible, usando método alternativo", [], 'warning');
-                    }
+                    // Si cURL no está disponible, pasamos al método directo
                     $usarMetodoDirecto = true;
-                    
-                    // Intentamos file_get_contents como último recurso antes de ir al método directo
-                    if (function_exists('file_get_contents') && function_exists('stream_context_create')) {
-                        // Opciones para crear un contexto HTTP POST
-                        $opts = [
-                            'http' => [
-                                'method' => 'POST',
-                                'header' => 'Content-Type: application/x-www-form-urlencoded',
-                                'content' => http_build_query($consultaData)
-                            ]
-                        ];
-                        
-                        // Crear el contexto HTTP
-                        $context = stream_context_create($opts);
-                        
-                        // Realizar la petición POST
-                        try {
-                            $baseResponse = @file_get_contents("http://localhost/clinica/ajax/guardar-consulta.ajax.php", false, $context);
-                            if ($baseResponse !== false) {
-                                $usarMetodoDirecto = false; // Si funcionó, no necesitamos el método directo
-                            }
-                        } catch (Exception $e) {
-                            if (function_exists('debug_detallado')) {
-                                debug_detallado('PROCESO', "Error en file_get_contents", [
-                                    'mensaje' => $e->getMessage()
-                                ], 'error');
-                            }
-                        }
-                    }
-                }
-                
-                // Si los métodos anteriores fallaron, intentar con include y buffer
-                if ($baseResponse === false || $baseResponse === null) {
                     if (function_exists('debug_detallado')) {
-                        debug_detallado('PROCESO', "Métodos HTTP fallaron, intentando con include", [], 'warning');
-                    }
-                    
-                    try {
-                        // Guardar una copia de $_POST para restaurarla después
-                        $original_post = $_POST;
-                        
-                        // Capturar la salida del include
-                        ob_start();
-                        // Vamos a usar directamente el archivo, simulando una solicitud separada
-                        include_once "guardar-consulta.ajax.php";
-                        $baseResponse = ob_get_clean();
-                        
-                        // Restaurar $_POST original
-                        $_POST = $original_post;
-                        
-                        if (empty($baseResponse)) {
-                            $usarMetodoDirecto = true;
-                        } else {
-                            $usarMetodoDirecto = false;
-                        }
-                    } catch (Exception $e) {
-                        if (function_exists('debug_detallado')) {
-                            debug_detallado('PROCESO', "Error en include", [
-                                'mensaje' => $e->getMessage()
-                            ], 'error');
-                        }
-                        $usarMetodoDirecto = true;
+                        debug_detallado('PROCESO', "cURL no está disponible, usando método directo", [], 'warning');
                     }
                 }
             } catch (Exception $e) {
                 if (function_exists('debug_detallado')) {
-                    debug_detallado('PROCESO', "Excepción general en métodos tradicionales", [
+                    debug_detallado('PROCESO', "Excepción en cURL", [
                         'mensaje' => $e->getMessage()
                     ], 'error');
                 }
@@ -447,101 +401,66 @@ if (isset($_POST["idPersona"]) && isset($_POST["txtmotivo"])) {
             }
         }
         
-        // Si todos los métodos tradicionales fallaron, usar el método directo
+        // Si necesitamos usar el método directo (cuando cURL falló)
         if ($usarMetodoDirecto) {
             if (function_exists('debug_detallado')) {
                 debug_detallado('PROCESO', "Usando método directo para guardar consulta", [], 'warning');
             }
             
-            // Intentar varios métodos alternativos en orden de complejidad
+            // Incluir directamente el modelo de consultas
+            if (!class_exists('ModelConsulta')) {
+                if (file_exists("../model/consultas.model.php")) {
+                    require_once "../model/consultas.model.php";
+                }
+            }
             
-            // Método 1: Usar la clase de proceso directo si está disponible
-            if (file_exists("guardar-consulta-anteojos-directo.php")) {
+            // Verificar que el modelo se haya cargado correctamente
+            if (class_exists('ModelConsulta')) {
                 try {
-                    // Incluir el modelo de consultas directamente si es necesario
-                    if (!class_exists('ModelConsulta')) {
-                        if (file_exists("../model/consultas.model.php")) {
-                            require_once "../model/consultas.model.php";
+                    // Guardar la consulta directamente usando el modelo
+                    $resultado = ModelConsulta::mdlSetConsulta($_POST);
+                    
+                    if (is_numeric($resultado)) {
+                        // Es una nueva inserción
+                        $baseResponse = "ok id:" . $resultado;
+                        if (function_exists('debug_detallado')) {
+                            debug_detallado('PROCESO', "Consulta guardada exitosamente por método directo", [
+                                'id_consulta' => $resultado
+                            ], 'success');
                         }
-                    }
-                    
-                    // Guardar una copia de $_POST para restaurarla después
-                    $original_post = $_POST;
-                    
-                    // Capturar la salida del include
-                    ob_start();
-                    include_once "guardar-consulta-anteojos-directo.php";
-                    $baseResponse = ob_get_clean();
-                    
-                    // Restaurar $_POST original
-                    $_POST = $original_post;
-                    
-                    // Si la respuesta indica éxito, terminar la ejecución
-                    if (strpos($baseResponse, 'ok id:') !== false || strpos($baseResponse, 'actualizado id:') !== false) {
-                        echo $baseResponse;
-                        exit;
+                    } else if ($resultado === "actualizado") {
+                        // Es una actualización
+                        $baseResponse = "actualizado id:" . $_POST["id_consulta"];
+                        if (function_exists('debug_detallado')) {
+                            debug_detallado('PROCESO', "Consulta actualizada exitosamente por método directo", [
+                                'id_consulta' => $_POST["id_consulta"]
+                            ], 'success');
+                        }
                     } else {
-                        throw new Exception("Respuesta no válida del método directo: " . $baseResponse);
+                        // Error en el modelo
+                        if (function_exists('debug_detallado')) {
+                            debug_detallado('PROCESO', "Error en método directo", [
+                                'error' => $resultado
+                            ], 'error');
+                        }
+                        echo "error_anteojos: " . $resultado;
+                        exit;
                     }
                 } catch (Exception $e) {
                     if (function_exists('debug_detallado')) {
-                        debug_detallado('PROCESO', "Error en método directo", [
+                        debug_detallado('PROCESO', "Excepción en método directo", [
                             'error' => $e->getMessage()
                         ], 'error');
                     }
-                    // Continuar con el siguiente método
+                    echo "error_anteojos: " . $e->getMessage();
+                    exit;
                 }
-            }
-            
-            // Método 2: Usar la versión simple (sin dependencias de modelos)
-            if (file_exists("guardar-consulta-anteojos-simple.php")) {
-                try {
-                    // Guardar una copia de $_POST para restaurarla después
-                    $original_post = $_POST;
-                    
-                    // Capturar la salida del include
-                    ob_start();
-                    include_once "guardar-consulta-anteojos-simple.php";
-                    $baseResponse = ob_get_clean();
-                    
-                    // Restaurar $_POST original
-                    $_POST = $original_post;
-                    
-                    // Si la respuesta indica éxito, terminar la ejecución
-                    if (strpos($baseResponse, 'ok id:') !== false || strpos($baseResponse, 'actualizado id:') !== false) {
-                        echo $baseResponse;
-                        exit;
-                    } else {
-                        throw new Exception("Respuesta no válida del método simple: " . $baseResponse);
-                    }
-                } catch (Exception $e) {
-                    if (function_exists('debug_detallado')) {
-                        debug_detallado('PROCESO', "Error en método simple", [
-                            'error' => $e->getMessage()
-                        ], 'error');
-                    }
-                    // Continuar con el último método
-                }
-            }
-            
-            // Método 3: Último recurso - Inserción directa usando consultas SQL
-            try {
-                require_once "../model/conexion.php";
-                
-                // Mostrar un mensaje de error detallado
+            } else {
+                // Si no se pudo cargar el modelo, mostrar error
                 if (function_exists('debug_detallado')) {
-                    debug_detallado('PROCESO', "Todos los métodos alternativos fallaron", [], 'error');
+                    debug_detallado('PROCESO', "No se pudo cargar el modelo de consultas", [], 'error');
                 }
-                
-                echo "error_anteojos: No se pudo procesar la consulta. Contacte al administrador del sistema.";
-                exit;
-            } catch (Exception $e) {
-                if (function_exists('debug_detallado')) {
-                    debug_detallado('PROCESO', "Error fatal en todos los métodos", [
-                        'error' => $e->getMessage()
-                    ], 'error');
-                }
-                echo "error_fatal: " . $e->getMessage();
+                echo "error_anteojos: No se pudo cargar el modelo de consultas";
                 exit;
             }
         }
