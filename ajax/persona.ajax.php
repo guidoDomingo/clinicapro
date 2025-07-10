@@ -71,6 +71,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['operacion']) && $_POS
     $personaLike->ajaxBuscarPersonaParam($datos);
 }
 
+// Procesar búsqueda de pacientes por nombre (para autocompletado)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion']) && $_POST['accion'] === 'buscar_por_nombre') {
+    // Validar y sanitizar el término de búsqueda
+    $termino = isset($_POST['termino']) ? trim(htmlspecialchars($_POST['termino'])) : '';
+    
+    if (strlen($termino) >= 3) { // Requerir al menos 3 caracteres para búsqueda
+        $datos = [
+            'documento' => '',
+            'nro_ficha' => '',
+            'nombres' => $termino
+        ];
+        
+        // Buscar personas que coincidan con el término
+        $resultados = ModelPersonas::mdlGetPersonaParam($datos);
+        
+        // Procesar resultados para formato adecuado
+        if (isset($resultados['multiple']) && $resultados['multiple'] === true && !empty($resultados['data'])) {
+            // Devolver array de resultados para autocompletado
+            echo json_encode($resultados['data']);
+        } 
+        else if (is_array($resultados) && isset($resultados['id_persona'])) {
+            // Si es un solo resultado (sin ser múltiple), devolverlo como array
+            echo json_encode([$resultados]);
+        }
+        else {
+            // No hay resultados
+            echo json_encode([]);
+        }
+    } else {
+        // Término de búsqueda demasiado corto
+        echo json_encode([]);
+    }
+}
+
 // Procesar la búsqueda de una persona por su ID
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['operacion']) && $_POST['operacion'] === 'getPersonById') {
     // Validar que el ID sea un número

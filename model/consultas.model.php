@@ -443,7 +443,7 @@ class ModelConsulta {
                     c.visionoi, c.tensionod, c.tensionoi, c.consulta_textarea, 
                     c.receta_textarea, c.txtnota, c.proximaconsulta, c.whatsapptxt, 
                     c.email, c.id_user, c.id_reserva, c.fecha_registro, 
-                    c.ultima_modificacion, c.id_persona,
+                    c.ultima_modificacion, c.id_persona, c.tipo_formulario,
                     -- Información del doctor
                     -- rd.specialty AS especialidad_doctor,
                     rp.first_name AS nombre_doctor,

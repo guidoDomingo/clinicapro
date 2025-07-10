@@ -19,4 +19,66 @@ Data: {
     "reg_lastname": "isnardi"
 }
 ----------------------------------------
-2025-07-10 00:31:16 ERROR en GUARDAR_ANTEOJOS: Excepción PDO2025-07-10 00:31:16 ERROR en PROCESO: Error al guardar datos de anteojos2025-07-10 00:41:06 ERROR en VALIDACION: Faltan datos básicos del formulario2025-07-10 00:42:19 ERROR en VALIDACION: Faltan datos básicos del formulario
+2025-07-10 00:31:16 ERROR en GUARDAR_ANTEOJOS: Excepción PDO2025-07-10 00:31:16 ERROR en PROCESO: Error al guardar datos de anteojos2025-07-10 00:41:06 ERROR en VALIDACION: Faltan datos básicos del formulario2025-07-10 00:42:19 ERROR en VALIDACION: Faltan datos básicos del formulario[2025-07-10 16:55:47] [INFO] [user.controller.php:186] user: angel@angel.com
+Data: angel@angel.com
+----------------------------------------
+[2025-07-10 16:55:47] [INFO] [user.controller.php:187] user: $2y$10$SkQZfw11AR9V/fZt/eZWkOnwhDFI7CEWX1KGKbNgdYi.j7H0oY.hW
+Data: $2y$10$SkQZfw11AR9V/fZt/eZWkOnwhDFI7CEWX1KGKbNgdYi.j7H0oY.hW
+----------------------------------------
+[2025-07-10 16:55:47] [INFO] [user.controller.php:245] Login attempt for user: angel@angel.com
+Data: {
+    "user_id": 9,
+    "reg_id": 9,
+    "user_email": "angel@angel.com",
+    "user_pass": "$2y$10$SkQZfw11AR9V\/fZt\/eZWkOnwhDFI7CEWX1KGKbNgdYi.j7H0oY.hW",
+    "user_expire": "2025-07-09 07:08:03.380971",
+    "user_first_login": null,
+    "user_last_login": "2025-07-09 20:30:08.809417",
+    "user_is_active": true,
+    "profile_photo": "user_9_1749926118.png",
+    "reg_name": "angel",
+    "reg_lastname": "isnardi"
+}
+----------------------------------------
+[2025-07-10 18:18:09] [INFO] [user.controller.php:186] user: angel@angel.com
+Data: angel@angel.com
+----------------------------------------
+[2025-07-10 18:18:09] [INFO] [user.controller.php:187] user: $2y$10$SkQZfw11AR9V/fZt/eZWkOnwhDFI7CEWX1KGKbNgdYi.j7H0oY.hW
+Data: $2y$10$SkQZfw11AR9V/fZt/eZWkOnwhDFI7CEWX1KGKbNgdYi.j7H0oY.hW
+----------------------------------------
+[2025-07-10 18:18:09] [INFO] [user.controller.php:245] Login attempt for user: angel@angel.com
+Data: {
+    "user_id": 9,
+    "reg_id": 9,
+    "user_email": "angel@angel.com",
+    "user_pass": "$2y$10$SkQZfw11AR9V\/fZt\/eZWkOnwhDFI7CEWX1KGKbNgdYi.j7H0oY.hW",
+    "user_expire": "2025-07-09 07:08:03.380971",
+    "user_first_login": null,
+    "user_last_login": "2025-07-10 12:55:48.219593",
+    "user_is_active": true,
+    "profile_photo": "user_9_1749926118.png",
+    "reg_name": "angel",
+    "reg_lastname": "isnardi"
+}
+----------------------------------------
+[2025-07-10 19:21:10] [INFO] [user.controller.php:186] user: angel@angel.com
+Data: angel@angel.com
+----------------------------------------
+[2025-07-10 19:21:10] [INFO] [user.controller.php:187] user: $2y$10$SkQZfw11AR9V/fZt/eZWkOnwhDFI7CEWX1KGKbNgdYi.j7H0oY.hW
+Data: $2y$10$SkQZfw11AR9V/fZt/eZWkOnwhDFI7CEWX1KGKbNgdYi.j7H0oY.hW
+----------------------------------------
+[2025-07-10 19:21:10] [INFO] [user.controller.php:245] Login attempt for user: angel@angel.com
+Data: {
+    "user_id": 9,
+    "reg_id": 9,
+    "user_email": "angel@angel.com",
+    "user_pass": "$2y$10$SkQZfw11AR9V\/fZt\/eZWkOnwhDFI7CEWX1KGKbNgdYi.j7H0oY.hW",
+    "user_expire": "2025-07-09 07:08:03.380971",
+    "user_first_login": null,
+    "user_last_login": "2025-07-10 14:18:09.61448",
+    "user_is_active": true,
+    "profile_photo": "user_9_1749926118.png",
+    "reg_name": "angel",
+    "reg_lastname": "isnardi"
+}
+----------------------------------------

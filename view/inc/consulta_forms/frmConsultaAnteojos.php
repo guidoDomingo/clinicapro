@@ -381,8 +381,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         idConsultaInput.value = idConsulta;
         
-        // Cargar datos de anteojos
-        cargarDatosAnteojos(idConsulta);
+        // Primero, buscar los datos del paciente asociados a esta consulta
+        buscarPacientePorConsulta(idConsulta);
     }
 });
 
@@ -573,11 +573,25 @@ function guardarConsultaAnteojos() {
 /**
  * Carga los datos de anteojos para una consulta existente
  * @param {number} idConsulta - ID de la consulta a cargar
+ * @param {number} idPaciente - ID del paciente (opcional)
  */
-function cargarDatosAnteojos(idConsulta) {
-    if (!idConsulta) return;
+// Función para obtener parámetros de la URL
+function getUrlParams() {
+    const params = {};
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
     
-    console.log("Cargando datos de anteojos para consulta ID:", idConsulta);
+    for (const [key, value] of urlParams.entries()) {
+        params[key] = value;
+    }
+    
+    return params;
+}
+
+function cargarDatosAnteojos(idConsulta, idPaciente) {
+    if (!idConsulta && !idPaciente) return;
+    
+    console.log("Cargando datos de anteojos para consulta ID:", idConsulta, "Paciente ID:", idPaciente);
     
     // Mostrar indicador de carga
     Swal.fire({
@@ -589,11 +603,19 @@ function cargarDatosAnteojos(idConsulta) {
         }
     });
     
+    // Preparar datos para la petición
+    const requestData = { id_consulta: idConsulta };
+    
+    // Si tenemos ID del paciente, incluirlo en la petición
+    if (idPaciente && idPaciente > 0) {
+        requestData.paciente_id = idPaciente;
+    }
+    
     // Realizar la petición AJAX para obtener los datos
     $.ajax({
         type: 'GET',
         url: 'ajax/obtener-datos-anteojos.php',
-        data: { id_consulta: idConsulta },
+        data: requestData,
         dataType: "json",
         success: function(response) {
             console.log("Datos de anteojos recibidos:", response);
@@ -602,6 +624,29 @@ function cargarDatosAnteojos(idConsulta) {
             if (response.status === 'success') {
                 // Rellenar los campos del formulario con los datos obtenidos
                 const datos = response;
+                
+                // Si hay datos de paciente, cargarlos
+                if (datos.paciente_info) {
+                    console.log("Cargando datos del paciente:", datos.paciente_info);
+                    
+                    // Guardar ID del paciente
+                    $('#idPersona').val(datos.paciente_info.id_persona);
+                    window.pacienteSeleccionadoId = datos.paciente_info.id_persona;
+                    
+                    // Si existe la función para mostrar datos del paciente, usarla
+                    if (typeof mostrarDatosPaciente === 'function') {
+                        mostrarDatosPaciente(datos.paciente_info);
+                    } else {
+                        // Implementación básica
+                        const nombreCompleto = datos.paciente_info.nombre + ' ' + datos.paciente_info.apellidos;
+                        $('#paciente').val(nombreCompleto);
+                        
+                        // Si hay campo de documento, intentar llenarlo
+                        if (datos.paciente_info.cedula) {
+                            $('#txtdocumento').val(datos.paciente_info.cedula);
+                        }
+                    }
+                }
                 
                 // Rellenar selectores (se necesita usar select2 para actualizar correctamente)
                 if (typeof $.fn.select2 !== 'undefined') {
@@ -661,4 +706,445 @@ function cargarDatosAnteojos(idConsulta) {
         }
     });
 }
+
+/**
+ * Función para buscar un paciente por ID - Implementada para mantener compatibilidad con helper
+ * @param {number} idPaciente - ID del paciente a buscar
+ */
+function buscarPacientePorId(idPaciente) {
+    if (!idPaciente) return;
+    
+    console.log("Buscando paciente por ID:", idPaciente);
+    
+    // Realizar petición AJAX
+    $.ajax({
+        type: 'POST',
+        url: 'ajax/persona.ajax.php',
+        data: {
+            operacion: 'getPersonById',
+            idPersona: idPaciente
+        },
+        dataType: "json",
+        success: function(respuesta) {
+            if (respuesta && respuesta.status === 'success' && respuesta.persona) {
+                mostrarDatosPaciente(respuesta.persona);
+                
+                // Buscar si el paciente tiene datos de anteojos previos
+                verificarDatosAnteojosPrevios(respuesta.persona.id_persona);
+            } else {
+                console.error("No se encontraron datos para el paciente ID:", idPaciente);
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error("Error al buscar datos del paciente:", error);
+        }
+    });
+}
+
+/**
+ * Muestra los datos del paciente en el formulario
+ * @param {Object} paciente - Datos del paciente
+ */
+function mostrarDatosPaciente(paciente) {
+    console.log("Mostrando datos del paciente:", paciente);
+    
+    // Completar los campos del formulario
+    $('#idPersona').val(paciente.id_persona);
+    
+    // Usar el formato correcto según los datos disponibles
+    if (paciente.nombres) {
+        $('#paciente').val(paciente.nombres + ' ' + paciente.apellidos);
+    } else if (paciente.nombre) {
+        $('#paciente').val(paciente.nombre + ' ' + paciente.apellidos);
+    }
+    
+    // Actualizar documento y ficha si están disponibles
+    if (paciente.cedula) {
+        $('#txtdocumento').val(paciente.cedula);
+    } else if (paciente.documento) {
+        $('#txtdocumento').val(paciente.documento);
+    }
+    
+    if (paciente.nro_ficha) {
+        $('#txtficha').val(paciente.nro_ficha);
+    } else if (paciente.ficha) {
+        $('#txtficha').val(paciente.ficha);
+    }
+    
+    // Guardar ID para uso futuro
+    window.pacienteSeleccionadoId = paciente.id_persona;
+    
+    // Actualizar información en el panel lateral si existe
+    if (document.getElementById('profile-username')) {
+        const nombreCompleto = paciente.nombres ? 
+            paciente.nombres + ' ' + paciente.apellidos : 
+            paciente.nombre + ' ' + paciente.apellidos;
+            
+        document.getElementById('profile-username').textContent = nombreCompleto;
+    }
+    
+    if (document.getElementById('profile-ci')) {
+        const documento = paciente.cedula || paciente.documento || '';
+        document.getElementById('profile-ci').textContent = 'CI: ' + documento;
+    }
+    
+    // Establecer el ID de persona para la subida de archivos
+    if (document.getElementById('id_persona_file')) {
+        document.getElementById('id_persona_file').value = paciente.id_persona;
+    }
+    
+    // Obtener información adicional del paciente si existen las funciones
+    if (typeof obtenerResumenConsulta === 'function') {
+        obtenerResumenConsulta(paciente.id_persona);
+    }
+    if (typeof obtenerCuota === 'function') {
+        obtenerCuota(paciente.id_persona);
+    }
+    if (typeof inicializarTablaConsultas === 'function') {
+        inicializarTablaConsultas(paciente.id_persona);
+    }
+    if (typeof mostrarHistorialConsultas === 'function') {
+        mostrarHistorialConsultas(paciente.id_persona);
+    }
+    
+    // Verificar si el paciente tiene datos de anteojos previos
+    verificarDatosAnteojosPrevios(paciente.id_persona);
+    
+    // Buscar consultas asociadas al paciente
+    buscarConsultasAsociadas(paciente.id_persona);
+}
+
+/**
+ * Busca información del paciente asociado a una consulta
+ * @param {number} idConsulta - ID de la consulta
+ */
+function buscarPacientePorConsulta(idConsulta) {
+    if (!idConsulta) return;
+    
+    console.log("Buscando paciente para la consulta ID:", idConsulta);
+    
+    // Realizar petición AJAX para obtener el paciente asociado a la consulta
+    $.ajax({
+        type: 'POST',
+        url: 'ajax/consultas.ajax.php',
+        data: {
+            operacion: 'obtenerPacientePorConsulta',
+            id_consulta: idConsulta
+        },
+        dataType: "json",
+        success: function(respuesta) {
+            if (respuesta && respuesta.id_persona) {
+                console.log("Paciente encontrado para la consulta:", respuesta);
+                
+                // Cargar los datos del paciente
+                if (typeof mostrarDatosPaciente === 'function') {
+                    mostrarDatosPaciente(respuesta);
+                }
+                
+                // Cargar los datos de anteojos después de cargar los datos del paciente
+                cargarDatosAnteojos(idConsulta, respuesta.id_persona);
+            } else {
+                console.warn("No se encontró información del paciente para esta consulta");
+                
+                // Si no se encuentra el paciente, intentar cargar solo los datos de anteojos
+                cargarDatosAnteojos(idConsulta);
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error("Error al buscar paciente por consulta:", error);
+            
+            // Si hay un error, intentar cargar solo los datos de anteojos
+            cargarDatosAnteojos(idConsulta);
+        }
+    });
+}
+
+/**
+ * Verifica si el paciente tiene datos de anteojos previos y ofrece cargarlos
+ * @param {number} idPaciente - ID del paciente
+ */
+function verificarDatosAnteojosPrevios(idPaciente) {
+    if (!idPaciente) return;
+    
+    console.log("Verificando datos previos de anteojos para paciente ID:", idPaciente);
+    
+    $.ajax({
+        type: 'GET',
+        url: 'ajax/obtener-datos-anteojos.php',
+        data: {
+            paciente_id: idPaciente,
+            verificar_existencia: true
+        },
+        dataType: "json",
+        success: function(response) {
+            if (response && response.status === 'success' && response.tiene_datos) {
+                // Si hay datos previos, preguntar al usuario si desea cargarlos
+                Swal.fire({
+                    title: '¿Cargar datos previos?',
+                    text: `Se encontró una receta de anteojos previa para este paciente. ¿Desea cargarla como referencia?`,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Sí, cargar',
+                    cancelButtonText: 'No, formulario nuevo'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Cargar los datos de la consulta más reciente
+                        cargarDatosAnteojos(null, idPaciente);
+                    }
+                });
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error("Error al verificar datos de anteojos previos:", error);
+        }
+    });
+}
+
+/**
+ * Busca consultas asociadas a un paciente y permite cargarlas
+ * @param {number} idPaciente - ID del paciente
+ */
+function buscarConsultasAsociadas(idPaciente) {
+    if (!idPaciente) return;
+    
+    console.log("Buscando consultas asociadas al paciente ID:", idPaciente);
+    
+    $.ajax({
+        type: 'POST',
+        url: 'ajax/consultas.ajax.php',
+        data: {
+            operacion: 'buscarConsultaPersona',
+            id_persona: idPaciente
+        },
+        dataType: "json",
+        success: function(response) {
+            console.log("Consultas del paciente recibidas:", response);
+            
+            // Verificar si hay consultas disponibles
+            if (response && response.status === 'success' && response.data && response.data.length > 0) {
+                const consultas = response.data;
+                
+                // Filtrar solo consultas que sean de tipo anteojos
+                const consultasAnteojos = consultas.filter(c => c.tipo_formulario === 'anteojos');
+                
+                // Si hay consultas de tipo anteojos, mostrar selector
+                if (consultasAnteojos.length > 0) {
+                    // Mostrar al usuario un mensaje para cargar consultas previas
+                    Swal.fire({
+                        title: 'Consultas previas encontradas',
+                        text: `Se encontraron ${consultasAnteojos.length} consultas de anteojos para este paciente. ¿Desea cargar alguna?`,
+                        icon: 'info',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Ver consultas',
+                        cancelButtonText: 'No cargar'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Crear selector de consultas
+                            let options = '<option value="">Seleccionar consulta...</option>';
+                            
+                            consultasAnteojos.forEach((consulta, index) => {
+                                const fecha = new Date(consulta.fecha_registro).toLocaleDateString();
+                                options += `<option value="${consulta.id_consulta}">${fecha} - ${consulta.motivoscomunes || 'Sin motivo'}</option>`;
+                            });
+                            
+                            Swal.fire({
+                                title: 'Seleccionar consulta',
+                                html: `
+                                    <select id="swal-select-consulta" class="swal2-select" style="width:100%">
+                                        ${options}
+                                    </select>
+                                `,
+                                showCancelButton: true,
+                                confirmButtonText: 'Cargar',
+                                cancelButtonText: 'Cancelar',
+                                preConfirm: () => {
+                                    const consultaId = document.getElementById('swal-select-consulta').value;
+                                    if (!consultaId) {
+                                        Swal.showValidationMessage('Debes seleccionar una consulta');
+                                        return false;
+                                    }
+                                    return consultaId;
+                                }
+                            }).then((result) => {
+                                if (result.isConfirmed && result.value) {
+                                    // Cargar la consulta seleccionada
+                                    cargarDatosAnteojos(result.value, idPaciente);
+                                }
+                            });
+                        }
+                    });
+                } else if (consultas.length > 0) {
+                    // Si hay consultas pero ninguna de anteojos, mostrar un mensaje diferente
+                    console.log("El paciente tiene consultas pero ninguna de anteojos");
+                }
+            } else {
+                console.log("No se encontraron consultas para este paciente");
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error("Error al buscar consultas asociadas:", error);
+        }
+    });
+}
+
+/**
+ * Inicializa el autocompletado para buscar pacientes por nombre
+ * Esta función es un wrapper que utiliza la función del helper si está disponible
+ * @param {string} inputSelector - Selector del campo de texto
+ */
+function inicializarAutocompletadoPaciente(inputSelector) {
+    if (typeof window.inicializarAutocompletadoPaciente === 'function') {
+        // Si la función está disponible en el helper, usarla
+        console.log("Usando función de autocompletado del helper");
+        window.inicializarAutocompletadoPaciente(inputSelector);
+    } else {
+        console.error("La función inicializarAutocompletadoPaciente no está disponible en el helper");
+        // Implementación de respaldo por si no se cargó el helper
+        if (!$(inputSelector).length) return;
+        
+        console.log("Inicializando autocompletado para:", inputSelector);
+        
+        $(inputSelector).autocomplete({
+            source: function(request, response) {
+                $.ajax({
+                    url: "ajax/persona.ajax.php",
+                    type: "POST",
+                    dataType: "json",
+                    data: {
+                        accion: "buscar_por_nombre",
+                        termino: request.term
+                    },
+                    success: function(data) {
+                        if (data && Array.isArray(data)) {
+                            console.log("Resultados encontrados:", data.length);
+                            response($.map(data, function(item) {
+                                // Crear etiqueta para mostrar en el dropdown
+                                const label = item.nombres ? 
+                                    `${item.nombres} ${item.apellidos} - CI: ${item.cedula || 'Sin documento'}` :
+                                    `${item.nombre} ${item.apellidos} - CI: ${item.cedula || 'Sin documento'}`;
+                                    
+                                return {
+                                    label: label,
+                                    value: item.nombres ? `${item.nombres} ${item.apellidos}` : `${item.nombre} ${item.apellidos}`,
+                                    item: item
+                                };
+                            }));
+                        } else {
+                            response([{
+                                label: "No se encontraron resultados",
+                                value: "",
+                                item: null
+                            }]);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Error en autocompletado:", error);
+                        response([{
+                            label: "Error al buscar",
+                            value: "",
+                            item: null
+                        }]);
+                    }
+                });
+            },
+            minLength: 3,
+            select: function(event, ui) {
+                if (ui.item && ui.item.item) {
+                    console.log("Paciente seleccionado:", ui.item.item);
+                    mostrarDatosPaciente(ui.item.item);
+                }
+                return true;
+            },
+            focus: function(event, ui) {
+                // No cambiar el valor del input al navegar con las teclas
+                return false;
+            },
+            open: function() {
+                $(this).autocomplete("widget").css({
+                    "max-height": "300px",
+                    "overflow-y": "auto",
+                    "overflow-x": "hidden",
+                    "z-index": 9999
+                });
+            }
+        }).autocomplete("instance")._renderItem = function(ul, item) {
+            // Personalizar el estilo de cada elemento en el dropdown
+            return $("<li>")
+                .append("<div style='padding: 8px 12px; border-bottom: 1px solid #f0f0f0;'>" + item.label + "</div>")
+                .appendTo(ul);
+        };
+    }
+}
+
+// Inicializar cuando el documento esté listo
+$(document).ready(function() {
+    console.log("Inicializando formulario de anteojos");
+    
+    // Obtener parámetros de la URL
+    const params = getUrlParams();
+    console.log("Parámetros URL:", params);
+    
+    // Inicializar autocompletado para el campo de paciente
+    inicializarAutocompletadoPaciente('#paciente');
+    
+    // Configurar el botón de búsqueda de paciente
+    $('#btnBuscarPersona').on('click', function() {
+        const documento = $('#txtdocumento').val().trim();
+        const ficha = $('#txtficha').val().trim();
+        const nombre = $('#paciente').val().trim();
+        
+        // Si hay algún valor para buscar, realizar la búsqueda
+        if (documento || ficha || nombre) {
+            if (typeof buscarPersona === 'function') {
+                buscarPersona();
+            } else {
+                // Implementación simple si no existe la función global
+                alert('La función de búsqueda no está disponible');
+            }
+        } else {
+            Swal.fire({
+                position: "center",
+                icon: "warning",
+                title: "Debe ingresar un documento, ficha o nombre para buscar",
+                showConfirmButton: false,
+                timer: 1500
+            });
+        }
+    });
+    
+    // Limpiar campos del formulario al hacer clic en el botón de limpiar
+    $('#btnLimpiarPersona').on('click', function() {
+        $('#idPersona').val('');
+        $('#paciente').val('');
+        $('#txtdocumento').val('');
+        $('#txtficha').val('');
+        window.pacienteSeleccionadoId = null;
+    });
+    
+    // Si hay ID de consulta, cargar los datos de anteojos
+    if (params.id_consulta) {
+        // Si también hay ID de paciente, pasarlo como parámetro
+        if (params.paciente_id) {
+            cargarDatosAnteojos(params.id_consulta, params.paciente_id);
+        } else {
+            cargarDatosAnteojos(params.id_consulta);
+        }
+    } 
+    // Si solo hay ID de paciente pero no hay consulta, cargar solo los datos del paciente
+    else if (params.paciente_id) {
+        // Si existe la función para cargar paciente del helper, usarla
+        if (typeof cargarPaciente === 'function') {
+            cargarPaciente(params.paciente_id);
+        } else {
+            buscarPacientePorId(params.paciente_id);
+        }
+    }
+});
 </script>
+
+<!-- Incluir el script helper para manejo de formularios de consulta -->
+<script src="view/js/formulario-consulta-helper.js"></script>

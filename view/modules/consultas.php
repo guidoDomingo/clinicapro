@@ -86,7 +86,17 @@
                                         </div>
                                         <script>
                                             function cambiarFormulario(formType) {
-                                                window.location.href = 'index.php?ruta=consultas&form_type=' + formType;
+                                                // Verificar si hay un paciente seleccionado
+                                                const idPaciente = document.getElementById('idPersona') ? document.getElementById('idPersona').value : '';
+                                                
+                                                if (idPaciente) {
+                                                    // Si hay un paciente seleccionado, transferirlo al nuevo formulario
+                                                    console.log('Transferir paciente ID:', idPaciente, 'a formulario:', formType);
+                                                    window.location.href = 'index.php?ruta=consultas&form_type=' + formType + '&paciente_id=' + idPaciente;
+                                                } else {
+                                                    // Si no hay paciente, solo cambiar el formulario
+                                                    window.location.href = 'index.php?ruta=consultas&form_type=' + formType;
+                                                }
                                             }
                                         </script>
                                         <?php

@@ -2,6 +2,7 @@
 /**
  * Archivo para obtener datos de anteojos para una consulta existente
  * Versión simplificada que evita posibles errores de sintaxis o formato JSON
+ * Actualizada para manejar datos del paciente cuando se cambia entre formularios
  */
 
 // Prevenir cualquier salida antes del JSON
@@ -14,17 +15,166 @@ header('Content-Type: application/json');
 $pathBase = dirname(dirname(__FILE__));
 require_once $pathBase . "/model/conexion.php";
     
-    // Procesar la solicitud para obtener datos de anteojos
-    if (isset($_GET["id_consulta"]) && !empty($_GET["id_consulta"])) {
-        $idConsulta = intval($_GET["id_consulta"]);
+    // Verificar si estamos solamente consultando la existencia de datos para un paciente
+    if (isset($_GET["verificar_existencia"]) && isset($_GET["paciente_id"]) && !empty($_GET["paciente_id"])) {
+        $idPaciente = intval($_GET["paciente_id"]);
         
-        if ($idConsulta <= 0) {
+        if ($idPaciente <= 0) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'ID de paciente inválido'
+            ]);
+            exit;
+        }
+        
+        try {
+            $db = Conexion::conectar();
+            
+            // Verificar si la tabla consulta_anteojos existe
+            $tableExistsStmt = $db->prepare("
+                SELECT EXISTS (
+                    SELECT FROM information_schema.tables 
+                    WHERE table_schema = 'public' 
+                    AND table_name = 'consulta_anteojos'
+                )
+            ");
+            $tableExistsStmt->execute();
+            $tableExists = $tableExistsStmt->fetchColumn();
+            
+            if (!$tableExists) {
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'La tabla de anteojos no existe en la base de datos'
+                ]);
+                exit;
+            }
+            
+            // Buscar datos de anteojos para el paciente a través de la tabla de consultas
+            $stmt = $db->prepare("
+                SELECT ca.id_consulta_anteojos, ca.id_consulta 
+                FROM consulta_anteojos ca 
+                INNER JOIN consultas c ON ca.id_consulta = c.id_consulta 
+                WHERE c.id_persona = :id_paciente 
+                ORDER BY c.fecha_registro DESC 
+                LIMIT 1
+            ");
+            $stmt->bindParam(':id_paciente', $idPaciente, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            $data = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($data) {
+                echo json_encode([
+                    'status' => 'success',
+                    'tiene_datos' => true,
+                    'id_consulta' => $data['id_consulta'],
+                    'id_consulta_anteojos' => $data['id_consulta_anteojos']
+                ]);
+            } else {
+                echo json_encode([
+                    'status' => 'success',
+                    'tiene_datos' => false,
+                    'message' => 'No se encontraron datos de anteojos previos para este paciente'
+                ]);
+            }
+        } catch (PDOException $e) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Error de base de datos: ' . $e->getMessage()
+            ]);
+        }
+        exit;
+    }
+    // Procesar la solicitud para obtener datos de anteojos por ID de consulta
+    else if (isset($_GET["id_consulta"]) && !empty($_GET["id_consulta"])) {
+        $idConsulta = intval($_GET["id_consulta"]);
+        // Capturar el ID del paciente si está presente
+        $idPaciente = isset($_GET["paciente_id"]) ? intval($_GET["paciente_id"]) : 0;
+    }
+    // Procesar la solicitud para obtener datos de anteojos más recientes para un paciente
+    else if (isset($_GET["paciente_id"]) && !empty($_GET["paciente_id"])) {
+        $idPaciente = intval($_GET["paciente_id"]);
+        
+        if ($idPaciente <= 0) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'ID de paciente inválido'
+            ]);
+            exit;
+        }
+        
+        try {
+            $db = Conexion::conectar();
+            
+            // Buscar la consulta más reciente con datos de anteojos para este paciente
+            $stmtConsulta = $db->prepare("
+                SELECT ca.id_consulta 
+                FROM consulta_anteojos ca 
+                INNER JOIN consultas c ON ca.id_consulta = c.id_consulta 
+                WHERE c.id_persona = :id_paciente 
+                ORDER BY c.fecha_registro DESC 
+                LIMIT 1
+            ");
+            $stmtConsulta->bindParam(':id_paciente', $idPaciente, PDO::PARAM_INT);
+            $stmtConsulta->execute();
+            
+            $consultaData = $stmtConsulta->fetch(PDO::FETCH_ASSOC);
+            
+            if ($consultaData) {
+                $idConsulta = $consultaData['id_consulta'];
+            } else {
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'No se encontraron datos de anteojos previos para este paciente'
+                ]);
+                exit;
+            }
+        } catch (PDOException $e) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Error de base de datos: ' . $e->getMessage()
+            ]);
+            exit;
+        }
+    }
+    else {
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'Falta el ID de consulta o el ID de paciente'
+        ]);
+        exit;
+    }
+    
+    if ($idConsulta <= 0) {
             echo json_encode([
                 'status' => 'error',
                 'message' => 'ID de consulta inválido'
             ]);
             exit;
+    }
+    
+    // Si no tenemos ID de paciente, intentar obtenerlo desde la consulta
+    if ($idPaciente <= 0) {
+        try {
+            $db = Conexion::conectar(); // Obtener conexión a la base de datos
+            $consulta = $db->prepare("SELECT id_persona FROM consultas WHERE id_consulta = :id_consulta");
+            $consulta->bindParam(':id_consulta', $idConsulta, PDO::PARAM_INT);
+            $consulta->execute();
+            $resultConsulta = $consulta->fetch(PDO::FETCH_ASSOC);
+            
+            if ($resultConsulta && isset($resultConsulta['id_persona'])) {
+                $idPaciente = intval($resultConsulta['id_persona']);
+            }
+        } catch (PDOException $e) {
+            // Si hay error, continuar sin ID de paciente
+            if (function_exists('debug_detallado')) {
+                debug_detallado('OBTENER_ANTEOJOS', "Error al obtener ID de paciente desde consulta", [
+                    'mensaje' => $e->getMessage(),
+                    'id_consulta' => $idConsulta
+                ], 'warning');
+            }
         }
+    }
         
         try {
             $db = Conexion::conectar();
@@ -106,6 +256,46 @@ require_once $pathBase . "/model/conexion.php";
                     'id_consulta' => $data['id_consulta'] ?? $idConsulta
                 ];
                 
+                // Si tenemos un ID de paciente, obtener los datos del paciente
+                if ($idPaciente > 0) {
+                    $response['paciente_id'] = $idPaciente;
+                    
+                    // Obtener los datos del paciente de la tabla correcta (rh_person)
+                    try {
+                        $pacienteStmt = $db->prepare("
+                            SELECT 
+                                p.person_id AS id_persona, 
+                                p.first_name AS nombres, 
+                                p.last_name AS apellidos, 
+                                p.document_number AS cedula,
+                                p.birth_date AS fecha_nacimiento, 
+                                p.record_number AS nro_ficha,
+                                p.phone_number AS telefono,
+                                p.email
+                            FROM 
+                                rh_person p
+                            WHERE 
+                                p.person_id = :id_paciente
+                            LIMIT 1
+                        ");
+                        $pacienteStmt->bindParam(':id_paciente', $idPaciente, PDO::PARAM_INT);
+                        $pacienteStmt->execute();
+                        
+                        $pacienteData = $pacienteStmt->fetch(PDO::FETCH_ASSOC);
+                        if ($pacienteData) {
+                            $response['paciente_info'] = $pacienteData;
+                        }
+                    } catch (PDOException $ex) {
+                        // Si hay un error, simplemente continuar sin los datos del paciente
+                        if (function_exists('debug_detallado')) {
+                            debug_detallado('OBTENER_ANTEOJOS', "Error al obtener datos del paciente", [
+                                'mensaje' => $ex->getMessage(),
+                                'paciente_id' => $idPaciente
+                            ], 'warning');
+                        }
+                    }
+                }
+                
                 // Mapeo de nombres de columnas a nombres de campos del formulario
                 $fieldMapping = [
                     'esfera_od' => 'od_esf',
@@ -158,12 +348,7 @@ require_once $pathBase . "/model/conexion.php";
                 'message' => 'Error de base de datos: ' . $e->getMessage()
             ]);
         }
-        
-    } else {
-        echo json_encode([
-            'status' => 'error',
-            'message' => 'Falta el ID de consulta'
-        ]);
-    }
+    
+    
 
 ?>

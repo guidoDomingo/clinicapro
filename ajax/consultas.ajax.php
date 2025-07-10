@@ -12,6 +12,30 @@ class ConsultaAjax {
         echo json_encode($response);
     }
     
+    public function ajaxObtenerPacientePorConsulta($idConsulta) {
+        // Crear una instancia del modelo para usar métodos no estáticos
+        $modelo = new ModelConsulta();
+        
+        // Primero obtener la consulta con datos del paciente
+        $consulta = $modelo->obtenerConsulta($idConsulta);
+        
+        if ($consulta && isset($consulta['id_persona'])) {
+            // Si tenemos ID de persona, obtener datos completos
+            $paciente = $modelo->obtenerDatosPersona($consulta['id_persona']);
+            
+            if ($paciente) {
+                echo json_encode($paciente);
+                return;
+            }
+        }
+        
+        // Si llegamos aquí, no se encontraron datos
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'No se encontró el paciente asociado a esta consulta'
+        ]);
+    }
+    
     public function ajaxGetHistorialConsultas($idPersona) {
         $response = ModelConsulta::mdlGetConsultaPersona($idPersona);
         // Asegurarse de que la respuesta sea un JSON válido
@@ -93,4 +117,10 @@ if (isset($_POST["operacion"]) && $_POST["operacion"] === "getAllConsultas") {
 if (isset($_POST["id_persona"]) && isset($_POST["operacion"]) && $_POST["operacion"] === "getConsultasByPaciente") {
     $consultasPaciente = new ConsultaAjax();
     $consultasPaciente->ajaxGetConsultasByPaciente($_POST["id_persona"]);
+}
+
+// Procesar obtención de paciente por consulta
+if (isset($_POST["id_consulta"]) && isset($_POST["operacion"]) && $_POST["operacion"] === "obtenerPacientePorConsulta") {
+    $consultaPaciente = new ConsultaAjax();
+    $consultaPaciente->ajaxObtenerPacientePorConsulta($_POST["id_consulta"]);
 }
