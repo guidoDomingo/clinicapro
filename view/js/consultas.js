@@ -1017,6 +1017,34 @@ function obtenerYCargarConsulta(idConsulta) {
         contentType: false,
         success: function(response) {
             if (response) {
+                // Verificar si la consulta tiene un tipo de formulario específico
+                if (response.tipo_formulario) {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const currentFormType = urlParams.get('form_type') || 'general';
+                    
+                    // Si el tipo de formulario en la URL es diferente del tipo de la consulta, redirigir
+                    if (currentFormType !== response.tipo_formulario) {
+                        console.log(`Tipo de formulario diferente. Actual: ${currentFormType}, Requerido: ${response.tipo_formulario}`);
+                        
+                        // Construir la nueva URL con el tipo de formulario correcto
+                        const newUrl = `index.php?ruta=consultas&form_type=${response.tipo_formulario}&id_consulta=${idConsulta}`;
+                        
+                        // Mostrar mensaje y redirigir
+                        Swal.fire({
+                            position: "center",
+                            icon: "info",
+                            title: "Cambiando tipo de formulario",
+                            text: `Esta consulta requiere el formulario de tipo ${response.tipo_formulario}`,
+                            showConfirmButton: false,
+                            timer: 1500,
+                            didClose: () => {
+                                window.location.href = newUrl;
+                            }
+                        });
+                        return;
+                    }
+                }
+                
                 cargarConsultaEnFormulario(response);
             } else {
                 Swal.fire({

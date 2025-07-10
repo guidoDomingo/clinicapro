@@ -1,0 +1,4 @@
+[2025-07-10 01:00:13] Archivo de conexión no encontrado
+[2025-07-10 01:02:18] Archivo de conexión no encontrado
+[2025-07-10 01:03:26] Conexión a la base de datos exitosa
+[10-Jul-2025 01:03:26 UTC] PHP Warning:  file_get_contents(obtener-datos-anteojos.php): Failed to open stream: No such file or directory in C:\laragon\www\clinica\ajax\test_obtener_anteojos_limpio.php on line 46

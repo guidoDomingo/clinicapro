@@ -88,15 +88,46 @@ class ModelConsulta {
         }
         
         try {
+            // Determinar si hay un tipo de formulario específico y datos asociados
+            $tipo_formulario = isset($datos["form_type"]) ? $datos["form_type"] : "general";
+            
+            // Preparar datos específicos para JSON (si corresponde)
+            $datos_especificos = null;
+            if ($tipo_formulario != "general") {
+                // Convertir datos específicos del formulario a JSON
+                $datos_json = [];
+                foreach ($datos as $key => $value) {
+                    // Excluir campos que ya se guardan en columnas propias
+                    if (!in_array($key, [
+                        'motivoscomunes', 'txtmotivo', 'visionod', 'visionoi', 'tensionod', 'tensionoi',
+                        'consulta-textarea', 'receta-textarea', 'txtnota', 'proximaconsulta',
+                        'whatsapptxt', 'email', 'id_user', 'id_reserva', 'idPersona', 'id_consulta',
+                        'form_type'
+                    ])) {
+                        $datos_json[$key] = $value;
+                    }
+                }
+                $datos_especificos = !empty($datos_json) ? json_encode($datos_json) : null;
+            }
+            
+            if ($log_function_exists) {
+                debug_detallado('MODELO', "Tipo de formulario detectado", [
+                    'tipo_formulario' => $tipo_formulario,
+                    'datos_especificos' => !empty($datos_json) ? count($datos_json) : 0
+                ], 'info');
+            }
+            
             $stmt = $db->prepare(
                 "INSERT INTO consultas (
                     motivoscomunes, txtmotivo, visionod, visionoi, tensionod, tensionoi,
                     consulta_textarea, receta_textarea, txtnota, proximaconsulta,
-                    whatsapptxt, email, id_user, id_reserva, id_persona
+                    whatsapptxt, email, id_user, id_reserva, id_persona, 
+                    tipo_formulario, datos_especificos
                 ) VALUES (
                     :motivoscomunes, :txtmotivo, :visionod, :visionoi, :tensionod, :tensionoi,
                     :consulta_textarea, :receta_textarea, :txtnota, :proximaconsulta,
-                    :whatsapptxt, :email, :id_user, :id_reserva, :id_persona
+                    :whatsapptxt, :email, :id_user, :id_reserva, :id_persona,
+                    :tipo_formulario, :datos_especificos
                 )"
             );
             
@@ -219,6 +250,14 @@ class ModelConsulta {
             $stmt->bindParam(":id_reserva", $id_reserva, PDO::PARAM_INT);
             $stmt->bindParam(":id_persona", $id_persona, PDO::PARAM_INT);
             
+            // Bind de los nuevos parámetros
+            $stmt->bindParam(":tipo_formulario", $tipo_formulario, PDO::PARAM_STR);
+            if ($datos_especificos !== null) {
+                $stmt->bindParam(":datos_especificos", $datos_especificos, PDO::PARAM_STR);
+            } else {
+                $stmt->bindValue(":datos_especificos", null, PDO::PARAM_NULL);
+            }
+            
             if ($log_function_exists) {
                 debug_detallado('MODELO', "Todos los parámetros bindeados correctamente", [], 'success');
             }
@@ -295,6 +334,28 @@ class ModelConsulta {
     }
     
     public static function mdlActualizarConsulta($datos) {
+        // Determinar si hay un tipo de formulario específico y datos asociados
+        $tipo_formulario = isset($datos["form_type"]) ? $datos["form_type"] : "general";
+        
+        // Preparar datos específicos para JSON (si corresponde)
+        $datos_especificos = null;
+        if ($tipo_formulario != "general") {
+            // Convertir datos específicos del formulario a JSON
+            $datos_json = [];
+            foreach ($datos as $key => $value) {
+                // Excluir campos que ya se guardan en columnas propias
+                if (!in_array($key, [
+                    'motivoscomunes', 'txtmotivo', 'visionod', 'visionoi', 'tensionod', 'tensionoi',
+                    'consulta-textarea', 'receta-textarea', 'txtnota', 'proximaconsulta',
+                    'whatsapptxt', 'email', 'id_user', 'id_reserva', 'idPersona', 'id_consulta',
+                    'form_type'
+                ])) {
+                    $datos_json[$key] = $value;
+                }
+            }
+            $datos_especificos = !empty($datos_json) ? json_encode($datos_json) : null;
+        }
+        
         // Preparar la consulta SQL para actualización
         $stmt = Conexion::conectar()->prepare(
             "UPDATE consultas SET 
@@ -310,6 +371,8 @@ class ModelConsulta {
                 proximaconsulta = :proximaconsulta,
                 whatsapptxt = :whatsapptxt, 
                 email = :email, 
+                tipo_formulario = :tipo_formulario,
+                datos_especificos = :datos_especificos,
                 ultima_modificacion = NOW() 
             WHERE id_consulta = :id_consulta"
         );
@@ -332,6 +395,14 @@ class ModelConsulta {
         }
         $stmt->bindParam(":whatsapptxt", $datos["whatsapptxt"], PDO::PARAM_STR);
         $stmt->bindParam(":email", $datos["email"], PDO::PARAM_STR);
+        $stmt->bindParam(":tipo_formulario", $tipo_formulario, PDO::PARAM_STR);
+        
+        if ($datos_especificos !== null) {
+            $stmt->bindParam(":datos_especificos", $datos_especificos, PDO::PARAM_STR);
+        } else {
+            $stmt->bindValue(":datos_especificos", null, PDO::PARAM_NULL);
+        }
+        
         $stmt->bindParam(":id_consulta", $datos["id_consulta"], PDO::PARAM_INT);
 
         // Ejecutar la consulta
@@ -414,7 +485,8 @@ class ModelConsulta {
         try {
             $stmt = Conexion::conectar()->prepare("SELECT id_consulta, motivoscomunes as motivo, txtmotivo, visionod, visionoi, tensionod, tensionoi, 
                 consulta_textarea as diagnostico, receta_textarea, txtnota as observaciones, proximaconsulta, 
-                whatsapptxt, email, id_user, id_reserva, fecha_registro, ultima_modificacion, id_persona 
+                whatsapptxt, email, id_user, id_reserva, fecha_registro, ultima_modificacion, id_persona, 
+                tipo_formulario, datos_especificos
                 FROM public.consultas WHERE id_consulta = :id_consulta");
             $stmt->bindParam(":id_consulta", $idConsulta, PDO::PARAM_INT);
             $stmt->execute();
@@ -427,10 +499,28 @@ class ModelConsulta {
                     'message' => 'No se encontró la consulta solicitada.'
                 ]);
             } else {
+                // Verificar si existe una entrada en la tabla de anteojos para esta consulta
+                if ($consulta['tipo_formulario'] == 'anteojos') {
+                    try {
+                        $stmtAnteojos = Conexion::conectar()->prepare("SELECT COUNT(*) as tiene_anteojos FROM consulta_anteojos WHERE id_consulta = :id_consulta");
+                        $stmtAnteojos->bindParam(":id_consulta", $idConsulta, PDO::PARAM_INT);
+                        $stmtAnteojos->execute();
+                        $resultAnteojos = $stmtAnteojos->fetch(PDO::FETCH_ASSOC);
+                        
+                        // Agregar información sobre la disponibilidad de datos de anteojos
+                        $consulta['tiene_datos_anteojos'] = ($resultAnteojos && $resultAnteojos['tiene_anteojos'] > 0);
+                    } catch (Exception $e) {
+                        // Si hay un error, asumir que no tiene datos de anteojos
+                        $consulta['tiene_datos_anteojos'] = false;
+                        error_log("Error al verificar datos de anteojos: " . $e->getMessage());
+                    }
+                }
+                
                 // Devolver directamente los datos de la consulta para que el frontend pueda procesarlos
                 return json_encode($consulta);
             }
         } catch (PDOException $e) {
+            error_log("Error en mdlGetDetalleConsulta: " . $e->getMessage() . " - SQL: " . $e->getCode());
             return json_encode([
                 'status' => 'error',
                 'message' => 'Error al obtener el detalle de la consulta: ' . $e->getMessage()

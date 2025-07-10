@@ -14732,3 +14732,242 @@
 2025-07-03 01:30:25 [INFO] [CONTROLLER] Resultado del modelo - {"resultado":"45"}
 2025-07-03 01:30:25 [INFO] [INSERCION] Respuesta recibida del controlador - {"response":"45"}
 2025-07-03 01:30:25 [EXITO] [INSERCION] Consulta guardada exitosamente - {"id_consulta":"45"}
+2025-07-09 23:54:03 [INFO] [INICIO] Iniciando proceso de guardar consulta - {"POST":{"form_type":"anteojos","txtdocumento":"88867676767","txtficha":"3245435435","idPersona":"45","motivoscomunes":"15","formatoConsulta":"12","txtmotivo":"Concutibitis, prueba 5","od_esf":"+15.00","od_cil":"-0.25","ejeod":"5654","dnpod":"5645","od_adicion":"+1.75","altura_od":"546","notaod":"drgfdg","oi_esf":"+0.25","oi_cil":"-0.50","ejeoi":"fdgfd","dnpoi":"gfdg","oi_adicion":"+1.75","altura_oi":"gfdg","...":"(datos truncados)"}}
+2025-07-09 23:54:03 [INFO] [INICIO] Iniciando proceso de guardar datos de anteojos - {"POST":{"form_type":"anteojos","txtdocumento":"88867676767","txtficha":"3245435435","idPersona":"45","motivoscomunes":"15","formatoConsulta":"12","txtmotivo":"Concutibitis, prueba 5","od_esf":"+15.00","od_cil":"-0.25","ejeod":"5654","dnpod":"5645","od_adicion":"+1.75","altura_od":"546","notaod":"drgfdg","oi_esf":"+0.25","oi_cil":"-0.50","ejeoi":"fdgfd","dnpoi":"gfdg","oi_adicion":"+1.75","altura_oi":"gfdg","...":"(datos truncados)"}}
+2025-07-09 23:54:03 [DEBUG] [CONFIG] Verificando configuración PHP - {"version_php":"8.3.11","extensiones":{"0":"Core","1":"bcmath","2":"calendar","3":"ctype","4":"date","5":"filter","6":"hash","7":"iconv","8":"json","9":"SPL","10":"pcre","11":"random","12":"readline","13":"Reflection","14":"session","15":"standard","16":"mysqlnd","17":"tokenizer","18":"zlib","19":"libxml","...":"(datos truncados)"},"memoria_limite":"512M","tiempo_ejecucion":"36000"}
+2025-07-09 23:54:03 [INFO] [INICIO] Iniciando proceso de guardar consulta - {"POST":{"form_type":"anteojos","txtdocumento":"88867676767","txtficha":"3245435435","idPersona":"45","motivoscomunes":"15","formatoConsulta":"12","txtmotivo":"Concutibitis, prueba 5","od_esf":"+15.00","od_cil":"-0.25","ejeod":"5654","dnpod":"5645","od_adicion":"+1.75","altura_od":"546","notaod":"drgfdg","oi_esf":"+0.25","oi_cil":"-0.50","ejeoi":"fdgfd","dnpoi":"gfdg","oi_adicion":"+1.75","altura_oi":"gfdg","...":"(datos truncados)"}}
+2025-07-09 23:54:03 [DEBUG] [CONFIG] Verificando configuración PHP - {"version_php":"8.3.11","extensiones":{"0":"Core","1":"bcmath","2":"calendar","3":"ctype","4":"date","5":"filter","6":"hash","7":"iconv","8":"json","9":"SPL","10":"pcre","11":"random","12":"readline","13":"Reflection","14":"session","15":"standard","16":"mysqlnd","17":"tokenizer","18":"zlib","19":"libxml","...":"(datos truncados)"},"memoria_limite":"512M","tiempo_ejecucion":"36000"}
+2025-07-09 23:54:03 [INFO] [ARCHIVOS] Verificando carga de archivos - {"controller_existe":true,"model_existe":true}
+2025-07-09 23:54:03 [INFO] [ARCHIVOS] Verificando carga de archivos - {"controller_existe":true,"model_existe":true}
+2025-07-09 23:54:03 [INFO] [PROCESO] Iniciando procesamiento de consulta - {"motivoscomunes":"15","formatoConsulta":"12"}
+2025-07-09 23:54:03 [INFO] [DATOS] Campo crítico recibido - {"idPersona":"45"}
+2025-07-09 23:54:03 [INFO] [DATOS] Campo crítico recibido - {"txtmotivo":"Concutibitis, prueba 5"}
+2025-07-09 23:54:03 [INFO] [DATOS] Campo crítico recibido - {"id_user":"9"}
+2025-07-09 23:54:03 [INFO] [DATOS] Campo crítico recibido - {"id_reserva":"0"}
+2025-07-09 23:54:03 [INFO] [ARCHIVOS] Procesando archivos adjuntos - {"files":["files"]}
+2025-07-09 23:54:03 [INFO] [INSERCION] Detectada creación de nueva consulta
+2025-07-09 23:54:03 [INFO] [PROCESO] Iniciando procesamiento de consulta - {"motivoscomunes":"15","formatoConsulta":"12"}
+2025-07-09 23:54:03 [INFO] [DATOS] Campo crítico recibido - {"idPersona":"45"}
+2025-07-09 23:54:03 [INFO] [INSERCION] Llamando al controlador para guardar nueva consulta - {"datos_clave":{"id_persona":"45","id_user":"9"}}
+2025-07-09 23:54:03 [INFO] [DATOS] Campo crítico recibido - {"txtmotivo":"Concutibitis, prueba 5"}
+2025-07-09 23:54:03 [INFO] [CONTROLLER] Iniciando ctrSetConsulta en el controlador - {"datos_recibidos":{"0":"form_type","1":"txtdocumento","2":"txtficha","3":"idPersona","4":"motivoscomunes","5":"formatoConsulta","6":"txtmotivo","7":"od_esf","8":"od_cil","9":"ejeod","10":"dnpod","11":"od_adicion","12":"altura_od","13":"notaod","14":"oi_esf","15":"oi_cil","16":"ejeoi","17":"dnpoi","18":"oi_adicion","19":"altura_oi","...":"(datos truncados)"}}
+2025-07-09 23:54:03 [INFO] [DATOS] Campo crítico recibido - {"id_user":"9"}
+2025-07-09 23:54:03 [INFO] [MODELO] Iniciando mdlSetConsulta - {"datos":{"0":"form_type","1":"txtdocumento","2":"txtficha","3":"idPersona","4":"motivoscomunes","5":"formatoConsulta","6":"txtmotivo","7":"od_esf","8":"od_cil","9":"ejeod","10":"dnpod","11":"od_adicion","12":"altura_od","13":"notaod","14":"oi_esf","15":"oi_cil","16":"ejeoi","17":"dnpoi","18":"oi_adicion","19":"altura_oi","...":"(datos truncados)"},"es_actualizacion":false}
+2025-07-09 23:54:03 [INFO] [DATOS] Campo crítico recibido - {"id_reserva":"0"}
+2025-07-09 23:54:03 [INFO] [MODELO] Intentando obtener conexión a BD
+files":["files"]}
+2025-07-09 23:54:03 [INFO] [INSERCION] Detectada creación de nueva consulta
+2025-07-09 23:54:03 [INFO] [INSERCION] Llamando al controlador para guardar nueva consulta - {"datos_clave":{"id_persona":"45","id_user":"9"}}
+2025-07-09 23:54:03 [INFO] [CONTROLLER] Iniciando ctrSetConsulta en el controlador - {"datos_recibidos":{"0":"form_type","1":"txtdocumento","2":"txtficha","3":"idPersona","4":"motivoscomunes","5":"formatoConsulta","6":"txtmotivo","7":"od_esf","8":"od_cil","9":"ejeod","10":"dnpod","11":"od_adicion","12":"altura_od","13":"notaod","14":"oi_esf","15":"oi_cil","16":"ejeoi","17":"dnpoi","18":"oi_adicion","19":"altura_oi","...":"(datos truncados)"}}
+2025-07-09 23:54:03 [INFO] [CONTROLLER] Llamando al modelo mdlSetConsulta
+2025-07-09 23:54:03 [INFO] [MODELO] Iniciando mdlSetConsulta - {"datos":{"0":"form_type","1":"txtdocumento","2":"txtficha","3":"idPersona","4":"motivoscomunes","5":"formatoConsulta","6":"txtmotivo","7":"od_esf","8":"od_cil","9":"ejeod","10":"dnpod","11":"od_adicion","12":"altura_od","13":"notaod","14":"oi_esf","15":"oi_cil","16":"ejeoi","17":"dnpoi","18":"oi_adicion","19":"altura_oi","...":"(datos truncados)"},"es_actualizacion":false}
+2025-07-09 23:54:03 [INFO] [MODELO] Intentando obtener conexión a BD
+2025-07-09 23:54:03 [EXITO] [MODELO] Conexión establecida correctamente
+2025-07-09 23:54:03 [INFO] [MODELO] Paciente encontrado para la consulta - {"person_id":45,"nombre":"alejandro visconte"}
+2025-07-09 23:54:03 [INFO] [MODELO] Verificando campos obligatorios - {"motivoscomunes":"OK","txtmotivo":"OK","id_persona":"OK"}
+2025-07-09 23:54:03 [EXITO] [MODELO] Conexión establecida correctamente
+2025-07-09 23:54:03 [INFO] [MODELO] Preparando consulta SQL para inserción
+2025-07-09 23:54:03 [INFO] [MODELO] Tipo de formulario detectado - {"tipo_formulario":"anteojos","datos_especificos":19}
+2025-07-09 23:54:03 [EXITO] [MODELO] Consulta SQL preparada correctamente
+2025-07-09 23:54:03 [INFO] [MODELO] Comenzando bind de parámetros
+2025-07-09 23:54:03 [DEBUG] [MODELO] Valores para bind de parámetros - {":motivoscomunes":{"valor":"15","tipo":2},":txtmotivo":{"valor":"Concutibitis, prueba 5","tipo":2},":visionod":{"valor":null,"tipo":2},":visionoi":{"valor":null,"tipo":2},":tensionod":{"valor":null,"tipo":2},":tensionoi":{"valor":null,"tipo":2},":consulta_textarea":{"valor":"<p>!! PRUEBAS DE ANTEOJOS</p>","tipo":2},":receta_textarea":{"valor":"dfgfdgfdg","tipo":2},":txtnota":{"valor":"dfgfdg","tipo":2},":whatsapptxt":{"valor":"fdgfdg","tipo":2},":email":{"valor":"","tipo":2},":id_user":{"valor":"9","tipo":1},":id_reserva":{"valor":"0","tipo":1},":id_persona":{"valor":"45","tipo":1}}
+2025-07-09 23:54:03 [INFO] [MODELO] Campo proximaconsulta tiene valor - {"valor":"2025-07-09"}
+2025-07-09 23:54:03 [INFO] [MODELO] IDs después de convertir a enteros - {"id_user":9,"id_reserva":0,"id_persona":45}
+2025-07-09 23:54:03 [INFO] [MODELO] Paciente encontrado para la consulta - {"person_id":45,"nombre":"alejandro visconte"}
+2025-07-09 23:54:03 [EXITO] [MODELO] Todos los parámetros bindeados correctamente
+2025-07-09 23:54:03 [INFO] [MODELO] Intentando ejecutar la consulta SQL
+otivoscomunes":"OK","txtmotivo":"OK","id_persona":"OK"}
+2025-07-09 23:54:03 [INFO] [MODELO] Preparando consulta SQL para inserción
+2025-07-09 23:54:03 [INFO] [MODELO] Tipo de formulario detectado - {"tipo_formulario":"anteojos","datos_especificos":19}
+2025-07-09 23:54:03 [EXITO] [MODELO] Consulta SQL preparada correctamente
+2025-07-09 23:54:03 [INFO] [MODELO] Comenzando bind de parámetros
+2025-07-09 23:54:03 [DEBUG] [MODELO] Valores para bind de parámetros - {":motivoscomunes":{"valor":"15","tipo":2},":txtmotivo":{"valor":"Concutibitis, prueba 5","tipo":2},":visionod":{"valor":null,"tipo":2},":visionoi":{"valor":null,"tipo":2},":tensionod":{"valor":null,"tipo":2},":tensionoi":{"valor":null,"tipo":2},":consulta_textarea":{"valor":"<p>!! PRUEBAS DE ANTEOJOS</p>","tipo":2},":receta_textarea":{"valor":"dfgfdgfdg","tipo":2},":txtnota":{"valor":"dfgfdg","tipo":2},":whatsapptxt":{"valor":"fdgfdg","tipo":2},":email":{"valor":"","tipo":2},":id_user":{"valor":"9","tipo":1},":id_reserva":{"valor":"0","tipo":1},":id_persona":{"valor":"45","tipo":1}}
+2025-07-09 23:54:03 [INFO] [MODELO] Campo proximaconsulta tiene valor - {"valor":"2025-07-09"}
+2025-07-09 23:54:03 [INFO] [MODELO] IDs después de convertir a enteros - {"id_user":9,"id_reserva":0,"id_persona":45}
+2025-07-09 23:54:03 [EXITO] [MODELO] Todos los parámetros bindeados correctamente
+2025-07-09 23:54:03 [INFO] [MODELO] Intentando ejecutar la consulta SQL
+2025-07-09 23:54:03 [EXITO] [MODELO] Consulta ejecutada correctamente - {"id_consulta":"46"}
+2025-07-09 23:54:03 [INFO] [CONTROLLER] Resultado del modelo - {"resultado":"46"}
+2025-07-09 23:54:03 [INFO] [INSERCION] Respuesta recibida del controlador - {"response":"46"}
+2025-07-09 23:54:03 [INFO] [INSERCION] Respuesta recibida del controlador - {"response":"47"}
+2025-07-09 23:54:03 [EXITO] [INSERCION] Consulta guardada exitosamente - {"id_consulta":"46"}
+2025-07-09 23:54:03 [EXITO] [INSERCION] Consulta guardada exitosamente - {"id_consulta":"47"}
+2025-07-09 23:54:03 [ERROR] [PROCESO] No se pudo obtener el ID de consulta
+2025-07-10 00:13:52 [INFO] [INICIO] Iniciando proceso de guardar consulta - {"POST":{"form_type":"anteojos","txtdocumento":"88867676767","txtficha":"3245435435","idPersona":"45","motivoscomunes":"10","formatoConsulta":"12","txtmotivo":"prueba 5, Ojo seco","od_esf":"+14.75","od_cil":"-0.50","ejeod":"dsf","dnpod":"dsf","od_adicion":"+1.25","altura_od":"56","notaod":"dsfds","oi_esf":"+0.75","oi_cil":"-0.75","ejeoi":"fdg","dnpoi":"fg","oi_adicion":"+1.50","altura_oi":"fgf","...":"(datos truncados)"}}
+2025-07-10 00:13:52 [DEBUG] [CONFIG] Verificando configuración PHP - {"version_php":"8.3.11","extensiones":{"0":"Core","1":"bcmath","2":"calendar","3":"ctype","4":"date","5":"filter","6":"hash","7":"iconv","8":"json","9":"SPL","10":"pcre","11":"random","12":"readline","13":"Reflection","14":"session","15":"standard","16":"mysqlnd","17":"tokenizer","18":"zlib","19":"libxml","...":"(datos truncados)"},"memoria_limite":"512M","tiempo_ejecucion":"36000"}
+2025-07-10 00:13:52 [INFO] [INICIO] Iniciando proceso de guardar datos de anteojos - {"POST":{"form_type":"anteojos","txtdocumento":"88867676767","txtficha":"3245435435","idPersona":"45","motivoscomunes":"10","formatoConsulta":"12","txtmotivo":"prueba 5, Ojo seco","od_esf":"+14.75","od_cil":"-0.50","ejeod":"dsf","dnpod":"dsf","od_adicion":"+1.25","altura_od":"56","notaod":"dsfds","oi_esf":"+0.75","oi_cil":"-0.75","ejeoi":"fdg","dnpoi":"fg","oi_adicion":"+1.50","altura_oi":"fgf","...":"(datos truncados)"}}
+2025-07-10 00:13:52 [INFO] [ARCHIVOS] Verificando carga de archivos - {"controller_existe":true,"model_existe":true}
+2025-07-10 00:13:52 [INFO] [PROCESO] Iniciando procesamiento de consulta - {"motivoscomunes":"10","formatoConsulta":"12"}
+2025-07-10 00:13:52 [INFO] [DATOS] Campo crítico recibido - {"idPersona":"45"}
+2025-07-10 00:13:52 [INFO] [DATOS] Campo crítico recibido - {"txtmotivo":"prueba 5, Ojo seco"}
+2025-07-10 00:13:52 [INFO] [DATOS] Campo crítico recibido - {"id_user":"9"}
+2025-07-10 00:13:52 [INFO] [DATOS] Campo crítico recibido - {"id_reserva":"0"}
+2025-07-10 00:13:52 [INFO] [ARCHIVOS] Procesando archivos adjuntos - {"files":["files"]}
+2025-07-10 00:13:52 [INFO] [INSERCION] Detectada creación de nueva consulta
+2025-07-10 00:13:52 [INFO] [INSERCION] Llamando al controlador para guardar nueva consulta - {"datos_clave":{"id_persona":"45","id_user":"9"}}
+2025-07-10 00:13:52 [INFO] [CONTROLLER] Iniciando ctrSetConsulta en el controlador - {"datos_recibidos":{"0":"form_type","1":"txtdocumento","2":"txtficha","3":"idPersona","4":"motivoscomunes","5":"formatoConsulta","6":"txtmotivo","7":"od_esf","8":"od_cil","9":"ejeod","10":"dnpod","11":"od_adicion","12":"altura_od","13":"notaod","14":"oi_esf","15":"oi_cil","16":"ejeoi","17":"dnpoi","18":"oi_adicion","19":"altura_oi","...":"(datos truncados)"}}
+2025-07-10 00:13:52 [INFO] [CONTROLLER] Llamando al modelo mdlSetConsulta
+2025-07-10 00:13:52 [INFO] [MODELO] Iniciando mdlSetConsulta - {"datos":{"0":"form_type","1":"txtdocumento","2":"txtficha","3":"idPersona","4":"motivoscomunes","5":"formatoConsulta","6":"txtmotivo","7":"od_esf","8":"od_cil","9":"ejeod","10":"dnpod","11":"od_adicion","12":"altura_od","13":"notaod","14":"oi_esf","15":"oi_cil","16":"ejeoi","17":"dnpoi","18":"oi_adicion","19":"altura_oi","...":"(datos truncados)"},"es_actualizacion":false}
+2025-07-10 00:13:52 [INFO] [MODELO] Intentando obtener conexión a BD
+2025-07-10 00:13:52 [EXITO] [MODELO] Conexión establecida correctamente
+2025-07-10 00:13:52 [INFO] [MODELO] Paciente encontrado para la consulta - {"person_id":45,"nombre":"alejandro visconte"}
+2025-07-10 00:13:52 [INFO] [MODELO] Verificando campos obligatorios - {"motivoscomunes":"OK","txtmotivo":"OK","id_persona":"OK"}
+2025-07-10 00:13:52 [INFO] [MODELO] Preparando consulta SQL para inserción
+2025-07-10 00:13:52 [INFO] [MODELO] Tipo de formulario detectado - {"tipo_formulario":"anteojos","datos_especificos":19}
+2025-07-10 00:13:52 [EXITO] [MODELO] Consulta SQL preparada correctamente
+2025-07-10 00:13:52 [INFO] [MODELO] Comenzando bind de parámetros
+2025-07-10 00:13:52 [DEBUG] [MODELO] Valores para bind de parámetros - {":motivoscomunes":{"valor":"10","tipo":2},":txtmotivo":{"valor":"prueba 5, Ojo seco","tipo":2},":visionod":{"valor":null,"tipo":2},":visionoi":{"valor":null,"tipo":2},":tensionod":{"valor":null,"tipo":2},":tensionoi":{"valor":null,"tipo":2},":consulta_textarea":{"valor":"<p>!! PRUEBAS DE ANTEOJOS</p>","tipo":2},":receta_textarea":{"valor":"fgdfg","tipo":2},":txtnota":{"valor":"dfgfdg","tipo":2},":whatsapptxt":{"valor":"","tipo":2},":email":{"valor":"","tipo":2},":id_user":{"valor":"9","tipo":1},":id_reserva":{"valor":"0","tipo":1},":id_persona":{"valor":"45","tipo":1}}
+2025-07-10 00:13:52 [INFO] [MODELO] Campo proximaconsulta tiene valor - {"valor":"2025-07-25"}
+2025-07-10 00:13:52 [INFO] [MODELO] IDs después de convertir a enteros - {"id_user":9,"id_reserva":0,"id_persona":45}
+2025-07-10 00:13:52 [EXITO] [MODELO] Todos los parámetros bindeados correctamente
+2025-07-10 00:13:52 [INFO] [MODELO] Intentando ejecutar la consulta SQL
+2025-07-10 00:13:52 [EXITO] [MODELO] Consulta ejecutada correctamente - {"id_consulta":"48"}
+2025-07-10 00:13:52 [INFO] [CONTROLLER] Resultado del modelo - {"resultado":"48"}
+2025-07-10 00:13:52 [INFO] [INSERCION] Respuesta recibida del controlador - {"response":"48"}
+2025-07-10 00:13:52 [EXITO] [INSERCION] Consulta guardada exitosamente - {"id_consulta":"48"}
+2025-07-10 00:31:15 [INFO] [INICIO] Iniciando proceso de guardar datos de anteojos - {"POST":{"form_type":"anteojos","txtdocumento":"88867676767","txtficha":"3245435435","idPersona":"45","motivoscomunes":"14","formatoConsulta":"12","txtmotivo":"Ojo seco, Concutibitis","od_esf":"+14.50","od_cil":"-0.50","ejeod":"sdf","dnpod":"sdf","od_adicion":"+1.75","altura_od":"sdfds","notaod":"sdfds","oi_esf":"+0.00","oi_cil":"-0.25","ejeoi":"sdf","dnpoi":"dsfds","oi_adicion":"+2.00","altura_oi":"dsfds","...":"(datos truncados)"}}
+2025-07-10 00:31:15 [ADVERTENCIA] [PROCESO] cURL no está disponible, usando método alternativo
+2025-07-10 00:31:15 [INFO] [INICIO] Iniciando proceso de guardar consulta - {"POST":{"form_type":"anteojos","txtdocumento":"88867676767","txtficha":"3245435435","idPersona":"45","motivoscomunes":"14","formatoConsulta":"12","txtmotivo":"Ojo seco, Concutibitis","od_esf":"+14.50","od_cil":"-0.50","ejeod":"sdf","dnpod":"sdf","od_adicion":"+1.75","altura_od":"sdfds","notaod":"sdfds","oi_esf":"+0.00","oi_cil":"-0.25","ejeoi":"sdf","dnpoi":"dsfds","oi_adicion":"+2.00","altura_oi":"dsfds","...":"(datos truncados)"}}
+2025-07-10 00:31:15 [DEBUG] [CONFIG] Verificando configuración PHP - {"version_php":"8.3.11","extensiones":{"0":"Core","1":"bcmath","2":"calendar","3":"ctype","4":"date","5":"filter","6":"hash","7":"iconv","8":"json","9":"SPL","10":"pcre","11":"random","12":"readline","13":"Reflection","14":"session","15":"standard","16":"mysqlnd","17":"tokenizer","18":"zlib","19":"libxml","...":"(datos truncados)"},"memoria_limite":"512M","tiempo_ejecucion":"36000"}
+2025-07-10 00:31:15 [INFO] [ARCHIVOS] Verificando carga de archivos - {"controller_existe":true,"model_existe":true}
+2025-07-10 00:31:15 [INFO] [INICIO] Iniciando proceso de guardar consulta - {"POST":{"form_type":"anteojos","txtdocumento":"88867676767","txtficha":"3245435435","idPersona":"45","motivoscomunes":"14","formatoConsulta":"12","txtmotivo":"Ojo seco, Concutibitis","od_esf":"+14.50","od_cil":"-0.50","ejeod":"sdf","dnpod":"sdf","od_adicion":"+1.75","altura_od":"sdfds","notaod":"sdfds","oi_esf":"+0.00","oi_cil":"-0.25","ejeoi":"sdf","dnpoi":"dsfds","oi_adicion":"+2.00","altura_oi":"dsfds","...":"(datos truncados)"}}
+2025-07-10 00:31:15 [DEBUG] [CONFIG] Verificando configuración PHP - {"version_php":"8.3.11","extensiones":{"0":"Core","1":"bcmath","2":"calendar","3":"ctype","4":"date","5":"filter","6":"hash","7":"iconv","8":"json","9":"SPL","10":"pcre","11":"random","12":"readline","13":"Reflection","14":"session","15":"standard","16":"mysqlnd","17":"tokenizer","18":"zlib","19":"libxml","...":"(datos truncados)"},"memoria_limite":"512M","tiempo_ejecucion":"36000"}
+2025-07-10 00:31:15 [INFO] [ARCHIVOS] Verificando carga de archivos - {"controller_existe":true,"model_existe":true}
+2025-07-10 00:31:15 [INFO] [PROCESO] Iniciando procesamiento de consulta - {"motivoscomunes":"14","formatoConsulta":"12"}
+2025-07-10 00:31:15 [INFO] [DATOS] Campo crítico recibido - {"idPersona":"45"}
+2025-07-10 00:31:15 [INFO] [DATOS] Campo crítico recibido - {"txtmotivo":"Ojo seco, Concutibitis"}
+2025-07-10 00:31:15 [INFO] [DATOS] Campo crítico recibido - {"id_user":"9"}
+2025-07-10 00:31:15 [INFO] [DATOS] Campo crítico recibido - {"id_reserva":"0"}
+2025-07-10 00:31:15 [INFO] [ARCHIVOS] Procesando archivos adjuntos - {"files":["files"]}
+2025-07-10 00:31:15 [INFO] [INSERCION] Detectada creación de nueva consulta
+2025-07-10 00:31:15 [INFO] [INSERCION] Llamando al controlador para guardar nueva consulta - {"datos_clave":{"id_persona":"45","id_user":"9"}}
+2025-07-10 00:31:15 [INFO] [CONTROLLER] Iniciando ctrSetConsulta en el controlador - {"datos_recibidos":{"0":"form_type","1":"txtdocumento","2":"txtficha","3":"idPersona","4":"motivoscomunes","5":"formatoConsulta","6":"txtmotivo","7":"od_esf","8":"od_cil","9":"ejeod","10":"dnpod","11":"od_adicion","12":"altura_od","13":"notaod","14":"oi_esf","15":"oi_cil","16":"ejeoi","17":"dnpoi","18":"oi_adicion","19":"altura_oi","...":"(datos truncados)"}}
+2025-07-10 00:31:15 [INFO] [CONTROLLER] Llamando al modelo mdlSetConsulta
+2025-07-10 00:31:15 [INFO] [MODELO] Iniciando mdlSetConsulta - {"datos":{"0":"form_type","1":"txtdocumento","2":"txtficha","3":"idPersona","4":"motivoscomunes","5":"formatoConsulta","6":"txtmotivo","7":"od_esf","8":"od_cil","9":"ejeod","10":"dnpod","11":"od_adicion","12":"altura_od","13":"notaod","14":"oi_esf","15":"oi_cil","16":"ejeoi","17":"dnpoi","18":"oi_adicion","19":"altura_oi","...":"(datos truncados)"},"es_actualizacion":false}
+2025-07-10 00:31:15 [INFO] [MODELO] Intentando obtener conexión a BD
+2025-07-10 00:31:15 [INFO] [PROCESO] Iniciando procesamiento de consulta - {"motivoscomunes":"14","formatoConsulta":"12"}
+2025-07-10 00:31:15 [INFO] [DATOS] Campo crítico recibido - {"idPersona":"45"}
+2025-07-10 00:31:15 [INFO] [DATOS] Campo crítico recibido - {"txtmotivo":"Ojo seco, Concutibitis"}
+2025-07-10 00:31:15 [INFO] [DATOS] Campo crítico recibido - {"id_user":"9"}
+2025-07-10 00:31:15 [INFO] [DATOS] Campo crítico recibido - {"id_reserva":"0"}
+2025-07-10 00:31:15 [INFO] [INSERCION] Detectada creación de nueva consulta
+2025-07-10 00:31:15 [INFO] [INSERCION] Llamando al controlador para guardar nueva consulta - {"datos_clave":{"id_persona":"45","id_user":"9"}}
+2025-07-10 00:31:15 [INFO] [CONTROLLER] Iniciando ctrSetConsulta en el controlador - {"datos_recibidos":{"0":"form_type","1":"txtdocumento","2":"txtficha","3":"idPersona","4":"motivoscomunes","5":"formatoConsulta","6":"txtmotivo","7":"od_esf","8":"od_cil","9":"ejeod","10":"dnpod","11":"od_adicion","12":"altura_od","13":"notaod","14":"oi_esf","15":"oi_cil","16":"ejeoi","17":"dnpoi","18":"oi_adicion","19":"altura_oi","...":"(datos truncados)"}}
+2025-07-10 00:31:15 [INFO] [CONTROLLER] Llamando al modelo mdlSetConsulta
+2025-07-10 00:31:15 [INFO] [MODELO] Iniciando mdlSetConsulta - {"datos":{"0":"form_type","1":"txtdocumento","2":"txtficha","3":"idPersona","4":"motivoscomunes","5":"formatoConsulta","6":"txtmotivo","7":"od_esf","8":"od_cil","9":"ejeod","10":"dnpod","11":"od_adicion","12":"altura_od","13":"notaod","14":"oi_esf","15":"oi_cil","16":"ejeoi","17":"dnpoi","18":"oi_adicion","19":"altura_oi","...":"(datos truncados)"},"es_actualizacion":false}
+2025-07-10 00:31:15 [INFO] [MODELO] Intentando obtener conexión a BD
+2025-07-10 00:31:16 [EXITO] [MODELO] Conexión establecida correctamente
+2025-07-10 00:31:16 [INFO] [MODELO] Paciente encontrado para la consulta - {"person_id":45,"nombre":"alejandro visconte"}
+2025-07-10 00:31:16 [INFO] [MODELO] Verificando campos obligatorios - {"motivoscomunes":"OK","txtmotivo":"OK","id_persona":"OK"}
+2025-07-10 00:31:16 [INFO] [MODELO] Preparando consulta SQL para inserción
+2025-07-10 00:31:16 [INFO] [MODELO] Tipo de formulario detectado - {"tipo_formulario":"anteojos","datos_especificos":19}
+2025-07-10 00:31:16 [EXITO] [MODELO] Consulta SQL preparada correctamente
+2025-07-10 00:31:16 [INFO] [MODELO] Comenzando bind de parámetros
+2025-07-10 00:31:16 [DEBUG] [MODELO] Valores para bind de parámetros - {":motivoscomunes":{"valor":"14","tipo":2},":txtmotivo":{"valor":"Ojo seco, Concutibitis","tipo":2},":visionod":{"valor":null,"tipo":2},":visionoi":{"valor":null,"tipo":2},":tensionod":{"valor":null,"tipo":2},":tensionoi":{"valor":null,"tipo":2},":consulta_textarea":{"valor":"<p>!! PRUEBAS DE ANTEOJOS</p>","tipo":2},":receta_textarea":{"valor":"sdfds","tipo":2},":txtnota":{"valor":"sdfsdf","tipo":2},":whatsapptxt":{"valor":"","tipo":2},":email":{"valor":"","tipo":2},":id_user":{"valor":"9","tipo":1},":id_reserva":{"valor":"0","tipo":1},":id_persona":{"valor":"45","tipo":1}}
+2025-07-10 00:31:16 [INFO] [MODELO] Campo proximaconsulta tiene valor - {"valor":"2025-07-09"}
+2025-07-10 00:31:16 [INFO] [MODELO] IDs después de convertir a enteros - {"id_user":9,"id_reserva":0,"id_persona":45}
+2025-07-10 00:31:16 [EXITO] [MODELO] Todos los parámetros bindeados correctamente
+2025-07-10 00:31:16 [INFO] [MODELO] Intentando ejecutar la consulta SQL
+2025-07-10 00:31:16 [EXITO] [MODELO] Conexión establecida correctamente
+2025-07-10 00:31:16 [EXITO] [MODELO] Consulta ejecutada correctamente - {"id_consulta":"49"}
+2025-07-10 00:31:16 [INFO] [CONTROLLER] Resultado del modelo - {"resultado":"49"}
+2025-07-10 00:31:16 [INFO] [MODELO] Paciente encontrado para la consulta - {"person_id":45,"nombre":"alejandro visconte"}
+2025-07-10 00:31:16 [INFO] [INSERCION] Respuesta recibida del controlador - {"response":"49"}
+2025-07-10 00:31:16 [INFO] [MODELO] Verificando campos obligatorios - {"motivoscomunes":"OK","txtmotivo":"OK","id_persona":"OK"}
+2025-07-10 00:31:16 [EXITO] [INSERCION] Consulta guardada exitosamente - {"id_consulta":"49"}
+2025-07-10 00:31:16 [INFO] [MODELO] Preparando consulta SQL para inserción
+2025-07-10 00:31:16 [INFO] [MODELO] Tipo de formulario detectado - {"tipo_formulario":"anteojos","datos_especificos":19}
+2025-07-10 00:31:16 [EXITO] [MODELO] Consulta SQL preparada correctamente
+2025-07-10 00:31:16 [INFO] [MODELO] Comenzando bind de parámetros
+2025-07-10 00:31:16 [DEBUG] [MODELO] Valores para bind de parámetros - {":motivoscomunes":{"valor":"14","tipo":2},":txtmotivo":{"valor":"Ojo seco, Concutibitis","tipo":2},":visionod":{"valor":null,"tipo":2},":visionoi":{"valor":null,"tipo":2},":tensionod":{"valor":null,"tipo":2},":tensionoi":{"valor":null,"tipo":2},":consulta_textarea":{"valor":"<p>!! PRUEBAS DE ANTEOJOS</p>","tipo":2},":receta_textarea":{"valor":"sdfds","tipo":2},":txtnota":{"valor":"sdfsdf","tipo":2},":whatsapptxt":{"valor":"","tipo":2},":email":{"valor":"","tipo":2},":id_user":{"valor":"9","tipo":1},":id_reserva":{"valor":"0","tipo":1},":id_persona":{"valor":"45","tipo":1}}
+2025-07-10 00:31:16 [INFO] [MODELO] Campo proximaconsulta tiene valor - {"valor":"2025-07-09"}
+2025-07-10 00:31:16 [INFO] [MODELO] IDs después de convertir a enteros - {"id_user":9,"id_reserva":0,"id_persona":45}
+2025-07-10 00:31:16 [EXITO] [MODELO] Todos los parámetros bindeados correctamente
+2025-07-10 00:31:16 [INFO] [MODELO] Intentando ejecutar la consulta SQL
+2025-07-10 00:31:16 [EXITO] [MODELO] Consulta ejecutada correctamente - {"id_consulta":"50"}
+2025-07-10 00:31:16 [INFO] [CONTROLLER] Resultado del modelo - {"resultado":"50"}
+2025-07-10 00:31:16 [INFO] [INSERCION] Respuesta recibida del controlador - {"response":"50"}
+2025-07-10 00:31:16 [EXITO] [INSERCION] Consulta guardada exitosamente - {"id_consulta":"50"}
+2025-07-10 00:31:16 [INFO] [PROCESO] Respuesta del guardado de la consulta base - {"response":"ok id:50","metodo_directo":false}
+2025-07-10 00:31:16 [EXITO] [PROCESO] ID de consulta obtenido correctamente - {"id_consulta":"50"}
+2025-07-10 00:31:16 [INFO] [GUARDAR_ANTEOJOS] Guardando datos de anteojos para consulta - {"id_consulta":"50","datos":{"0":"form_type","1":"txtdocumento","2":"txtficha","3":"idPersona","4":"motivoscomunes","5":"formatoConsulta","6":"txtmotivo","7":"od_esf","8":"od_cil","9":"ejeod","10":"dnpod","11":"od_adicion","12":"altura_od","13":"notaod","14":"oi_esf","15":"oi_cil","16":"ejeoi","17":"dnpoi","18":"oi_adicion","19":"altura_oi","...":"(datos truncados)"}}
+2025-07-10 00:31:16 [INFO] [GUARDAR_ANTEOJOS] Creando nuevo registro de anteojos - {"id_consulta":"50"}
+2025-07-10 00:31:16 [DEBUG] [BIND_PARAMETROS] Parámetros vinculados - {"od":{"esfera":"+14.50","cilindro":"-0.50","eje":"sdf","dnp":"sdf","adicion":"+1.75","nota":"sdfds"},"oi":{"esfera":"+0.00","cilindro":"-0.25","eje":"sdf","dnp":"dsfds","adicion":"+2.00","nota":"sdf"},"otros":{"dist_interpupilar":"dsf","altura_od":"sdfds","altura_oi":"dsfds"}}
+2025-07-10 00:31:16 [ERROR] [GUARDAR_ANTEOJOS] Excepción PDO - {"mensaje":"SQLSTATE[42703]: Undefined column: 7 ERROR:  column \"nota_od\" of relation \"consulta_anteojos\" does not exist\nLINE 3: ...ta, esfera_od, cilindro_od, eje_od, dnp_od, add_od, nota_od,\n                                                               ^","codigo":"42703","trace":"#0 C:\\laragon\\www\\clinica\\ajax\\guardar-consulta-anteojos.php(196): PDOStatement->execute()\n#1 C:\\laragon\\www\\clinica\\ajax\\guardar-consulta-anteojos.php(609): TableConsultaAnteojos->guardarConsultaAnteojos(Array, '50')\n#2 {main}","id_consulta":"50"}
+2025-07-10 00:31:16 [ERROR] [PROCESO] Error al guardar datos de anteojos - {"resultado":"Error de base de datos: SQLSTATE[42703]: Undefined column: 7 ERROR:  column \"nota_od\" of relation \"consulta_anteojos\" does not exist\nLINE 3: ...ta, esfera_od, cilindro_od, eje_od, dnp_od, add_od, nota_od,\n                                                               ^","id_consulta":"50"}
+2025-07-10 00:37:52 [INFO] [INICIO] Iniciando proceso de guardar datos de anteojos - {"POST":{"form_type":"anteojos","txtdocumento":"88867676767","txtficha":"3245435435","idPersona":"45","motivoscomunes":"10","formatoConsulta":"12","txtmotivo":"Concutibitis, Ojo seco","od_esf":"+15.00","od_cil":"-0.50","ejeod":"dfg","dnpod":"dfg","od_adicion":"+1.50","altura_od":"fdg","notaod":"dfg","oi_esf":"+0.25","oi_cil":"-0.50","ejeoi":"dfgd","dnpoi":"dfg","oi_adicion":"+1.75","altura_oi":"fdg","...":"(datos truncados)"}}
+2025-07-10 00:37:52 [ADVERTENCIA] [PROCESO] cURL no está disponible, usando método alternativo
+2025-07-10 00:37:52 [INFO] [INICIO] Iniciando proceso de guardar consulta - {"POST":{"form_type":"anteojos","txtdocumento":"88867676767","txtficha":"3245435435","idPersona":"45","motivoscomunes":"10","formatoConsulta":"12","txtmotivo":"Concutibitis, Ojo seco","od_esf":"+15.00","od_cil":"-0.50","ejeod":"dfg","dnpod":"dfg","od_adicion":"+1.50","altura_od":"fdg","notaod":"dfg","oi_esf":"+0.25","oi_cil":"-0.50","ejeoi":"dfgd","dnpoi":"dfg","oi_adicion":"+1.75","altura_oi":"fdg","...":"(datos truncados)"}}
+2025-07-10 00:37:52 [DEBUG] [CONFIG] Verificando configuración PHP - {"version_php":"8.3.11","extensiones":{"0":"Core","1":"bcmath","2":"calendar","3":"ctype","4":"date","5":"filter","6":"hash","7":"iconv","8":"json","9":"SPL","10":"pcre","11":"random","12":"readline","13":"Reflection","14":"session","15":"standard","16":"mysqlnd","17":"tokenizer","18":"zlib","19":"libxml","...":"(datos truncados)"},"memoria_limite":"512M","tiempo_ejecucion":"36000"}
+2025-07-10 00:37:52 [INFO] [ARCHIVOS] Verificando carga de archivos - {"controller_existe":true,"model_existe":true}
+2025-07-10 00:37:52 [INFO] [INICIO] Iniciando proceso de guardar consulta - {"POST":{"form_type":"anteojos","txtdocumento":"88867676767","txtficha":"3245435435","idPersona":"45","motivoscomunes":"10","formatoConsulta":"12","txtmotivo":"Concutibitis, Ojo seco","od_esf":"+15.00","od_cil":"-0.50","ejeod":"dfg","dnpod":"dfg","od_adicion":"+1.50","altura_od":"fdg","notaod":"dfg","oi_esf":"+0.25","oi_cil":"-0.50","ejeoi":"dfgd","dnpoi":"dfg","oi_adicion":"+1.75","altura_oi":"fdg","...":"(datos truncados)"}}
+2025-07-10 00:37:52 [DEBUG] [CONFIG] Verificando configuración PHP - {"version_php":"8.3.11","extensiones":{"0":"Core","1":"bcmath","2":"calendar","3":"ctype","4":"date","5":"filter","6":"hash","7":"iconv","8":"json","9":"SPL","10":"pcre","11":"random","12":"readline","13":"Reflection","14":"session","15":"standard","16":"mysqlnd","17":"tokenizer","18":"zlib","19":"libxml","...":"(datos truncados)"},"memoria_limite":"512M","tiempo_ejecucion":"36000"}
+2025-07-10 00:37:52 [INFO] [ARCHIVOS] Verificando carga de archivos - {"controller_existe":true,"model_existe":true}
+2025-07-10 00:37:52 [INFO] [PROCESO] Iniciando procesamiento de consulta - {"motivoscomunes":"10","formatoConsulta":"12"}
+2025-07-10 00:37:52 [INFO] [DATOS] Campo crítico recibido - {"idPersona":"45"}
+2025-07-10 00:37:52 [INFO] [DATOS] Campo crítico recibido - {"txtmotivo":"Concutibitis, Ojo seco"}
+2025-07-10 00:37:52 [INFO] [DATOS] Campo crítico recibido - {"id_user":"9"}
+2025-07-10 00:37:52 [INFO] [DATOS] Campo crítico recibido - {"id_reserva":"0"}
+2025-07-10 00:37:52 [INFO] [ARCHIVOS] Procesando archivos adjuntos - {"files":["files"]}
+2025-07-10 00:37:52 [INFO] [INSERCION] Detectada creación de nueva consulta
+2025-07-10 00:37:52 [INFO] [INSERCION] Llamando al controlador para guardar nueva consulta - {"datos_clave":{"id_persona":"45","id_user":"9"}}
+2025-07-10 00:37:52 [INFO] [CONTROLLER] Iniciando ctrSetConsulta en el controlador - {"datos_recibidos":{"0":"form_type","1":"txtdocumento","2":"txtficha","3":"idPersona","4":"motivoscomunes","5":"formatoConsulta","6":"txtmotivo","7":"od_esf","8":"od_cil","9":"ejeod","10":"dnpod","11":"od_adicion","12":"altura_od","13":"notaod","14":"oi_esf","15":"oi_cil","16":"ejeoi","17":"dnpoi","18":"oi_adicion","19":"altura_oi","...":"(datos truncados)"}}
+2025-07-10 00:37:52 [INFO] [CONTROLLER] Llamando al modelo mdlSetConsulta
+2025-07-10 00:37:52 [INFO] [MODELO] Iniciando mdlSetConsulta - {"datos":{"0":"form_type","1":"txtdocumento","2":"txtficha","3":"idPersona","4":"motivoscomunes","5":"formatoConsulta","6":"txtmotivo","7":"od_esf","8":"od_cil","9":"ejeod","10":"dnpod","11":"od_adicion","12":"altura_od","13":"notaod","14":"oi_esf","15":"oi_cil","16":"ejeoi","17":"dnpoi","18":"oi_adicion","19":"altura_oi","...":"(datos truncados)"},"es_actualizacion":false}
+2025-07-10 00:37:52 [INFO] [MODELO] Intentando obtener conexión a BD
+2025-07-10 00:37:52 [INFO] [PROCESO] Iniciando procesamiento de consulta - {"motivoscomunes":"10","formatoConsulta":"12"}
+2025-07-10 00:37:52 [INFO] [DATOS] Campo crítico recibido - {"idPersona":"45"}
+2025-07-10 00:37:52 [INFO] [DATOS] Campo crítico recibido - {"txtmotivo":"Concutibitis, Ojo seco"}
+2025-07-10 00:37:52 [INFO] [DATOS] Campo crítico recibido - {"id_user":"9"}
+2025-07-10 00:37:52 [INFO] [DATOS] Campo crítico recibido - {"id_reserva":"0"}
+2025-07-10 00:37:52 [INFO] [INSERCION] Detectada creación de nueva consulta
+2025-07-10 00:37:52 [INFO] [INSERCION] Llamando al controlador para guardar nueva consulta - {"datos_clave":{"id_persona":"45","id_user":"9"}}
+2025-07-10 00:37:52 [INFO] [CONTROLLER] Iniciando ctrSetConsulta en el controlador - {"datos_recibidos":{"0":"form_type","1":"txtdocumento","2":"txtficha","3":"idPersona","4":"motivoscomunes","5":"formatoConsulta","6":"txtmotivo","7":"od_esf","8":"od_cil","9":"ejeod","10":"dnpod","11":"od_adicion","12":"altura_od","13":"notaod","14":"oi_esf","15":"oi_cil","16":"ejeoi","17":"dnpoi","18":"oi_adicion","19":"altura_oi","...":"(datos truncados)"}}
+2025-07-10 00:37:52 [INFO] [CONTROLLER] Llamando al modelo mdlSetConsulta
+2025-07-10 00:37:52 [INFO] [MODELO] Iniciando mdlSetConsulta - {"datos":{"0":"form_type","1":"txtdocumento","2":"txtficha","3":"idPersona","4":"motivoscomunes","5":"formatoConsulta","6":"txtmotivo","7":"od_esf","8":"od_cil","9":"ejeod","10":"dnpod","11":"od_adicion","12":"altura_od","13":"notaod","14":"oi_esf","15":"oi_cil","16":"ejeoi","17":"dnpoi","18":"oi_adicion","19":"altura_oi","...":"(datos truncados)"},"es_actualizacion":false}
+2025-07-10 00:37:52 [INFO] [MODELO] Intentando obtener conexión a BD
+2025-07-10 00:37:52 [EXITO] [MODELO] Conexión establecida correctamente
+2025-07-10 00:37:52 [INFO] [MODELO] Paciente encontrado para la consulta - {"person_id":45,"nombre":"alejandro visconte"}
+2025-07-10 00:37:52 [INFO] [MODELO] Verificando campos obligatorios - {"motivoscomunes":"OK","txtmotivo":"OK","id_persona":"OK"}
+2025-07-10 00:37:52 [INFO] [MODELO] Preparando consulta SQL para inserción
+2025-07-10 00:37:52 [INFO] [MODELO] Tipo de formulario detectado - {"tipo_formulario":"anteojos","datos_especificos":19}
+2025-07-10 00:37:52 [EXITO] [MODELO] Consulta SQL preparada correctamente
+2025-07-10 00:37:52 [INFO] [MODELO] Comenzando bind de parámetros
+2025-07-10 00:37:52 [DEBUG] [MODELO] Valores para bind de parámetros - {":motivoscomunes":{"valor":"10","tipo":2},":txtmotivo":{"valor":"Concutibitis, Ojo seco","tipo":2},":visionod":{"valor":null,"tipo":2},":visionoi":{"valor":null,"tipo":2},":tensionod":{"valor":null,"tipo":2},":tensionoi":{"valor":null,"tipo":2},":consulta_textarea":{"valor":"<p>!! PRUEBAS DE ANTEOJOS</p>","tipo":2},":receta_textarea":{"valor":"dfgdfg","tipo":2},":txtnota":{"valor":"dfgfd","tipo":2},":whatsapptxt":{"valor":"","tipo":2},":email":{"valor":"","tipo":2},":id_user":{"valor":"9","tipo":1},":id_reserva":{"valor":"0","tipo":1},":id_persona":{"valor":"45","tipo":1}}
+2025-07-10 00:37:52 [INFO] [MODELO] Campo proximaconsulta tiene valor - {"valor":"2025-07-16"}
+2025-07-10 00:37:52 [INFO] [MODELO] IDs después de convertir a enteros - {"id_user":9,"id_reserva":0,"id_persona":45}
+2025-07-10 00:37:52 [EXITO] [MODELO] Todos los parámetros bindeados correctamente
+2025-07-10 00:37:52 [INFO] [MODELO] Intentando ejecutar la consulta SQL
+2025-07-10 00:37:52 [EXITO] [MODELO] Conexión establecida correctamente
+2025-07-10 00:37:52 [INFO] [MODELO] Paciente encontrado para la consulta - {"person_id":45,"nombre":"alejandro visconte"}
+2025-07-10 00:37:52 [INFO] [MODELO] Verificando campos obligatorios - {"motivoscomunes":"OK","txtmotivo":"OK","id_persona":"OK"}
+2025-07-10 00:37:52 [INFO] [MODELO] Preparando consulta SQL para inserción
+2025-07-10 00:37:52 [INFO] [MODELO] Tipo de formulario detectado - {"tipo_formulario":"anteojos","datos_especificos":19}
+2025-07-10 00:37:52 [EXITO] [MODELO] Consulta SQL preparada correctamente
+2025-07-10 00:37:52 [INFO] [MODELO] Comenzando bind de parámetros
+2025-07-10 00:37:52 [DEBUG] [MODELO] Valores para bind de parámetros - {":motivoscomunes":{"valor":"10","tipo":2},":txtmotivo":{"valor":"Concutibitis, Ojo seco","tipo":2},":visionod":{"valor":null,"tipo":2},":visionoi":{"valor":null,"tipo":2},":tensionod":{"valor":null,"tipo":2},":tensionoi":{"valor":null,"tipo":2},":consulta_textarea":{"valor":"<p>!! PRUEBAS DE ANTEOJOS</p>","tipo":2},":receta_textarea":{"valor":"dfgdfg","tipo":2},":txtnota":{"valor":"dfgfd","tipo":2},":whatsapptxt":{"valor":"","tipo":2},":email":{"valor":"","tipo":2},":id_user":{"valor":"9","tipo":1},":id_reserva":{"valor":"0","tipo":1},":id_persona":{"valor":"45","tipo":1}}
+2025-07-10 00:37:52 [INFO] [MODELO] Campo proximaconsulta tiene valor - {"valor":"2025-07-16"}
+2025-07-10 00:37:52 [INFO] [MODELO] IDs después de convertir a enteros - {"id_user":9,"id_reserva":0,"id_persona":45}
+2025-07-10 00:37:52 [EXITO] [MODELO] Todos los parámetros bindeados correctamente
+2025-07-10 00:37:52 [INFO] [MODELO] Intentando ejecutar la consulta SQL
+2025-07-10 00:37:52 [EXITO] [MODELO] Consulta ejecutada correctamente - {"id_consulta":"51"}
+2025-07-10 00:37:52 [EXITO] [MODELO] Consulta ejecutada correctamente - {"id_consulta":"52"}
+2025-07-10 00:37:52 [INFO] [CONTROLLER] Resultado del modelo - {"resultado":"51"}
+2025-07-10 00:37:52 [INFO] [INSERCION] Respuesta recibida del controlador - {"response":"51"}
+2025-07-10 00:37:52 [INFO] [CONTROLLER] Resultado del modelo - {"resultado":"52"}
+2025-07-10 00:37:52 [EXITO] [INSERCION] Consulta guardada exitosamente - {"id_consulta":"51"}
+2025-07-10 00:37:52 [INFO] [INSERCION] Respuesta recibida del controlador - {"response":"52"}
+2025-07-10 00:37:52 [EXITO] [INSERCION] Consulta guardada exitosamente - {"id_consulta":"52"}
+2025-07-10 00:37:52 [INFO] [PROCESO] Respuesta del guardado de la consulta base - {"response":"ok id:52","metodo_directo":false}
+2025-07-10 00:37:52 [EXITO] [PROCESO] ID de consulta obtenido correctamente - {"id_consulta":"52"}
+2025-07-10 00:37:52 [INFO] [GUARDAR_ANTEOJOS] Guardando datos de anteojos para consulta - {"id_consulta":"52","datos":{"0":"form_type","1":"txtdocumento","2":"txtficha","3":"idPersona","4":"motivoscomunes","5":"formatoConsulta","6":"txtmotivo","7":"od_esf","8":"od_cil","9":"ejeod","10":"dnpod","11":"od_adicion","12":"altura_od","13":"notaod","14":"oi_esf","15":"oi_cil","16":"ejeoi","17":"dnpoi","18":"oi_adicion","19":"altura_oi","...":"(datos truncados)"}}
+2025-07-10 00:37:52 [INFO] [GUARDAR_ANTEOJOS] Creando nuevo registro de anteojos - {"id_consulta":"52"}
+2025-07-10 00:37:52 [DEBUG] [BIND_PARAMETROS] Parámetros vinculados - {"od":{"esfera":"+15.00","cilindro":"-0.50","eje":"dfg","dnp":"dfg","adicion":"+1.50","nota":"dfg"},"oi":{"esfera":"+0.25","cilindro":"-0.50","eje":"dfgd","dnp":"dfg","adicion":"+1.75","nota":"dfgfd"},"otros":{"dist_interpupilar":"dfgfdg","altura_od":"fdg","altura_oi":"fdg"}}
+2025-07-10 00:37:52 [EXITO] [GUARDAR_ANTEOJOS] Inserción exitosa - {"id_consulta_anteojos":1,"id_consulta":"52"}
+2025-07-10 00:37:52 [EXITO] [PROCESO] Datos de anteojos guardados exitosamente (nuevo registro) - {"id_consulta_anteojos":1,"id_consulta":"52"}
+2025-07-10 00:41:06 [INFO] [INICIO] Iniciando proceso de guardar datos de anteojos - {"POST":[]}
+2025-07-10 00:41:06 [ERROR] [VALIDACION] Faltan datos básicos del formulario
+2025-07-10 00:41:06 [INFO] [OBTENER_ANTEOJOS] Datos de anteojos encontrados - {"id_consulta":"52","encontrado":true}
+2025-07-10 00:42:19 [INFO] [INICIO] Iniciando proceso de guardar datos de anteojos - {"POST":[]}
+2025-07-10 00:42:19 [ERROR] [VALIDACION] Faltan datos básicos del formulario
+2025-07-10 00:42:19 [INFO] [OBTENER_ANTEOJOS] Datos de anteojos encontrados - {"id_consulta":"52","encontrado":true}

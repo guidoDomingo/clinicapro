@@ -1,0 +1,154 @@
+<?php
+// Incluir los archivos de depuración si existen
+if (file_exists("../logs/debug_guardar.php")) {
+    require_once "../logs/debug_guardar.php";
+}
+if (file_exists("../logs/debug_guardar_detallado.php")) {
+    require_once "../logs/debug_guardar_detallado.php";
+}
+
+// Iniciar log de depuración
+if (function_exists('debug_log')) {
+    debug_log("Iniciando obtención de datos de anteojos", ["GET" => $_GET], "[ANTEOJOS_GET]");
+}
+
+// Establecer el tipo de contenido a JSON
+header('Content-Type: application/json');
+
+require_once "../model/conexion.php";
+
+/**
+ * Clase para manejar las operaciones de la tabla consulta_anteojos
+ */
+class ObtenerAnteojosConsulta {
+    /**
+     * Obtiene los datos de anteojos para una consulta específica
+     * @param int $idConsulta - ID de la consulta
+     * @return array|null - Datos de anteojos o null si no existe
+     */
+    public function obtenerAnteojosConsulta($idConsulta) {
+        if (!$idConsulta || !is_numeric($idConsulta)) {
+            if (function_exists('debug_detallado')) {
+                debug_detallado('OBTENER_ANTEOJOS', "ID de consulta inválido", [
+                    'id_consulta' => $idConsulta
+                ], 'error');
+            }
+            return null;
+        }
+        
+        try {
+            $db = Conexion::conectar();
+            
+            // Primero verificamos qué columnas existen en la tabla
+            try {
+                $columnas = [];
+                $metaStmt = $db->prepare("
+                    SELECT column_name 
+                    FROM information_schema.columns 
+                    WHERE table_schema = 'public' AND table_name = 'consulta_anteojos'
+                ");
+                $metaStmt->execute();
+                while ($row = $metaStmt->fetch(PDO::FETCH_ASSOC)) {
+                    $columnas[] = $row['column_name'];
+                }
+                
+                // Construir la consulta dinámicamente basada en las columnas existentes
+                $campos = ['id_consulta_anteojos', 'id_consulta']; // Campos obligatorios
+                
+                // Campos opcionales que usaremos si existen
+                $camposOpcionales = [
+                    'esfera_od', 'cilindro_od', 'eje_od', 'dnp_od', 'add_od', 'nota_od',
+                    'esfera_oi', 'cilindro_oi', 'eje_oi', 'dnp_oi', 'add_oi', 'nota_oi',
+                    'dist_interpupilar', 'altura_od', 'altura_oi'
+                ];
+                
+                // Añadir solo los campos que existen en la tabla
+                foreach ($camposOpcionales as $campo) {
+                    if (in_array($campo, $columnas)) {
+                        $campos[] = $campo;
+                    }
+                }
+                
+                $sql = "
+                    SELECT " . implode(", ", $campos) . " 
+                    FROM consulta_anteojos 
+                    WHERE id_consulta = :id_consulta
+                    LIMIT 1
+                ";
+            $stmt->bindParam(":id_consulta", $idConsulta, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if (function_exists('debug_detallado')) {
+                debug_detallado('OBTENER_ANTEOJOS', $resultado ? "Datos de anteojos encontrados" : "No se encontraron datos de anteojos", [
+                    'id_consulta' => $idConsulta,
+                    'encontrado' => (bool)$resultado
+                ], $resultado ? 'info' : 'warning');
+            }
+            
+            return $resultado;
+        } catch (PDOException $e) {
+            if (function_exists('debug_detallado')) {
+                debug_detallado('OBTENER_ANTEOJOS', "Error al obtener datos de anteojos", [
+                    'mensaje' => $e->getMessage(),
+                    'id_consulta' => $idConsulta
+                ], 'error');
+            }
+            return null;
+        }
+    }
+}
+
+// Procesar la solicitud para obtener datos de anteojos
+if (isset($_GET["id_consulta"]) && !empty($_GET["id_consulta"])) {
+    $idConsulta = intval($_GET["id_consulta"]);
+    
+    if ($idConsulta > 0) {
+        $anteojos = new ObtenerAnteojosConsulta();
+        $datos = $anteojos->obtenerAnteojosConsulta($idConsulta);
+        
+        if ($datos) {
+            // Convertir los nombres de campo de la base de datos a los nombres de campo del formulario
+            // Con verificación de existencia para cada campo para prevenir errores
+            $respuesta = [
+                'status' => 'success',
+                'id_consulta_anteojos' => isset($datos['id_consulta_anteojos']) ? $datos['id_consulta_anteojos'] : '',
+                'id_consulta' => isset($datos['id_consulta']) ? $datos['id_consulta'] : '',
+                'od_esf' => isset($datos['esfera_od']) ? $datos['esfera_od'] : '',
+                'od_cil' => isset($datos['cilindro_od']) ? $datos['cilindro_od'] : '',
+                'ejeod' => isset($datos['eje_od']) ? $datos['eje_od'] : '',
+                'dnpod' => isset($datos['dnp_od']) ? $datos['dnp_od'] : '',
+                'od_adicion' => isset($datos['add_od']) ? $datos['add_od'] : '',
+                'notaod' => isset($datos['nota_od']) ? $datos['nota_od'] : '',
+                'oi_esf' => isset($datos['esfera_oi']) ? $datos['esfera_oi'] : '',
+                'oi_cil' => isset($datos['cilindro_oi']) ? $datos['cilindro_oi'] : '',
+                'ejeoi' => isset($datos['eje_oi']) ? $datos['eje_oi'] : '',
+                'dnpoi' => isset($datos['dnp_oi']) ? $datos['dnp_oi'] : '',
+                'oi_adicion' => isset($datos['add_oi']) ? $datos['add_oi'] : '',
+                'notaoi' => isset($datos['nota_oi']) ? $datos['nota_oi'] : '',
+                'dist_interpupilar' => isset($datos['dist_interpupilar']) ? $datos['dist_interpupilar'] : '',
+                'altura_od' => isset($datos['altura_od']) ? $datos['altura_od'] : '',
+                'altura_oi' => isset($datos['altura_oi']) ? $datos['altura_oi'] : ''
+            ];
+            
+            echo json_encode($respuesta);
+        } else {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'No se encontraron datos de anteojos para esta consulta'
+            ]);
+        }
+    } else {
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'ID de consulta inválido'
+        ]);
+    }
+} else {
+    echo json_encode([
+        'status' => 'error',
+        'message' => 'Falta el ID de consulta'
+    ]);
+}
+?>

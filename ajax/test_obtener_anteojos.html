@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Obtener Datos Anteojos</title>
+    <script>
+        function probarApi() {
+            fetch('obtener-datos-anteojos.php?id_consulta=52')
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    return response.text();
+                })
+                .then(text => {
+                    document.getElementById('rawResponse').textContent = text;
+                    
+                    try {
+                        const json = JSON.parse(text);
+                        document.getElementById('jsonParsed').textContent = JSON.stringify(json, null, 2);
+                        document.getElementById('status').textContent = 'JSON válido';
+                        document.getElementById('status').style.color = 'green';
+                    } catch (e) {
+                        document.getElementById('jsonParsed').textContent = 'Error al parsear JSON: ' + e.message;
+                        document.getElementById('status').textContent = 'JSON inválido';
+                        document.getElementById('status').style.color = 'red';
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('rawResponse').textContent = 'Error: ' + error.message;
+                    document.getElementById('status').textContent = 'Error de conexión';
+                    document.getElementById('status').style.color = 'red';
+                });
+        }
+    </script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        button { padding: 10px; margin: 10px 0; }
+        pre { background: #f0f0f0; padding: 10px; border-radius: 5px; }
+        .status { font-weight: bold; font-size: 1.2em; }
+    </style>
+</head>
+<body>
+    <h1>Test Obtener Datos Anteojos</h1>
+    
+    <button onclick="probarApi()">Probar API</button>
+    <button onclick="window.open('../sys_sql/actualizar_tabla_anteojos.php', '_blank')">Ejecutar SQL de actualización</button>
+    
+    <h2>Estado: <span id="status" class="status">No probado</span></h2>
+    
+    <h3>Respuesta Raw:</h3>
+    <pre id="rawResponse">Click en "Probar API" para ver la respuesta</pre>
+    
+    <h3>JSON Parseado:</h3>
+    <pre id="jsonParsed">Click en "Probar API" para ver el JSON parseado</pre>
+    
+    <script>
+        // Probar automáticamente al cargar
+        window.onload = probarApi;
+    </script>
+</body>
+</html>
