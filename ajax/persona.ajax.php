@@ -6,8 +6,7 @@ class TablePersonas {
     public function ajaxBuscarPersonaParam($datos) {
         // Obtener los resultados de la búsqueda
         $response = ModelPersonas::mdlGetPersonaParam($datos);
-        // var_dump($response);
-        // return;
+        
         // Verificar si hay resultados
         if (empty($response)) {
             // Si no hay resultados, retornar un JSON con un mensaje de aviso
@@ -16,11 +15,22 @@ class TablePersonas {
                 'message' => 'No se encontraron resultados para la búsqueda.'
             ]);
         } else {
-            // Si hay resultados, retornar los datos en formato JSON
-            echo json_encode([
-                'status' => 'success',
-                'data' => $response
-            ]);
+            // Verificar si la respuesta ya tiene el formato múltiple
+            if (isset($response['multiple']) && $response['multiple'] === true) {
+                // Ya tiene el formato correcto con múltiples resultados
+                echo json_encode([
+                    'status' => 'success',
+                    'multiple' => true,
+                    'data' => $response['data']
+                ]);
+            } else {
+                // Es un resultado único o un array directo
+                echo json_encode([
+                    'status' => 'success',
+                    'multiple' => false,
+                    'data' => $response
+                ]);
+            }
         }
     }
     // public function ajaxBuscarPersonaParam($datos) {

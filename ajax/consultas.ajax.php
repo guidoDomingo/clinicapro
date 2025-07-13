@@ -52,8 +52,8 @@ class ConsultaAjax {
         echo $response; // El modelo ya devuelve un JSON formateado
     }
     
-    public function ajaxGetAllConsultas() {
-        $response = ModelConsulta::mdlGetAllConsultas();
+    public function ajaxGetAllConsultas($tipoFormulario = null) {
+        $response = ModelConsulta::mdlGetAllConsultas($tipoFormulario);
         
         // Verificar si hay error y devolverlo como JSON válido
         if(isset($response['error'])) {
@@ -65,8 +65,8 @@ class ConsultaAjax {
         echo json_encode($response);
     }
     
-    public function ajaxGetConsultasByPaciente($idPersona) {
-        $response = ModelConsulta::mdlGetConsultasByPaciente($idPersona);
+    public function ajaxGetConsultasByPaciente($idPersona, $tipoFormulario = null) {
+        $response = ModelConsulta::mdlGetConsultasByPaciente($idPersona, $tipoFormulario);
         
         // Verificar si hay error y devolverlo como JSON válido
         if(isset($response['error'])) {
@@ -109,14 +109,16 @@ if (isset($_POST["id_consulta"]) && isset($_POST["operacion"]) && $_POST["operac
 
 // Procesar lista de todas las consultas
 if (isset($_POST["operacion"]) && $_POST["operacion"] === "getAllConsultas") {
+    $tipoFormulario = isset($_POST["tipo_formulario"]) ? $_POST["tipo_formulario"] : null;
     $allConsultas = new ConsultaAjax();
-    $allConsultas->ajaxGetAllConsultas();
+    $allConsultas->ajaxGetAllConsultas($tipoFormulario);
 }
 
 // Procesar consultas por paciente
 if (isset($_POST["id_persona"]) && isset($_POST["operacion"]) && $_POST["operacion"] === "getConsultasByPaciente") {
+    $tipoFormulario = isset($_POST["tipo_formulario"]) ? $_POST["tipo_formulario"] : null;
     $consultasPaciente = new ConsultaAjax();
-    $consultasPaciente->ajaxGetConsultasByPaciente($_POST["id_persona"]);
+    $consultasPaciente->ajaxGetConsultasByPaciente($_POST["id_persona"], $tipoFormulario);
 }
 
 // Procesar obtención de paciente por consulta

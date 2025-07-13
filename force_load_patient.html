@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Forzar Carga de Paciente</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .action-section { background: #f8f9fa; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; background: #28a745; color: white; border: none; border-radius: 3px; }
+        .danger { background: #dc3545; }
+        .warning { background: #ffc107; color: black; }
+        .result { background: #e9ecef; padding: 10px; margin: 10px 0; border-radius: 3px; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Forzar Carga de Paciente ID 45</h1>
+    
+    <div class="action-section">
+        <h3>Acciones de Debug</h3>
+        <button onclick="forceLoadPatient()">🚀 Forzar Carga de Paciente</button>
+        <button onclick="checkFormFields()" class="warning">🔍 Verificar Campos de Formulario</button>
+        <button onclick="resetAllVariables()" class="danger">🧹 Reset Total de Variables</button>
+        <div id="result" class="result"></div>
+    </div>
+    
+    <div class="action-section">
+        <h3>Ir a Página Principal</h3>
+        <button onclick="goToConsultas()">📋 Ir a Consultas con Paciente</button>
+    </div>
+
+    <script>
+        function log(message) {
+            const div = document.getElementById('result');
+            div.innerHTML += new Date().toLocaleTimeString() + ': ' + message + '<br>';
+            console.log(message);
+        }
+        
+        function forceLoadPatient() {
+            log('🚀 Forzando carga de paciente ID 45...');
+            
+            // Crear FormData para la petición
+            const formData = new FormData();
+            formData.append('operacion', 'getPersonById');
+            formData.append('idPersona', '45');
+            
+            log('📡 Enviando petición AJAX...');
+            
+            fetch('ajax/persona.ajax.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                log('📨 Respuesta recibida: ' + response.status);
+                return response.json();
+            })
+            .then(data => {
+                log('📋 Datos: ' + JSON.stringify(data));
+                
+                if (data.status === 'success' && data.persona) {
+                    log('✅ Datos del paciente obtenidos correctamente');
+                    
+                    // Intentar llenar los campos si estamos en la página de consultas
+                    if (window.opener || window.parent !== window) {
+                        log('📝 Intentando llenar campos en ventana padre...');
+                        // Estamos en una ventana popup o iframe
+                    } else {
+                        log('ℹ️ No estamos en página de consultas - datos solo para verificación');
+                    }
+                    
+                    // Mostrar los datos obtenidos
+                    const persona = data.persona;
+                    log('👤 Nombre: ' + persona.nombre + ' ' + persona.apellido);
+                    log('📄 Documento: ' + persona.documento);
+                    log('📋 Ficha: ' + persona.ficha);
+                    
+                } else {
+                    log('❌ Error: ' + (data.message || 'Sin mensaje'));
+                }
+            })
+            .catch(error => {
+                log('❌ Error de red: ' + error.message);
+            });
+        }
+        
+        function checkFormFields() {
+            log('🔍 Verificando campos de formulario...');
+            
+            const fields = [
+                'idPersona',
+                'txtdocumento', 
+                'txtficha',
+                'paciente',
+                'id_persona_file'
+            ];
+            
+            fields.forEach(fieldId => {
+                const element = document.getElementById(fieldId);
+                log(fieldId + ': ' + (element ? '✅ Existe' : '❌ No existe'));
+            });
+        }
+        
+        function resetAllVariables() {
+            log('🧹 Reseteando todas las variables...');
+            
+            // Limpiar storage
+            sessionStorage.clear();
+            localStorage.clear();
+            log('💾 Storage limpiado');
+            
+            // Reset variables globales
+            const globalVars = [
+                'modalConsultaCargado',
+                'urlParametrosProcesados', 
+                'modalEnProceso',
+                'pacienteYaProcesado',
+                'sistemaInicializado'
+            ];
+            
+            globalVars.forEach(varName => {
+                if (typeof window[varName] !== 'undefined') {
+                    window[varName] = false;
+                    log('🔄 ' + varName + ' = false');
+                }
+            });
+            
+            log('✅ Reset completado');
+        }
+        
+        function goToConsultas() {
+            const url = 'index.php?ruta=consultas&form_type=general&paciente_id=45';
+            log('🌐 Navegando a: ' + url);
+            window.location.href = url;
+        }
+    </script>
+</body>
+</html>

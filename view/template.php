@@ -190,16 +190,24 @@ if (isset($_SESSION["iniciarSesion"]) && $_SESSION["iniciarSesion"] == "ok") {
             
             // Verificar si la ruta requiere un permiso específico
             if ($requierePermiso && !tiene_permiso($permisoRequerido)) {
-                echo '<script>
-                    Swal.fire({
-                        icon: "error",
-                        title: "Acceso denegado",
-                        text: "No tienes permiso para acceder a esta sección",
-                        showConfirmButton: true
-                    }).then(function() {
-                        window.location.href = "index.php?ruta=home";                    });
-                </script>';
-                include "view/modules/home.php";
+                // Verificar si el usuario es admin - los admins pueden acceder a todo
+                $esAdmin = isset($_SESSION['roles']) && in_array('admin', $_SESSION['roles']);
+                
+                if (!$esAdmin) {
+                    echo '<script>
+                        Swal.fire({
+                            icon: "error",
+                            title: "Acceso denegado",
+                            text: "No tienes permiso para acceder a esta sección",
+                            showConfirmButton: true
+                        }).then(function() {
+                            window.location.href = "index.php?ruta=home";                    });
+                    </script>';
+                    include "view/modules/home.php";
+                } else {
+                    // Admin puede acceder sin verificar permisos específicos
+                    include "view/modules/".$_GET["ruta"].".php";
+                }
             } else {
                 include "view/modules/".$_GET["ruta"].".php";
             }

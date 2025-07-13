@@ -533,13 +533,14 @@ class ModelConsulta {
      * 
      * @return array Arreglo con todas las consultas y datos básicos de pacientes
      */
-    public static function mdlGetAllConsultas() {
+    public static function mdlGetAllConsultas($tipoFormulario = null) {
         try {
             // Logging para depuración
             $startTime = microtime(true);
-            error_log("Iniciando consulta mdlGetAllConsultas");
+            error_log("Iniciando consulta mdlGetAllConsultas con tipo: " . ($tipoFormulario ?? 'todos'));
             
-            $stmt = Conexion::conectar()->prepare("
+            // Construir la consulta base
+            $sql = "
                 SELECT 
                     c.id_consulta,
                     c.id_persona,
@@ -548,22 +549,36 @@ class ModelConsulta {
                     rh.last_name AS apellido,
                     c.motivoscomunes,
                     c.consulta_textarea,
-                    c.fecha_registro
+                    c.fecha_registro,
+                    c.tipo_formulario
                 FROM public.consultas c
                 JOIN public.rh_person rh ON c.id_persona = rh.person_id
-                ORDER BY c.fecha_registro DESC
-            ");
+            ";
+            
+            // Agregar filtro por tipo si se especifica
+            if ($tipoFormulario && trim($tipoFormulario) !== '') {
+                $sql .= " WHERE c.tipo_formulario = :tipo_formulario";
+            }
+            
+            $sql .= " ORDER BY c.fecha_registro DESC";
+            
+            $stmt = Conexion::conectar()->prepare($sql);
+            
+            // Bind del parámetro si se especifica tipo
+            if ($tipoFormulario && trim($tipoFormulario) !== '') {
+                $stmt->bindParam(":tipo_formulario", $tipoFormulario, PDO::PARAM_STR);
+            }
             
             $stmt->execute();
             $consultas = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
             $endTime = microtime(true);
             $executionTime = ($endTime - $startTime) * 1000; // convertir a milisegundos
-            error_log("Consulta mdlGetAllConsultas completada en {$executionTime}ms. Registros encontrados: " . count($consultas));
+            error_log("Consulta mdlGetAllConsultas completada en {$executionTime}ms. Registros encontrados: " . count($consultas) . " (filtro: " . ($tipoFormulario ?? 'ninguno') . ")");
             
             // Si no hay datos, loguear para depuración
             if (empty($consultas)) {
-                error_log("No se encontraron consultas en la base de datos");
+                error_log("No se encontraron consultas en la base de datos" . ($tipoFormulario ? " para tipo: " . $tipoFormulario : ""));
             } else {
                 // Mostrar un ejemplo del primer registro para verificación
                 error_log("Muestra del primer registro: " . print_r($consultas[0], true));
@@ -583,13 +598,14 @@ class ModelConsulta {
      * @param int $idPersona ID de la persona/paciente
      * @return array Arreglo con las consultas y datos básicos del paciente
      */
-    public static function mdlGetConsultasByPaciente($idPersona) {
+    public static function mdlGetConsultasByPaciente($idPersona, $tipoFormulario = null) {
         try {
             // Logging para depuración
             $startTime = microtime(true);
-            error_log("Iniciando consulta mdlGetConsultasByPaciente para ID: " . $idPersona);
+            error_log("Iniciando consulta mdlGetConsultasByPaciente para ID: " . $idPersona . " con tipo: " . ($tipoFormulario ?? 'todos'));
             
-            $stmt = Conexion::conectar()->prepare("
+            // Construir la consulta base
+            $sql = "
                 SELECT 
                     c.id_consulta,
                     c.id_persona,
@@ -598,24 +614,38 @@ class ModelConsulta {
                     rh.last_name AS apellido,
                     c.motivoscomunes,
                     c.consulta_textarea,
-                    c.fecha_registro
+                    c.fecha_registro,
+                    c.tipo_formulario
                 FROM public.consultas c
                 JOIN public.rh_person rh ON c.id_persona = rh.person_id
                 WHERE c.id_persona = :id_persona
-                ORDER BY c.fecha_registro DESC
-            ");
+            ";
             
+            // Agregar filtro por tipo si se especifica
+            if ($tipoFormulario && trim($tipoFormulario) !== '') {
+                $sql .= " AND c.tipo_formulario = :tipo_formulario";
+            }
+            
+            $sql .= " ORDER BY c.fecha_registro DESC";
+            
+            $stmt = Conexion::conectar()->prepare($sql);
+            
+            // Bind de parámetros
             $stmt->bindParam(":id_persona", $idPersona, PDO::PARAM_INT);
+            if ($tipoFormulario && trim($tipoFormulario) !== '') {
+                $stmt->bindParam(":tipo_formulario", $tipoFormulario, PDO::PARAM_STR);
+            }
+            
             $stmt->execute();
             $consultas = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
             $endTime = microtime(true);
             $executionTime = ($endTime - $startTime) * 1000; // convertir a milisegundos
-            error_log("Consulta mdlGetConsultasByPaciente completada en {$executionTime}ms. Registros encontrados: " . count($consultas));
+            error_log("Consulta mdlGetConsultasByPaciente completada en {$executionTime}ms. Registros encontrados: " . count($consultas) . " (filtro: " . ($tipoFormulario ?? 'ninguno') . ")");
             
             // Si no hay datos, loguear para depuración
             if (empty($consultas)) {
-                error_log("No se encontraron consultas para el paciente con ID: " . $idPersona);
+                error_log("No se encontraron consultas para el paciente con ID: " . $idPersona . ($tipoFormulario ? " para tipo: " . $tipoFormulario : ""));
             } else {
                 // Mostrar un ejemplo del primer registro para verificación
                 error_log("Muestra del primer registro: " . print_r($consultas[0], true));

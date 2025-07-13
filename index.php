@@ -1,16 +1,32 @@
 <?php 
 // Iniciar sesión si no está iniciada
 if (session_status() == PHP_SESSION_NONE) {
-    // Configurar las sesiones para compartir entre dominios
-    session_set_cookie_params([
+    // Detectar el dominio actual para configurar cookies correctamente
+    $domain = '';
+    if (isset($_SERVER['HTTP_HOST'])) {
+        $host = $_SERVER['HTTP_HOST'];
+        if (strpos($host, 'clinica.test') !== false) {
+            $domain = '.clinica.test';
+        } elseif (strpos($host, 'localhost') !== false) {
+            $domain = ''; // Para localhost no especificar dominio
+        }
+    }
+    
+    // Configurar las sesiones
+    $sessionParams = [
         'lifetime' => 3600,
         'path' => '/',
-        'domain' => '.clinica.test',
         'secure' => false,
         'httponly' => true,
         'samesite' => 'Lax'
-    ]);
+    ];
     
+    // Solo agregar dominio si no es localhost
+    if (!empty($domain)) {
+        $sessionParams['domain'] = $domain;
+    }
+    
+    session_set_cookie_params($sessionParams);
     session_start();
 }
 
