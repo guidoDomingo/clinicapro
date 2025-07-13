@@ -3,8 +3,50 @@
  * Implementa la búsqueda de pacientes por documento o ficha y autocompletado de formularios
  */
 
+// Variables de control global para evitar duplicación de modales
+let modalConsultaCargado = false;
+let urlParametrosProcesados = false;
+let modalEnProceso = false;
+// Variable para bloquear TODAS las operaciones de modal después de la primera
+let sistemaInicializado = false;
+// Contador para detectar múltiples inicializaciones
+let contadorInicializaciones = 0;
+// Timestamp para evitar ejecuciones concurrentes
+let ultimaEjecucionModal = 0;
+// Variable para recordar qué paciente ya fue procesado (usa sessionStorage para persistencia)
+let pacienteYaProcesado = sessionStorage.getItem('paciente_procesado') || null;
+
 // Cuando el documento esté listo
 document.addEventListener('DOMContentLoaded', function() {
+    contadorInicializaciones++;
+    console.log(`🚀 DOMContentLoaded ejecutado - Inicialización #${contadorInicializaciones}`);
+    
+    // Verificar si es un cambio de formulario con el mismo paciente
+    const urlParams = new URLSearchParams(window.location.search);
+    const pacienteIdActual = urlParams.get('paciente_id');
+    
+    if (pacienteIdActual && pacienteYaProcesado === pacienteIdActual) {
+        console.log(`🔄 CAMBIO DE FORMULARIO DETECTADO - Mismo paciente ID: ${pacienteIdActual}`);
+        console.log('⚠️ Omitiendo re-inicialización para evitar modales duplicados');
+        
+        // Marcar como ya inicializado para evitar procesamiento
+        sistemaInicializado = true;
+        modalConsultaCargado = true;
+        modalEnProceso = true;
+        urlParametrosProcesados = true;
+        
+        return; // SALIR INMEDIATAMENTE
+    }
+    
+    // LIMPIAR CUALQUIER MODAL PREVIO AL INICIAR
+    cerrarTodosLosModales();
+    
+    // Si ya se inicializó el sistema, evitar duplicar
+    if (sistemaInicializado) {
+        console.log('⚠️ Sistema ya inicializado, omitiendo inicialización duplicada');
+        return;
+    }
+    sistemaInicializado = true;
     // Obtener referencias a los elementos del DOM
     const btnBuscarPersona = document.getElementById('btnBuscarPersona');
     const btnLimpiarPersona = document.getElementById('btnLimpiarPersona');
@@ -76,6 +118,16 @@ document.addEventListener('DOMContentLoaded', function() {
     $("#perDpto").on("change", function() {
         cargarCiudades($(this).val(), "#perCity");
     });
+
+    // SISTEMA DE LIMPIEZA AUTOMÁTICA DE MODALES (cada 5 segundos)
+    setInterval(() => {
+        // Solo limpiar si hay más de un modal activo (probable bucle)
+        const modalesActivos = document.querySelectorAll('.swal2-container');
+        if (modalesActivos.length > 1) {
+            console.log('🧹 Detectados múltiples modales, limpiando automáticamente...');
+            cerrarTodosLosModales();
+        }
+    }, 5000);
 
 });
 
@@ -288,8 +340,8 @@ function buscarPersona() {
                 obtenerResumenConsulta(persona.id_persona);
                 obtenerCuota(persona.id_persona);
                 
-                // Cargar la última consulta del paciente si existe
-                cargarUltimaConsulta(persona.id_persona);
+                // Cargar la última consulta del paciente si existe - DESHABILITADO por solicitud del usuario
+                // cargarUltimaConsulta(persona.id_persona);
                 
                 // Actualizar tabla de consultas con solo las del paciente seleccionado
                 inicializarTablaConsultas(persona.id_persona);
@@ -405,7 +457,7 @@ function mostrarSeleccionPaciente(pacientes) {
             // Obtener información adicional del paciente
             obtenerResumenConsulta(id);
             obtenerCuota(id);
-            cargarUltimaConsulta(id);
+            // cargarUltimaConsulta(id); // DESHABILITADO - Modal repetitivo
             inicializarTablaConsultas(id);
             console.log('Paciente seleccionado:', nombre, 'ID:', id);
             alert('Paciente seleccionado: ' + nombre);
@@ -516,6 +568,14 @@ function obtenerCuota(idPersona) {
  * Función para limpiar el formulario de persona
  */
 function limpiarFormularioPersona() {
+    // Resetear variables de control del modal
+    modalConsultaCargado = false;
+    urlParametrosProcesados = false;
+    modalEnProceso = false;
+    ultimaEjecucionModal = 0;
+    pacienteYaProcesado = null;
+    sessionStorage.removeItem('paciente_procesado');
+    
     // Limpiar campos de búsqueda
     document.getElementById('txtdocumento').value = '';
     document.getElementById('txtficha').value = '';
@@ -951,50 +1011,96 @@ function verDetalleConsulta(idConsulta) {
  * Función para cargar la última consulta del paciente
  * @param {number} idPersona - ID de la persona
  */
+/**
+ * FUNCIÓN ORIGINAL RENOMBRADA PARA EVITAR LLAMADAS EXTERNAS
+ * Esta función ya no muestra modales automáticos
+ */
+function cargarUltimaConsulta_DESACTIVADA(idPersona) {
+    console.log('🚫 FUNCIÓN ORIGINAL DESACTIVADA - No se muestran modales automáticos');
+    console.log('💡 Para cargar consultas previas, usar manualmente la pestaña "Timeline"');
+    return;
+}
+
+/**
+ * NUEVA FUNCIÓN VACÍA QUE REEMPLAZA LA ORIGINAL
+ * No muestra ningún modal automático
+ */
 function cargarUltimaConsulta(idPersona) {
-    // Crear objeto FormData para enviar los datos
-    const formData = new FormData();
-    formData.append('id_persona', idPersona);
-    formData.append('operacion', 'historialConsultas');
+    // MONITOREO: Detectar desde dónde se está llamando
+    const stack = new Error().stack;
+    console.log('🚫 cargarUltimaConsulta() - FUNCIÓN DESACTIVADA PERMANENTEMENTE');
+    console.log('📋 ID Persona:', idPersona, '- NO se muestra modal automático');
+    console.log('📍 Llamada desde:', stack);
+    console.log('✅ Para cargar consultas, usar el historial en la pestaña Timeline');
     
-    // Realizar petición AJAX para obtener el historial de consultas
-    $.ajax({
-        type: 'POST',
-        url: 'ajax/consultas.ajax.php',
-        data: formData,
-        dataType: "json",
-        processData: false,
-        contentType: false,
-        success: function(response) {
-            if (response && response.length > 0) {
-                // Ordenar las consultas por fecha (la más reciente primero)
-                response.sort((a, b) => new Date(b.fecha_registro) - new Date(a.fecha_registro));
-                
-                // Obtener la consulta más reciente
-                const ultimaConsulta = response[0];
-                
-                // Preguntar al usuario si desea cargar la última consulta
-                Swal.fire({
-                    title: '¿Cargar última consulta?',
-                    text: `Se encontró una consulta del ${new Date(ultimaConsulta.fecha_registro).toLocaleDateString('es-ES')}. ¿Desea cargarla en el formulario?`,
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Sí, cargar',
-                    cancelButtonText: 'No, consulta nueva'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        // Obtener el detalle completo de la consulta
-                        obtenerYCargarConsulta(ultimaConsulta.id_consulta);
-                    }
-                });
-            }
-        },
-        error: function(xhr, status, error) {
-            console.error("Error al obtener historial de consultas:", error);
-        }
+    // Simplemente marcar flags para evitar otros procesos
+    modalConsultaCargado = true;
+    modalEnProceso = true;
+    
+    // NO HACER NADA MÁS
+    return;
+}
+
+/**
+ * Función para cerrar todos los modales SweetAlert2 activos
+ */
+function cerrarTodosLosModales() {
+    console.log('🚫 Cerrando todos los modales SweetAlert2...');
+    
+    // Método 1: Usar API de SweetAlert2 si está disponible y hay un modal visible
+    if (typeof Swal !== 'undefined' && Swal.isVisible()) {
+        Swal.close();
+        console.log('✅ Modal SweetAlert2 cerrado con API');
+    }
+    
+    // Método 2: Remover manualmente cualquier contenedor que pueda quedar
+    const modalContainers = document.querySelectorAll('.swal2-container');
+    modalContainers.forEach(container => {
+        container.remove();
+        console.log('✅ Contenedor modal removido del DOM');
     });
+    
+    // Método 3: Limpiar overlay/backdrop si existe
+    const overlays = document.querySelectorAll('.swal2-backdrop-show, .swal2-shown');
+    overlays.forEach(overlay => {
+        overlay.remove();
+        console.log('✅ Overlay modal removido del DOM');
+    });
+    
+    // Método 4: Remover clases del body que SweetAlert2 puede agregar
+    document.body.classList.remove('swal2-shown', 'swal2-backdrop-show', 'swal2-iosfix');
+    
+    // Método 5: Limpiar cualquier estilo inline que SweetAlert2 pueda haber agregado
+    document.body.style.removeProperty('padding-right');
+    document.documentElement.style.removeProperty('padding-right');
+}
+
+/**
+ * Función ÚNICA para mostrar modal de consulta (DESACTIVADA POR SOLICITUD DEL USUARIO)
+ * @param {Array} consultas - Array de consultas disponibles
+ * @param {number} idPersona - ID de la persona
+ */
+function mostrarModalConsultaUnico(consultas, idPersona) {
+    // 🚫 FUNCIÓN COMPLETAMENTE DESACTIVADA POR SOLICITUD DEL USUARIO
+    // El usuario solicitó eliminar la funcionalidad de modal automático
+    // para cargar datos previos. Solo se puede cargar desde la tabla de consultas.
+    console.log('🚫 mostrarModalConsultaUnico() DESACTIVADA - No se mostrará modal automático');
+    console.log('📋 Para cargar consultas anteriores, usar la tabla de consultas');
+    return;
+}
+
+/**
+ * Función específica para cargar la última consulta cuando se accede directamente por URL
+ * (DESACTIVADA POR SOLICITUD DEL USUARIO)
+ * @param {number} idPersona - ID de la persona
+ */
+function cargarUltimaConsultaDirecta(idPersona) {
+    // 🚫 FUNCIÓN COMPLETAMENTE DESACTIVADA POR SOLICITUD DEL USUARIO
+    // El usuario solicitó eliminar la funcionalidad de modal automático
+    // para cargar datos previos. Solo se puede cargar desde la tabla de consultas.
+    console.log('� cargarUltimaConsultaDirecta() DESACTIVADA - No se cargará automáticamente');
+    console.log('� Para cargar consultas anteriores, usar la tabla de consultas');
+    return;
 }
 
 /**
@@ -1109,7 +1215,11 @@ function obtenerArchivosConsulta(idConsulta, callback) {
  * @param {Array} archivos - Archivos asociados a la consulta (opcional)
  */
 function cargarConsultaEnFormulario(consulta, archivos) {
-    console.log('Cargando consulta en formulario:', consulta);
+    console.log('🔄 Cargando consulta en formulario:', consulta);
+    
+    // BLOQUEO INMEDIATO: Marcar que ya hay una consulta siendo cargada
+    modalConsultaCargado = true;
+    modalEnProceso = true;
     
     // Limpiar el formulario primero
     limpiarFormularioConsulta();
@@ -1128,11 +1238,23 @@ function cargarConsultaEnFormulario(consulta, archivos) {
     // Detectar el tipo de formulario actual
     const urlParams = new URLSearchParams(window.location.search);
     const formType = urlParams.get('form_type') || 'general';
-    console.log("Tipo de formulario actual:", formType);
+    console.log("🎯 Tipo de formulario actual:", formType);
     
     // Si la consulta tiene un tipo de formulario específico y es diferente al actual, avisar al usuario
     if (consulta.tipo_formulario && consulta.tipo_formulario !== formType) {
-        console.log(`Tipo de formulario diferente. Consulta: ${consulta.tipo_formulario}, Actual: ${formType}`);
+        console.log(`⚠️ Tipo de formulario diferente. Consulta: ${consulta.tipo_formulario}, Actual: ${formType}`);
+        
+        // VERIFICAR QUE NO HAY UN MODAL ACTIVO antes de mostrar otro
+        if (document.querySelector('.swal2-container')) {
+            console.log('🚫 Ya hay un modal activo, cargando directamente sin preguntar...');
+            // Cargar directamente sin mostrar modal
+            if (formType === 'anteojos') {
+                cargarDatosAnteojosConsulta(consulta, archivos);
+            } else {
+                cargarDatosGeneralesConsulta(consulta, archivos);
+            }
+            return;
+        }
         
         Swal.fire({
             title: 'Tipo de formulario diferente',
@@ -1142,18 +1264,28 @@ function cargarConsultaEnFormulario(consulta, archivos) {
             confirmButtonColor: '#3085d6',
             cancelButtonColor: '#d33',
             confirmButtonText: 'Cambiar de formulario',
-            cancelButtonText: 'Continuar aquí'
+            cancelButtonText: 'Continuar aquí',
+            allowOutsideClick: false,
+            allowEscapeKey: false
         }).then((result) => {
             if (result.isConfirmed) {
-                // Redirigir al tipo de formulario correcto
-                window.location.href = `index.php?ruta=consultas&form_type=${consulta.tipo_formulario}&id_consulta=${consulta.id_consulta}`;
+                // Redirigir al tipo de formulario correcto CON PARÁMETROS ESPECIALES para evitar bucle
+                const nuevaUrl = `index.php?ruta=consultas&form_type=${consulta.tipo_formulario}&id_consulta=${consulta.id_consulta}&skip_modal=1`;
+                console.log('🔀 Redirigiendo a:', nuevaUrl);
+                window.location.href = nuevaUrl;
             } else {
                 // Continuar cargando los datos en el formulario actual
-                cargarDatosGeneralesConsulta(consulta, archivos);
+                console.log('✅ Continuando en formulario actual...');
+                if (formType === 'anteojos') {
+                    cargarDatosAnteojosConsulta(consulta, archivos);
+                } else {
+                    cargarDatosGeneralesConsulta(consulta, archivos);
+                }
             }
         });
     } else {
         // Si el tipo de formulario coincide o no está especificado, cargar directamente
+        console.log('✅ Tipo de formulario correcto, cargando datos...');
         if (formType === 'anteojos') {
             cargarDatosAnteojosConsulta(consulta, archivos);
         } else {
@@ -1413,14 +1545,20 @@ function finalizarCargaConsulta(consulta, archivos) {
     }
     
     // Notificar al usuario
-    Swal.fire({
-        position: "center",
-        icon: "success",
-        title: "Consulta cargada correctamente",
-        text: "Puede modificar los datos y guardar para actualizar la consulta",
-        showConfirmButton: false,
-        timer: 2000
-    });
+    // IMPORTANTE: Cerrar cualquier modal previo antes de mostrar el mensaje de éxito
+    cerrarTodosLosModales();
+    
+    // Esperar un momento para asegurar que el modal se cerró
+    setTimeout(() => {
+        Swal.fire({
+            position: "center",
+            icon: "success",
+            title: "Consulta cargada correctamente",
+            text: "Puede modificar los datos y guardar para actualizar la consulta",
+            showConfirmButton: false,
+            timer: 2000
+        });
+    }, 100);
 }
 
 /**
@@ -2238,6 +2376,12 @@ function inicializarTablaConsultas(idPaciente) {
                                 // Verificar si json es array o tiene una propiedad data
                                 let datos = Array.isArray(json) ? json : (json.data || []);
                                 
+                                // Log para verificar el orden de las fechas
+                                console.log('📅 Verificando orden de fechas en los datos recibidos:');
+                                datos.forEach((item, index) => {
+                                    console.log(`Registro ${index + 1}: ${item.fecha_registro} - ${item.nombre} ${item.apellido}`);
+                                });
+                                
                                 console.log('Se procesarán ' + datos.length + ' registros para la tabla');
                                 return datos;
                             },
@@ -2256,11 +2400,17 @@ function inicializarTablaConsultas(idPaciente) {
                             // Coincide con la estructura de la tabla HTML (3 columnas)
                             { 
                                 data: 'fecha_registro',
+                                type: 'date', // Especificar que es una columna de fecha para ordenamiento correcto
                                 render: function(data, type, row) {
                                     // Formatear fecha si existe
                                     if (data) {
                                         try {
                                             const fecha = new Date(data);
+                                            // Para ordenamiento, devolver el timestamp
+                                            if (type === 'sort' || type === 'type') {
+                                                return fecha.getTime();
+                                            }
+                                            // Para display, devolver fecha formateada
                                             return fecha.toLocaleDateString('es-ES');
                                         } catch (e) {
                                             console.error('Error al formatear fecha:', e);
@@ -2320,10 +2470,17 @@ function inicializarTablaConsultas(idPaciente) {
                                 "sSortDescending": ": Activar para ordenar la columna de manera descendente"
                             }
                         },
-                        order: [[0, 'desc']], // Ordenar por fecha (primera columna) descendente
+                        order: [[0, 'desc']], // Ordenar por fecha (primera columna) descendente - FORZADO
+                        ordering: true, // Asegurar que el ordenamiento esté habilitado
                         responsive: true, // Hacer que la tabla sea responsive
                         pageLength: 10, // Mostrar 10 registros por página
-                        lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "Todos"]] // Opciones de registros por página
+                        lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "Todos"]], // Opciones de registros por página
+                        drawCallback: function(settings) {
+                            // Cada vez que se redibuje la tabla, resaltar la primera fila (más reciente)
+                            console.log('🎨 Tabla redibujada, aplicando resaltado a la primera fila');
+                            $('#tabla-consultas tbody tr').removeClass('ultima-consulta-highlight');
+                            $('#tabla-consultas tbody tr:first').addClass('ultima-consulta-highlight');
+                        }
                     });
                     
                     console.log('Tabla de consultas inicializada correctamente');
@@ -2469,8 +2626,12 @@ function buscarPersonaPorId(idPersona) {
             setFieldValue('id_persona_file', data.persona.id_persona);
             
             // El campo 'paciente' es para búsqueda, llenémoslo con el nombre completo
-            const nombreCompleto = `${data.persona.nombre} ${data.persona.apellido}`.trim();
+            const nombre = data.persona.nombre || '';
+            const apellido = data.persona.apellido || data.persona.apellidos || '';
+            const nombreCompleto = `${nombre} ${apellido}`.trim();
             setFieldValue('paciente', nombreCompleto);
+            
+            console.log(`👤 Nombre completo construido: "${nombreCompleto}" (nombre: "${nombre}", apellido: "${apellido}")`);
             
             // Actualizar información del perfil lateral (si existen los elementos)
             const updateProfileField = (fieldId, value) => {
@@ -2812,8 +2973,8 @@ function inicializarAutocompletado() {
             obtenerResumenConsulta(ui.item.id);
             obtenerCuota(ui.item.id);
             
-            // Cargar la última consulta del paciente si existe
-            cargarUltimaConsulta(ui.item.id);
+            // Cargar la última consulta del paciente si existe - DESHABILITADO
+            // cargarUltimaConsulta(ui.item.id);
             
             // Actualizar tabla de consultas
             inicializarTablaConsultas(ui.item.id);
@@ -3131,19 +3292,80 @@ function enviarPDFPorWhatsApp() {
  * si se viene desde el módulo de reservas
  */
 function procesarParametrosURL() {
+    console.log(`🔍 procesarParametrosURL() llamada - Contador: ${contadorInicializaciones}`);
+    
     const urlParams = new URLSearchParams(window.location.search);
     const pacienteId = urlParams.get('paciente_id');
     const reservaId = urlParams.get('reserva_id');
+    const idConsulta = urlParams.get('id_consulta');
+    const skipModal = urlParams.get('skip_modal');
     
-    console.log('=== PROCESANDO PARÁMETROS URL ===');
+    // CONTROL ESPECÍFICO POR PACIENTE: Si el mismo paciente ya fue procesado, no hacer nada
+    if (pacienteId && pacienteYaProcesado === pacienteId) {
+        console.log(`🚫 PACIENTE YA PROCESADO - ID ${pacienteId} ya fue cargado anteriormente`);
+        console.log('✅ Cambio de formulario detectado, manteniendo datos actuales');
+        return;
+    }
+    
+    // BLOQUEO TRIPLE: Evitar procesamiento múltiple
+    if (urlParametrosProcesados || modalConsultaCargado || modalEnProceso) {
+        console.log('🛑 BLOQUEADO - Ya procesado/en proceso:', {
+            urlParametrosProcesados,
+            modalConsultaCargado,
+            modalEnProceso,
+            pacienteYaProcesado
+        });
+        return;
+    }
+    
+    // Marcar INMEDIATAMENTE para bloquear otras llamadas
+    urlParametrosProcesados = true;
+    modalEnProceso = true;
+    
+    // Marcar el paciente como procesado y guardarlo en sessionStorage
+    if (pacienteId) {
+        pacienteYaProcesado = pacienteId;
+        sessionStorage.setItem('paciente_procesado', pacienteId);
+        console.log(`💾 Paciente ${pacienteId} guardado en sessionStorage`);
+    }
+    
+    console.log('=== PROCESANDO PARÁMETROS URL (ÚNICA VEZ) ===');
     console.log('URL completa:', window.location.href);
     console.log('Parámetros encontrados:');
     console.log('- Paciente ID:', pacienteId);
     console.log('- Reserva ID:', reservaId);
+    console.log('- Consulta ID:', idConsulta);
+    console.log('- Skip Modal:', skipModal);
+    console.log('- Paciente ya procesado:', pacienteYaProcesado);
+    
+    // Si hay un ID de consulta directa, cargarla sin mostrar modal
+    if (idConsulta) {
+        console.log('📋 ID de consulta directo detectado, cargando consulta:', idConsulta);
+        modalConsultaCargado = true; // Bloquear modal
+        
+        // Mostrar mensaje de carga
+        Swal.fire({
+            title: 'Cargando consulta...',
+            text: 'Se están cargando los datos de la consulta',
+            icon: 'info',
+            timer: 2000,
+            timerProgressBar: true,
+            showConfirmButton: false
+        });
+        
+        // Cargar la consulta directamente
+        setTimeout(() => {
+            obtenerYCargarConsulta(idConsulta);
+        }, 500);
+        return;
+    }
     
     // Si hay un ID de paciente, cargarlo automáticamente
     if (pacienteId) {
         console.log('✓ ID de paciente detectado, iniciando carga automática...');
+        
+        // MARCADO TRIPLE para evitar cualquier duplicación
+        modalConsultaCargado = true;
         
         // Mostrar mensaje de información al usuario
         Swal.fire({
@@ -3162,6 +3384,31 @@ function procesarParametrosURL() {
             inicializarTablaConsultas(pacienteId);
 
             mostrarHistorialConsultas(pacienteId);
+            
+            // Para formularios directos, usar la función única UNA SOLA VEZ
+            setTimeout(() => {
+                console.log('🔄 Verificando si mostrar modal para formulario directo...');
+                console.log('Estado modalConsultaCargado:', modalConsultaCargado);
+                console.log('Skip modal:', skipModal);
+                
+                // DESACTIVADO TEMPORALMENTE PARA EVITAR BUCLE INFINITO
+                console.log('⚠️ Modal de consultas previas DESACTIVADO para evitar bucle infinito');
+                console.log('🔄 Para mostrar consultas previas, use el historial de consultas manualmente');
+                
+                // SI SE ESPECIFICÓ skip_modal=1, NO mostrar el modal
+                if (skipModal === '1') {
+                    console.log('🚫 Skip modal activado, no mostrando modal de consultas...');
+                    return;
+                }
+                
+                // COMENTADO PARA EVITAR BUCLE:
+                // if (!modalConsultaCargado && !modalEnProceso) {
+                //     console.log('✅ Ejecutando cargarUltimaConsultaDirecta ÚNICA VEZ...');
+                //     cargarUltimaConsultaDirecta(pacienteId);
+                // } else {
+                //     console.log('❌ Modal ya fue procesado, omitiendo...');
+                // }
+            }, 2000);
             
             // Si también hay una reserva ID, podríamos usarla para mostrar información adicional
             if (reservaId) {

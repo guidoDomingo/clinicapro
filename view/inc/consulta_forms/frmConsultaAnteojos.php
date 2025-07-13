@@ -753,9 +753,11 @@ function mostrarDatosPaciente(paciente) {
     
     // Usar el formato correcto según los datos disponibles
     if (paciente.nombres) {
-        $('#paciente').val(paciente.nombres + ' ' + paciente.apellidos);
+        const apellidos = paciente.apellidos || paciente.apellido || '';
+        $('#paciente').val(paciente.nombres + ' ' + apellidos);
     } else if (paciente.nombre) {
-        $('#paciente').val(paciente.nombre + ' ' + paciente.apellidos);
+        const apellidos = paciente.apellidos || paciente.apellido || '';
+        $('#paciente').val(paciente.nombre + ' ' + apellidos);
     }
     
     // Actualizar documento y ficha si están disponibles
@@ -776,9 +778,10 @@ function mostrarDatosPaciente(paciente) {
     
     // Actualizar información en el panel lateral si existe
     if (document.getElementById('profile-username')) {
+        const apellidos = paciente.apellidos || paciente.apellido || '';
         const nombreCompleto = paciente.nombres ? 
-            paciente.nombres + ' ' + paciente.apellidos : 
-            paciente.nombre + ' ' + paciente.apellidos;
+            paciente.nombres + ' ' + apellidos : 
+            paciente.nombre + ' ' + apellidos;
             
         document.getElementById('profile-username').textContent = nombreCompleto;
     }
@@ -808,10 +811,10 @@ function mostrarDatosPaciente(paciente) {
     }
     
     // Verificar si el paciente tiene datos de anteojos previos
-    verificarDatosAnteojosPrevios(paciente.id_persona);
+    // verificarDatosAnteojosPrevios(paciente.id_persona); // 🚫 DESACTIVADO POR SOLICITUD DEL USUARIO
     
     // Buscar consultas asociadas al paciente
-    buscarConsultasAsociadas(paciente.id_persona);
+    // buscarConsultasAsociadas(paciente.id_persona); // 🚫 DESACTIVADO POR SOLICITUD DEL USUARIO
 }
 
 /**
@@ -862,133 +865,29 @@ function buscarPacientePorConsulta(idConsulta) {
 /**
  * Verifica si el paciente tiene datos de anteojos previos y ofrece cargarlos
  * @param {number} idPaciente - ID del paciente
+ * (FUNCIÓN DESACTIVADA POR SOLICITUD DEL USUARIO)
  */
 function verificarDatosAnteojosPrevios(idPaciente) {
-    if (!idPaciente) return;
-    
-    console.log("Verificando datos previos de anteojos para paciente ID:", idPaciente);
-    
-    $.ajax({
-        type: 'GET',
-        url: 'ajax/obtener-datos-anteojos.php',
-        data: {
-            paciente_id: idPaciente,
-            verificar_existencia: true
-        },
-        dataType: "json",
-        success: function(response) {
-            if (response && response.status === 'success' && response.tiene_datos) {
-                // Si hay datos previos, preguntar al usuario si desea cargarlos
-                Swal.fire({
-                    title: '¿Cargar datos previos?',
-                    text: `Se encontró una receta de anteojos previa para este paciente. ¿Desea cargarla como referencia?`,
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Sí, cargar',
-                    cancelButtonText: 'No, formulario nuevo'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        // Cargar los datos de la consulta más reciente
-                        cargarDatosAnteojos(null, idPaciente);
-                    }
-                });
-            }
-        },
-        error: function(xhr, status, error) {
-            console.error("Error al verificar datos de anteojos previos:", error);
-        }
-    });
+    // 🚫 FUNCIÓN COMPLETAMENTE DESACTIVADA POR SOLICITUD DEL USUARIO
+    // El usuario solicitó eliminar la funcionalidad de modal automático
+    // para cargar datos previos. Solo se puede cargar desde la tabla de consultas.
+    console.log('🚫 verificarDatosAnteojosPrevios() DESACTIVADA - No se mostrará modal automático');
+    console.log('📋 Para cargar consultas anteriores, usar la tabla de consultas');
+    return;
 }
 
 /**
  * Busca consultas asociadas a un paciente y permite cargarlas
  * @param {number} idPaciente - ID del paciente
+ * (FUNCIÓN DESACTIVADA POR SOLICITUD DEL USUARIO)
  */
 function buscarConsultasAsociadas(idPaciente) {
-    if (!idPaciente) return;
-    
-    console.log("Buscando consultas asociadas al paciente ID:", idPaciente);
-    
-    $.ajax({
-        type: 'POST',
-        url: 'ajax/consultas.ajax.php',
-        data: {
-            operacion: 'buscarConsultaPersona',
-            id_persona: idPaciente
-        },
-        dataType: "json",
-        success: function(response) {
-            console.log("Consultas del paciente recibidas:", response);
-            
-            // Verificar si hay consultas disponibles
-            if (response && response.status === 'success' && response.data && response.data.length > 0) {
-                const consultas = response.data;
-                
-                // Filtrar solo consultas que sean de tipo anteojos
-                const consultasAnteojos = consultas.filter(c => c.tipo_formulario === 'anteojos');
-                
-                // Si hay consultas de tipo anteojos, mostrar selector
-                if (consultasAnteojos.length > 0) {
-                    // Mostrar al usuario un mensaje para cargar consultas previas
-                    Swal.fire({
-                        title: 'Consultas previas encontradas',
-                        text: `Se encontraron ${consultasAnteojos.length} consultas de anteojos para este paciente. ¿Desea cargar alguna?`,
-                        icon: 'info',
-                        showCancelButton: true,
-                        confirmButtonColor: '#3085d6',
-                        cancelButtonColor: '#d33',
-                        confirmButtonText: 'Ver consultas',
-                        cancelButtonText: 'No cargar'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            // Crear selector de consultas
-                            let options = '<option value="">Seleccionar consulta...</option>';
-                            
-                            consultasAnteojos.forEach((consulta, index) => {
-                                const fecha = new Date(consulta.fecha_registro).toLocaleDateString();
-                                options += `<option value="${consulta.id_consulta}">${fecha} - ${consulta.motivoscomunes || 'Sin motivo'}</option>`;
-                            });
-                            
-                            Swal.fire({
-                                title: 'Seleccionar consulta',
-                                html: `
-                                    <select id="swal-select-consulta" class="swal2-select" style="width:100%">
-                                        ${options}
-                                    </select>
-                                `,
-                                showCancelButton: true,
-                                confirmButtonText: 'Cargar',
-                                cancelButtonText: 'Cancelar',
-                                preConfirm: () => {
-                                    const consultaId = document.getElementById('swal-select-consulta').value;
-                                    if (!consultaId) {
-                                        Swal.showValidationMessage('Debes seleccionar una consulta');
-                                        return false;
-                                    }
-                                    return consultaId;
-                                }
-                            }).then((result) => {
-                                if (result.isConfirmed && result.value) {
-                                    // Cargar la consulta seleccionada
-                                    cargarDatosAnteojos(result.value, idPaciente);
-                                }
-                            });
-                        }
-                    });
-                } else if (consultas.length > 0) {
-                    // Si hay consultas pero ninguna de anteojos, mostrar un mensaje diferente
-                    console.log("El paciente tiene consultas pero ninguna de anteojos");
-                }
-            } else {
-                console.log("No se encontraron consultas para este paciente");
-            }
-        },
-        error: function(xhr, status, error) {
-            console.error("Error al buscar consultas asociadas:", error);
-        }
-    });
+    // 🚫 FUNCIÓN COMPLETAMENTE DESACTIVADA POR SOLICITUD DEL USUARIO
+    // El usuario solicitó eliminar la funcionalidad de modal automático
+    // para cargar datos previos. Solo se puede cargar desde la tabla de consultas.
+    console.log('🚫 buscarConsultasAsociadas() DESACTIVADA - No se mostrará modal automático');
+    console.log('📋 Para cargar consultas anteriores, usar la tabla de consultas');
+    return;
 }
 
 /**
@@ -1023,13 +922,14 @@ function inicializarAutocompletadoPaciente(inputSelector) {
                             console.log("Resultados encontrados:", data.length);
                             response($.map(data, function(item) {
                                 // Crear etiqueta para mostrar en el dropdown
+                                const apellidos = item.apellidos || item.apellido || '';
                                 const label = item.nombres ? 
-                                    `${item.nombres} ${item.apellidos} - CI: ${item.cedula || 'Sin documento'}` :
-                                    `${item.nombre} ${item.apellidos} - CI: ${item.cedula || 'Sin documento'}`;
+                                    `${item.nombres} ${apellidos} - CI: ${item.cedula || 'Sin documento'}` :
+                                    `${item.nombre} ${apellidos} - CI: ${item.cedula || 'Sin documento'}`;
                                     
                                 return {
                                     label: label,
-                                    value: item.nombres ? `${item.nombres} ${item.apellidos}` : `${item.nombre} ${item.apellidos}`,
+                                    value: item.nombres ? `${item.nombres} ${apellidos}` : `${item.nombre} ${apellidos}`,
                                     item: item
                                 };
                             }));

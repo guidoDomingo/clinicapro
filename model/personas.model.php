@@ -66,13 +66,14 @@ class ModelPersonas {
      * @return array|bool - Datos de la persona o false si no se encontró
      */
     public static function mdlGetPersonaPorId($idPersona) {
-        try {            $stmt = Conexion::conectar()->prepare("
+        try {
+            $stmt = Conexion::conectar()->prepare("
                 SELECT 
                     person_id as id_persona,
                     document_number as documento,
                     record_number as ficha,
                     first_name as nombre,
-                    last_name as apellido,
+                    COALESCE(last_name, '') as apellido,
                     EXTRACT(YEAR FROM AGE(CURRENT_DATE, birth_date)) as edad,
                     phone_number as telefono,
                     email as correo
@@ -85,7 +86,12 @@ class ModelPersonas {
             $stmt->bindParam(":id_persona", $idPersona, PDO::PARAM_INT);
             $stmt->execute();
             
-            return $stmt->fetch(PDO::FETCH_ASSOC);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            // Log para depuración
+            error_log("mdlGetPersonaPorId resultado para ID $idPersona: " . json_encode($result));
+            
+            return $result;
         } catch (PDOException $e) {
             error_log("Error en mdlGetPersonaPorId: " . $e->getMessage());
             return false;
