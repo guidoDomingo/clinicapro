@@ -349,12 +349,23 @@ document.addEventListener('DOMContentLoaded', function() {
     const btnGuardarConsulta = document.getElementById('btnGuardarConsulta');
     
     if (btnGuardarConsulta) {
-        // Remover cualquier event listener previo
-        const oldBtn = btnGuardarConsulta.cloneNode(true);
-        btnGuardarConsulta.parentNode.replaceChild(oldBtn, btnGuardarConsulta);
-        
-        // Agregar nuevo event listener
-        oldBtn.addEventListener('click', guardarConsultaAnteojos);
+        // Solo agregar nuestro event listener si no está ya agregado
+        if (!btnGuardarConsulta.dataset.anteojosHandler) {
+            // Eliminar TODOS los event listeners existentes clonando el elemento
+            const nuevoBoton = btnGuardarConsulta.cloneNode(true);
+            btnGuardarConsulta.parentNode.replaceChild(nuevoBoton, btnGuardarConsulta);
+            
+            // Agregar ÚNICAMENTE nuestro event listener
+            nuevoBoton.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+                guardarConsultaAnteojos();
+            });
+            
+            nuevoBoton.dataset.anteojosHandler = 'true';
+            console.log('Event listener específico de anteojos agregado (método seguro)');
+        }
     }
     
     // Inicializar selectores si están presentes
@@ -390,9 +401,19 @@ document.addEventListener('DOMContentLoaded', function() {
  * Función para guardar una consulta de anteojos
  */
 function guardarConsultaAnteojos() {
+    // Prevenir múltiples ejecuciones
+    if (window.guardandoConsultaAnteojos) {
+        console.log('Ya se está guardando una consulta, ignorando solicitud duplicada');
+        return;
+    }
+    
+    // Marcar que estamos guardando
+    window.guardandoConsultaAnteojos = true;
+    
     // Verificar que se haya seleccionado un paciente
     const idPersona = document.getElementById('idPersona').value;
     if (!idPersona) {
+        window.guardandoConsultaAnteojos = false; // Liberar bandera
         Swal.fire({
             position: "center",
             icon: "warning",
@@ -439,6 +460,9 @@ function guardarConsultaAnteojos() {
         success: function(response) {
             console.log("Respuesta del servidor:", response);
             Swal.close();
+            
+            // Liberar bandera de guardado
+            window.guardandoConsultaAnteojos = false;
             
             let idConsultaGuardada = '';
             // Verificar si la respuesta contiene el ID de la consulta (en caso de una nueva)
@@ -495,6 +519,9 @@ function guardarConsultaAnteojos() {
                         title: "Consulta de anteojos guardada correctamente",
                         text: "ID de la consulta: " + idConsultaGuardada,
                         showConfirmButton: true
+                    }).then(() => {
+                        // Limpiar el formulario después de mostrar el mensaje
+                        limpiarFormularioAnteojosCompleto();
                     });
                     
                     // Actualizar información después de guardar
@@ -508,6 +535,9 @@ function guardarConsultaAnteojos() {
                     title: "Consulta de anteojos actualizada correctamente",
                     showConfirmButton: false,
                     timer: 1500
+                }).then(() => {
+                    // Limpiar el formulario después de mostrar el mensaje
+                    limpiarFormularioAnteojosCompleto();
                 });
                 
                 // Si es una actualización, usar el ID existente para habilitar los botones
@@ -557,6 +587,9 @@ function guardarConsultaAnteojos() {
             console.error("Error AJAX:", error);
             console.error("Status:", status);
             console.error("Response:", xhr.responseText);
+            
+            // Liberar bandera de guardado
+            window.guardandoConsultaAnteojos = false;
             
             Swal.close();
             Swal.fire({
@@ -1044,6 +1077,91 @@ $(document).ready(function() {
         }
     }
 });
+
+/**
+ * Función para limpiar completamente el formulario de anteojos
+ */
+function limpiarFormularioAnteojosCompleto() {
+    console.log('Limpiando formulario de anteojos...');
+    
+    // Limpiar campos de texto específicos de anteojos
+    const camposAnteojos = [
+        'txtmotivo', 'ejeod', 'dnpod', 'notaod', 'altura_od',
+        'ejeoi', 'dnpoi', 'notaoi', 'altura_oi', 'dist_interpupilar',
+        'txtnota', 'proximaconsulta', 'whatsapptxt', 'email'
+    ];
+    
+    camposAnteojos.forEach(campo => {
+        const elemento = document.getElementById(campo);
+        if (elemento) {
+            elemento.value = '';
+        }
+    });
+    
+    // Limpiar selectores específicos de anteojos
+    const selectsAnteojos = [
+        'od_esf', 'od_cil', 'od_adicion',
+        'oi_esf', 'oi_cil', 'oi_adicion',
+        'motivoscomunes', 'formatoConsulta', 'formatoreceta'
+    ];
+    
+    selectsAnteojos.forEach(selectId => {
+        const elemento = document.getElementById(selectId);
+        if (elemento) {
+            // Si es un select2, usar su API
+            if (typeof $.fn.select2 !== 'undefined' && $(elemento).hasClass('select2bs4')) {
+                $(elemento).val('').trigger('change');
+            } else {
+                // Para selects normales
+                elemento.selectedIndex = 0;
+            }
+        }
+    });
+    
+    // Limpiar los editores Summernote
+    if ($('#consulta-textarea').length > 0) {
+        if ($('#consulta-textarea').data('summernote')) {
+            $('#consulta-textarea').summernote('code', '');
+        } else {
+            document.getElementById('consulta-textarea').value = '';
+        }
+    }
+    
+    if ($('#receta-textarea').length > 0) {
+        if ($('#receta-textarea').data('summernote')) {
+            $('#receta-textarea').summernote('code', '');
+        } else {
+            document.getElementById('receta-textarea').value = '';
+        }
+    }
+    
+    // Limpiar campos ocultos de consulta
+    const camposOcultos = ['id_consulta', 'id_consulta_actual'];
+    camposOcultos.forEach(campoId => {
+        const elemento = document.getElementById(campoId);
+        if (elemento) {
+            elemento.remove();
+        }
+    });
+    
+    // Deshabilitar botones de PDF y WhatsApp
+    const btnDescargarPDF = document.getElementById('btnDescargarPDF');
+    const btnEnviarWhatsApp = document.getElementById('btnEnviarWhatsApp');
+    if (btnDescargarPDF) {
+        btnDescargarPDF.disabled = true;
+    }
+    if (btnEnviarWhatsApp) {
+        btnEnviarWhatsApp.disabled = true;
+    }
+    
+    // Limpiar checkbox
+    const gridCheck = document.getElementById('gridCheck');
+    if (gridCheck) {
+        gridCheck.checked = false;
+    }
+    
+    console.log('Formulario de anteojos limpiado completamente');
+}
 </script>
 
 <!-- Incluir el script helper para manejo de formularios de consulta -->

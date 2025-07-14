@@ -1,4 +1,13 @@
 <?php
+// PREVENIR DOBLE EJECUCIÓN
+if (defined('GUARDAR_CONSULTA_ANTEOJOS_EJECUTADO')) {
+    if (function_exists('debug_detallado')) {
+        debug_detallado('PREVENCION', "Prevención de doble ejecución activada", [], 'warning');
+    }
+    exit("Error: Intento de doble ejecución prevenido");
+}
+define('GUARDAR_CONSULTA_ANTEOJOS_EJECUTADO', true);
+
 // Incluir los archivos de depuración si existen
 if (file_exists("../logs/debug_guardar.php")) {
     require_once "../logs/debug_guardar.php";
@@ -334,7 +343,31 @@ if (isset($_POST["idPersona"]) && isset($_POST["txtmotivo"])) {
     // Verificar que el tipo de formulario sea "anteojos"
     $tipo_formulario = isset($_POST["form_type"]) ? $_POST["form_type"] : '';
     
-    if ($tipo_formulario == 'anteojos' || strpos($_SERVER['HTTP_REFERER'] ?? '', 'form_type=anteojos') !== false) {
+    // Debug: Mostrar información de detección
+    if (function_exists('debug_detallado')) {
+        debug_detallado('DETECCION_TIPO', "Detectando tipo de formulario", [
+            'form_type_post' => $tipo_formulario,
+            'http_referer' => $_SERVER['HTTP_REFERER'] ?? 'no_referer',
+            'url_contiene_anteojos' => strpos($_SERVER['HTTP_REFERER'] ?? '', 'form_type=anteojos') !== false,
+            'post_data_keys' => array_keys($_POST)
+        ], 'info');
+    }
+    
+    // Mejorar la detección: también verificar si hay campos específicos de anteojos
+    $tieneParametrosAnteojos = isset($_POST["od_esf"]) || isset($_POST["oi_esf"]) || 
+                               isset($_POST["od_cil"]) || isset($_POST["oi_cil"]) ||
+                               isset($_POST["ejeod"]) || isset($_POST["ejeoi"]);
+    
+    if ($tipo_formulario == 'anteojos' || 
+        strpos($_SERVER['HTTP_REFERER'] ?? '', 'form_type=anteojos') !== false ||
+        $tieneParametrosAnteojos) {
+        
+        if (function_exists('debug_detallado')) {
+            debug_detallado('DETECCION_TIPO', "Formulario de anteojos detectado correctamente", [
+                'razon' => $tipo_formulario == 'anteojos' ? 'form_type_exacto' : 
+                          (strpos($_SERVER['HTTP_REFERER'] ?? '', 'form_type=anteojos') !== false ? 'referer' : 'parametros_anteojos')
+            ], 'success');
+        }
         // Establecer una bandera para controlar si debemos usar el método directo
         $usarMetodoDirecto = false;
         $baseResponse = null;
@@ -579,8 +612,24 @@ if (isset($_POST["idPersona"]) && isset($_POST["txtmotivo"])) {
             echo $baseResponse;
         }
     } else {
-        // No es un formulario de anteojos, incluir el archivo normal de guardar consulta
-        include_once "guardar-consulta.ajax.php";
+        // No es un formulario de anteojos, pero ya estamos en el archivo específico de anteojos
+        // Esto significa que algo está mal en la detección
+        if (function_exists('debug_detallado')) {
+            debug_detallado('DETECCION_TIPO', "ADVERTENCIA: Formulario no detectado como anteojos en archivo específico", [
+                'form_type' => $tipo_formulario,
+                'referer' => $_SERVER['HTTP_REFERER'] ?? 'no_referer',
+                'tiene_parametros_anteojos' => $tieneParametrosAnteojos,
+                'action' => 'redirecting_to_normal_handler'
+            ], 'warning');
+        }
+        
+        // En lugar de incluir directamente, redirigir la petición
+        // Solo incluir si realmente no es anteojos (verificación adicional)
+        if (!$tieneParametrosAnteojos && $tipo_formulario !== 'anteojos') {
+            include_once "guardar-consulta.ajax.php";
+        } else {
+            echo "error: Detección inconsistente de tipo de formulario. Tipo detectado: " . $tipo_formulario;
+        }
     }
 } else {
     if (function_exists('debug_detallado')) {

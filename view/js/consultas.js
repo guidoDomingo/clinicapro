@@ -85,7 +85,18 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     if (btnGuardarConsulta) {
-        btnGuardarConsulta.addEventListener('click', guardarConsulta);
+        // Verificar si ya tiene un event listener para evitar duplicados
+        // Y verificar si estamos en modo anteojos
+        const urlParams = new URLSearchParams(window.location.search);
+        const formType = urlParams.get('form_type');
+        
+        if (formType !== 'anteojos' && !btnGuardarConsulta.dataset.handlerAdded) {
+            btnGuardarConsulta.addEventListener('click', guardarConsulta);
+            btnGuardarConsulta.dataset.handlerAdded = 'true';
+            console.log('Event listener principal agregado para formulario:', formType || 'general');
+        } else if (formType === 'anteojos') {
+            console.log('Omitiendo event listener principal porque estamos en modo anteojos');
+        }
     }
     
     if (btnSubirArchivos) {
@@ -1674,7 +1685,16 @@ function limpiarFormularioConsulta() {
         'txtnota', 'proximaconsulta', 'whatsapptxt', 'email'
     ];
     
-    camposALimpiar.forEach(campo => {
+    // Agregar campos específicos de anteojos si existen
+    const camposAnteojos = [
+        'ejeod', 'dnpod', 'notaod', 'altura_od',
+        'ejeoi', 'dnpoi', 'notaoi', 'altura_oi', 'dist_interpupilar'
+    ];
+    
+    // Combinar todos los campos a limpiar
+    const todosCampos = [...camposALimpiar, ...camposAnteojos];
+    
+    todosCampos.forEach(campo => {
         const elemento = document.getElementById(campo);
         if (elemento) {
             elemento.value = '';
@@ -1712,12 +1732,25 @@ function limpiarFormularioConsulta() {
         btnDescargarPDF.disabled = true;
     }
     
-    // Resetear selects a su primera opción
+    // Resetear selects a su primera opción (incluyendo los de anteojos)
     const selects = ['motivoscomunes', 'formatoConsulta', 'formatoreceta'];
-    selects.forEach(select => {
-        const elemento = document.getElementById(select);
-        if (elemento && elemento.options.length > 0) {
-            elemento.selectedIndex = 0;
+    const selectsAnteojos = [
+        'od_esf', 'od_cil', 'od_adicion',
+        'oi_esf', 'oi_cil', 'oi_adicion'
+    ];
+    
+    const todosSelects = [...selects, ...selectsAnteojos];
+    
+    todosSelects.forEach(selectId => {
+        const elemento = document.getElementById(selectId);
+        if (elemento) {
+            // Si es un select2, usar su API
+            if (typeof $.fn.select2 !== 'undefined' && $(elemento).hasClass('select2bs4')) {
+                $(elemento).val('').trigger('change');
+            } else if (elemento.options && elemento.options.length > 0) {
+                // Para selects normales
+                elemento.selectedIndex = 0;
+            }
         }
     });
     
@@ -1731,6 +1764,12 @@ function limpiarFormularioConsulta() {
     const idConsultaInput = document.getElementById('id_consulta');
     if (idConsultaInput) {
         idConsultaInput.remove();
+    }
+    
+    // Limpiar checkbox de anteojos si existe
+    const gridCheck = document.getElementById('gridCheck');
+    if (gridCheck) {
+        gridCheck.checked = false;
     }
 }
 
