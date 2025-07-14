@@ -24,6 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Verificar si es un cambio de formulario con el mismo paciente
     const urlParams = new URLSearchParams(window.location.search);
     const pacienteIdActual = urlParams.get('paciente_id');
+    const skipModal = urlParams.get('skip_modal');
     
     let esCambioFormulario = false;
     if (pacienteIdActual && pacienteYaProcesado === pacienteIdActual) {
@@ -37,9 +38,15 @@ document.addEventListener('DOMContentLoaded', function() {
         urlParametrosProcesados = false; // Permitir que se procesen los parámetros para cargar datos
     }
     
-    // LIMPIAR CUALQUIER MODAL PREVIO AL INICIAR
-    if (!esCambioFormulario) {
-        cerrarTodosLosModales();
+    // LIMPIAR CUALQUIER MODAL PREVIO AL INICIAR - SOLO SI NO HAY skip_modal
+    if (!esCambioFormulario && skipModal !== '1') {
+        try {
+            cerrarTodosLosModales();
+        } catch (e) {
+            console.log('⚠️ Error al cerrar modales en inicialización:', e.message);
+        }
+    } else if (skipModal === '1') {
+        console.log('🚫 Skip modal activo, omitiendo cierre de modales en inicialización');
     }
     
     // Si ya se inicializó el sistema y no es cambio de formulario, evitar duplicar
@@ -162,12 +169,19 @@ function abrirModalNuevaPersona() {
 function inicializarEditoresTexto() {
     console.log('Inicializando editores de texto enriquecido...');
     
-    // Inicializar editor de texto para el campo de descripción
-    if (document.getElementById('consulta-textarea')) {
-        console.log('Inicializando editor para consulta-textarea');
+    try {
+        // Verificar que jQuery y Summernote estén disponibles
+        if (typeof $ === 'undefined' || typeof $.fn.summernote === 'undefined') {
+            console.log('⚠️ jQuery o Summernote no están disponibles, omitiendo inicialización de editores');
+            return;
+        }
         
-        try {
-            $('#consulta-textarea').summernote({
+        // Inicializar editor de texto para el campo de descripción
+        if (document.getElementById('consulta-textarea')) {
+            console.log('Inicializando editor para consulta-textarea');
+            
+            try {
+                $('#consulta-textarea').summernote({
                 placeholder: 'Escriba aquí la descripción de la consulta...',
                 height: 200,
                 toolbar: [
@@ -260,6 +274,10 @@ function inicializarEditoresTexto() {
         }
     } else {
         console.log('No se encontró el elemento receta-textarea en el DOM');
+    }
+    
+    } catch (error) {
+        console.log('⚠️ Error al inicializar editores de texto:', error.message);
     }
 }
 
@@ -1051,32 +1069,61 @@ function cargarUltimaConsulta(idPersona) {
 function cerrarTodosLosModales() {
     console.log('🚫 Cerrando todos los modales SweetAlert2...');
     
+    // Verificar que el documento esté listo antes de manipular el DOM
+    if (!document || !document.body) {
+        console.log('⚠️ DOM no está listo, posponiendo cierre de modales...');
+        setTimeout(cerrarTodosLosModales, 100);
+        return;
+    }
+    
     // Método 1: Usar API de SweetAlert2 si está disponible y hay un modal visible
-    if (typeof Swal !== 'undefined' && Swal.isVisible()) {
-        Swal.close();
-        console.log('✅ Modal SweetAlert2 cerrado con API');
+    try {
+        if (typeof Swal !== 'undefined' && Swal.isVisible && Swal.isVisible()) {
+            Swal.close();
+            console.log('✅ Modal SweetAlert2 cerrado con API');
+        }
+    } catch (e) {
+        console.log('⚠️ Error al cerrar modal con API SweetAlert2:', e.message);
     }
     
     // Método 2: Remover manualmente cualquier contenedor que pueda quedar
-    const modalContainers = document.querySelectorAll('.swal2-container');
-    modalContainers.forEach(container => {
-        container.remove();
-        console.log('✅ Contenedor modal removido del DOM');
-    });
+    try {
+        const modalContainers = document.querySelectorAll('.swal2-container');
+        modalContainers.forEach(container => {
+            if (container && container.remove) {
+                container.remove();
+                console.log('✅ Contenedor modal removido del DOM');
+            }
+        });
+    } catch (e) {
+        console.log('⚠️ Error al remover contenedores modales:', e.message);
+    }
     
     // Método 3: Limpiar overlay/backdrop si existe
-    const overlays = document.querySelectorAll('.swal2-backdrop-show, .swal2-shown');
-    overlays.forEach(overlay => {
-        overlay.remove();
-        console.log('✅ Overlay modal removido del DOM');
-    });
+    try {
+        const overlays = document.querySelectorAll('.swal2-backdrop-show, .swal2-shown');
+        overlays.forEach(overlay => {
+            if (overlay && overlay.remove) {
+                overlay.remove();
+                console.log('✅ Overlay modal removido del DOM');
+            }
+        });
+    } catch (e) {
+        console.log('⚠️ Error al remover overlays:', e.message);
+    }
     
     // Método 4: Remover clases del body que SweetAlert2 puede agregar
-    document.body.classList.remove('swal2-shown', 'swal2-backdrop-show', 'swal2-iosfix');
+    if (document.body && document.body.classList) {
+        document.body.classList.remove('swal2-shown', 'swal2-backdrop-show', 'swal2-iosfix');
+    }
     
     // Método 5: Limpiar cualquier estilo inline que SweetAlert2 pueda haber agregado
-    document.body.style.removeProperty('padding-right');
-    document.documentElement.style.removeProperty('padding-right');
+    if (document.body && document.body.style) {
+        document.body.style.removeProperty('padding-right');
+    }
+    if (document.documentElement && document.documentElement.style) {
+        document.documentElement.style.removeProperty('padding-right');
+    }
 }
 
 /**
@@ -1137,20 +1184,40 @@ function obtenerYCargarConsulta(idConsulta) {
                         console.log(`Tipo de formulario diferente. Actual: ${currentFormType}, Requerido: ${response.tipo_formulario}`);
                         
                         // Construir la nueva URL con el tipo de formulario correcto
-                        const newUrl = `index.php?ruta=consultas&form_type=${response.tipo_formulario}&id_consulta=${idConsulta}`;
+                        let newUrl = `index.php?ruta=consultas&form_type=${response.tipo_formulario}&id_consulta=${idConsulta}&skip_modal=1`;
+                        
+                        // Agregar paciente_id desde la respuesta o desde los parámetros URL actuales
+                        const pacienteId = response.id_persona || urlParams.get('paciente_id');
+                        if (pacienteId) {
+                            newUrl += `&paciente_id=${pacienteId}`;
+                        }
+                        
+                        console.log('🔀 Redirigiendo a URL completa:', newUrl);
+                        console.log('👤 Paciente ID preservado:', pacienteId);
                         
                         // Mostrar mensaje y redirigir
-                        Swal.fire({
-                            position: "center",
-                            icon: "info",
-                            title: "Cambiando tipo de formulario",
-                            text: `Esta consulta requiere el formulario de tipo ${response.tipo_formulario}`,
-                            showConfirmButton: false,
-                            timer: 1500,
-                            didClose: () => {
+                        try {
+                            if (typeof Swal !== 'undefined' && document.body) {
+                                Swal.fire({
+                                    position: "center",
+                                    icon: "info",
+                                    title: "Cambiando tipo de formulario",
+                                    text: `Esta consulta requiere el formulario de tipo ${response.tipo_formulario}`,
+                                    showConfirmButton: false,
+                                    timer: 1500,
+                                    didClose: () => {
+                                        window.location.href = newUrl;
+                                    }
+                                });
+                            } else {
+                                console.log('🔀 Redirigiendo directamente a:', newUrl);
                                 window.location.href = newUrl;
                             }
-                        });
+                        } catch (e) {
+                            console.log('⚠️ Error al mostrar mensaje de redirección:', e.message);
+                            console.log('🔀 Redirigiendo directamente a:', newUrl);
+                            window.location.href = newUrl;
+                        }
                         return;
                     }
                 }
@@ -1273,9 +1340,20 @@ function cargarConsultaEnFormulario(consulta, archivos) {
             allowEscapeKey: false
         }).then((result) => {
             if (result.isConfirmed) {
+                // Obtener el ID del paciente actual para preservarlo en la nueva URL
+                const pacienteId = consulta.id_persona || document.getElementById('idPersona')?.value;
+                
                 // Redirigir al tipo de formulario correcto CON PARÁMETROS ESPECIALES para evitar bucle
-                const nuevaUrl = `index.php?ruta=consultas&form_type=${consulta.tipo_formulario}&id_consulta=${consulta.id_consulta}&skip_modal=1`;
+                let nuevaUrl = `index.php?ruta=consultas&form_type=${consulta.tipo_formulario}&id_consulta=${consulta.id_consulta}&skip_modal=1`;
+                
+                // Agregar paciente_id si está disponible
+                if (pacienteId) {
+                    nuevaUrl += `&paciente_id=${pacienteId}`;
+                }
+                
                 console.log('🔀 Redirigiendo a:', nuevaUrl);
+                console.log('👤 Paciente ID preservado:', pacienteId);
+                
                 window.location.href = nuevaUrl;
             } else {
                 // Continuar cargando los datos en el formulario actual
@@ -1550,18 +1628,37 @@ function finalizarCargaConsulta(consulta, archivos) {
     
     // Notificar al usuario
     // IMPORTANTE: Cerrar cualquier modal previo antes de mostrar el mensaje de éxito
-    cerrarTodosLosModales();
+    try {
+        cerrarTodosLosModales();
+    } catch (e) {
+        console.log('⚠️ Error al cerrar modales:', e.message);
+    }
     
     // Esperar un momento para asegurar que el modal se cerró
     setTimeout(() => {
-        Swal.fire({
-            position: "center",
-            icon: "success",
-            title: "Consulta cargada correctamente",
-            text: "Puede modificar los datos y guardar para actualizar la consulta",
-            showConfirmButton: false,
-            timer: 2000
-        });
+        try {
+            // Verificar que SweetAlert2 esté disponible y el DOM esté listo
+            if (typeof Swal !== 'undefined' && typeof Swal.fire === 'function' && document.body && document.querySelector) {
+                // Verificar que SweetAlert2 pueda acceder al DOM correctamente
+                if (document.querySelector('body') && !document.querySelector('.swal2-container')) {
+                    Swal.fire({
+                        position: "center",
+                        icon: "success",
+                        title: "Consulta cargada correctamente",
+                        text: "Puede modificar los datos y guardar para actualizar la consulta",
+                        showConfirmButton: false,
+                        timer: 2000
+                    });
+                } else {
+                    console.log('🔄 SweetAlert2 no puede acceder al DOM correctamente, omitiendo modal');
+                }
+            } else {
+                console.log('✅ Consulta cargada correctamente (SweetAlert2 no disponible)');
+            }
+        } catch (e) {
+            console.log('⚠️ Error al mostrar mensaje de éxito:', e.message);
+            console.log('✅ Consulta cargada correctamente (fallback)');
+        }
     }, 100);
 }
 
@@ -2702,11 +2799,42 @@ function mostrarArchivosEnFormulario(archivos) {
         return;
     }
     
-    // Obtener el contenedor de previsualizaciones
-    const previewContainer = document.getElementById('filePreviewContainer');
+    // Obtener el contenedor de previsualizaciones (buscar múltiples opciones)
+    let previewContainer = document.getElementById('filePreviewContainer');
+    
+    // Si no existe el contenedor específico de anteojos, buscar alternativas para formulario general
     if (!previewContainer) {
-               console.error('No se encontró el contenedor de previsualización de archivos');
-        return;
+        // Intentar encontrar otros contenedores posibles
+        previewContainer = document.getElementById('archivos-preview') || 
+                          document.querySelector('.archivos-container') ||
+                          document.querySelector('#tblConsulta .card-body') ||
+                          document.getElementById('tblConsulta');
+    }
+    
+    if (!previewContainer) {
+        console.log('⚠️ No se encontró contenedor de archivos, creando uno temporal');
+        // Crear un contenedor temporal si no existe ninguno
+        const tempContainer = document.createElement('div');
+        tempContainer.id = 'temp-file-preview';
+        tempContainer.className = 'mt-3';
+        tempContainer.innerHTML = '<h6>Archivos de la consulta:</h6>';
+        
+        // Intentar agregarlo al final del formulario con múltiples opciones
+        const formContainer = document.getElementById('tblConsulta') || 
+                             document.querySelector('.content-wrapper') ||
+                             document.querySelector('.card-body') ||
+                             document.querySelector('main') ||
+                             document.querySelector('body');
+                             
+        if (formContainer) {
+            console.log('✅ Contenedor encontrado para archivos:', formContainer.id || formContainer.className);
+            formContainer.appendChild(tempContainer);
+            previewContainer = tempContainer;
+        } else {
+            console.log('⚠️ No se encontró contenedor, los archivos no se mostrarán visualmente');
+            console.log('📋 Archivo disponible:', archivos[0]?.nombre || 'archivo sin nombre');
+            return;
+        }
     }
     
     // Limpiar el contenedor antes de agregar nuevos archivos
@@ -3330,7 +3458,14 @@ function procesarParametrosURL() {
     }
     
     // BLOQUEO TRIPLE: Evitar procesamiento múltiple
-    if (urlParametrosProcesados || modalConsultaCargado || modalEnProceso) {
+    // EXCEPCIÓN: Si hay id_consulta directo, siempre permitir procesamiento
+    if (idConsulta) {
+        console.log('📋 ID de consulta directo detectado, forzando procesamiento:', idConsulta);
+        // Limpiar bloqueos para permitir procesamiento directo de consulta
+        urlParametrosProcesados = false;
+        modalConsultaCargado = false;
+        modalEnProceso = false;
+    } else if (urlParametrosProcesados || modalConsultaCargado || modalEnProceso) {
         console.log('🛑 BLOQUEADO - Ya procesado/en proceso:', {
             urlParametrosProcesados,
             modalConsultaCargado,
@@ -3365,19 +3500,46 @@ function procesarParametrosURL() {
         console.log('📋 ID de consulta directo detectado, cargando consulta:', idConsulta);
         modalConsultaCargado = true; // Bloquear modal
         
-        // Mostrar mensaje de carga
-        Swal.fire({
-            title: 'Cargando consulta...',
-            text: 'Se están cargando los datos de la consulta',
-            icon: 'info',
-            timer: 2000,
-            timerProgressBar: true,
-            showConfirmButton: false
-        });
+        // Mostrar mensaje de carga SOLO si no hay skip_modal
+        if (skipModal !== '1') {
+            try {
+                if (typeof Swal !== 'undefined' && typeof Swal.fire === 'function' && document.body && document.querySelector) {
+                    // Verificar que SweetAlert2 pueda acceder al DOM correctamente
+                    if (document.querySelector('body') && !document.querySelector('.swal2-container')) {
+                        Swal.fire({
+                            title: 'Cargando consulta...',
+                            text: 'Se están cargando los datos de la consulta',
+                            icon: 'info',
+                            timer: 2000,
+                            timerProgressBar: true,
+                            showConfirmButton: false
+                        });
+                    } else {
+                        console.log('🔄 SweetAlert2 no puede acceder al DOM correctamente, omitiendo modal');
+                    }
+                } else {
+                    console.log('🔄 Cargando consulta... (SweetAlert2 no disponible)');
+                }
+            } catch (e) {
+                console.log('⚠️ Error al mostrar mensaje de carga:', e.message);
+            }
+        } else {
+            console.log('🚫 Skip modal activo, omitiendo mensaje de carga');
+        }
         
         // Cargar la consulta directamente
         setTimeout(() => {
             obtenerYCargarConsulta(idConsulta);
+            
+            // Si también hay paciente_id, cargar los datos del paciente después de la consulta
+            if (pacienteId) {
+                console.log('🔄 También hay paciente_id, cargando datos del paciente después de la consulta...');
+                setTimeout(() => {
+                    buscarPersonaPorId(pacienteId);
+                    inicializarTablaConsultas(pacienteId);
+                    mostrarHistorialConsultas(pacienteId);
+                }, 1000); // Dar tiempo a que se cargue la consulta primero
+            }
         }, 500);
         return;
     }
@@ -3389,15 +3551,32 @@ function procesarParametrosURL() {
         // MARCADO TRIPLE para evitar cualquier duplicación
         modalConsultaCargado = true;
         
-        // Mostrar mensaje de información al usuario
-        Swal.fire({
-            title: 'Cargando paciente...',
-            text: 'Se están cargando los datos del paciente desde la reserva',
-            icon: 'info',
-            timer: 3000,
-            timerProgressBar: true,
-            showConfirmButton: false
-        });
+        // Mostrar mensaje de información al usuario SOLO si no hay skip_modal
+        if (skipModal !== '1') {
+            try {
+                if (typeof Swal !== 'undefined' && typeof Swal.fire === 'function' && document.body && document.querySelector) {
+                    // Verificar que SweetAlert2 pueda acceder al DOM correctamente
+                    if (document.querySelector('body') && !document.querySelector('.swal2-container')) {
+                        Swal.fire({
+                            title: 'Cargando paciente...',
+                            text: 'Se están cargando los datos del paciente desde la reserva',
+                            icon: 'info',
+                            timer: 3000,
+                            timerProgressBar: true,
+                            showConfirmButton: false
+                        });
+                    } else {
+                        console.log('🔄 SweetAlert2 no puede acceder al DOM correctamente, omitiendo modal');
+                    }
+                } else {
+                    console.log('🔄 Cargando paciente... (SweetAlert2 no disponible)');
+                }
+            } catch (e) {
+                console.log('⚠️ Error al mostrar mensaje de carga de paciente:', e.message);
+            }
+        } else {
+            console.log('🚫 Skip modal activo, omitiendo mensaje de carga de paciente');
+        }
           // Usar un setTimeout para dar tiempo a que se inicialice completamente la página
         setTimeout(() => {
             console.log('⏱️ Ejecutando buscarPersonaPorId con ID:', pacienteId);
