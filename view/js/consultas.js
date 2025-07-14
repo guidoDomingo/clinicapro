@@ -1864,7 +1864,7 @@ function initFileUpload() {
 /**
  * Función para subir una foto de perfil
  * @param {number} personId - ID de la persona
- * @param {File} file - Archivo de imagen a subir
+ * @param {File} file -
  */
 function subirFotoPerfil(personId, file) {
   const formData = new FormData();

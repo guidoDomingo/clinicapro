@@ -89,10 +89,7 @@
                                                 // Verificar si hay un paciente seleccionado
                                                 const idPaciente = document.getElementById('idPersona') ? document.getElementById('idPersona').value : '';
                                                 
-                                                // Verificar si hay una consulta cargada actualmente
-                                                const idConsulta = document.getElementById('id_consulta') ? document.getElementById('id_consulta').value : 
-                                                                 (document.getElementById('id_consulta_actual') ? document.getElementById('id_consulta_actual').value : '');
-                                                
+                                                // Construir la URL solo con los parámetros básicos
                                                 let nuevaUrl = 'index.php?ruta=consultas&form_type=' + formType;
                                                 
                                                 // Si hay paciente, incluirlo en la URL
@@ -100,12 +97,9 @@
                                                     nuevaUrl += '&paciente_id=' + idPaciente;
                                                 }
                                                 
-                                                // Si hay consulta, incluirla en la URL
-                                                if (idConsulta) {
-                                                    nuevaUrl += '&id_consulta=' + idConsulta;
-                                                }
-                                                
+                                                // NO incluir id_consulta para limpiar formulario cargado
                                                 console.log('Cambiando a formulario:', formType, 'URL:', nuevaUrl);
+                                                console.log('Se limpiarán consultas y formularios cargados');
                                                 window.location.href = nuevaUrl;
                                             }
                                         </script>
