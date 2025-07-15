@@ -941,9 +941,94 @@ function verDetalleConsulta(idConsulta) {
                         `;
                     }
                     
+                    // Verificar el tipo de formulario para mostrar los campos correctos
+                    console.log('🔍 Tipo de formulario detectado:', response.tipo_formulario);
+                    console.log('📋 Datos específicos:', response.datos_especificos);
+                    
+                    let camposEspecificos = '';
+                    let tituloModal = 'Detalle de Consulta';
+                    let datosAnteojos = null;
+                    
+                    // Si hay datos específicos, parsearlos
+                    if (response.datos_especificos) {
+                        try {
+                            datosAnteojos = JSON.parse(response.datos_especificos);
+                            console.log('📊 Datos de anteojos parseados:', datosAnteojos);
+                        } catch (e) {
+                            console.error('❌ Error al parsear datos específicos:', e);
+                        }
+                    }
+                    
+                    if (response.tipo_formulario === 'anteojos' && datosAnteojos) {
+                        // Modal para consulta de anteojos con datos reales
+                        tituloModal = 'Detalle de Consulta - Anteojos';
+                        camposEspecificos = `
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6><strong>Ojo Derecho (OD)</strong></h6>
+                                <p><strong>Esfera:</strong> ${datosAnteojos.od_esf || 'No especificado'}</p>
+                                <p><strong>Cilindro:</strong> ${datosAnteojos.od_cil || 'No especificado'}</p>
+                                <p><strong>Eje:</strong> ${datosAnteojos.ejeod || 'No especificado'}</p>
+                                <p><strong>Adición:</strong> ${datosAnteojos.od_adicion || 'No especificado'}</p>
+                                <p><strong>Altura:</strong> ${datosAnteojos.altura_od || 'No especificado'}</p>
+                                <p><strong>DNP:</strong> ${datosAnteojos.dnpod || 'No especificado'}</p>
+                                <p><strong>Nota:</strong> ${datosAnteojos.notaod || 'No especificado'}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6><strong>Ojo Izquierdo (OI)</strong></h6>
+                                <p><strong>Esfera:</strong> ${datosAnteojos.oi_esf || 'No especificado'}</p>
+                                <p><strong>Cilindro:</strong> ${datosAnteojos.oi_cil || 'No especificado'}</p>
+                                <p><strong>Eje:</strong> ${datosAnteojos.ejeoi || 'No especificado'}</p>
+                                <p><strong>Adición:</strong> ${datosAnteojos.oi_adicion || 'No especificado'}</p>
+                                <p><strong>Altura:</strong> ${datosAnteojos.altura_oi || 'No especificado'}</p>
+                                <p><strong>DNP:</strong> ${datosAnteojos.dnpoi || 'No especificado'}</p>
+                                <p><strong>Nota:</strong> ${datosAnteojos.notaoi || 'No especificado'}</p>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <p><strong>Distancia Interpupilar:</strong> ${datosAnteojos.dist_interpupilar || 'No especificado'}</p>
+                                <p><strong>Formato Receta:</strong> ${datosAnteojos.formatoreceta || 'No especificado'}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Formato Consulta:</strong> ${datosAnteojos.formatoConsulta || 'No especificado'}</p>
+                                <p><strong>Ficha:</strong> ${datosAnteojos.txtficha || 'No especificado'}</p>
+                            </div>
+                        </div>`;
+                    } else if (response.tipo_formulario === 'anteojos') {
+                        // Modal para anteojos pero sin datos específicos
+                        tituloModal = 'Detalle de Consulta - Anteojos';
+                        camposEspecificos = `
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    <strong>Atención:</strong> Esta consulta de anteojos no tiene datos específicos guardados.
+                                </div>
+                            </div>
+                        </div>`;
+                    } else {
+                        // Modal para consulta general
+                        tituloModal = 'Detalle de Consulta - General';
+                        camposEspecificos = `
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Visión OD:</strong> ${response.visionod || 'No especificado'}</p>
+                                <p><strong>Visión OI:</strong> ${response.visionoi || 'No especificado'}</p>
+                                <p><strong>Tensión OD:</strong> ${response.tensionod || 'No especificado'}</p>
+                                <p><strong>Tensión OI:</strong> ${response.tensionoi || 'No especificado'}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>WhatsApp:</strong> ${response.whatsapptxt || 'No especificado'}</p>
+                                <p><strong>Email:</strong> ${response.email || 'No especificado'}</p>
+                                <p><strong>Próxima consulta:</strong> ${response.proximaconsulta ? new Date(response.proximaconsulta).toLocaleDateString('es-ES') : 'No programada'}</p>
+                            </div>
+                        </div>`;
+                    }
+                    
                     let modalContent = `
                     <div class="modal-header">
-                        <h5 class="modal-title">Detalle de Consulta</h5>
+                        <h5 class="modal-title">${tituloModal}</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -953,15 +1038,13 @@ function verDetalleConsulta(idConsulta) {
                             <div class="col-md-6">
                                 <p><strong>Fecha:</strong> ${new Date(response.fecha_registro).toLocaleDateString('es-ES')}</p>
                                 <p><strong>Motivo:</strong> ${response.motivo || 'No especificado'} - ${response.txtmotivo || ''}</p>
-                                <p><strong>Diagnóstico:</strong> ${response.diagnostico || 'No especificado'}</p>
                             </div>
                             <div class="col-md-6">
-                                <p><strong>Visión OD:</strong> ${response.visionod || 'No especificado'}</p>
-                                <p><strong>Visión OI:</strong> ${response.visionoi || 'No especificado'}</p>
-                                <p><strong>Tensión OD:</strong> ${response.tensionod || 'No especificado'}</p>
-                                <p><strong>Tensión OI:</strong> ${response.tensionoi || 'No especificado'}</p>
+                                <p><strong>Tipo:</strong> <span class="badge badge-${response.tipo_formulario === 'anteojos' ? 'info' : 'primary'}">${response.tipo_formulario === 'anteojos' ? 'Anteojos' : 'General'}</span></p>
+                                <p><strong>Diagnóstico:</strong> ${response.diagnostico || 'No especificado'}</p>
                             </div>
                         </div>
+                        ${camposEspecificos}
                         <div class="row mt-3">
                             <div class="col-12">
                                 <p><strong>Observaciones:</strong></p>
@@ -975,15 +1058,6 @@ function verDetalleConsulta(idConsulta) {
                             </div>
                         </div>
                         ${archivosHTML}
-                        <div class="row mt-3">
-                            <div class="col-md-6">
-                                <p><strong>WhatsApp:</strong> ${response.whatsapptxt || 'No especificado'}</p>
-                                <p><strong>Email:</strong> ${response.email || 'No especificado'}</p>
-                            </div>
-                            <div class="col-md-6">
-                                <p><strong>Próxima consulta:</strong> ${response.proximaconsulta ? new Date(response.proximaconsulta).toLocaleDateString('es-ES') : 'No programada'}</p>
-                            </div>
-                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary cargar-consulta" data-id="${response.id_consulta}">Cargar en formulario</button>
@@ -1299,6 +1373,20 @@ function obtenerArchivosConsulta(idConsulta, callback) {
 function cargarConsultaEnFormulario(consulta, archivos) {
     console.log('🔄 Cargando consulta en formulario:', consulta);
     
+    // Verificar si esta es una redirección automática (para evitar bucles)
+    const currentUrlParams = new URLSearchParams(window.location.search);
+    const autoRedirect = currentUrlParams.get('auto_redirect');
+    console.log('🔄 Es redirección automática?:', autoRedirect);
+    
+    if (autoRedirect === '1') {
+        console.log('✅ Redirección automática detectada, cargando directamente...');
+        // Limpiar parámetros de la URL después de la redirección
+        const newUrl = new URL(window.location);
+        newUrl.searchParams.delete('auto_redirect');
+        newUrl.searchParams.delete('skip_modal');
+        window.history.replaceState({}, '', newUrl);
+    }
+    
     // BLOQUEO INMEDIATO: Marcar que ya hay una consulta siendo cargada
     modalConsultaCargado = true;
     modalEnProceso = true;
@@ -1322,60 +1410,49 @@ function cargarConsultaEnFormulario(consulta, archivos) {
     const formType = urlParams.get('form_type') || 'general';
     console.log("🎯 Tipo de formulario actual:", formType);
     
-    // Si la consulta tiene un tipo de formulario específico y es diferente al actual, avisar al usuario
-    if (consulta.tipo_formulario && consulta.tipo_formulario !== formType) {
-        console.log(`⚠️ Tipo de formulario diferente. Consulta: ${consulta.tipo_formulario}, Actual: ${formType}`);
+    // Si la consulta tiene un tipo de formulario específico y es diferente al actual, redirigir automáticamente
+    if (consulta.tipo_formulario && consulta.tipo_formulario !== formType && autoRedirect !== '1') {
+        console.log(`🔀 Tipo de formulario diferente. Consulta: ${consulta.tipo_formulario}, Actual: ${formType}`);
+        console.log('✅ Redirigiendo automáticamente al formulario correcto...');
         
-        // VERIFICAR QUE NO HAY UN MODAL ACTIVO antes de mostrar otro
-        if (document.querySelector('.swal2-container')) {
-            console.log('🚫 Ya hay un modal activo, cargando directamente sin preguntar...');
-            // Cargar directamente sin mostrar modal
-            if (formType === 'anteojos') {
-                cargarDatosAnteojosConsulta(consulta, archivos);
-            } else {
-                cargarDatosGeneralesConsulta(consulta, archivos);
-            }
-            return;
+        // Obtener el ID del paciente actual para preservarlo en la nueva URL
+        const pacienteId = consulta.id_persona || document.getElementById('idPersona')?.value;
+        
+        // Construir la nueva URL CON PARÁMETROS ESPECIALES para evitar bucles
+        let nuevaUrl = `index.php?ruta=consultas&form_type=${consulta.tipo_formulario}&id_consulta=${consulta.id_consulta}&skip_modal=1&auto_redirect=1`;
+        
+        // Agregar paciente_id si está disponible
+        if (pacienteId) {
+            nuevaUrl += `&paciente_id=${pacienteId}`;
         }
         
-        Swal.fire({
-            title: 'Tipo de formulario diferente',
-            text: `Esta consulta requiere un formulario de tipo "${consulta.tipo_formulario}". Se recomienda cambiar al formulario correcto.`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Cambiar de formulario',
-            cancelButtonText: 'Continuar aquí',
-            allowOutsideClick: false,
-            allowEscapeKey: false
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Obtener el ID del paciente actual para preservarlo en la nueva URL
-                const pacienteId = consulta.id_persona || document.getElementById('idPersona')?.value;
-                
-                // Redirigir al tipo de formulario correcto CON PARÁMETROS ESPECIALES para evitar bucle
-                let nuevaUrl = `index.php?ruta=consultas&form_type=${consulta.tipo_formulario}&id_consulta=${consulta.id_consulta}&skip_modal=1`;
-                
-                // Agregar paciente_id si está disponible
-                if (pacienteId) {
-                    nuevaUrl += `&paciente_id=${pacienteId}`;
-                }
-                
-                console.log('🔀 Redirigiendo a:', nuevaUrl);
-                console.log('👤 Paciente ID preservado:', pacienteId);
-                
-                window.location.href = nuevaUrl;
+        console.log('🔀 Redirigiendo automáticamente a:', nuevaUrl);
+        console.log('👤 Paciente ID preservado:', pacienteId);
+        
+        // Mostrar mensaje informativo breve y redirigir
+        try {
+            if (typeof Swal !== 'undefined' && document.body) {
+                Swal.fire({
+                    position: "center",
+                    icon: "info",
+                    title: "Cambiando al formulario correcto",
+                    text: `Cargando consulta en formulario de ${consulta.tipo_formulario}`,
+                    showConfirmButton: false,
+                    timer: 1000,
+                    didClose: () => {
+                        window.location.href = nuevaUrl;
+                    }
+                });
             } else {
-                // Continuar cargando los datos en el formulario actual
-                console.log('✅ Continuando en formulario actual...');
-                if (formType === 'anteojos') {
-                    cargarDatosAnteojosConsulta(consulta, archivos);
-                } else {
-                    cargarDatosGeneralesConsulta(consulta, archivos);
-                }
+                console.log('🔀 Redirigiendo directamente a:', nuevaUrl);
+                window.location.href = nuevaUrl;
             }
-        });
+        } catch (e) {
+            console.log('⚠️ Error al mostrar mensaje de redirección:', e.message);
+            console.log('🔀 Redirigiendo directamente a:', nuevaUrl);
+            window.location.href = nuevaUrl;
+        }
+        return;
     } else {
         // Si el tipo de formulario coincide o no está especificado, cargar directamente
         console.log('✅ Tipo de formulario correcto, cargando datos...');

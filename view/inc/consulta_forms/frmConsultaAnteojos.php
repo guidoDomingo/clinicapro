@@ -1,3 +1,6 @@
+<!-- Incluir CSS para la carga de archivos -->
+<link rel="stylesheet" href="view/css/fileupload.css">
+
 <form id="tblConsulta" method="post" enctype="multipart/form-data">
     <!-- Campo oculto para identificar que es un formulario de anteojos -->
     <input type="hidden" id="form_type" name="form_type" value="anteojos">
@@ -341,7 +344,32 @@
     <input type="hidden" id="id_user" name="id_user" value="1">
     <input type="hidden" id="id_reserva" name="id_reserva" value="0">
     <button type="button" class="btn btn-primary" id="btnGuardarConsulta">Guardar</button>
+    <button type="button" class="btn btn-info" id="btnDescargarPDF" disabled>Descargar PDF</button>
+    <button type="button" class="btn btn-success" id="btnEnviarWhatsApp" disabled>
+        <i class="fa-brands fa-whatsapp"></i> Enviar WhatsApp
+    </button>
 </form>
+
+<hr>
+
+<div class="form-container col-md-12">
+    <h2>Subir Archivos</h2>
+    <form id="uploadForm" method="post" enctype="multipart/form-data">
+        <input type="hidden" id="id_persona_file" name="id_persona_file">
+        <input type="hidden" id="id_usuario" name="id_usuario" value="1"> <!-- Añadido campo id_usuario -->
+        <input type="hidden" id="id_consulta_file" name="id_consulta_file"> <!-- Campo para el ID de consulta -->
+        <div class="file-upload-container">
+            <div class="file-drop-area" id="dropArea">
+                <span class="file-message">Arrastra y suelta archivos aquí o</span>
+                <label for="files" class="file-input-label">Seleccionar archivos</label>
+                <input type="file" name="files[]" id="files" multiple class="file-input">
+            </div>
+            <div class="file-preview-container" id="filePreviewContainer"></div>
+        </div>
+        <div class="error" id="error"></div>
+        <input type="button" id="btnSubirArchivos" value="Subir Archivos" class="btn btn-primary mt-3">
+    </form>
+</div>
 
 <script>
 // Modificar el comportamiento del botón guardar para el formulario de anteojos
@@ -550,6 +578,12 @@ function guardarConsultaAnteojos() {
                     if (btnEnviarWhatsApp) {
                         btnEnviarWhatsApp.disabled = false;
                     }
+                    
+                    // También actualizar el campo oculto en el formulario de archivos para actualizaciones
+                    if (document.getElementById('id_consulta_file')) {
+                        document.getElementById('id_consulta_file').value = idConsulta;
+                        console.log('ID consulta actualizado en formulario de archivos (actualización):', idConsulta);
+                    }
                 }
                 
                 // Actualizar información después de guardar
@@ -717,6 +751,16 @@ function cargarDatosAnteojos(idConsulta, idPaciente) {
                 document.getElementById('dist_interpupilar').value = datos.dist_interpupilar;
                 
                 console.log("Formulario de anteojos rellenado correctamente");
+                
+                // Cargar archivos asociados a esta consulta si existen
+                if (typeof obtenerArchivosConsulta === 'function') {
+                    obtenerArchivosConsulta(idConsulta, function(archivos) {
+                        if (archivos && archivos.length > 0) {
+                            console.log('Archivos encontrados para la consulta:', archivos.length);
+                            mostrarArchivosEnFormulario(archivos);
+                        }
+                    });
+                }
             } else {
                 console.warn("No se encontraron datos de anteojos:", response.message);
                 // No mostrar alerta, ya que podría ser una consulta nueva que aún no tiene datos de anteojos
@@ -1058,6 +1102,44 @@ $(document).ready(function() {
         window.pacienteSeleccionadoId = null;
     });
     
+    // Inicializar funcionalidades de archivos
+    if (typeof initFileUpload === 'function') {
+        initFileUpload();
+        console.log('Funcionalidad de archivos inicializada para anteojos');
+    }
+    
+    // Configurar el botón de subir archivos
+    const btnSubirArchivos = document.getElementById('btnSubirArchivos');
+    if (btnSubirArchivos && typeof subirArchivos === 'function') {
+        btnSubirArchivos.addEventListener('click', subirArchivos);
+        console.log('Event listener de subir archivos configurado');
+    }
+    
+    // Configurar los botones de PDF y WhatsApp
+    const btnDescargarPDF = document.getElementById('btnDescargarPDF');
+    const btnEnviarWhatsApp = document.getElementById('btnEnviarWhatsApp');
+    
+    if (btnDescargarPDF && typeof descargarPDFConsulta === 'function') {
+        btnDescargarPDF.addEventListener('click', descargarPDFConsulta);
+        console.log('Event listener de descargar PDF configurado');
+    }
+    
+    if (btnEnviarWhatsApp && typeof enviarPDFPorWhatsApp === 'function') {
+        btnEnviarWhatsApp.addEventListener('click', enviarPDFPorWhatsApp);
+        console.log('Event listener de enviar WhatsApp configurado');
+    }
+    
+    // Sincronizar el id_persona con el id_persona_file cuando cambia
+    const idPersonaInput = document.getElementById('idPersona');
+    if (idPersonaInput) {
+        idPersonaInput.addEventListener('change', function() {
+            const idPersonaFile = document.getElementById('id_persona_file');
+            if (idPersonaFile) {
+                idPersonaFile.value = this.value;
+            }
+        });
+    }
+    
     // Si hay ID de consulta, cargar los datos de anteojos
     if (params.id_consulta) {
         // Si también hay ID de paciente, pasarlo como parámetro
@@ -1158,6 +1240,18 @@ function limpiarFormularioAnteojosCompleto() {
     const gridCheck = document.getElementById('gridCheck');
     if (gridCheck) {
         gridCheck.checked = false;
+    }
+    
+    // Limpiar la sección de archivos
+    const previewContainer = document.getElementById('filePreviewContainer');
+    if (previewContainer) {
+        previewContainer.innerHTML = '';
+    }
+    
+    // Limpiar el input de archivos
+    const filesInput = document.getElementById('files');
+    if (filesInput) {
+        filesInput.value = '';
     }
     
     console.log('Formulario de anteojos limpiado completamente');
