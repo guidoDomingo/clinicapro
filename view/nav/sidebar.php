@@ -125,6 +125,12 @@
                                 <p>Proveedores y Acreedores</p>
                             </a>
                         </li>
+                        <li style="padding-left: 20px;" class="nav-item <?php echo mostrar_si_tiene_permiso('administrar_salas'); ?>">
+                            <a href="index.php?ruta=salas" class="nav-link">
+                                <i class="nav-icon fas fa-door-open"></i>
+                                <p>Salas</p>
+                            </a>
+                        </li>
                         <li class="nav-item" style="padding-left: 20px;">
                             <a href="index.php?ruta=referencial2" class="nav-link">
                                 <i class="far fa-circle nav-icon"></i>
