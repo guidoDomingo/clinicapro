@@ -3806,4 +3806,60 @@ mdlObtenerReservasPorFecha: Fecha=2025-07-03, DoctorID=14, Estado=null, Paciente
             INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
             inner join agendas_detalle ad on sr.agenda_id = ad.detalle_id 
             inner join salas s on s.sala_id = ad.sala_id 
-            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 2 reservasmdlObtenerReservasPorFecha: Primera reserva: {"reserva_id":67,"servicio_id":2,"doctor_id":14,"paciente_id":45,"fecha_reserva":"2025-07-17","hora_inicio":"08:45:00","hora_fin":"09:30:00","reserva_estado":"PENDIENTE","observaciones":"","business_id":1,"created_at":"2025-07-17 19:11:07.938204","updated_at":null,"agenda_id":22,"sala_id":null,"sala_nombre":"Sala 1","tarifa_id":null,"doctor":"ronal - ricardo","paciente":"alejandro - visconte","serv_descripcion":"Cirug\u00eda de cataratas por facoemulsificaci\u00f3n","serv_monto":"3000000.00"}
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 2 reservasmdlObtenerReservasPorFecha: Primera reserva: {"reserva_id":67,"servicio_id":2,"doctor_id":14,"paciente_id":45,"fecha_reserva":"2025-07-17","hora_inicio":"08:45:00","hora_fin":"09:30:00","reserva_estado":"PENDIENTE","observaciones":"","business_id":1,"created_at":"2025-07-17 19:11:07.938204","updated_at":null,"agenda_id":22,"sala_id":null,"sala_nombre":"Sala 1","tarifa_id":null,"doctor":"ronal - ricardo","paciente":"alejandro - visconte","serv_descripcion":"Cirug\u00eda de cataratas por facoemulsificaci\u00f3n","serv_monto":"3000000.00"}AJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-17"}AJAX buscarReservas (procesado): Fecha=2025-07-17, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 2 reservasmdlObtenerReservasPorFecha: Primera reserva: {"reserva_id":67,"servicio_id":2,"doctor_id":14,"paciente_id":45,"fecha_reserva":"2025-07-17","hora_inicio":"08:45:00","hora_fin":"09:30:00","reserva_estado":"PENDIENTE","observaciones":"","business_id":1,"created_at":"2025-07-17 19:11:07.938204","updated_at":null,"agenda_id":22,"sala_id":null,"sala_nombre":null,"tarifa_id":null,"doctor":"ronal - ricardo","paciente":"alejandro - visconte","serv_descripcion":"Cirug\u00eda de cataratas por facoemulsificaci\u00f3n","serv_monto":"3000000.00"}AJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-17"}AJAX buscarReservas (procesado): Fecha=2025-07-17, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 2 reservasmdlObtenerReservasPorFecha: Primera reserva: {"reserva_id":67,"servicio_id":2,"doctor_id":14,"paciente_id":45,"fecha_reserva":"2025-07-17","hora_inicio":"08:45:00","hora_fin":"09:30:00","reserva_estado":"PENDIENTE","observaciones":"","business_id":1,"created_at":"2025-07-17 19:11:07.938204","updated_at":null,"agenda_id":22,"sala_id":null,"sala_nombre":null,"tarifa_id":null,"doctor":"ronal - ricardo","paciente":"alejandro - visconte","serv_descripcion":"Cirug\u00eda de cataratas por facoemulsificaci\u00f3n","serv_monto":"3000000.00"}

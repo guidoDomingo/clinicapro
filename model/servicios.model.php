@@ -1224,8 +1224,8 @@ class ModelServicios {
             INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
             INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
             INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
-            inner join agendas_detalle ad on sr.agenda_id = ad.detalle_id 
-            inner join salas s on s.sala_id = ad.sala_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
             WHERE 1=1";
             
             // Añadir filtros según los parámetros proporcionados
@@ -1984,8 +1984,8 @@ class ModelServicios {
             INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
             INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
             INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
-            inner join agendas_detalle ad on sr.agenda_id = ad.detalle_id 
-            inner join salas s on s.sala_id = ad.sala_id
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id
             WHERE sr.doctor_id = :doctor_id";
             
             if ($fecha) {
