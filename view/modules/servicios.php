@@ -182,6 +182,22 @@ if (!isset($_SESSION['perfil'])) {
                                                     </button>
                                                 </div>
                                             </div>
+
+                                            <!-- Selección de sala (Paso 3.5) -->
+                                            <div class="card card-secondary">
+                                                <div class="card-header">
+                                                    <h3 class="card-title"><i class="fas fa-door-open"></i> Paso 3.5: Seleccione una sala</h3>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="form-group">
+                                                        <select class="form-control" id="selectSala">
+                                                            <option value="">Seleccione una sala</option>
+                                                            <!-- Se carga dinámicamente -->
+                                                        </select>
+                                                    </div>
+                                                    <small class="form-text text-muted">La sala se puede cambiar posteriormente.</small>
+                                                </div>
+                                            </div>
                                         </div>
 
                                         <!-- Panel central: Horarios disponibles y Reservas existentes -->
@@ -358,7 +374,14 @@ if (!isset($_SESSION['perfil'])) {
                                                 <!-- Las opciones se cargan con JavaScript -->
                                             </select>
                                         </div>
-                                        <div class="col-md-3"> <label for="selectEstadoReserva">Estado:</label>
+                                        <div class="col-md-2">
+                                            <label for="selectSalaFiltro">Sala:</label>
+                                            <select class="form-control" id="selectSalaFiltro">
+                                                <option value="0">Todas las salas</option>
+                                                <!-- Las opciones se cargan con JavaScript -->
+                                            </select>
+                                        </div>
+                                        <div class="col-md-2"> <label for="selectEstadoReserva">Estado:</label>
                                             <select class="form-control" id="selectEstadoReserva">
                                                 <option value="0">Todos los estados</option>
                                                 <option value="PENDIENTE" class="estado-pendiente-option">
@@ -563,6 +586,26 @@ if (!isset($_SESSION['perfil'])) {
                                                     </div>
                                                 </div>
 
+                                                <!-- Sección de Sala -->
+                                                <div class="reservas-section">
+                                                    <div class="reservas-header">
+                                                        <h3><i class="fas fa-door-open"></i> Sala</h3>
+                                                    </div>
+
+                                                    <div class="form-row">
+                                                        <div class="form-col">
+                                                            <div class="form-group">
+                                                                <label for="salaSelect">Sala (Opcional)</label>
+                                                                <select id="salaSelect" class="form-control">
+                                                                    <option value="">Seleccione una sala</option>
+                                                                    <!-- Se llena dinámicamente con JS -->
+                                                                </select>
+                                                                <small class="form-text text-muted">La sala es opcional y se puede cambiar posteriormente.</small>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
                                                 <button id="btnGuardarReservaNew" class="btn btn-primary btn-block mt-3">
                                                     <i class="fas fa-save"></i> Guardar Reserva
                                                 </button>
@@ -607,6 +650,10 @@ if (!isset($_SESSION['perfil'])) {
                                                         <div class="resumen-item">
                                                             <div class="resumen-label">Servicio:</div>
                                                             <div class="resumen-value" id="resumenServicioNew">-</div>
+                                                        </div>
+                                                        <div class="resumen-item">
+                                                            <div class="resumen-label">Sala:</div>
+                                                            <div class="resumen-value" id="resumenSalaNew">-</div>
                                                         </div>
                                                         <div class="resumen-item">
                                                             <div class="resumen-label">Seguro:</div>

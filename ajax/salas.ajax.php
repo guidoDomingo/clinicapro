@@ -40,6 +40,28 @@ class AjaxSalas {
     }
     
     /**
+     * Obtener todas las salas activas para selectores
+     */
+    public function ajaxObtenerSalasActivas() {
+        $respuesta = SalasModel::mdlMostrarSalasActivas("salas");
+        
+        if($respuesta && is_array($respuesta)) {
+            echo json_encode([
+                "status" => true,
+                "data" => $respuesta
+            ]);
+        } else {
+            echo json_encode([
+                "status" => false,
+                "data" => [],
+                "message" => "No se encontraron salas activas"
+            ]);
+        }
+        
+        exit;
+    }
+    
+    /**
      * Obtener todas las salas
      */
     public function ajaxObtenerSalas() {
@@ -156,6 +178,13 @@ if(isset($_POST["validarCodigoSala"])) {
     $validarCodigo = new AjaxSalas();
     $validarCodigo->codigoSala = $_POST["validarCodigoSala"];
     $validarCodigo->ajaxValidarCodigoSala();
+    exit;
+}
+
+// Obtener salas activas para selectores
+if(isset($_POST["action"]) && $_POST["action"] == "obtenerSalasActivas") {
+    $obtenerSalasActivas = new AjaxSalas();
+    $obtenerSalasActivas->ajaxObtenerSalasActivas();
     exit;
 }
 

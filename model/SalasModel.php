@@ -160,6 +160,27 @@ class SalasModel {
     }
     
     /**
+     * Mostrar todas las salas activas para selectores
+     */
+    public static function mdlMostrarSalasActivas($tabla) {
+        try {
+            $conexion = Conexion::conectar();
+            
+            $stmt = $conexion->prepare("SELECT sala_id as id, sala_codigo as codigo, sala_nombre as nombre 
+                                      FROM $tabla 
+                                      WHERE sala_estado = true 
+                                      ORDER BY sala_codigo ASC");
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            error_log("Error en mdlMostrarSalasActivas: " . $e->getMessage());
+            return [];
+        } finally {
+            $stmt = null;
+        }
+    }
+    
+    /**
      * Buscar salas por código o nombre
      */
     public static function mdlBuscarSalas($tabla, $termino) {

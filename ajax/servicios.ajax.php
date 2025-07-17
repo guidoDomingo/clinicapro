@@ -366,10 +366,17 @@ if (isset($_POST['action'])) {
                 $paciente = trim($_POST['paciente']);
             }
             
+            // Procesar filtro de sala
+            $salaId = null;
+            if (isset($_POST['sala_id']) && $_POST['sala_id'] !== '0' && $_POST['sala_id'] !== '') {
+                $salaId = intval($_POST['sala_id']);
+            }
+            
             error_log("AJAX buscarReservas (procesado): Fecha=" . ($fecha ?? "null") . 
                       ", DoctorID=" . ($doctorId ?? "null") . " (tipo: " . gettype($doctorId) . ")" .
                       ", Estado=" . ($estado ?? "null") . 
-                      ", Paciente=" . ($paciente ?? "null"), 
+                      ", Paciente=" . ($paciente ?? "null") . 
+                      ", SalaID=" . ($salaId ?? "null"),
                       3, 'c:/laragon/www/clinica/logs/reservas.log');
             
             try {
@@ -383,7 +390,7 @@ if (isset($_POST['action'])) {
                 }
                 
                 // Obtener reservas según los filtros
-                $reservas = ControladorServicios::ctrBuscarReservas($fecha, $doctorId, $estado, $paciente);
+                $reservas = ControladorServicios::ctrBuscarReservas($fecha, $doctorId, $estado, $paciente, $salaId);
                 
                 // Enviar respuesta con información de filtros para depuración
                 echo json_encode([

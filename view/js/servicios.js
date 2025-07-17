@@ -27,6 +27,7 @@ $(document).ready(function () {
         if (window.location.hash === '#tabReservas' || $('.nav-link.active').attr('href') === '#tabReservas') {
             console.log("Estamos en la pestaña de reservas - inicializando inmediatamente");
             cargarMedicosParaFiltroReservas();
+            cargarSalasParaFiltroReservas();
             buscarReservas();
         }
     }, 500);
@@ -49,6 +50,7 @@ $(document).ready(function () {
             $('#selectEstadoReserva').val('0');
 
             cargarMedicosParaFiltroReservas();
+            cargarSalasParaFiltroReservas();
             buscarReservas();
         } else if (targetTab === '#tabReservasNew') {
             console.log("Inicializando pestaña Reservas New...");
@@ -210,8 +212,24 @@ function inicializarEventosCompactos() {
         const servicioTexto = $('#selectServicio option:selected').text();
         $('#resumenServicio').text(servicioTexto);
 
+        // Cargar salas disponibles para este servicio
+        cargarSalasDisponibles();
+
         // Cargar horarios disponibles para este servicio, médico y fecha
         cargarHorariosDisponibles(servicioSeleccionado, proveedorSeleccionado, fechaSeleccionada);
+    });
+
+    // Evento automático para manejar selección de sala
+    $(document).on('change', '#selectSala', function () {
+        const salaSeleccionada = $(this).val();
+        const salaTexto = $('#selectSala option:selected').text();
+        
+        // Actualizar texto de la sala seleccionada en el resumen
+        if (salaSeleccionada) {
+            $('#resumenSala').text(salaTexto);
+        } else {
+            $('#resumenSala').text('No seleccionada');
+        }
     });
 
     // Evento para cargar servicios cuando se selecciona un médico (Paso 2) - Mantener por compatibilidad
@@ -415,7 +433,8 @@ function inicializarEventosCompactos() {
             observaciones: $('#observaciones').val(),
             agenda_id: $('#agendaId').val() || null,
             tarifa_id: $('#tarifaId').val() || null,
-            seguro_id: $('#seguroSeleccionado').val() || null
+            seguro_id: $('#seguroSeleccionado').val() || null,
+            sala_id: $('#selectSala').val() || null
         };
 
         console.log("Datos de reserva a enviar:", datos); // Log para depuración
@@ -469,6 +488,7 @@ function resetearFormularioReserva() {
     $('#fechaReserva').val('');
     $('#selectProveedor').html('<option value="">Seleccione un médico disponible</option>');
     $('#selectServicio').html('<option value="">Seleccione un servicio</option>');
+    $('#selectSala').html('<option value="">Seleccione una sala (opcional)</option>');
     $('#contenedorHorarios').html('<p class="text-center text-muted">Seleccione fecha, médico y servicio para ver horarios disponibles</p>');
     $('#buscarPaciente').val('');
     $('#pacienteSeleccionado').val('');
@@ -609,6 +629,44 @@ function cargarServiciosPorFechaMedico(fecha, doctorId) {
             console.error(xhr);
             $('#selectServicio').html('<option value="">Error al cargar servicios</option>');
             mostrarAlerta('error', 'Error al cargar servicios disponibles.');
+        }
+    });
+}
+
+/**
+ * Carga las salas disponibles en el sistema
+ */
+function cargarSalasDisponibles() {
+    $.ajax({
+        url: "ajax/salas.ajax.php",
+        method: "POST",
+        data: {
+            action: "obtenerSalasActivas"
+        },
+        dataType: "json",
+        beforeSend: function () {
+            $('#selectSala').html('<option value="">Cargando salas...</option>');
+        },
+        success: function (respuesta) {
+            console.log("Respuesta de salas:", respuesta); // Log para depuración
+
+            if (respuesta.status && respuesta.data && respuesta.data.length > 0) {
+                let options = '<option value="">Seleccione una sala (opcional)</option>';
+
+                respuesta.data.forEach(function (sala) {
+                    options += `<option value="${sala.id}">${sala.codigo} - ${sala.nombre}</option>`;
+                });
+
+                $('#selectSala').html(options);
+            } else {
+                $('#selectSala').html('<option value="">No hay salas disponibles</option>');
+                console.warn('No se encontraron salas activas');
+            }
+        },
+        error: function (xhr) {
+            console.error('Error al cargar salas:', xhr);
+            $('#selectSala').html('<option value="">Error al cargar salas</option>');
+            mostrarAlerta('error', 'Error al cargar salas disponibles.');
         }
     });
 }
@@ -1201,6 +1259,9 @@ function manejarSeleccionFechaDirecta() {
 function inicializarTabReservas() {
     // Cargar médicos para el filtro
     cargarMedicosParaFiltroReservas();
+    
+    // Cargar salas para el filtro
+    cargarSalasParaFiltroReservas();
 
     // Inicializar la búsqueda de reservas con valores predeterminados
     buscarReservas();
@@ -1223,6 +1284,27 @@ function inicializarTabReservas() {
     $(document).on('click', '#btnLimpiarFiltrosReservas', function () {
         console.log('Botón Limpiar Filtros clickeado');
         limpiarFiltrosReservas();
+    });
+
+    // Eventos para filtros automáticos
+    $(document).on('change', '#selectMedicoReservas', function () {
+        console.log('Filtro de médico cambiado - ejecutando búsqueda automática');
+        buscarReservas();
+    });
+
+    $(document).on('change', '#selectEstadoReserva', function () {
+        console.log('Filtro de estado cambiado - ejecutando búsqueda automática');
+        buscarReservas();
+    });
+
+    $(document).on('change', '#selectSalaFiltro', function () {
+        console.log('Filtro de sala cambiado - ejecutando búsqueda automática');
+        buscarReservas();
+    });
+
+    $(document).on('change', '#fechaReservas', function () {
+        console.log('Filtro de fecha cambiado - ejecutando búsqueda automática');
+        buscarReservas();
     });
 
     // Evento para cambiar estado de reserva
@@ -1379,6 +1461,53 @@ function cargarMedicosParaFiltroReservas() {
 }
 
 /**
+ * Carga las salas disponibles para el filtro de reservas
+ */
+function cargarSalasParaFiltroReservas() {
+    // Guardar el valor actual antes de la llamada AJAX
+    const valorActual = $('#selectSalaFiltro').val();
+    console.log("Valor actual del selector de salas antes de AJAX:", valorActual);
+
+    $.ajax({
+        url: "ajax/salas.ajax.php",
+        method: "POST",
+        data: {
+            action: "obtenerSalasActivas"
+        },
+        dataType: "json",
+        success: function (respuesta) {
+            console.log("Respuesta de salas para filtro:", respuesta);
+
+            if (respuesta.status && respuesta.data) {
+                let opciones = '<option value="0">Todas las salas</option>';
+                respuesta.data.forEach(function (sala) {
+                    const salaId = sala.id;
+                    const nombreSala = `${sala.codigo} - ${sala.nombre}`;
+
+                    opciones += `<option value="${salaId}">${nombreSala}</option>`;
+                    console.log(`Creada opción para sala: ID=${salaId}, Nombre=${nombreSala}`);
+                });
+
+                // Actualizar las opciones
+                $('#selectSalaFiltro').html(opciones);
+
+                // Intentar restaurar el valor seleccionado previamente
+                if (valorActual && valorActual !== '0') {
+                    $('#selectSalaFiltro').val(valorActual);
+                    console.log("Intentando restaurar valor de sala:", valorActual, "Valor actual:", $('#selectSalaFiltro').val());
+                }
+            } else {
+                $('#selectSalaFiltro').html('<option value="0">No hay salas disponibles</option>');
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error("Error al cargar salas para filtro:", error);
+            $('#selectSalaFiltro').html('<option value="0">Error al cargar salas</option>');
+        }
+    });
+}
+
+/**
  * Busca reservas según los filtros seleccionados
  */
 function buscarReservas() {
@@ -1395,10 +1524,13 @@ function buscarReservas() {
     const estado = estadoElem ? estadoElem.value : '0';
     console.log('Estado seleccionado (directo del DOM):', estado);
 
+    // Obtener sala seleccionada
+    const salaId = $('#selectSalaFiltro').val() || '0';
+
     // Obtener paciente y asegurar que no sea un string vacío
     const paciente = $('#buscarPacienteReserva').val() ? $('#buscarPacienteReserva').val().trim() : '';
 
-    console.log(`Buscando reservas - Fecha: ${fecha}, Doctor: ${doctorId}, Estado: ${estado}, Paciente: ${paciente}`);
+    console.log(`Buscando reservas - Fecha: ${fecha}, Doctor: ${doctorId}, Estado: ${estado}, Sala: ${salaId}, Paciente: ${paciente}`);
 
     // Debug para verificar valores
     console.log('Elementos DOM:');
@@ -1429,6 +1561,11 @@ function buscarReservas() {
     // Añadir estado solo si es diferente de 0 o "0"
     if (estado && estado !== '0') {
         requestData.estado = estado;
+    }
+
+    // Añadir sala solo si es diferente de 0 o "0"
+    if (salaId && salaId !== '0') {
+        requestData.sala_id = salaId;
     }
 
     // Añadir paciente solo si no está vacío
@@ -1589,6 +1726,9 @@ function limpiarFiltrosReservas() {
 
     // Restablecer estado a "Todos"
     $('#selectEstadoReserva').val('0');
+
+    // Restablecer sala a "Todas"
+    $('#selectSalaFiltro').val('0');
 
     // Limpiar búsqueda de paciente
     $('#buscarPacienteReserva').val('');

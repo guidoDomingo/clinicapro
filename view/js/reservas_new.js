@@ -83,6 +83,9 @@ function inicializarReservasNew() {
     // Cargar los seguros de salud
     cargarSeguros();
 
+    // Cargar salas disponibles
+    cargarSalasReservasNew();
+
     // Cargar algunos servicios predeterminados iniciales
     cargarServiciosIniciales();
 
@@ -448,6 +451,22 @@ function inicializarReservasNew() {
         }
 
         // Check if form is complete after selecting insurance
+        verificarFormularioCompleto();
+    });
+
+    // Evento para selección de sala
+    $('#salaSelect').change(function () {
+        const salaId = $(this).val();
+        const salaNombre = $(this).find('option:selected').text();
+
+        if (salaId && salaId !== "") {
+            // Actualizar resumen
+            $('#resumenSalaNew').text(salaNombre);
+        } else {
+            $('#resumenSalaNew').text('No seleccionada');
+        }
+
+        // Verificar si el formulario está completo
         verificarFormularioCompleto();
     });
 
@@ -1279,6 +1298,7 @@ function inicializarReservasNew() {
         const servicioId = $('#servicioSelect').val();
         const seguroId = $('#seguroSelect').val();
         const planId = $('#planSelect').val();
+        const salaId = $('#salaSelect').val(); // Obtener ID de sala seleccionada
         const agendaId = $('#agendaId').val(); // Get the agenda_id
         const importe = $('#importeReservaNew').val().replace('S/ ', '');
         const observaciones = $('#observacionesNew').val(); console.log('Datos del formulario para guardar:', {
@@ -1334,6 +1354,7 @@ function inicializarReservasNew() {
             hora_fin: horaFin,
             servicio_id: servicioId,
             seguro_id: seguroId || 0,
+            sala_id: salaId || null, // Agregar sala_id
             agenda_id: agendaId || 0, // Add agenda_id
             observaciones: observaciones
         };
@@ -1430,6 +1451,7 @@ function inicializarReservasNew() {
         // Reset select fields
         $('#servicioSelect').val('');
         $('#seguroSelect').val(0);
+        $('#salaSelect').val(''); // Limpiar selector de sala
         // Reset search fields
         $('#buscarPacienteNew').val('');
         $('#buscarMedicoNew').val('').prop('readonly', false).removeClass('selected-doctor');
@@ -1459,6 +1481,7 @@ function inicializarReservasNew() {
         $('#resumenMedicoNew').text('(No seleccionado)');
         $('#resumenHorarioNew').text('(No seleccionado)');
         $('#resumenServicioNew').text('(No seleccionado)');
+        $('#resumenSalaNew').text('(No seleccionada)'); // Limpiar resumen de sala
         $('#resumenSeguroNew').text('Sin seguro');
         $('#resumenPrecioNew').text('$0.00');
 
@@ -1540,6 +1563,43 @@ function inicializarReservasNew() {
             error: function (xhr) {
                 console.error("Error al cargar proveedores de seguro:", xhr);
                 $('#seguroSelect').html('<option value="0">Sin seguro</option>');
+            }
+        });
+    }
+
+    /**
+     * Cargar salas disponibles para el formulario de reservas
+     */
+    function cargarSalasReservasNew() {
+        $.ajax({
+            url: "ajax/salas.ajax.php",
+            method: "POST",
+            data: {
+                action: "obtenerSalasActivas"
+            },
+            dataType: "json",
+            beforeSend: function () {
+                $('#salaSelect').html('<option value="">Cargando salas...</option>');
+            },
+            success: function (respuesta) {
+                console.log("Respuesta de salas:", respuesta);
+
+                $('#salaSelect').html('<option value="">Seleccione una sala (opcional)</option>');
+
+                if (respuesta.status && respuesta.data && respuesta.data.length > 0) {
+                    respuesta.data.forEach(function (sala) {
+                        const salaId = sala.id;
+                        const salaNombre = `${sala.codigo} - ${sala.nombre}`;
+
+                        $('#salaSelect').append(`<option value="${salaId}">${salaNombre}</option>`);
+                    });
+                } else {
+                    console.warn('No se encontraron salas activas.');
+                }
+            },
+            error: function (xhr) {
+                console.error("Error al cargar salas:", xhr);
+                $('#salaSelect').html('<option value="">Error al cargar salas</option>');
             }
         });
     }

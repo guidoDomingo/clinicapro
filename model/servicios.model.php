@@ -1176,9 +1176,9 @@ class ModelServicios {
      * @param int $doctorId ID del doctor (opcional)
      * @param string $estado Estado de la reserva (opcional)
      * @return array Lista de reservas
-     */    static public function mdlObtenerReservasPorFecha($fecha, $doctorId = null, $estado = null, $paciente = null) {
+     */    static public function mdlObtenerReservasPorFecha($fecha, $doctorId = null, $estado = null, $paciente = null, $salaId = null) {
         try {
-            error_log("mdlObtenerReservasPorFecha: Fecha=$fecha, DoctorID=" . ($doctorId ?? "null") . ", Estado=" . ($estado ?? "null") . ", Paciente=" . ($paciente ?? "null"), 3, "c:/laragon/www/clinica/logs/reservas.log");
+            error_log("mdlObtenerReservasPorFecha: Fecha=$fecha, DoctorID=" . ($doctorId ?? "null") . ", Estado=" . ($estado ?? "null") . ", Paciente=" . ($paciente ?? "null") . ", SalaID=" . ($salaId ?? "null"), 3, "c:/laragon/www/clinica/logs/reservas.log");
             
             // Verificar si existe la tabla de reservas
             $stmtCheck = Conexion::conectar()->prepare("SELECT to_regclass('public.servicios_reservas')");
@@ -1251,6 +1251,11 @@ class ModelServicios {
                         OR (rp2.first_name || ' ' || rp2.last_name) ILIKE :nombre_paciente)";
             }
             
+            // Filtrar por sala
+            if ($salaId !== null) {
+                $sql .= " AND s.sala_id = :sala_id";
+            }
+            
             $sql .= " ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASC";
             
             error_log("mdlObtenerReservasPorFecha: SQL=$sql", 3, "c:/laragon/www/clinica/logs/reservas.log");
@@ -1274,6 +1279,10 @@ class ModelServicios {
             if ($paciente !== null && trim($paciente) !== '') {
                 $pacienteParam = '%' . trim($paciente) . '%';
                 $stmt->bindParam(":nombre_paciente", $pacienteParam, PDO::PARAM_STR);
+            }
+            
+            if ($salaId !== null) {
+                $stmt->bindParam(":sala_id", $salaId, PDO::PARAM_INT);
             }
             
             $stmt->execute();
@@ -1943,10 +1952,10 @@ class ModelServicios {
      * @param string $paciente Nombre del paciente para búsqueda (opcional)
      * @return array Lista de reservas encontradas
      */
-    static public function mdlBuscarReservasPorDoctor($doctorId, $fecha = null, $estado = null, $paciente = null) {
+    static public function mdlBuscarReservasPorDoctor($doctorId, $fecha = null, $estado = null, $paciente = null, $salaId = null) {
         try {
             error_log("mdlBuscarReservasPorDoctor: Ejecutando consulta directa para doctor_id=$doctorId, fecha=" . 
-                     ($fecha ? $fecha : "NULL") . ", estado=" . ($estado ?? "NULL") . ", paciente=" . ($paciente ?? "NULL"), 
+                     ($fecha ? $fecha : "NULL") . ", estado=" . ($estado ?? "NULL") . ", paciente=" . ($paciente ?? "NULL") . ", salaId=" . ($salaId ?? "NULL"), 
                      3, "c:/laragon/www/clinica/logs/reservas.log");
             
             $sql = "SELECT 
@@ -1993,6 +2002,11 @@ class ModelServicios {
                 $sql .= " AND (rp_paciente.first_name ILIKE :paciente OR rp_paciente.last_name ILIKE :paciente OR (rp_paciente.first_name || ' ' || rp_paciente.last_name) ILIKE :paciente)";
             }
             
+            // Filtro por sala
+            if ($salaId !== null) {
+                $sql .= " AND s.sala_id = :sala_id";
+            }
+            
             $sql .= " ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASC";
             
             $stmt = Conexion::conectar()->prepare($sql);
@@ -2011,6 +2025,11 @@ class ModelServicios {
             if ($paciente !== null && trim($paciente) !== '') {
                 $pacienteParam = '%' . trim($paciente) . '%';
                 $stmt->bindParam(':paciente', $pacienteParam, PDO::PARAM_STR);
+            }
+            
+            // Bindear parámetro de sala si se proporciona
+            if ($salaId !== null) {
+                $stmt->bindParam(':sala_id', $salaId, PDO::PARAM_INT);
             }
             
             $stmt->execute();
