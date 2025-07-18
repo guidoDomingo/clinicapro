@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Módulo Turnos Simplificado</title>
+    
+    <!-- CSS de AdminLTE y DataTables -->
+    <link rel="stylesheet" href="view/plugins/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="view/dist/css/adminlte.min.css">
+    <link rel="stylesheet" href="view/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+    
+    <!-- JavaScript -->
+    <script src="view/plugins/jquery/jquery.min.js"></script>
+    <script src="view/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="view/plugins/datatables/jquery.dataTables.min.js"></script>
+    <script src="view/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body class="hold-transition layout-top-nav">
+
+<div class="wrapper">
+    <div class="content-wrapper">
+        <div class="container-fluid">
+            <section class="content-header">
+                <h1>Test Módulo Turnos Simplificado</h1>
+            </section>
+
+            <section class="content">
+                <div class="card">
+                    <div class="card-header">
+                        <button type="button" class="btn btn-info" onclick="cargarDatos()">
+                            <i class="fas fa-refresh"></i> Cargar Datos
+                        </button>
+                        <button type="button" class="btn btn-success" onclick="testAjaxDirecto()">
+                            <i class="fas fa-test"></i> Test AJAX
+                        </button>
+                    </div>
+                    
+                    <div class="card-body">
+                        <div id="debug-info" style="margin-bottom: 20px; padding: 10px; border: 1px solid #ddd; background-color: #f9f9f9;">
+                            <strong>Debug Info:</strong>
+                            <div id="debug-content">Cargando...</div>
+                        </div>
+                        
+                        <table class="table table-bordered table-striped" id="tblTurnos">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Nombre</th>
+                                    <th>Descripción</th>
+                                    <th>Estado</th>
+                                    <th>Fecha Creación</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    console.log("Documento listo. Iniciando diagnóstico...");
+    
+    // Verificar librerías
+    $('#debug-content').html(
+        "jQuery: " + (typeof $ !== 'undefined' ? "✅" : "❌") + "<br>" +
+        "DataTables: " + (typeof $.fn.DataTable !== 'undefined' ? "✅" : "❌") + "<br>" +
+        "SweetAlert: " + (typeof Swal !== 'undefined' ? "✅" : "❌")
+    );
+    
+    // Cargar datos automáticamente
+    setTimeout(cargarDatos, 1000);
+});
+
+function testAjaxDirecto() {
+    console.log("Test AJAX directo...");
+    
+    $.ajax({
+        url: 'ajax/turnos.ajax.php',
+        type: 'POST',
+        data: { "accion": "obtenerTurnos" },
+        success: function(respuesta) {
+            console.log("AJAX Success (raw):", respuesta);
+            
+            let debugInfo = "AJAX Success: " + typeof respuesta + "<br>";
+            
+            try {
+                let datos = typeof respuesta === 'string' ? JSON.parse(respuesta) : respuesta;
+                debugInfo += "Datos parseados: " + (Array.isArray(datos) ? "Array con " + datos.length + " elementos" : "No es array") + "<br>";
+                
+                if(Array.isArray(datos) && datos.length > 0) {
+                    debugInfo += "Primer elemento: " + JSON.stringify(datos[0]) + "<br>";
+                }
+                
+                $('#debug-content').html(debugInfo);
+                
+            } catch(e) {
+                $('#debug-content').html("Error parseando JSON: " + e.message + "<br>Respuesta: " + respuesta);
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error("AJAX Error:", error);
+            $('#debug-content').html("Error AJAX: " + error + "<br>Status: " + xhr.status + "<br>Response: " + xhr.responseText);
+        }
+    });
+}
+
+function cargarDatos() {
+    console.log("Cargando datos con DataTable...");
+    
+    // Destruir tabla existente
+    if ($.fn.DataTable.isDataTable('#tblTurnos')) {
+        $('#tblTurnos').DataTable().destroy();
+    }
+    
+    // Crear DataTable
+    $('#tblTurnos').DataTable({
+        "processing": true,
+        "serverSide": false,
+        "ajax": {
+            "url": "ajax/turnos.ajax.php",
+            "type": "POST",
+            "data": { "accion": "obtenerTurnos" },
+            "dataSrc": function(json) {
+                console.log("DataTable dataSrc - Datos recibidos:", json);
+                
+                let debugInfo = "DataTable Response: " + typeof json + "<br>";
+                
+                if(Array.isArray(json)) {
+                    debugInfo += "Array con " + json.length + " elementos<br>";
+                    if(json.length > 0) {
+                        debugInfo += "Primer elemento: " + JSON.stringify(json[0]);
+                    }
+                } else {
+                    debugInfo += "No es array: " + JSON.stringify(json);
+                }
+                
+                $('#debug-content').html(debugInfo);
+                
+                return json || [];
+            },
+            "error": function(xhr, error, thrown) {
+                console.error("DataTable Error:", error);
+                $('#debug-content').html("DataTable Error: " + error + "<br>Thrown: " + thrown + "<br>Response: " + xhr.responseText);
+                
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error al cargar datos',
+                    text: 'Error: ' + error
+                });
+            }
+        },
+        "columns": [
+            { 
+                "data": null,
+                "render": function(data, type, row, meta) {
+                    return meta.row + 1;
+                }
+            },
+            { "data": "turno_nombre" },
+            { 
+                "data": "turno_descripcion",
+                "render": function(data, type, row) {
+                    return data || 'Sin descripción';
+                }
+            },
+            { 
+                "data": "turno_estado",
+                "render": function(data, type, row) {
+                    if(data == 1 || data === true || data === 't') {
+                        return '<span class="badge badge-success">Activo</span>';
+                    } else {
+                        return '<span class="badge badge-danger">Inactivo</span>';
+                    }
+                }
+            },
+            { 
+                "data": "fecha_creacion",
+                "render": function(data, type, row) {
+                    if(data) {
+                        return new Date(data).toLocaleDateString('es-ES');
+                    }
+                    return '';
+                }
+            },
+            { 
+                "data": null,
+                "render": function(data, type, row) {
+                    return '<button class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></button>';
+                }
+            }
+        ],
+        "language": {
+            "processing": "Procesando...",
+            "lengthMenu": "Mostrar _MENU_ registros",
+            "zeroRecords": "No se encontraron resultados",
+            "emptyTable": "Ningún dato disponible en esta tabla",
+            "info": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+            "infoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
+            "infoFiltered": "(filtrado de un total de _MAX_ registros)",
+            "search": "Buscar:",
+            "paginate": {
+                "first": "Primero",
+                "last": "Último",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            }
+        },
+        "pageLength": 10
+    });
+}
+</script>
+
+</body>
+</html>

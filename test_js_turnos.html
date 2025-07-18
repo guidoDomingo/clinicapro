@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test JavaScript Turnos</title>
+    <script src="view/plugins/jquery/jquery.min.js"></script>
+    <link rel="stylesheet" href="view/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+    <script src="view/plugins/datatables/jquery.dataTables.min.js"></script>
+    <script src="view/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <h2>Test JavaScript Turnos</h2>
+    
+    <table id="tblTurnos" class="display">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Estado</th>
+                <th>Fecha</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script>
+        console.log("Iniciando test...");
+        
+        // Verificar que las librerías estén cargadas
+        console.log("jQuery:", typeof $);
+        console.log("DataTables:", typeof $.fn.DataTable);
+        console.log("SweetAlert:", typeof Swal);
+        
+        // Test AJAX directo
+        function testAjax() {
+            $.ajax({
+                url: 'ajax/turnos.ajax.php',
+                type: 'POST',
+                data: { "accion": "obtenerTurnos" },
+                dataType: 'json',
+                success: function(respuesta) {
+                    console.log("AJAX Success:", respuesta);
+                    
+                    if(Array.isArray(respuesta)) {
+                        console.log("Total registros:", respuesta.length);
+                        
+                        // Inicializar DataTable con los datos
+                        $('#tblTurnos').DataTable({
+                            data: respuesta,
+                            columns: [
+                                { 
+                                    data: null,
+                                    render: function(data, type, row, meta) {
+                                        return meta.row + 1;
+                                    }
+                                },
+                                { data: "turno_nombre" },
+                                { 
+                                    data: "turno_descripcion",
+                                    render: function(data) {
+                                        return data || 'Sin descripción';
+                                    }
+                                },
+                                { 
+                                    data: "turno_estado",
+                                    render: function(data) {
+                                        return data ? 'Activo' : 'Inactivo';
+                                    }
+                                },
+                                { data: "fecha_creacion" },
+                                { 
+                                    data: null,
+                                    render: function() {
+                                        return '<button>Editar</button>';
+                                    }
+                                }
+                            ]
+                        });
+                        
+                        Swal.fire('Éxito', 'Datos cargados correctamente', 'success');
+                    } else {
+                        console.error("Respuesta no es un array:", respuesta);
+                        Swal.fire('Error', 'Respuesta no válida', 'error');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("AJAX Error:", error);
+                    console.error("Status:", xhr.status);
+                    console.error("Response:", xhr.responseText);
+                    
+                    Swal.fire('Error', 'Error en AJAX: ' + error, 'error');
+                }
+            });
+        }
+        
+        // Ejecutar test cuando el documento esté listo
+        $(document).ready(function() {
+            console.log("Documento listo. Ejecutando test AJAX...");
+            testAjax();
+        });
+    </script>
+</body>
+</html>

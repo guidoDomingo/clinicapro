@@ -137,7 +137,7 @@ if (isset($_SESSION["iniciarSesion"]) && $_SESSION["iniciarSesion"] == "ok") {
     
     // Manejo de páginas con inicio de sesión      
     if(isset($_GET["ruta"])){
-        if ($_GET["ruta"] == "home" || $_GET["ruta"] == "logout"|| $_GET["ruta"] == "consultas" || $_GET["ruta"] == "personas" || $_GET["ruta"] == "roles" || $_GET["ruta"] == "perfil" || $_GET["ruta"] == "rhpersonas" || $_GET["ruta"] == "preformatos" || $_GET["ruta"] == "agendas" || $_GET["ruta"] == "servicios" || $_GET["ruta"] == "rs_servicios" || $_GET["ruta"] == "citas" || $_GET["ruta"] == "citas" || $_GET["ruta"] == "profesiones" || $_GET["ruta"] == "especialidades" || $_GET["ruta"] == "motivos" || $_GET["ruta"] == "empresas" || $_GET["ruta"] == "tipos_proveedores" || $_GET["ruta"] == "proveedores" || $_GET["ruta"] == "salas")  {
+        if ($_GET["ruta"] == "home" || $_GET["ruta"] == "logout"|| $_GET["ruta"] == "consultas" || $_GET["ruta"] == "personas" || $_GET["ruta"] == "roles" || $_GET["ruta"] == "perfil" || $_GET["ruta"] == "rhpersonas" || $_GET["ruta"] == "preformatos" || $_GET["ruta"] == "agendas" || $_GET["ruta"] == "servicios" || $_GET["ruta"] == "rs_servicios" || $_GET["ruta"] == "citas" || $_GET["ruta"] == "citas" || $_GET["ruta"] == "profesiones" || $_GET["ruta"] == "especialidades" || $_GET["ruta"] == "motivos" || $_GET["ruta"] == "empresas" || $_GET["ruta"] == "tipos_proveedores" || $_GET["ruta"] == "proveedores" || $_GET["ruta"] == "salas" || $_GET["ruta"] == "turnos")  {
             
             // Verificar permisos para acceder a ciertas rutas
             $requierePermiso = false;
@@ -185,6 +185,10 @@ if (isset($_SESSION["iniciarSesion"]) && $_SESSION["iniciarSesion"] == "ok") {
                 case "salas":
                     $requierePermiso = true;
                     $permisoRequerido = 'administrar_salas';
+                    break;
+                case "turnos":
+                    $requierePermiso = true;
+                    $permisoRequerido = 'administrar_turnos';
                     break;
                 case "preformatos":
                     $requierePermiso = true;
@@ -325,6 +329,9 @@ switch ($ruta) {
         break;
           case "salas":
         echo '<script src="view/js/salas.js"></script>';
+        break;
+          case "turnos":
+        echo '<script src="view/js/turnos.js"></script>';
         break;
           // Caso por defecto para el home o páginas que no requieren JS específico
     default:

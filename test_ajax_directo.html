@@ -1,93 +1,98 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prueba AJAX Directa</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        .container { max-width: 800px; margin: 0 auto; }
-        pre { background-color: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
-        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
-        .resultado { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
-    </style>
+    <title>Test AJAX Directo</title>
+    <script src="view/plugins/jquery/jquery.min.js"></script>
 </head>
 <body>
-    <div class="container">
-        <h1>🧪 Prueba AJAX Directa - Doctores por Fecha</h1>
-        
-        <button onclick="testAjaxDirect()">Probar AJAX Directo</button>
-        <button onclick="testApiDirect()">Probar API Directo</button>
-        
-        <div id="resultados"></div>
-    </div>
+    <h2>Test AJAX Directo - Turnos</h2>
+    
+    <button onclick="testAjax()">Probar AJAX</button>
+    <button onclick="testAjaxConForm()">Probar AJAX con FormData</button>
+    
+    <div id="resultado"></div>
 
     <script>
-        function log(mensaje) {
-            console.log(mensaje);
-            const div = document.createElement('div');
-            div.className = 'resultado';
-            div.innerHTML = `<pre>${JSON.stringify(mensaje, null, 2)}</pre>`;
-            document.getElementById('resultados').appendChild(div);
-        }
-
-        function testAjaxDirect() {
-            log("Iniciando prueba AJAX directa...");
+        function testAjax() {
+            console.log("Probando AJAX...");
             
             $.ajax({
-                url: 'ajax/servicios.ajax.php',
-                method: 'POST',
+                url: 'ajax/turnos.ajax.php',
+                type: 'POST',
                 data: {
-                    action: 'obtenerDoctoresPorFecha',
-                    fecha: '2025-07-17'
+                    "accion": "obtenerTurnos"
                 },
                 dataType: 'json',
-                beforeSend: function() {
-                    log("Enviando solicitud AJAX...");
-                },
                 success: function(respuesta) {
-                    log("✅ Respuesta AJAX exitosa:");
-                    log(respuesta);
+                    console.log("AJAX Success:", respuesta);
+                    
+                    let html = "<h3>Respuesta exitosa:</h3>";
+                    html += "<p>Tipo: " + typeof respuesta + "</p>";
+                    
+                    if(Array.isArray(respuesta)) {
+                        html += "<p>Es array con " + respuesta.length + " elementos</p>";
+                        if(respuesta.length > 0) {
+                            html += "<h4>Datos:</h4><ul>";
+                            respuesta.forEach(function(item, index) {
+                                html += "<li><strong>" + item.turno_nombre + "</strong> - " + (item.turno_descripcion || 'Sin descripción') + "</li>";
+                            });
+                            html += "</ul>";
+                        }
+                    } else {
+                        html += "<p>No es array: " + JSON.stringify(respuesta) + "</p>";
+                    }
+                    
+                    $('#resultado').html(html);
                 },
                 error: function(xhr, status, error) {
-                    log("❌ Error AJAX:");
-                    log({
-                        status: status,
-                        error: error,
-                        responseText: xhr.responseText,
-                        readyState: xhr.readyState,
-                        statusCode: xhr.status
-                    });
+                    console.error("AJAX Error:", error);
+                    console.error("Status:", xhr.status);
+                    console.error("Response:", xhr.responseText);
+                    
+                    let html = "<h3 style='color: red;'>Error AJAX:</h3>";
+                    html += "<p>Status: " + xhr.status + "</p>";
+                    html += "<p>Error: " + error + "</p>";
+                    html += "<p>Response: <pre>" + xhr.responseText + "</pre></p>";
+                    
+                    $('#resultado').html(html);
                 }
             });
         }
-
-        function testApiDirect() {
-            log("Iniciando prueba API directa...");
+        
+        function testAjaxConForm() {
+            console.log("Probando AJAX con FormData...");
             
-            fetch('test_doctores_api.php?fecha=2025-07-17')
-                .then(response => {
-                    log(`Status: ${response.status}`);
-                    return response.json();
-                })
-                .then(data => {
-                    log("✅ Respuesta API exitosa:");
-                    log(data);
-                })
-                .catch(error => {
-                    log("❌ Error API:");
-                    log(error);
-                });
+            let formData = new FormData();
+            formData.append('accion', 'obtenerTurnos');
+            
+            $.ajax({
+                url: 'ajax/turnos.ajax.php',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                success: function(respuesta) {
+                    console.log("AJAX FormData Success:", respuesta);
+                    
+                    let html = "<h3>Respuesta con FormData:</h3>";
+                    html += "<p>Tipo: " + typeof respuesta + "</p>";
+                    html += "<p>Contenido: " + JSON.stringify(respuesta) + "</p>";
+                    
+                    $('#resultado').html(html);
+                },
+                error: function(xhr, status, error) {
+                    console.error("AJAX FormData Error:", error);
+                    
+                    let html = "<h3 style='color: red;'>Error AJAX FormData:</h3>";
+                    html += "<p>Status: " + xhr.status + "</p>";
+                    html += "<p>Error: " + error + "</p>";
+                    html += "<p>Response: <pre>" + xhr.responseText + "</pre></p>";
+                    
+                    $('#resultado').html(html);
+                }
+            });
         }
-
-        // Ejecutar pruebas automáticamente
-        window.addEventListener('load', function() {
-            setTimeout(() => {
-                testApiDirect();
-                setTimeout(testAjaxDirect, 2000);
-            }, 1000);
-        });
     </script>
 </body>
 </html>
