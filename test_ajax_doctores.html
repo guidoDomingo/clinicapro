@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test AJAX - Doctores por Fecha</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 800px; 
+            margin: 50px auto; 
+            padding: 20px; 
+        }
+        .result { 
+            background: #f5f5f5; 
+            padding: 15px; 
+            margin: 10px 0; 
+            border-radius: 5px; 
+            border-left: 4px solid #007bff; 
+        }
+        .error { 
+            border-left-color: #dc3545; 
+            background: #f8d7da; 
+        }
+        .success { 
+            border-left-color: #28a745; 
+            background: #d4edda; 
+        }
+        button { 
+            background: #007bff; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            margin: 5px; 
+        }
+        button:hover { background: #0056b3; }
+        pre { 
+            background: #f8f9fa; 
+            padding: 10px; 
+            border-radius: 3px; 
+            overflow-x: auto; 
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test AJAX - Doctores por Fecha</h1>
+    <p>Esta página simula exactamente la llamada AJAX que hace el modal de edición.</p>
+    
+    <div>
+        <label>Fecha a consultar:</label>
+        <input type="date" id="fechaConsulta" value="2025-07-17">
+        <button onclick="probarAjax()">🩺 Obtener Doctores</button>
+        <button onclick="limpiarResultados()">🗑️ Limpiar</button>
+    </div>
+    
+    <div id="resultados"></div>
+    
+    <script>
+        function probarAjax() {
+            const fecha = document.getElementById('fechaConsulta').value;
+            
+            if (!fecha) {
+                mostrarError('Por favor seleccione una fecha');
+                return;
+            }
+            
+            mostrarInfo('🔄 Enviando solicitud AJAX...');
+            console.log('Enviando solicitud para fecha:', fecha);
+            
+            $.ajax({
+                url: 'ajax/servicios.ajax.php',
+                method: 'POST',
+                data: {
+                    action: 'obtenerDoctoresPorFecha',
+                    fecha: fecha
+                },
+                dataType: 'json',
+                beforeSend: function() {
+                    mostrarInfo('⏳ Enviando solicitud...');
+                },
+                success: function(respuesta) {
+                    console.log('📥 Respuesta recibida:', respuesta);
+                    
+                    if (respuesta.status === 'success') {
+                        mostrarExito('✅ Solicitud exitosa');
+                        mostrarResultado('Respuesta completa:', respuesta);
+                        
+                        if (respuesta.data && respuesta.data.length > 0) {
+                            mostrarInfo(`🩺 Se encontraron ${respuesta.total} doctores disponibles para ${fecha}`);
+                            
+                            respuesta.data.forEach((doctor, index) => {
+                                mostrarInfo(`Doctor ${index + 1}: ${doctor.nombre_doctor} (ID: ${doctor.doctor_id})`);
+                            });
+                        } else {
+                            mostrarInfo('⚠️ No se encontraron doctores disponibles para esta fecha');
+                        }
+                    } else {
+                        mostrarError('❌ Error en la respuesta: ' + (respuesta.message || 'Error desconocido'));
+                        mostrarResultado('Respuesta de error:', respuesta);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('💥 Error AJAX:', { xhr, status, error });
+                    mostrarError('💥 Error de conexión AJAX: ' + error);
+                    mostrarResultado('Detalles del error:', {
+                        status: status,
+                        error: error,
+                        responseText: xhr.responseText,
+                        readyState: xhr.readyState,
+                        statusCode: xhr.status
+                    });
+                }
+            });
+        }
+        
+        function mostrarInfo(mensaje) {
+            agregarResultado(mensaje, 'result');
+        }
+        
+        function mostrarExito(mensaje) {
+            agregarResultado(mensaje, 'result success');
+        }
+        
+        function mostrarError(mensaje) {
+            agregarResultado(mensaje, 'result error');
+        }
+        
+        function mostrarResultado(titulo, datos) {
+            const html = `
+                <div class="result">
+                    <strong>${titulo}</strong>
+                    <pre>${JSON.stringify(datos, null, 2)}</pre>
+                </div>
+            `;
+            document.getElementById('resultados').insertAdjacentHTML('beforeend', html);
+        }
+        
+        function agregarResultado(mensaje, clase) {
+            const timestamp = new Date().toLocaleTimeString();
+            const html = `
+                <div class="${clase}">
+                    <strong>[${timestamp}]</strong> ${mensaje}
+                </div>
+            `;
+            document.getElementById('resultados').insertAdjacentHTML('beforeend', html);
+        }
+        
+        function limpiarResultados() {
+            document.getElementById('resultados').innerHTML = '';
+        }
+        
+        // Probar automáticamente al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            mostrarInfo('🚀 Página cargada. Haga clic en "Obtener Doctores" para probar.');
+        });
+    </script>
+</body>
+</html>

@@ -478,5 +478,221 @@ class ControladorServicios {
             ];
         }
     }
+
+    /**
+     * Obtiene los detalles de una reserva específica
+     * @param int $reservaId ID de la reserva
+     * @return array|null Datos de la reserva
+     */
+    static public function ctrObtenerReservaPorId($reservaId) {
+        return ModelServicios::mdlObtenerReservaPorId($reservaId);
+    }
+
+    /**
+     * Actualiza una reserva existente
+     * @param array $datos Datos de la reserva a actualizar
+     * @return array Resultado de la operación
+     */
+    static public function ctrActualizarReserva($datos) {
+        // Validar datos requeridos
+        $camposRequeridos = ['reserva_id', 'servicio_id', 'doctor_id', 'paciente_id', 'fecha_reserva', 'hora_inicio', 'hora_fin'];
+        
+        foreach ($camposRequeridos as $campo) {
+            if (!isset($datos[$campo]) || empty($datos[$campo])) {
+                return [
+                    "status" => "error",
+                    "message" => "El campo $campo es requerido"
+                ];
+            }
+        }
+
+        // Validar formato de fecha
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $datos['fecha_reserva'])) {
+            return [
+                "status" => "error",
+                "message" => "Formato de fecha inválido"
+            ];
+        }
+
+        // Validar formato de hora
+        if (!preg_match('/^\d{2}:\d{2}(:\d{2})?$/', $datos['hora_inicio']) || 
+            !preg_match('/^\d{2}:\d{2}(:\d{2})?$/', $datos['hora_fin'])) {
+            return [
+                "status" => "error",
+                "message" => "Formato de hora inválido"
+            ];
+        }
+
+        // Asegurar valores por defecto para campos opcionales
+        $datos['agenda_id'] = $datos['agenda_id'] ?? null;
+        $datos['sala_id'] = $datos['sala_id'] ?? null;
+        $datos['reserva_estado'] = $datos['reserva_estado'] ?? 'PENDIENTE';
+        $datos['observaciones'] = $datos['observaciones'] ?? '';
+
+        return ModelServicios::mdlActualizarReserva($datos);
+    }
+
+    /**
+     * Edita una reserva con validación completa y gestión de agenda
+     * @param array $datos Datos de la reserva a editar
+     * @return array Resultado de la operación
+     */
+    static public function ctrEditarReservaCompleta($datos) {
+        // Validar datos requeridos
+        $camposRequeridos = ['reserva_id', 'servicio_id', 'doctor_id', 'fecha_reserva', 'hora_inicio', 'hora_fin'];
+        
+        foreach ($camposRequeridos as $campo) {
+            if (!isset($datos[$campo]) || empty($datos[$campo])) {
+                return [
+                    "status" => "error",
+                    "message" => "El campo $campo es requerido para la edición"
+                ];
+            }
+        }
+
+        // Validaciones de formato
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $datos['fecha_reserva'])) {
+            return [
+                "status" => "error", 
+                "message" => "Formato de fecha inválido (debe ser YYYY-MM-DD)"
+            ];
+        }
+
+        if (!preg_match('/^\d{2}:\d{2}$/', $datos['hora_inicio']) || 
+            !preg_match('/^\d{2}:\d{2}$/', $datos['hora_fin'])) {
+            return [
+                "status" => "error",
+                "message" => "Formato de hora inválido (debe ser HH:MM)"
+            ];
+        }
+
+        // Validar que la hora de fin sea posterior a la de inicio
+        $horaInicio = DateTime::createFromFormat('H:i', $datos['hora_inicio']);
+        $horaFin = DateTime::createFromFormat('H:i', $datos['hora_fin']);
+        
+        if ($horaInicio >= $horaFin) {
+            return [
+                "status" => "error",
+                "message" => "La hora de fin debe ser posterior a la hora de inicio"
+            ];
+        }
+
+        // Validar que la fecha no sea anterior a hoy
+        $fechaReserva = DateTime::createFromFormat('Y-m-d', $datos['fecha_reserva']);
+        $hoy = new DateTime();
+        $hoy->setTime(0, 0, 0);
+        
+        if ($fechaReserva < $hoy) {
+            return [
+                "status" => "error",
+                "message" => "No se puede programar una reserva en una fecha pasada"
+            ];
+        }
+
+        // Asegurar valores por defecto para campos opcionales
+        $datos['reserva_estado'] = $datos['reserva_estado'] ?? 'PENDIENTE';
+        $datos['observaciones'] = $datos['observaciones'] ?? '';
+        $datos['agenda_id'] = $datos['agenda_id'] ?? null;
+        $datos['sala_id'] = $datos['sala_id'] ?? null;
+        $datos['tarifa_id'] = $datos['tarifa_id'] ?? null;
+        $datos['seguro_id'] = $datos['seguro_id'] ?? null;
+
+        // Convertir a formato de 24 horas con segundos si es necesario
+        if (strlen($datos['hora_inicio']) == 5) {
+            $datos['hora_inicio'] .= ':00';
+        }
+        if (strlen($datos['hora_fin']) == 5) {
+            $datos['hora_fin'] .= ':00';
+        }
+
+        error_log("ctrEditarReservaCompleta: Procesando edición de reserva ID {$datos['reserva_id']}", 
+                  3, "c:/laragon/www/clinica/logs/reservas.log");
+        error_log("ctrEditarReservaCompleta: Datos validados: " . json_encode($datos), 
+                  3, "c:/laragon/www/clinica/logs/reservas.log");
+
+        return ModelServicios::mdlEditarReservaCompleta($datos);
+    }
+
+    /**
+     * Verifica conflictos de horario para edición de reservas
+     * @param array $datos Datos para verificar conflictos
+     * @return array Resultado de la verificación
+     */
+    static public function ctrVerificarConflictosEdicion($datos) {
+        $camposRequeridos = ['doctor_id', 'fecha_reserva', 'hora_inicio', 'hora_fin'];
+        
+        foreach ($camposRequeridos as $campo) {
+            if (!isset($datos[$campo]) || empty($datos[$campo])) {
+                return [
+                    "status" => "error",
+                    "message" => "El campo $campo es requerido para verificar conflictos"
+                ];
+            }
+        }
+
+        $excluirReservaId = isset($datos['reserva_id']) ? $datos['reserva_id'] : null;
+        
+        $conflictos = ModelServicios::verificarConflictosReserva(
+            $datos['doctor_id'],
+            $datos['fecha_reserva'],
+            $datos['hora_inicio'],
+            $datos['hora_fin'],
+            $excluirReservaId
+        );
+
+        return [
+            "status" => "success",
+            "conflictos" => $conflictos,
+            "tiene_conflictos" => !empty($conflictos)
+        ];
+    }
+
+    /**
+     * Obtiene todas las salas activas del sistema
+     * @return array Lista de salas activas
+     */
+    static public function ctrObtenerSalasActivas() {
+        try {
+            return ModelServicios::mdlObtenerSalasActivas();
+        } catch (Exception $e) {
+            error_log("Error en ctrObtenerSalasActivas: " . $e->getMessage(), 
+                      3, "c:/laragon/www/clinica/logs/reservas.log");
+            return [];
+        }
+    }
+
+    /**
+     * Obtiene doctores disponibles para una fecha específica
+     * @param string $fecha Fecha en formato Y-m-d
+     * @return array Lista de doctores con horarios disponibles
+     */
+    static public function ctrObtenerDoctoresPorFecha($fecha) {
+        try {
+            // Validar que se proporcione la fecha
+            if (empty($fecha)) {
+                throw new Exception("Fecha es requerida");
+            }
+            
+            // Validar formato de fecha
+            if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $fecha)) {
+                throw new Exception("Formato de fecha inválido. Use YYYY-MM-DD");
+            }
+            
+            error_log("ctrObtenerDoctoresPorFecha: Obteniendo doctores para fecha: " . $fecha, 
+                      3, "c:/laragon/www/clinica/logs/reservas.log");
+            
+            $doctores = ModelServicios::mdlObtenerDoctoresPorFecha($fecha);
+            
+            error_log("ctrObtenerDoctoresPorFecha: Encontrados " . count($doctores) . " doctores", 
+                      3, "c:/laragon/www/clinica/logs/reservas.log");
+            
+            return $doctores;
+            
+        } catch (Exception $e) {
+            error_log("Error en ctrObtenerDoctoresPorFecha: " . $e->getMessage(), 
+                      3, "c:/laragon/www/clinica/logs/reservas.log");
+            return [];
+        }
+    }
 }
 

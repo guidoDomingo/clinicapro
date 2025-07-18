@@ -977,6 +977,160 @@ if (!isset($_SESSION['perfil'])) {
     </div>
 </div>
 
+<!-- MODAL PARA EDITAR RESERVA -->
+<div class="modal fade" id="modalEditarReserva" tabindex="-1" role="dialog" aria-labelledby="modalEditarReservaLabel">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h4 class="modal-title" id="modalEditarReservaLabel">
+                    <i class="fas fa-edit"></i> Editar Reserva
+                </h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="formEditarReserva">
+                <div class="modal-body">
+                    <!-- Loading -->
+                    <div class="text-center" id="loadingEditarReserva">
+                        <div class="spinner-border text-warning" role="status">
+                            <span class="sr-only">Cargando...</span>
+                        </div>
+                        <p>Cargando datos de la reserva...</p>
+                    </div>
+
+                    <!-- Contenido del formulario -->
+                    <div id="contenidoEditarReserva" style="display: none;">
+                        <!-- Información del paciente (solo lectura) -->
+                        <div class="card card-outline card-info mb-3">
+                            <div class="card-header">
+                                <h5 class="card-title"><i class="fas fa-user"></i> Información del Paciente</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Paciente:</label>
+                                            <p class="form-control-plaintext" id="editPacienteNombre"></p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label>Cédula:</label>
+                                            <p class="form-control-plaintext" id="editPacienteCedula"></p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label>Teléfono:</label>
+                                            <p class="form-control-plaintext" id="editPacienteTelefono"></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Datos editables de la reserva -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="editFechaReserva">Fecha de la Reserva: <span class="text-danger">*</span></label>
+                                    <input type="date" class="form-control" id="editFechaReserva" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="editEstadoReserva">Estado: <span class="text-danger">*</span></label>
+                                    <select class="form-control" id="editEstadoReserva" required>
+                                        <option value="PENDIENTE">Pendiente</option>
+                                        <option value="CONFIRMADA">Confirmada</option>
+                                        <option value="CANCELADA">Cancelada</option>
+                                        <option value="COMPLETADA">Completada</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="editDoctorSelect">Doctor: <span class="text-danger">*</span></label>
+                                    <select class="form-control" id="editDoctorSelect" required>
+                                        <option value="">Seleccione un doctor</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="editServicioSelect">Servicio: <span class="text-danger">*</span></label>
+                                    <select class="form-control" id="editServicioSelect" required>
+                                        <option value="">Seleccione un servicio</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="editHoraInicio">Hora de Inicio: <span class="text-danger">*</span></label>
+                                    <input type="time" class="form-control" id="editHoraInicio" required>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="editHoraFin">Hora de Fin: <span class="text-danger">*</span></label>
+                                    <input type="time" class="form-control" id="editHoraFin" required>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="editSalaSelect">Sala:</label>
+                                    <select class="form-control" id="editSalaSelect">
+                                        <option value="">Sin sala asignada</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Horarios disponibles para el nuevo doctor/fecha -->
+                        <div class="card card-outline card-success mb-3" id="cardHorariosDisponiblesEdit" style="display: none;">
+                            <div class="card-header">
+                                <h6 class="card-title"><i class="fas fa-clock"></i> Horarios Disponibles</h6>
+                            </div>
+                            <div class="card-body">
+                                <div id="horariosDisponiblesEdit">
+                                    <!-- Se cargan dinámicamente -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editObservaciones">Observaciones:</label>
+                            <textarea class="form-control" id="editObservaciones" rows="3" placeholder="Observaciones adicionales"></textarea>
+                        </div>
+
+                        <!-- Campos ocultos -->
+                        <input type="hidden" id="editReservaId">
+                        <input type="hidden" id="editPacienteId">
+                        <input type="hidden" id="editAgendaId">
+                        <input type="hidden" id="editTarifaId">
+                        <input type="hidden" id="editSeguroId">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                    <button type="button" class="btn btn-warning" id="btnGuardarCambiosReserva" onclick="guardarCambiosReserva()">
+                        <i class="fas fa-save"></i> Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <!-- MODAL PARA GESTIÓN DE CATEGORÍAS -->
 <div class="modal fade" id="modalCategoria">
     <div class="modal-dialog">
@@ -1021,6 +1175,7 @@ if (!isset($_SESSION['perfil'])) {
 <link href="view/css/slots_horario.css?v=1.3" rel="stylesheet">
 <link href="view/css/reservas_new.css?v=1.0" rel="stylesheet">
 <link href="view/css/estados_reserva.css?v=1.0" rel="stylesheet">
+<link href="view/css/editar_reservas.css?v=1.0" rel="stylesheet">
 
 <!-- Incluir JavaScript personalizado -->
 <script src="view/js/servicios.js"></script>

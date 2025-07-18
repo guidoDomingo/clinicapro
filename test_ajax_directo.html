@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba AJAX Directa</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        pre { background-color: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        .resultado { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Prueba AJAX Directa - Doctores por Fecha</h1>
+        
+        <button onclick="testAjaxDirect()">Probar AJAX Directo</button>
+        <button onclick="testApiDirect()">Probar API Directo</button>
+        
+        <div id="resultados"></div>
+    </div>
+
+    <script>
+        function log(mensaje) {
+            console.log(mensaje);
+            const div = document.createElement('div');
+            div.className = 'resultado';
+            div.innerHTML = `<pre>${JSON.stringify(mensaje, null, 2)}</pre>`;
+            document.getElementById('resultados').appendChild(div);
+        }
+
+        function testAjaxDirect() {
+            log("Iniciando prueba AJAX directa...");
+            
+            $.ajax({
+                url: 'ajax/servicios.ajax.php',
+                method: 'POST',
+                data: {
+                    action: 'obtenerDoctoresPorFecha',
+                    fecha: '2025-07-17'
+                },
+                dataType: 'json',
+                beforeSend: function() {
+                    log("Enviando solicitud AJAX...");
+                },
+                success: function(respuesta) {
+                    log("✅ Respuesta AJAX exitosa:");
+                    log(respuesta);
+                },
+                error: function(xhr, status, error) {
+                    log("❌ Error AJAX:");
+                    log({
+                        status: status,
+                        error: error,
+                        responseText: xhr.responseText,
+                        readyState: xhr.readyState,
+                        statusCode: xhr.status
+                    });
+                }
+            });
+        }
+
+        function testApiDirect() {
+            log("Iniciando prueba API directa...");
+            
+            fetch('test_doctores_api.php?fecha=2025-07-17')
+                .then(response => {
+                    log(`Status: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    log("✅ Respuesta API exitosa:");
+                    log(data);
+                })
+                .catch(error => {
+                    log("❌ Error API:");
+                    log(error);
+                });
+        }
+
+        // Ejecutar pruebas automáticamente
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                testApiDirect();
+                setTimeout(testAjaxDirect, 2000);
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test AJAX Actualizado</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 900px; 
+            margin: 20px auto; 
+            padding: 20px; 
+            background-color: #f8f9fa;
+        }
+        .test-box {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .success { border-left: 4px solid #28a745; background-color: #d4edda; }
+        .error { border-left: 4px solid #dc3545; background-color: #f8d7da; }
+        .info { border-left: 4px solid #17a2b8; background-color: #d1ecf1; }
+        pre { 
+            background: #f8f9fa; 
+            padding: 15px; 
+            border-radius: 5px; 
+            overflow-x: auto;
+            border: 1px solid #e9ecef;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-size: 16px;
+        }
+        button:hover { background: #0056b3; }
+        .timestamp { color: #6c757d; font-size: 14px; }
+        h2 { color: #495057; border-bottom: 2px solid #007bff; padding-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test AJAX - Doctores por Fecha (Actualizado)</h1>
+    <p>Probando la API después de remover filtros problemáticos.</p>
+    
+    <div class="test-box">
+        <h2>📝 Configuración</h2>
+        <label><strong>Fecha:</strong> <input type="date" id="fechaTest" value="2025-07-17"></label>
+        <br><br>
+        <button onclick="probarAPI()">🩺 Probar obtenerDoctoresPorFecha</button>
+        <button onclick="compararConsultas()">🔍 Comparar Consultas</button>
+        <button onclick="limpiar()">🗑️ Limpiar Resultados</button>
+    </div>
+    
+    <div id="resultados"></div>
+    
+    <script>
+        function agregarResultado(titulo, contenido, tipo = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const html = `
+                <div class="test-box ${tipo}">
+                    <h2>${titulo} <span class="timestamp">[${timestamp}]</span></h2>
+                    <pre>${contenido}</pre>
+                </div>
+            `;
+            document.getElementById('resultados').insertAdjacentHTML('beforeend', html);
+        }
+        
+        function probarAPI() {
+            const fecha = document.getElementById('fechaTest').value;
+            
+            agregarResultado(
+                '🔄 Probando API actualizada',
+                `Enviando solicitud:
+URL: ajax/servicios.ajax.php
+Método: POST
+Datos: {
+    action: 'obtenerDoctoresPorFecha',
+    fecha: '${fecha}'
+}
+
+Esperamos obtener:
+- Dr. ronal con 2 horarios para JUEVES
+- Status: success
+- Total: 2`
+            );
+            
+            $.ajax({
+                url: 'ajax/servicios.ajax.php',
+                method: 'POST',
+                data: {
+                    action: 'obtenerDoctoresPorFecha',
+                    fecha: fecha
+                },
+                dataType: 'json',
+                success: function(respuesta) {
+                    console.log('✅ Respuesta recibida:', respuesta);
+                    
+                    let analisis = `RESPUESTA COMPLETA:
+${JSON.stringify(respuesta, null, 2)}
+
+ANÁLISIS DETALLADO:`;
+                    
+                    if (respuesta.status === 'success') {
+                        analisis += `
+✅ Status: ${respuesta.status}
+📊 Total: ${respuesta.total || 0}
+📅 Fecha: ${fecha}`;
+                        
+                        if (respuesta.data && respuesta.data.length > 0) {
+                            analisis += `
+👨‍⚕️ Doctores encontrados:`;
+                            respuesta.data.forEach((doctor, i) => {
+                                analisis += `
+  ${i + 1}. Dr. ${doctor.nombre_doctor}
+     - ID: ${doctor.doctor_id}
+     - Horario: ${doctor.hora_inicio} - ${doctor.hora_fin}
+     - Intervalo: ${doctor.intervalo_minutos} min
+     - Person ID: ${doctor.person_id}`;
+                            });
+                            
+                            agregarResultado('🎉 ¡ÉXITO! Doctores encontrados', analisis, 'success');
+                        } else {
+                            analisis += `
+⚠️ No se encontraron doctores para esta fecha
+🤔 Posibles causas:
+   - Los datos tienen detalle_estado = false
+   - Problema en la consulta SQL
+   - Error en el mapeo de días`;
+                            
+                            agregarResultado('⚠️ Sin resultados', analisis, 'error');
+                        }
+                    } else {
+                        analisis += `
+❌ Error en la respuesta
+📋 Mensaje: ${respuesta.message || 'No especificado'}`;
+                        
+                        agregarResultado('❌ Error en API', analisis, 'error');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('💥 Error AJAX:', { xhr, status, error });
+                    
+                    const errorDetalle = `ERROR DE CONEXIÓN:
+❌ Status: ${status}
+❌ Error: ${error}
+❌ HTTP Code: ${xhr.status}
+📄 Response: ${xhr.responseText}
+
+POSIBLES SOLUCIONES:
+1. Verificar que el archivo ajax/servicios.ajax.php existe
+2. Revisar errores de sintaxis PHP
+3. Verificar permisos de archivos
+4. Revisar logs del servidor`;
+                    
+                    agregarResultado('💥 Error de Conexión', errorDetalle, 'error');
+                }
+            });
+        }
+        
+        function compararConsultas() {
+            agregarResultado(
+                '🔍 Comparando consultas',
+                'Abriendo debug_filtros.php para comparar diferentes versiones de la consulta...'
+            );
+            
+            // Abrir en nueva ventana
+            window.open('debug_filtros.php', '_blank', 'width=800,height=600,scrollbars=yes');
+        }
+        
+        function limpiar() {
+            document.getElementById('resultados').innerHTML = '';
+        }
+        
+        // Auto-test al cargar
+        document.addEventListener('DOMContentLoaded', function() {
+            agregarResultado(
+                '🚀 Test inicializado',
+                `Página cargada correctamente.
+Fecha configurada: 2025-07-17 (JUEVES)
+Objetivo: Obtener Dr. ronal con sus horarios.
+
+Haga clic en "Probar obtenerDoctoresPorFecha" para comenzar.`,
+                'info'
+            );
+        });
+    </script>
+</body>
+</html>

@@ -1772,3 +1772,728 @@ function cambiarEstadoReservaTab(reservaId, nuevoEstado) {
         }
     });
 }
+
+// ===================================
+// FUNCIONALIDAD DE EDICIÓN DE RESERVAS
+// ===================================
+
+/**
+ * Abre el modal para editar una reserva
+ * @param {number} reservaId ID de la reserva a editar
+ */
+function abrirModalEditarReserva(reservaId) {
+    console.log('🔧 Abriendo modal para editar reserva ID:', reservaId);
+    
+    // Mostrar modal y loading
+    $('#modalEditarReserva').modal('show');
+    $('#loadingEditarReserva').show();
+    $('#contenidoEditarReserva').hide();
+    
+    // Cargar datos de la reserva
+    cargarDatosReservaParaEdicion(reservaId);
+}
+
+/**
+ * Carga los datos de una reserva específica para edición
+ * @param {number} reservaId ID de la reserva
+ */
+function cargarDatosReservaParaEdicion(reservaId) {
+    console.log('📡 Solicitando datos para reserva ID:', reservaId);
+    
+    $.ajax({
+        url: 'ajax/servicios.ajax.php',
+        method: 'POST',
+        data: {
+            action: 'obtenerReservaPorId',
+            reserva_id: reservaId
+        },
+        dataType: 'json',
+        beforeSend: function() {
+            console.log('📤 Enviando solicitud para obtener reserva...');
+        },
+        success: function(respuesta) {
+            console.log('📥 Respuesta recibida:', respuesta);
+            
+            if (respuesta.status === 'success' && respuesta.data) {
+                console.log('✅ Datos válidos recibidos, poblando formulario...');
+                poblarFormularioEdicionReserva(respuesta.data);
+                cargarDatosParaEdicionReserva();
+            } else {
+                console.error('❌ Error en respuesta:', respuesta.message);
+                mostrarAlerta('error', respuesta.message || 'No se pudieron cargar los datos de la reserva');
+                $('#modalEditarReserva').modal('hide');
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('💥 Error AJAX al cargar datos de reserva:', {
+                status: status,
+                error: error,
+                responseText: xhr.responseText
+            });
+            mostrarAlerta('error', 'Error al cargar los datos de la reserva: ' + error);
+            $('#modalEditarReserva').modal('hide');
+        }
+    });
+}
+
+/**
+ * Puebla el formulario de edición con los datos de la reserva
+ * @param {Object} reserva Datos de la reserva
+ */
+function poblarFormularioEdicionReserva(reserva) {
+    console.log('🔄 Poblando formulario con datos:', reserva);
+    
+    try {
+        // Campos ocultos
+        $('#editReservaId').val(reserva.reserva_id);
+        $('#editPacienteId').val(reserva.paciente_id);
+        $('#editAgendaId').val(reserva.agenda_id || '');
+        $('#editTarifaId').val(reserva.tarifa_id || '');
+        $('#editSeguroId').val(reserva.seguro_id || '');
+        
+        console.log('✅ Campos ocultos poblados');
+        
+        // Información del paciente (solo lectura)
+        const pacienteNombre = reserva.paciente_nombre || reserva.paciente || 'No disponible';
+        const cedula = reserva.cedula || reserva.ci_paciente || 'No disponible';
+        const telefono = reserva.telefono || reserva.telefono_paciente || 'No disponible';
+        
+        $('#editPacienteNombre').text(pacienteNombre);
+        $('#editPacienteCedula').text(cedula);
+        $('#editPacienteTelefono').text(telefono);
+        
+        console.log('✅ Información del paciente poblada:', {
+            nombre: pacienteNombre,
+            cedula: cedula,
+            telefono: telefono
+        });
+        
+        // Campos editables
+        $('#editFechaReserva').val(reserva.fecha_reserva);
+        $('#editHoraInicio').val(reserva.hora_inicio ? reserva.hora_inicio.substring(0, 5) : ''); // Solo HH:MM
+        $('#editHoraFin').val(reserva.hora_fin ? reserva.hora_fin.substring(0, 5) : ''); // Solo HH:MM
+        $('#editEstadoReserva').val(reserva.reserva_estado || reserva.estado);
+        $('#editObservaciones').val(reserva.observaciones || '');
+        
+        console.log('✅ Campos editables poblados:', {
+            fecha: reserva.fecha_reserva,
+            horaInicio: reserva.hora_inicio,
+            horaFin: reserva.hora_fin,
+            estado: reserva.reserva_estado,
+            observaciones: reserva.observaciones
+        });
+        
+        // Guardar valores originales para detectar cambios
+        $('#editFechaReserva').data('original-value', reserva.fecha_reserva);
+        $('#editDoctorSelect').data('original-value', reserva.doctor_id);
+        $('#editServicioSelect').data('original-value', reserva.servicio_id);
+        $('#editSalaSelect').data('original-value', reserva.sala_id || '');
+        $('#editHoraInicio').data('original-value', reserva.hora_inicio ? reserva.hora_inicio.substring(0, 5) : '');
+        $('#editHoraFin').data('original-value', reserva.hora_fin ? reserva.hora_fin.substring(0, 5) : '');
+        
+        console.log('✅ Valores originales guardados para detectar cambios');
+        console.log('🎯 Formulario poblado exitosamente');
+        
+    } catch (error) {
+        console.error('💥 Error al poblar formulario:', error);
+        mostrarAlerta('error', 'Error al cargar los datos en el formulario');
+    }
+}
+
+/**
+ * Carga los datos necesarios para el formulario de edición (doctores, servicios, salas)
+ */
+function cargarDatosParaEdicionReserva() {
+    // Obtener la fecha de la reserva para cargar doctores disponibles
+    const fechaReserva = $('#editFechaReserva').val();
+    
+    console.log('📋 Cargando datos para edición con fecha:', fechaReserva);
+    
+    // Cargar servicios y salas, luego doctores por fecha
+    Promise.all([
+        cargarServiciosParaEdicion(),
+        cargarSalasParaEdicion()
+    ]).then(() => {
+        // Si hay fecha, cargar doctores específicos para esa fecha
+        if (fechaReserva) {
+            return cargarDoctoresPorFecha(fechaReserva);
+        } else {
+            // Si no hay fecha, cargar doctores generales
+            return cargarDoctoresParaEdicion();
+        }
+    }).then(() => {
+        // Una vez cargados todos los datos, establecer los valores seleccionados
+        establecerValoresOriginalesEdicion();
+        
+        // Ocultar loading y mostrar contenido
+        $('#loadingEditarReserva').hide();
+        $('#contenidoEditarReserva').show();
+        
+        // Configurar eventos de cambio
+        configurarEventosEdicionReserva();
+        
+        console.log('✅ Datos de edición cargados completamente');
+        
+    }).catch(error => {
+        console.error('❌ Error al cargar datos para edición:', error);
+        mostrarAlerta('error', 'Error al cargar los datos necesarios');
+        $('#modalEditarReserva').modal('hide');
+    });
+}
+
+/**
+ * Carga la lista de doctores para el formulario de edición
+ */
+function cargarDoctoresParaEdicion() {
+    return new Promise((resolve, reject) => {
+        $.ajax({
+            url: 'ajax/servicios.ajax.php',
+            method: 'POST',
+            data: {
+                action: 'obtenerMedicosPorFecha',
+                fecha: $('#editFechaReserva').val()
+            },
+            dataType: 'json',
+            success: function(respuesta) {
+                if (respuesta.status === 'success') {
+                    let options = '<option value="">Seleccione un doctor</option>';
+                    respuesta.data.forEach(doctor => {
+                        options += `<option value="${doctor.doctor_id}">${doctor.nombre}</option>`;
+                    });
+                    $('#editDoctorSelect').html(options);
+                    resolve();
+                } else {
+                    reject('Error al cargar doctores');
+                }
+            },
+            error: function() {
+                reject('Error AJAX al cargar doctores');
+            }
+        });
+    });
+}
+
+/**
+ * Carga la lista de servicios para el formulario de edición
+ */
+function cargarServiciosParaEdicion() {
+    return new Promise((resolve, reject) => {
+        $.ajax({
+            url: 'ajax/servicios.ajax.php',
+            method: 'POST',
+            data: {
+                action: 'obtenerServicios'
+            },
+            dataType: 'json',
+            success: function(respuesta) {
+                if (respuesta.status === 'success') {
+                    let options = '<option value="">Seleccione un servicio</option>';
+                    respuesta.data.forEach(servicio => {
+                        options += `<option value="${servicio.servicio_id}">${servicio.servicio_nombre}</option>`;
+                    });
+                    $('#editServicioSelect').html(options);
+                    resolve();
+                } else {
+                    reject('Error al cargar servicios');
+                }
+            },
+            error: function() {
+                reject('Error AJAX al cargar servicios');
+            }
+        });
+    });
+}
+
+/**
+ * Carga la lista de salas para el formulario de edición
+ */
+function cargarSalasParaEdicion() {
+    return new Promise((resolve, reject) => {
+        $.ajax({
+            url: 'ajax/servicios.ajax.php',
+            method: 'POST',
+            data: {
+                action: 'obtenerSalasActivas'
+            },
+            dataType: 'json',
+            success: function(respuesta) {
+                console.log('🏥 Respuesta de salas:', respuesta);
+                
+                if (respuesta.status === 'success' && respuesta.data && respuesta.data.length > 0) {
+                    let options = '<option value="">Sin sala asignada</option>';
+                    respuesta.data.forEach(sala => {
+                        options += `<option value="${sala.sala_id}">${sala.sala_nombre}</option>`;
+                    });
+                    $('#editSalaSelect').html(options);
+                    console.log('✅ Salas cargadas exitosamente:', respuesta.data.length);
+                    resolve();
+                } else {
+                    $('#editSalaSelect').html('<option value="">Sin salas disponibles</option>');
+                    console.log('⚠️ No se encontraron salas activas');
+                    resolve();
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('💥 Error AJAX al cargar salas:', {
+                    status: status,
+                    error: error,
+                    responseText: xhr.responseText
+                });
+                $('#editSalaSelect').html('<option value="">Error al cargar salas</option>');
+                reject('Error AJAX al cargar salas: ' + error);
+            }
+        });
+    });
+}
+
+/**
+ * Carga doctores disponibles para una fecha específica
+ * @param {string} fecha Fecha en formato YYYY-MM-DD
+ * @returns {Promise} Promise que resuelve cuando se cargan los doctores
+ */
+function cargarDoctoresPorFecha(fecha) {
+    return new Promise((resolve, reject) => {
+        console.log('🩺 Cargando doctores para fecha:', fecha);
+        
+        if (!fecha) {
+            console.warn('⚠️ No se proporcionó fecha para cargar doctores');
+            $('#editDoctorSelect').html('<option value="">Seleccione una fecha</option>');
+            resolve();
+            return;
+        }
+        
+        $.ajax({
+            url: 'ajax/servicios.ajax.php',
+            method: 'POST',
+            data: {
+                action: 'obtenerDoctoresPorFecha',
+                fecha: fecha
+            },
+            dataType: 'json',
+            beforeSend: function() {
+                $('#editDoctorSelect').html('<option value="">Cargando doctores...</option>');
+            },
+            success: function(respuesta) {
+                console.log('🩺 Respuesta de doctores por fecha:', respuesta);
+                
+                if (respuesta.status === 'success' && respuesta.data && respuesta.data.length > 0) {
+                    let options = '<option value="">Seleccione un doctor</option>';
+                    respuesta.data.forEach(doctor => {
+                        options += `<option value="${doctor.doctor_id}" data-especialidad="${doctor.especialidad || ''}" data-horarios="${doctor.hora_inicio || ''}-${doctor.hora_fin || ''}">${doctor.nombre_doctor}</option>`;
+                    });
+                    $('#editDoctorSelect').html(options);
+                    console.log('✅ Doctores cargados exitosamente:', respuesta.data.length);
+                    
+                    // Restaurar valor original si existe
+                    const valorOriginal = $('#editDoctorSelect').data('original-value');
+                    if (valorOriginal) {
+                        $('#editDoctorSelect').val(valorOriginal);
+                    }
+                    
+                    resolve(respuesta.data);
+                } else {
+                    $('#editDoctorSelect').html('<option value="">No hay doctores disponibles para esta fecha</option>');
+                    console.log('⚠️ No se encontraron doctores para la fecha:', fecha);
+                    resolve([]);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('💥 Error AJAX al cargar doctores por fecha:', {
+                    status: status,
+                    error: error,
+                    responseText: xhr.responseText
+                });
+                $('#editDoctorSelect').html('<option value="">Error al cargar doctores</option>');
+                reject('Error AJAX al cargar doctores: ' + error);
+            }
+        });
+    });
+}
+
+/**
+ * Establece los valores originales en los selects después de cargar las opciones
+ */
+function establecerValoresOriginalesEdicion() {
+    $('#editDoctorSelect').val($('#editDoctorSelect').data('original-value'));
+    $('#editServicioSelect').val($('#editServicioSelect').data('original-value'));
+    $('#editSalaSelect').val($('#editSalaSelect').data('original-value'));
+}
+
+/**
+ * Configura los eventos para el formulario de edición de reserva
+ */
+function configurarEventosEdicionReserva() {
+    // Evento para cambio de fecha o doctor - recargar horarios disponibles
+    $('#editFechaReserva, #editDoctorSelect').off('change.editReserva').on('change.editReserva', function() {
+        const fecha = $('#editFechaReserva').val();
+        const doctorId = $('#editDoctorSelect').val();
+        
+        if (fecha && doctorId) {
+            cargarHorariosDisponiblesParaEdicion(fecha, doctorId);
+            
+            // Si cambió el doctor, recargar servicios disponibles
+            if ($(this).attr('id') === 'editDoctorSelect') {
+                cargarServiciosDisponiblesParaEdicion(fecha, doctorId);
+            }
+        } else {
+            $('#cardHorariosDisponiblesEdit').hide();
+        }
+    });
+    
+    // Evento para el formulario de edición
+    $('#formEditarReserva').off('submit.editReserva').on('submit.editReserva', function(e) {
+        e.preventDefault();
+        guardarCambiosReserva();
+    });
+}
+
+/**
+ * Carga los horarios disponibles para una fecha y doctor específicos en edición
+ * @param {string} fecha Fecha en formato YYYY-MM-DD
+ * @param {number} doctorId ID del doctor
+ */
+function cargarHorariosDisponiblesParaEdicion(fecha, doctorId) {
+    $('#horariosDisponiblesEdit').html('<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Cargando horarios...</div>');
+    $('#cardHorariosDisponiblesEdit').show();
+    
+    $.ajax({
+        url: 'ajax/servicios.ajax.php',
+        method: 'POST',
+        data: {
+            action: 'obtenerHorariosDisponibles',
+            doctor_id: doctorId,
+            fecha: fecha,
+            servicio_id: $('#editServicioSelect').val() || 0
+        },
+        dataType: 'json',
+        success: function(respuesta) {
+            if (respuesta.status === 'success' && respuesta.data && respuesta.data.length > 0) {
+                mostrarHorariosDisponiblesEdicion(respuesta.data);
+            } else {
+                $('#horariosDisponiblesEdit').html('<div class="text-center text-info">No hay horarios disponibles para este médico en la fecha seleccionada</div>');
+            }
+        },
+        error: function() {
+            $('#horariosDisponiblesEdit').html('<div class="text-center text-danger">Error al cargar horarios disponibles</div>');
+        }
+    });
+}
+
+/**
+ * Muestra los horarios disponibles en el modal de edición
+ * @param {Array} horarios Lista de horarios disponibles
+ */
+function mostrarHorariosDisponiblesEdicion(horarios) {
+    let html = '<div class="horarios-grid-edit">';
+    
+    horarios.forEach(horario => {
+        const horaInicio = horario.hora_inicio || horario.hora || '';
+        const horaFin = horario.hora_fin || '';
+        const horarioTexto = horaFin ? `${horaInicio} - ${horaFin}` : horaInicio;
+        
+        html += `
+            <div class="hora-slot-edit" 
+                 data-inicio="${horaInicio}"
+                 data-fin="${horaFin}">
+                <span class="hora-text">${horarioTexto}</span>
+                <button type="button" class="btn btn-sm btn-outline-primary btn-seleccionar-horario">
+                    <i class="fas fa-check"></i>
+                </button>
+            </div>
+        `;
+    });
+    
+    html += '</div>';
+    $('#horariosDisponiblesEdit').html(html);
+    
+    // Configurar eventos para seleccionar horario
+    $('.btn-seleccionar-horario').on('click', function() {
+        const slot = $(this).closest('.hora-slot-edit');
+        const horaInicio = slot.data('inicio');
+        const horaFin = slot.data('fin');
+        
+        $('#editHoraInicio').val(horaInicio.substring(0, 5));
+        $('#editHoraFin').val(horaFin.substring(0, 5));
+        
+        // Resaltar horario seleccionado
+        $('.hora-slot-edit').removeClass('selected');
+        slot.addClass('selected');
+        
+        mostrarAlerta('success', 'Horario seleccionado: ' + horaInicio.substring(0, 5) + ' - ' + horaFin.substring(0, 5), 'top-end');
+    });
+}
+
+/**
+ * Carga los servicios disponibles para una fecha y doctor específicos en edición
+ * @param {string} fecha Fecha en formato YYYY-MM-DD
+ * @param {number} doctorId ID del doctor
+ */
+function cargarServiciosDisponiblesParaEdicion(fecha, doctorId) {
+    $.ajax({
+        url: 'ajax/servicios.ajax.php',
+        method: 'POST',
+        data: {
+            action: 'obtenerServiciosPorFechaMedico',
+            fecha: fecha,
+            doctor_id: doctorId
+        },
+        dataType: 'json',
+        success: function(respuesta) {
+            if (respuesta.status === 'success') {
+                let options = '<option value="">Seleccione un servicio</option>';
+                respuesta.data.forEach(servicio => {
+                    options += `<option value="${servicio.servicio_id}">${servicio.servicio_nombre}</option>`;
+                });
+                $('#editServicioSelect').html(options);
+                
+                // Restablecer valor original si aún está disponible
+                const valorOriginal = $('#editServicioSelect').data('original-value');
+                $('#editServicioSelect').val(valorOriginal);
+            }
+        },
+        error: function() {
+            console.error('Error al cargar servicios disponibles para edición');
+        }
+    });
+}
+
+/**
+ * Guarda los cambios realizados en la reserva con validación completa
+ */
+function guardarCambiosReserva() {
+    // Validar campos requeridos
+    if (!validarFormularioEdicionReserva()) {
+        return;
+    }
+    
+    // Verificar si hay cambios en horario para validar conflictos
+    const datosOriginales = {
+        doctor_id: $('#editDoctorSelect').data('original-value'),
+        fecha_reserva: $('#editFechaReserva').data('original-value'),
+        hora_inicio: $('#editHoraInicio').data('original-value'),
+        hora_fin: $('#editHoraFin').data('original-value')
+    };
+    
+    const datosNuevos = {
+        doctor_id: $('#editDoctorSelect').val(),
+        fecha_reserva: $('#editFechaReserva').val(),
+        hora_inicio: $('#editHoraInicio').val(),
+        hora_fin: $('#editHoraFin').val()
+    };
+    
+    const hayComboHorario = (
+        datosOriginales.doctor_id != datosNuevos.doctor_id ||
+        datosOriginales.fecha_reserva != datosNuevos.fecha_reserva ||
+        datosOriginales.hora_inicio != datosNuevos.hora_inicio ||
+        datosOriginales.hora_fin != datosNuevos.hora_fin
+    );
+    
+    // Si hay cambio de horario, verificar conflictos primero
+    if (hayComboHorario) {
+        verificarConflictosAntesDeGuardar(datosNuevos, () => {
+            procesarGuardadoReserva(hayComboHorario);
+        });
+    } else {
+        procesarGuardadoReserva(false);
+    }
+}
+
+/**
+ * Verifica conflictos de horario antes de guardar
+ */
+function verificarConflictosAntesDeGuardar(datosHorario, callback) {
+    $.ajax({
+        url: 'ajax/servicios.ajax.php',
+        method: 'POST',
+        data: {
+            action: 'verificarConflictosEdicion',
+            doctor_id: datosHorario.doctor_id,
+            fecha_reserva: datosHorario.fecha_reserva,
+            hora_inicio: datosHorario.hora_inicio,
+            hora_fin: datosHorario.hora_fin,
+            reserva_id: $('#editReservaId').val()
+        },
+        dataType: 'json',
+        success: function(respuesta) {
+            if (respuesta.status === 'success') {
+                if (respuesta.tiene_conflictos) {
+                    let mensajeConflictos = 'Se detectaron conflictos de horario:\n\n';
+                    respuesta.conflictos.forEach(conflicto => {
+                        mensajeConflictos += `• ${conflicto.hora_inicio}-${conflicto.hora_fin}: ${conflicto.paciente_nombre}\n`;
+                    });
+                    mensajeConflictos += '\n¿Desea continuar de todas formas?';
+                    
+                    if (confirm(mensajeConflictos)) {
+                        callback();
+                    }
+                } else {
+                    callback();
+                }
+            } else {
+                mostrarAlerta('error', 'Error al verificar conflictos: ' + respuesta.message);
+            }
+        },
+        error: function() {
+            mostrarAlerta('error', 'Error al verificar conflictos de horario');
+        }
+    });
+}
+
+/**
+ * Procesa el guardado de la reserva con gestión de agenda
+ */
+function procesarGuardadoReserva(cambioHorario) {
+    // Preparar datos completos usando la nueva acción de edición
+    const datos = {
+        action: 'editarReservaCompleta',
+        reserva_id: $('#editReservaId').val(),
+        servicio_id: $('#editServicioSelect').val(),
+        doctor_id: $('#editDoctorSelect').val(),
+        fecha_reserva: $('#editFechaReserva').val(),
+        hora_inicio: $('#editHoraInicio').val(),
+        hora_fin: $('#editHoraFin').val(),
+        reserva_estado: $('#editEstadoReserva').val(),
+        observaciones: $('#editObservaciones').val(),
+        agenda_id: $('#editAgendaId').val() || null,
+        sala_id: $('#editSalaSelect').val() || null,
+        tarifa_id: $('#editTarifaId').val() || null,
+        seguro_id: $('#editSeguroId').val() || null
+    };
+    
+    console.log('Guardando cambios completos de reserva:', datos);
+    
+    // Mostrar loading en el botón
+    const btnGuardar = $('#btnGuardarCambiosReserva');
+    const textoOriginal = btnGuardar.html();
+    btnGuardar.html('<i class="fas fa-spinner fa-spin"></i> Guardando...').prop('disabled', true);
+    
+    $.ajax({
+        url: 'ajax/servicios.ajax.php',
+        method: 'POST',
+        data: datos,
+        dataType: 'json',
+        success: function(respuesta) {
+            console.log('Respuesta del servidor:', respuesta);
+            
+            if (respuesta.status === 'success') {
+                mostrarAlerta('success', respuesta.message);
+                
+                // Si hubo cambio de horario, mostrar mensaje específico
+                if (cambioHorario) {
+                    mostrarAlerta('info', 'Agenda actualizada automáticamente por cambio de horario');
+                }
+                
+                // Cerrar modal y actualizar tabla
+                $('#modalEditarReserva').modal('hide');
+                
+                // Actualizar tabla de reservas si está visible
+                if (typeof buscarReservas === 'function') {
+                    buscarReservas();
+                }
+                
+                // Recargar reservas del día si está en la pestaña principal
+                const fechaActual = $('#fechaReserva').val();
+                if (fechaActual && typeof cargarReservasDelDia === 'function') {
+                    cargarReservasDelDia(fechaActual);
+                }
+                
+            } else {
+                mostrarAlerta('error', respuesta.message || 'Error al actualizar la reserva');
+                
+                // Si hay información sobre conflictos, mostrarla
+                if (respuesta.conflictos) {
+                    console.log('Conflictos detectados:', respuesta.conflictos);
+                }
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Error al guardar cambios:', error);
+            mostrarAlerta('error', 'Error al conectar con el servidor');
+        },
+        complete: function() {
+            // Restaurar botón
+            btnGuardar.html(textoOriginal).prop('disabled', false);
+        }
+    });
+}
+
+/**
+ * Valida el formulario de edición de reserva
+ * @returns {boolean} true si es válido, false en caso contrario
+ */
+function validarFormularioEdicionReserva() {
+    const campos = [
+        { id: '#editFechaReserva', nombre: 'Fecha' },
+        { id: '#editDoctorSelect', nombre: 'Doctor' },
+        { id: '#editServicioSelect', nombre: 'Servicio' },
+        { id: '#editHoraInicio', nombre: 'Hora de inicio' },
+        { id: '#editHoraFin', nombre: 'Hora de fin' },
+        { id: '#editEstadoReserva', nombre: 'Estado' }
+    ];
+    
+    for (let campo of campos) {
+        if (!$(campo.id).val()) {
+            mostrarAlerta('warning', `El campo ${campo.nombre} es requerido`);
+            $(campo.id).focus();
+            return false;
+        }
+    }
+    
+    // Validar que la hora de fin sea mayor a la de inicio
+    const horaInicio = $('#editHoraInicio').val();
+    const horaFin = $('#editHoraFin').val();
+    
+    if (horaInicio >= horaFin) {
+        mostrarAlerta('warning', 'La hora de fin debe ser mayor a la hora de inicio');
+        $('#editHoraFin').focus();
+        return false;
+    }
+    
+    return true;
+}
+
+// ===================================
+// EVENTOS DE EDICIÓN DE RESERVAS
+// ===================================
+
+// Evento para abrir modal de edición al hacer clic en el botón editar
+$(document).on('click', '.btnEditarReserva', function() {
+    const reservaId = $(this).data('id');
+    abrirModalEditarReserva(reservaId);
+});
+
+// Limpiar modal al cerrarlo
+$('#modalEditarReserva').on('hidden.bs.modal', function() {
+    $('#formEditarReserva')[0].reset();
+    $('#loadingEditarReserva').show();
+    $('#contenidoEditarReserva').hide();
+    $('#cardHorariosDisponiblesEdit').hide();
+    $('.hora-slot-edit').removeClass('selected');
+});
+
+// Evento para cargar doctores cuando cambie la fecha en el modal de edición
+$(document).on('change', '#editFechaReserva', function() {
+    const fechaSeleccionada = $(this).val();
+    console.log('📅 Fecha cambiada en modal de edición:', fechaSeleccionada);
+    
+    if (fechaSeleccionada) {
+        // Cargar doctores disponibles para la nueva fecha
+        cargarDoctoresPorFecha(fechaSeleccionada)
+            .then(doctores => {
+                console.log('✅ Doctores cargados para nueva fecha:', doctores.length);
+                
+                // Limpiar horarios ya que cambió la fecha
+                $('#cardHorariosDisponiblesEdit').hide();
+                $('.hora-slot-edit').removeClass('selected');
+                $('#editHoraSeleccionada').val('');
+            })
+            .catch(error => {
+                console.error('❌ Error al cargar doctores por fecha:', error);
+                mostrarAlerta('error', 'Error al cargar doctores para la fecha seleccionada');
+            });
+    } else {
+        // Si no hay fecha, limpiar doctor
+        $('#editDoctorSelect').html('<option value="">Seleccione una fecha primero</option>');
+        $('#cardHorariosDisponiblesEdit').hide();
+    }
+});

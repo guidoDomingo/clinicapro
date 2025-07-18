@@ -516,6 +516,185 @@ if (isset($_POST['action'])) {
             }
             break;
             
+        case 'obtenerReservaPorId':
+            if (isset($_POST['reserva_id'])) {
+                $reservaId = $_POST['reserva_id'];
+                
+                try {
+                    $reserva = ControladorServicios::ctrObtenerReservaPorId($reservaId);
+                    
+                    if ($reserva) {
+                        echo json_encode([
+                            "status" => "success",
+                            "data" => $reserva
+                        ]);
+                    } else {
+                        echo json_encode([
+                            "status" => "error",
+                            "message" => "No se encontró la reserva con ID: " . $reservaId
+                        ]);
+                    }
+                } catch (Exception $e) {
+                    echo json_encode([
+                        "status" => "error",
+                        "message" => "Error al obtener la reserva: " . $e->getMessage()
+                    ]);
+                }
+            } else {
+                echo json_encode([
+                    "status" => "error",
+                    "message" => "ID de reserva no proporcionado"
+                ]);
+            }
+            break;
+
+        case 'actualizarReserva':
+            try {
+                // Validar que se proporcionaron los datos necesarios
+                $camposRequeridos = ['reserva_id', 'servicio_id', 'doctor_id', 'paciente_id', 'fecha_reserva', 'hora_inicio', 'hora_fin'];
+                $camposFaltantes = [];
+                
+                foreach ($camposRequeridos as $campo) {
+                    if (!isset($_POST[$campo]) || empty($_POST[$campo])) {
+                        $camposFaltantes[] = $campo;
+                    }
+                }
+                
+                if (!empty($camposFaltantes)) {
+                    echo json_encode([
+                        "status" => "error",
+                        "message" => "Faltan campos requeridos: " . implode(", ", $camposFaltantes)
+                    ]);
+                    break;
+                }
+                
+                // Preparar los datos para la actualización
+                $datos = [
+                    'reserva_id' => $_POST['reserva_id'],
+                    'servicio_id' => $_POST['servicio_id'],
+                    'agenda_id' => isset($_POST['agenda_id']) ? $_POST['agenda_id'] : null,
+                    'doctor_id' => $_POST['doctor_id'],
+                    'paciente_id' => $_POST['paciente_id'],
+                    'fecha_reserva' => $_POST['fecha_reserva'],
+                    'hora_inicio' => $_POST['hora_inicio'],
+                    'hora_fin' => $_POST['hora_fin'],
+                    'sala_id' => isset($_POST['sala_id']) ? $_POST['sala_id'] : null,
+                    'reserva_estado' => isset($_POST['reserva_estado']) ? $_POST['reserva_estado'] : 'PENDIENTE',
+                    'observaciones' => isset($_POST['observaciones']) ? $_POST['observaciones'] : ''
+                ];
+                
+                error_log("AJAX actualizarReserva: Datos recibidos: " . json_encode($datos), 
+                         3, 'c:/laragon/www/clinica/logs/reservas.log');
+                
+                $resultado = ControladorServicios::ctrActualizarReserva($datos);
+                echo json_encode($resultado);
+                
+            } catch (Exception $e) {
+                error_log("AJAX actualizarReserva ERROR: " . $e->getMessage(), 
+                         3, 'c:/laragon/www/clinica/logs/reservas.log');
+                echo json_encode([
+                    "status" => "error",
+                    "message" => "Error al actualizar la reserva: " . $e->getMessage()
+                ]);
+            }
+            break;
+
+        case 'editarReservaCompleta':
+            try {
+                // Validar que se proporcionaron los datos necesarios para edición completa
+                $camposRequeridos = ['reserva_id', 'servicio_id', 'doctor_id', 'fecha_reserva', 'hora_inicio', 'hora_fin'];
+                $camposFaltantes = [];
+                
+                foreach ($camposRequeridos as $campo) {
+                    if (!isset($_POST[$campo]) || empty($_POST[$campo])) {
+                        $camposFaltantes[] = $campo;
+                    }
+                }
+                
+                if (!empty($camposFaltantes)) {
+                    echo json_encode([
+                        "status" => "error",
+                        "message" => "Faltan campos requeridos para edición: " . implode(", ", $camposFaltantes)
+                    ]);
+                    break;
+                }
+                
+                // Preparar los datos completos para la edición
+                $datos = [
+                    'reserva_id' => intval($_POST['reserva_id']),
+                    'servicio_id' => intval($_POST['servicio_id']),
+                    'doctor_id' => intval($_POST['doctor_id']),
+                    'fecha_reserva' => $_POST['fecha_reserva'],
+                    'hora_inicio' => $_POST['hora_inicio'],
+                    'hora_fin' => $_POST['hora_fin'],
+                    'reserva_estado' => isset($_POST['reserva_estado']) ? $_POST['reserva_estado'] : 'PENDIENTE',
+                    'observaciones' => isset($_POST['observaciones']) ? $_POST['observaciones'] : '',
+                    'agenda_id' => isset($_POST['agenda_id']) && $_POST['agenda_id'] !== '' ? intval($_POST['agenda_id']) : null,
+                    'sala_id' => isset($_POST['sala_id']) && $_POST['sala_id'] !== '' ? intval($_POST['sala_id']) : null,
+                    'tarifa_id' => isset($_POST['tarifa_id']) && $_POST['tarifa_id'] !== '' ? intval($_POST['tarifa_id']) : null,
+                    'seguro_id' => isset($_POST['seguro_id']) && $_POST['seguro_id'] !== '' ? intval($_POST['seguro_id']) : null
+                ];
+                
+                error_log("AJAX editarReservaCompleta: Datos recibidos: " . json_encode($datos), 
+                         3, 'c:/laragon/www/clinica/logs/reservas.log');
+                
+                $resultado = ControladorServicios::ctrEditarReservaCompleta($datos);
+                echo json_encode($resultado);
+                
+            } catch (Exception $e) {
+                error_log("AJAX editarReservaCompleta ERROR: " . $e->getMessage(), 
+                         3, 'c:/laragon/www/clinica/logs/reservas.log');
+                echo json_encode([
+                    "status" => "error",
+                    "message" => "Error al editar la reserva: " . $e->getMessage()
+                ]);
+            }
+            break;
+
+        case 'verificarConflictosEdicion':
+            try {
+                // Validar datos para verificación de conflictos
+                $camposRequeridos = ['doctor_id', 'fecha_reserva', 'hora_inicio', 'hora_fin'];
+                $camposFaltantes = [];
+                
+                foreach ($camposRequeridos as $campo) {
+                    if (!isset($_POST[$campo]) || empty($_POST[$campo])) {
+                        $camposFaltantes[] = $campo;
+                    }
+                }
+                
+                if (!empty($camposFaltantes)) {
+                    echo json_encode([
+                        "status" => "error",
+                        "message" => "Faltan campos para verificar conflictos: " . implode(", ", $camposFaltantes)
+                    ]);
+                    break;
+                }
+                
+                $datos = [
+                    'doctor_id' => intval($_POST['doctor_id']),
+                    'fecha_reserva' => $_POST['fecha_reserva'],
+                    'hora_inicio' => $_POST['hora_inicio'],
+                    'hora_fin' => $_POST['hora_fin'],
+                    'reserva_id' => isset($_POST['reserva_id']) ? intval($_POST['reserva_id']) : null
+                ];
+                
+                error_log("AJAX verificarConflictosEdicion: Verificando conflictos: " . json_encode($datos), 
+                         3, 'c:/laragon/www/clinica/logs/reservas.log');
+                
+                $resultado = ControladorServicios::ctrVerificarConflictosEdicion($datos);
+                echo json_encode($resultado);
+                
+            } catch (Exception $e) {
+                error_log("AJAX verificarConflictosEdicion ERROR: " . $e->getMessage(), 
+                         3, 'c:/laragon/www/clinica/logs/reservas.log');
+                echo json_encode([
+                    "status" => "error",
+                    "message" => "Error al verificar conflictos: " . $e->getMessage()
+                ]);
+            }
+            break;
+
         case 'enviarWhatsApp':
             if (isset($_POST['telefono']) && isset($_POST['mensaje'])) {
                 $telefono = $_POST['telefono'];
@@ -539,6 +718,78 @@ if (isset($_POST['action'])) {
                 echo json_encode([
                     "status" => "error",
                     "message" => "Faltan parámetros: teléfono y mensaje son obligatorios"
+                ]);
+            }
+            break;
+
+        case 'obtenerSalasActivas':
+            try {
+                // Obtener todas las salas activas
+                $salas = ControladorServicios::ctrObtenerSalasActivas();
+                
+                if ($salas) {
+                    echo json_encode([
+                        "status" => "success",
+                        "data" => $salas
+                    ]);
+                } else {
+                    echo json_encode([
+                        "status" => "success",
+                        "data" => [],
+                        "message" => "No se encontraron salas activas"
+                    ]);
+                }
+            } catch (Exception $e) {
+                error_log("AJAX obtenerSalasActivas ERROR: " . $e->getMessage(), 
+                         3, 'c:/laragon/www/clinica/logs/reservas.log');
+                echo json_encode([
+                    "status" => "error",
+                    "message" => "Error al obtener salas: " . $e->getMessage()
+                ]);
+            }
+            break;
+
+        case 'obtenerDoctoresPorFecha':
+            try {
+                // Validar que se proporcione la fecha
+                if (!isset($_POST['fecha']) || empty($_POST['fecha'])) {
+                    echo json_encode([
+                        "status" => "error",
+                        "message" => "Fecha es requerida"
+                    ]);
+                    break;
+                }
+                
+                $fecha = $_POST['fecha'];
+                
+                error_log("AJAX obtenerDoctoresPorFecha: Obteniendo doctores para fecha: " . $fecha, 
+                         3, 'c:/laragon/www/clinica/logs/reservas.log');
+                
+                // USAR EL MISMO MÉTODO QUE FUNCIONA PARA NUEVA RESERVA
+                $doctores = ControladorServicios::ctrObtenerMedicosDisponiblesPorFecha($fecha);
+                
+                error_log("AJAX obtenerDoctoresPorFecha: Doctores obtenidos usando método de nueva reserva: " . count($doctores), 
+                         3, 'c:/laragon/www/clinica/logs/reservas.log');
+                
+                if ($doctores !== false) {
+                    echo json_encode([
+                        "status" => "success",
+                        "data" => $doctores,
+                        "total" => count($doctores)
+                    ]);
+                } else {
+                    echo json_encode([
+                        "status" => "error",
+                        "message" => "Error al obtener doctores"
+                    ]);
+                }
+                
+            } catch (Exception $e) {
+                error_log("AJAX obtenerDoctoresPorFecha ERROR: " . $e->getMessage(), 
+                         3, 'c:/laragon/www/clinica/logs/reservas.log');
+                echo json_encode([
+                    "status" => "error",
+                    "message" => "Error al obtener doctores: " . $e->getMessage()
                 ]);
             }
             break;
