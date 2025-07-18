@@ -1071,19 +1071,21 @@ if (!isset($_SESSION['perfil'])) {
                         </div>
 
                         <div class="row">
-                            <div class="col-md-4">
+                            <div class="col-md-4" style="display: none;">
                                 <div class="form-group">
                                     <label for="editHoraInicio">Hora de Inicio: <span class="text-danger">*</span></label>
-                                    <input type="time" class="form-control" id="editHoraInicio" required>
+                                    <input type="time" class="form-control" id="editHoraInicio" required readonly>
+                                    <small class="text-muted">Seleccione un horario disponible abajo</small>
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-4" style="display: none;">
                                 <div class="form-group">
                                     <label for="editHoraFin">Hora de Fin: <span class="text-danger">*</span></label>
-                                    <input type="time" class="form-control" id="editHoraFin" required>
+                                    <input type="time" class="form-control" id="editHoraFin" required readonly>
+                                    <small class="text-muted">Se asigna automáticamente</small>
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="editSalaSelect">Sala:</label>
                                     <select class="form-control" id="editSalaSelect">
@@ -1093,14 +1095,24 @@ if (!isset($_SESSION['perfil'])) {
                             </div>
                         </div>
 
-                        <!-- Horarios disponibles para el nuevo doctor/fecha -->
-                        <div class="card card-outline card-success mb-3" id="cardHorariosDisponiblesEdit" style="display: none;">
+                        <!-- Horarios disponibles para el doctor/fecha seleccionado -->
+                        <div class="card card-outline card-primary mb-3" id="cardHorariosDisponiblesEdit" style="display: none;">
                             <div class="card-header">
-                                <h6 class="card-title"><i class="fas fa-clock"></i> Horarios Disponibles</h6>
+                                <h6 class="card-title">
+                                    <i class="fas fa-clock"></i> Horarios Disponibles
+                                    <span class="badge badge-info ml-2">Seleccione un horario</span>
+                                </h6>
+                                <div class="card-tools">
+                                    <small class="text-muted">Haga clic en un horario para seleccionarlo</small>
+                                </div>
                             </div>
                             <div class="card-body">
                                 <div id="horariosDisponiblesEdit">
-                                    <!-- Se cargan dinámicamente -->
+                                    <!-- Se cargan dinámicamente con slots de horarios -->
+                                </div>
+                                <div class="alert alert-info mt-2" style="display: none;" id="alertHorarioSeleccionado">
+                                    <i class="fas fa-info-circle"></i>
+                                    <strong>Horario seleccionado:</strong> <span id="horarioSeleccionadoTexto"></span>
                                 </div>
                             </div>
                         </div>

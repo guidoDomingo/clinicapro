@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Modal Edición</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .debug-container { max-width: 800px; margin: 0 auto; }
+        .test-section { border: 1px solid #ddd; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+        pre { background: #f5f5f5; padding: 10px; border-radius: 5px; }
+        button { padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        #logArea { height: 200px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; background: #f8f9fa; }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="debug-container">
+        <h1>🐛 Debug: Modal de Edición - Horarios No Visibles</h1>
+        
+        <div class="test-section">
+            <h3>1. Test Manual de Función</h3>
+            <button onclick="testCargarHorariosManual()">Test cargarHorariosDisponiblesParaEdicion</button>
+            <button onclick="testGenerarSlots()">Test generarSlotsDisponibles directo</button>
+            <button onclick="clearLog()">Limpiar Log</button>
+        </div>
+        
+        <div class="test-section">
+            <h3>2. Simulación del Modal</h3>
+            <div style="display: none;">
+                <input type="date" id="editFechaReserva" value="2025-07-17">
+                <select id="editDoctorSelect">
+                    <option value="14">Dr. ronal ricardo</option>
+                </select>
+                <select id="editServicioSelect">
+                    <option value="2">Cirugía de cataratas</option>
+                </select>
+                <input type="hidden" id="editHoraInicio">
+                <input type="hidden" id="editHoraFin">
+                <input type="hidden" id="editAgendaId">
+            </div>
+            
+            <div id="cardHorariosDisponiblesEdit" style="border: 1px solid #007bff; padding: 15px;">
+                <h6>📋 Contenedor de Horarios:</h6>
+                <div id="horariosDisponiblesEdit">
+                    <div class="info">Aquí deberían aparecer los horarios...</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h3>3. Log de Debug</h3>
+            <div id="logArea"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>4. Resultado de Tests</h3>
+            <div id="resultadoTest"></div>
+        </div>
+    </div>
+
+    <script>
+        function log(mensaje) {
+            const timestamp = new Date().toLocaleTimeString();
+            $('#logArea').append(`[${timestamp}] ${mensaje}<br>`);
+            $('#logArea').scrollTop($('#logArea')[0].scrollHeight);
+            console.log(mensaje);
+        }
+        
+        function clearLog() {
+            $('#logArea').empty();
+        }
+        
+        function testCargarHorariosManual() {
+            log("🧪 Iniciando test manual de cargarHorariosDisponiblesParaEdicion");
+            
+            const fecha = "2025-07-17";
+            const doctorId = 14;
+            const servicioId = 2;
+            
+            $('#editFechaReserva').val(fecha);
+            $('#editDoctorSelect').val(doctorId);
+            $('#editServicioSelect').val(servicioId);
+            
+            log(`📅 Fecha: ${fecha}, 👨‍⚕️ Doctor: ${doctorId}, 🏥 Servicio: ${servicioId}`);
+            
+            $('#horariosDisponiblesEdit').html('<div class="info">🔄 Cargando horarios...</div>');
+            $('#cardHorariosDisponiblesEdit').show();
+            
+            log("📡 Enviando request a generarSlotsDisponibles...");
+            
+            $.ajax({
+                url: 'ajax/servicios.ajax.php',
+                method: 'POST',
+                data: {
+                    action: 'generarSlotsDisponibles',
+                    servicio_id: servicioId,
+                    doctor_id: doctorId,
+                    fecha: fecha
+                },
+                dataType: 'json',
+                success: function(respuesta) {
+                    log("✅ Respuesta recibida:");
+                    log(`📊 Status: ${respuesta.status}`);
+                    log(`📈 Data length: ${respuesta.data ? respuesta.data.length : 0}`);
+                    
+                    if (respuesta.data && respuesta.data.length > 0) {
+                        log("🎯 Datos encontrados, procesando slots...");
+                        mostrarSlotsDebug(respuesta.data);
+                    } else {
+                        log("❌ No hay datos de horarios");
+                        $('#horariosDisponiblesEdit').html('<div class="error">❌ No hay horarios disponibles</div>');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    log(`❌ Error AJAX: ${error}`);
+                    log(`📄 Response Text: ${xhr.responseText}`);
+                    $('#horariosDisponiblesEdit').html('<div class="error">❌ Error al cargar horarios</div>');
+                }
+            });
+        }
+        
+        function testGenerarSlots() {
+            log("🧪 Test directo de generarSlotsDisponibles");
+            
+            $.ajax({
+                url: 'ajax/servicios.ajax.php',
+                method: 'POST',
+                data: {
+                    action: 'generarSlotsDisponibles',
+                    servicio_id: 2,
+                    doctor_id: 14,
+                    fecha: '2025-07-17'
+                },
+                dataType: 'json',
+                success: function(respuesta) {
+                    log("📊 Respuesta completa:");
+                    log(JSON.stringify(respuesta, null, 2));
+                    $('#resultadoTest').html('<pre>' + JSON.stringify(respuesta, null, 2) + '</pre>');
+                },
+                error: function(xhr, status, error) {
+                    log(`❌ Error: ${error}`);
+                    $('#resultadoTest').html(`<div class="error">Error: ${error}</div>`);
+                }
+            });
+        }
+        
+        function mostrarSlotsDebug(slots) {
+            log(`🔨 Construyendo HTML para ${slots.length} slots`);
+            
+            let html = '<div class="row horarios-grid-edit">';
+            
+            slots.forEach((slot, index) => {
+                const disponible = slot.disponible !== false;
+                const claseDisponibilidad = disponible ? '' : 'no-disponible';
+                
+                let horaInicio = '??:??';
+                let horaFin = '??:??';
+
+                if (slot.hora_inicio) {
+                    horaInicio = slot.hora_inicio.substring(0, 5);
+                } else if (slot.inicio) {
+                    horaInicio = slot.inicio.substring(0, 5);
+                }
+
+                if (slot.hora_fin) {
+                    horaFin = slot.hora_fin.substring(0, 5);
+                } else if (slot.fin) {
+                    horaFin = slot.fin.substring(0, 5);
+                }
+
+                const nombreSala = slot.sala_nombre || 'Sin sala';
+                
+                log(`🕐 Slot ${index + 1}: ${horaInicio}-${horaFin} (${nombreSala}) - ${disponible ? 'Disponible' : 'No disponible'}`);
+                
+                html += `
+                    <div class="col-md-4 col-sm-6 mb-2">
+                        <div class="slot-horario-edit ${claseDisponibilidad}" 
+                             data-inicio="${slot.hora_inicio || slot.inicio || ''}"
+                             data-fin="${slot.hora_fin || slot.fin || ''}"
+                             data-sala="${nombreSala}"
+                             style="border: 2px solid #007bff; padding: 10px; margin: 5px; background: ${disponible ? '#f8f9fa' : '#ffebee'}; cursor: ${disponible ? 'pointer' : 'not-allowed'};">
+                            <div class="text-center">
+                                <div style="font-weight: bold;">${horaInicio} - ${horaFin}</div>
+                                <div style="font-size: 12px; color: #666;">${nombreSala}</div>
+                                ${disponible ? '✅' : '❌'}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            
+            log("✅ HTML construido, insertando en DOM");
+            $('#horariosDisponiblesEdit').html(html);
+            
+            // Configurar eventos de click
+            $('.slot-horario-edit:not(.no-disponible)').off('click').on('click', function() {
+                const horaInicio = $(this).data('inicio');
+                const horaFin = $(this).data('fin');
+                
+                log(`🎯 Slot seleccionado: ${horaInicio} - ${horaFin}`);
+                
+                $('#editHoraInicio').val(horaInicio.substring(0, 5));
+                $('#editHoraFin').val(horaFin.substring(0, 5));
+                
+                $('.slot-horario-edit').css('border-color', '#007bff');
+                $(this).css('border-color', '#28a745');
+                
+                alert(`Horario seleccionado: ${horaInicio.substring(0, 5)} - ${horaFin.substring(0, 5)}`);
+            });
+            
+            log(`✅ ${slots.length} slots procesados y eventos configurados`);
+        }
+        
+        // Inicializar
+        $(document).ready(function() {
+            log("🚀 Debug de Modal de Edición iniciado");
+            log("📋 Verificando elementos del DOM...");
+            
+            if ($('#horariosDisponiblesEdit').length) {
+                log("✅ Contenedor horariosDisponiblesEdit encontrado");
+            } else {
+                log("❌ Contenedor horariosDisponiblesEdit NO encontrado");
+            }
+            
+            if ($('#cardHorariosDisponiblesEdit').length) {
+                log("✅ Card horariosDisponiblesEdit encontrado");
+            } else {
+                log("❌ Card horariosDisponiblesEdit NO encontrado");
+            }
+        });
+    </script>
+</body>
+</html>

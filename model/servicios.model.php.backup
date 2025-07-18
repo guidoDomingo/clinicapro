@@ -527,47 +527,43 @@ class ModelServicios {
             error_log("Error al obtener horarios disponibles: " . $e->getMessage(), 0);
             return [];
         }
-    }
-
-    /**
+    }    /**
      * Genera los horarios disponibles para un servicio, doctor y fecha específica
      * @param int $servicioId ID del servicio
      * @param int $doctorId ID del doctor
      * @param string $fecha Fecha para la verificación (formato YYYY-MM-DD)
-     * @return array Listado de slots de horarios
-     */
-    static public function mdlGenerarSlotsDisponibles($servicioId, $doctorId, $fecha) {
+     * @return array Listado de slots de horarios     */    static public function mdlGenerarSlotsDisponibles($servicioId, $doctorId, $fecha) {
         try {
             // CORREGIDO: Cambiar zona horaria a Asunción
             date_default_timezone_set('America/Asuncion');
             $horaServidor = date('Y-m-d H:i:s');
             $zonaTiempo = date_default_timezone_get();
             
-            error_log("=== INICIO mdlGenerarSlotsDisponibles ===", 3, 'c:/laragon/www/clinica/logs/servicios.log');
-            error_log("Parámetros: ServicioID={$servicioId}, DoctorID={$doctorId}, Fecha={$fecha}", 3, 'c:/laragon/www/clinica/logs/servicios.log');
-            error_log("Hora servidor: {$horaServidor}, Zona: {$zonaTiempo}", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+            error_log("Generando slots disponibles para - ServicioID: {$servicioId}, DoctorID: {$doctorId}, Fecha: {$fecha}", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+            error_log("CORREGIDO: Zona horaria cambiada a America/Asuncion", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+            error_log("Hora actual del servidor: {$horaServidor}, Zona horaria: {$zonaTiempo}", 3, 'c:/laragon/www/clinica/logs/servicios.log');
             
-            // Validar formato de fecha
+            // Verificar que el formato de la fecha sea correcto
             if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $fecha)) {
-                error_log("ERROR: Formato de fecha incorrecto: {$fecha}", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+                error_log("Formato de fecha incorrecto: " . $fecha, 3, 'c:/laragon/www/clinica/logs/database.log');
                 return [];
             }
             
-            // Validar fecha
+            // Asegurarse de que la fecha sea válida
             $fechaObj = DateTime::createFromFormat('Y-m-d', $fecha);
             if (!$fechaObj || $fechaObj->format('Y-m-d') !== $fecha) {
-                error_log("ERROR: Fecha inválida: {$fecha}", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+                error_log("Fecha inválida: " . $fecha, 3, 'c:/laragon/www/clinica/logs/database.log');
                 return [];
             }
             
-            // Determinar día de la semana
-            $diaSemanaNum = (int)$fechaObj->format('N'); // 1=lunes, 7=domingo
+            // Determinar el día de la semana para la fecha
+            $diaSemanaNum = (int)$fechaObj->format('N'); // 1 (lunes) a 7 (domingo) según ISO-8601
             $diasSemanaTexto = [1 => 'LUNES', 2 => 'MARTES', 3 => 'MIERCOLES', 4 => 'JUEVES', 5 => 'VIERNES', 6 => 'SABADO', 7 => 'DOMINGO'];
             $diaSemanaTexto = $diasSemanaTexto[$diaSemanaNum];
             
-            error_log("Día de la semana: {$diaSemanaTexto} (num: {$diaSemanaNum})", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+            error_log("Fecha: {$fecha}, Día num: {$diaSemanaNum}, Día texto: {$diaSemanaTexto}", 3, 'c:/laragon/www/clinica/logs/servicios.log');
             
-            // USAR LA CONSULTA SQL ESPECÍFICA PROPORCIONADA
+            // CORREGIDO: Usar la misma consulta que nueva reserva con tu SQL específica
             $stmt = Conexion::conectar()->prepare(
                 "SELECT 
                     rp.person_id,
@@ -602,23 +598,52 @@ class ModelServicios {
             $stmt->bindParam(":dia_semana", $diaSemanaTexto, PDO::PARAM_STR);
             
             error_log("Ejecutando consulta para Doctor ID={$doctorId}, Día={$diaSemanaTexto}", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+            
             $stmt->execute();
             $horarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
             error_log("Horarios encontrados: " . count($horarios), 3, 'c:/laragon/www/clinica/logs/servicios.log');
             if (!empty($horarios)) {
+                error_log("Primer horario encontrado: " . json_encode($horarios[0]), 3, 'c:/laragon/www/clinica/logs/servicios.log');
+            }
+            
+            if (empty($horarios)) {
+                error_log("No se encontraron horarios para el día " . $diaSemanaTexto, 3, 'c:/laragon/www/clinica/logs/servicios.log');
+                return [];
+            }
+              $stmt->execute();
+            $horarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Log detallado de los horarios encontrados
+            error_log("Horarios encontrados para doctor_id={$doctorId}, dia={$diaSemanaTexto}: " . count($horarios), 3, 'c:/laragon/www/clinica/logs/servicios.log');
+            if (!empty($horarios)) {
                 error_log("Primer horario: " . json_encode($horarios[0]), 3, 'c:/laragon/www/clinica/logs/servicios.log');
             }
             
             if (empty($horarios)) {
-                error_log("No se encontraron horarios para el día {$diaSemanaTexto}", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+                error_log("No se encontraron horarios para el día " . $diaSemanaTexto, 3, 'c:/laragon/www/clinica/logs/servicios.log');
+                  // Diagnóstico adicional: Verificar si existe el registro en agendas_detalle
+                $stmtDiag = Conexion::conectar()->prepare("
+                    SELECT COUNT(*) as total FROM agendas_detalle ad
+                    INNER JOIN agendas_cabecera ac ON ad.agenda_id = ac.agenda_id
+                    WHERE ac.medico_id = :doctor_id AND ad.dia_semana = :dia_semana
+                ");
+                $stmtDiag->bindParam(":doctor_id", $doctorId, PDO::PARAM_INT);
+                $stmtDiag->bindParam(":dia_semana", $diaSemanaTexto, PDO::PARAM_STR);
+                $stmtDiag->execute();
+                $total = $stmtDiag->fetchColumn();
+                
+                error_log("Diagnóstico: Total de registros en agendas_detalle para doctor_id={$doctorId}, dia={$diaSemanaTexto}: {$total}", 3, 'c:/laragon/www/clinica/logs/servicios.log');
                 return [];
             }
             
-            // Obtener reservas existentes para verificar disponibilidad
+            // Para simplificar el proceso durante las pruebas, si no existe la tabla de reservas
+            // generamos slots sin verificar reservas existentes
             $reservasExistentes = [];
-            try {
-                $stmtReservas = Conexion::conectar()->prepare(
+              try {
+                // Consulta para obtener las reservas existentes para ese día
+                // MODIFICADO: Ahora ignoramos el servicio_id y solo consideramos las reservas del médico en esa fecha
+                $stmt = Conexion::conectar()->prepare(
                     "SELECT 
                         reserva_id,
                         servicio_id,
@@ -627,40 +652,45 @@ class ModelServicios {
                         fecha_reserva,
                         hora_inicio,
                         hora_fin
-                    FROM servicios_reservas
+                    FROM 
+                        servicios_reservas
                     WHERE 
                         doctor_id = :doctor_id
                         AND fecha_reserva = :fecha_reserva
                         AND reserva_estado IN ('CONFIRMADA', 'PENDIENTE')
-                    ORDER BY hora_inicio ASC"
-                );
+                    ORDER BY 
+                        hora_inicio ASC"
+                );                // Ya no filtramos por servicio_id
+                $stmt->bindParam(":doctor_id", $doctorId, PDO::PARAM_INT);
+                $stmt->bindParam(":fecha_reserva", $fecha, PDO::PARAM_STR);
+                $stmt->execute();
+                $reservasExistentes = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 
-                $stmtReservas->bindParam(":doctor_id", $doctorId, PDO::PARAM_INT);
-                $stmtReservas->bindParam(":fecha_reserva", $fecha, PDO::PARAM_STR);
-                $stmtReservas->execute();
-                $reservasExistentes = $stmtReservas->fetchAll(PDO::FETCH_ASSOC);
-                
-                error_log("Reservas existentes: " . count($reservasExistentes), 3, 'c:/laragon/www/clinica/logs/servicios.log');
+                error_log("Reservas existentes para Doctor ID {$doctorId} en fecha {$fecha}: " . count($reservasExistentes), 3, 'c:/laragon/www/clinica/logs/servicios.log');
             } catch (PDOException $e) {
-                error_log("Error al obtener reservas existentes: " . $e->getMessage(), 3, 'c:/laragon/www/clinica/logs/servicios.log');
+                // Si hay un error al obtener reservas (por ejemplo, la tabla no existe aún)
+                // continuamos con un array vacío
+                error_log("Advertencia al obtener reservas existentes: " . $e->getMessage(), 3, 'c:/laragon/www/clinica/logs/servicios.log');
             }
-            
-            // Generar slots disponibles
+            // Generar slots disponibles para cada horario base
             $slotsDisponibles = [];
             foreach ($horarios as $horario) {
-                error_log("Procesando horario: Agenda={$horario['agenda_id']}, Intervalo={$horario['intervalo_minutos']}min", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+                error_log("Procesando horario: " . json_encode($horario), 3, 'c:/laragon/www/clinica/logs/servicios.log');
                 
-                // USAR EL INTERVALO DE AGENDAS_DETALLE
-                $intervaloMinutos = (int)$horario['intervalo_minutos'];
+                // CORREGIDO: Usar intervalo de agendas_detalle directamente
+                $intervaloMinutos = $horario['intervalo_minutos'] ?? 30;
+                error_log("Intervalo de agendas_detalle: {$intervaloMinutos} minutos", 3, 'c:/laragon/www/clinica/logs/servicios.log');
                 
-                // Convertir horas a DateTime
+                // Convertir las cadenas de hora a objetos DateTime
                 $horaInicio = new DateTime($fecha . ' ' . $horario['hora_inicio']);
                 $horaFin = new DateTime($fecha . ' ' . $horario['hora_fin']);
                 
-                error_log("Rango: " . $horaInicio->format('H:i') . " - " . $horaFin->format('H:i') . " (intervalo: {$intervaloMinutos}min)", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+                error_log("Rango de tiempo: " . $horaInicio->format('H:i') . " - " . $horaFin->format('H:i'), 3, 'c:/laragon/www/clinica/logs/servicios.log');
+                
+                // Crear una variable para llevar el seguimiento de la hora actual
+                $horaActual = clone $horaInicio;
                 
                 // Generar slots cada intervalo de minutos
-                $horaActual = clone $horaInicio;
                 while ($horaActual < $horaFin) {
                     $slotFin = clone $horaActual;
                     $slotFin->add(new DateInterval('PT' . $intervaloMinutos . 'M'));
@@ -673,16 +703,15 @@ class ModelServicios {
                     $slotInicioStr = $horaActual->format('H:i:s');
                     $slotFinStr = $slotFin->format('H:i:s');
                     
-                    // Verificar disponibilidad vs reservas existentes
+                    // Verificar si este slot está ocupado por alguna reserva existente
                     $disponible = true;
                     foreach ($reservasExistentes as $reserva) {
                         $reservaInicio = $reserva['hora_inicio'];
                         $reservaFin = $reserva['hora_fin'];
                         
-                        // Verificar solapamiento
+                        // Verificar si hay solapamiento con las reservas existentes
                         if (($slotInicioStr < $reservaFin) && ($slotFinStr > $reservaInicio)) {
                             $disponible = false;
-                            error_log("Slot ocupado: {$slotInicioStr}-{$slotFinStr} vs reserva {$reservaInicio}-{$reservaFin}", 3, 'c:/laragon/www/clinica/logs/servicios.log');
                             break;
                         }
                     }
@@ -692,14 +721,14 @@ class ModelServicios {
                         'hora_inicio' => $slotInicioStr,
                         'hora_fin' => $slotFinStr,
                         'sala_id' => $horario['sala_id'],
-                        'sala_nombre' => $horario['sala_nombre'],
+                        'sala_nombre' => $horario['sala_nombre'] ?? 'Sin nombre',
                         'turno_id' => $horario['turno_id'],
-                        'turno_nombre' => $horario['turno_nombre'],
+                        'turno_nombre' => $horario['turno_nombre'] ?? 'Sin turno',
                         'agenda_id' => $horario['agenda_id'],
                         'detalle_id' => $horario['detalle_id'],
                         'disponible' => $disponible,
                         'doctor_id' => $doctorId,
-                        'doctor_nombre' => $horario['first_name'],
+                        'doctor_nombre' => $horario['first_name'] ?? 'Sin nombre',
                         'intervalo_minutos' => $intervaloMinutos,
                         'fecha' => $fecha
                     ];
@@ -711,18 +740,123 @@ class ModelServicios {
                 }
             }
             
-            error_log("Total de slots generados: " . count($slotsDisponibles), 3, 'c:/laragon/www/clinica/logs/servicios.log');
-            error_log("=== FIN mdlGenerarSlotsDisponibles ===", 3, 'c:/laragon/www/clinica/logs/servicios.log');
-            
-            return $slotsDisponibles;
-            
-        } catch (Exception $e) {
-            error_log("ERROR en mdlGenerarSlotsDisponibles: " . $e->getMessage(), 3, 'c:/laragon/www/clinica/logs/servicios.log');
-            return [];
+            // Generar slots mientras haya tiempo disponible
+            while ($horaActual < $horaFin) {                $slotInicio = clone $horaActual;
+                $slotFin = clone $horaActual;
+                $slotFin->add(new DateInterval('PT' . $duracionServicio . 'M'));
+                
+                // Log para depuración de slots con fecha y hora completas
+                error_log("Generando slot: " . $slotInicio->format('Y-m-d H:i:s') . " - " . $slotFin->format('Y-m-d H:i:s'), 3, 'c:/laragon/www/clinica/logs/servicios.log');
+                  // Verificar si este slot ya está reservado
+                $slotDisponible = true;
+                
+                // Comprobar la hora actual para evitar slots en el pasado
+                $fechaHoySistema = date('Y-m-d');
+                // Asegurarnos de usar la hora exacta del servidor con timezone adecuado
+                date_default_timezone_set('America/Caracas'); // Confirmar que esté configurada correctamente
+                $ahora = new DateTime(); // Momento actual completo con la zona horaria correcta
+                
+                // Crear fecha y hora completa para el slot
+                $slotDateTime = new DateTime($fecha . ' ' . $slotInicio->format('H:i:s'));
+                
+                // Agregar 5 minutos de margen al horario actual para evitar reservas demasiado justas
+                $ahoraConMargen = clone $ahora;
+                $ahoraConMargen->add(new DateInterval('PT5M')); // Añade 5 minutos
+                
+                error_log("Generando slot: " . $slotDateTime->format('Y-m-d H:i:s') . " - " . $fecha . " " . $slotFin->format('H:i:s'), 3, 'c:/laragon/www/clinica/logs/servicios.log');
+                error_log("Comparando slot: " . $slotDateTime->format('Y-m-d H:i:s') . " con ahora (+5min): " . $ahoraConMargen->format('Y-m-d H:i:s'), 3, 'c:/laragon/www/clinica/logs/servicios.log');
+                
+                // Verificamos sólo si la fecha del slot es igual a la fecha actual
+                if ($fecha === $fechaHoySistema) {
+                    // Solo para el día actual, comprobamos que la hora no esté en el pasado
+                    // Usamos la hora actual más el margen para filtrar
+                    if ($slotDateTime < $ahoraConMargen) {
+                        error_log("Slot descartado por estar en el pasado o demasiado próximo (fecha/hora actual+5min: " . $ahoraConMargen->format('Y-m-d H:i:s') . ")", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+                        $slotDisponible = false;
+                    } else {
+                        error_log("Slot en el futuro para hoy, disponible por tiempo", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+                    }
+                } else {
+                    // Si es un día diferente al actual, comprobamos si es futuro o pasado
+                    $fechaSlot = new DateTime($fecha);
+                    $fechaActual = new DateTime($fechaHoySistema);
+                    
+                    if ($fechaSlot < $fechaActual) {
+                        error_log("Slot descartado porque la fecha es anterior a hoy", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+                        $slotDisponible = false;
+                    } else {
+                        error_log("Slot para fecha futura (" . $fecha . "), disponible", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+                        // Para fechas futuras, siempre disponible sin importar la hora
+                    }
+                }
+                
+                // Verificar que el slot termine antes o a la misma hora que termina el horario
+                if ($slotFin > $horaFin) {
+                    $slotDisponible = false;
+                }
+                
+                // Verificar colisiones con otras reservas
+                if ($slotDisponible) {
+                    foreach ($reservasExistentes as $reserva) {
+                        $reservaInicio = new DateTime($reserva['hora_inicio']);
+                        $reservaFin = new DateTime($reserva['hora_fin']);
+                        
+                        // Si hay superposición, marcar como no disponible
+                        // Cuatro casos de superposición:
+                        // 1. El inicio del slot está dentro de una reserva existente
+                        // 2. El fin del slot está dentro de una reserva existente
+                        // 3. El slot abarca completamente una reserva existente
+                        // 4. El slot está completamente dentro de una reserva existente
+                        if (
+                            ($slotInicio >= $reservaInicio && $slotInicio < $reservaFin) ||
+                            ($slotFin > $reservaInicio && $slotFin <= $reservaFin) ||
+                            ($slotInicio <= $reservaInicio && $slotFin >= $reservaFin) ||
+                            ($slotInicio >= $reservaInicio && $slotFin <= $reservaFin)
+                        ) {
+                            $slotDisponible = false;
+                            break;
+                        }
+                    }
+                }
+                
+                // Si el slot está disponible y termina antes o igual que el fin del horario, agregarlo a la lista
+                if ($slotDisponible && $slotFin <= $horaFin) {
+                    // Log detallado para agenda_id antes de construir el slot
+                    error_log("Construyendo slot - Usando agenda_id: " . ($horario['agenda_id'] ?? 'NULL'), 3, 'c:/laragon/www/clinica/logs/servicios.log');
+                      $slotsDisponibles[] = [
+                        'agenda_id' => $horario['agenda_id'],
+                        'horario_id' => $horario['horario_id'],
+                        'turno_id' => $horario['turno_id'],
+                        'turno_nombre' => $horario['turno_nombre'],
+                        'sala_id' => $horario['sala_id'],
+                        'sala_nombre' => $horario['sala_nombre'],
+                        'doctor_id' => $horario['doctor_id'],
+                        'nombre_doctor' => $horario['nombre_doctor'],
+                        'fecha_reserva' => $fecha,
+                        'hora_inicio' => $slotInicio->format('H:i:s'),
+                        'hora_fin' => $slotFin->format('H:i:s'),
+                        'disponible' => $slotDisponible,
+                        'tipo_horario' => 'NORMAL',
+                    ];
+                }
+                
+                // Avanzar al siguiente slot usando el intervalo del horario
+                $intervaloMinutos = $horario['intervalo_minutos'] ?? 30;
+                $horaActual->add(new DateInterval('PT' . $intervaloMinutos . 'M'));
+            }
         }
+        
+        error_log("Total de slots disponibles generados: " . count($slotsDisponibles), 3, 'c:/laragon/www/clinica/logs/servicios.log');
+        
+        return $slotsDisponibles;
+        
+    } catch (Exception $e) {
+        error_log("Error al generar slots disponibles: " . $e->getMessage(), 3, 'c:/laragon/www/clinica/logs/servicios.log');
+        return [];
     }
+}
 
-        /**
+    /**
      * Obtiene los doctores disponibles para una fecha específica
      * @param string $fecha Fecha en formato YYYY-MM-DD
      * @return array Lista de doctores disponibles en esa fecha

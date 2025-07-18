@@ -2117,6 +2117,17 @@ function establecerValoresOriginalesEdicion() {
     $('#editDoctorSelect').val($('#editDoctorSelect').data('original-value'));
     $('#editServicioSelect').val($('#editServicioSelect').data('original-value'));
     $('#editSalaSelect').val($('#editSalaSelect').data('original-value'));
+    
+    // 🔧 Cargar horarios automáticamente cuando se establecen los valores
+    const fecha = $('#editFechaReserva').val();
+    const doctorId = $('#editDoctorSelect').val();
+    
+    console.log('🎯 Estableciendo valores originales - Fecha:', fecha, 'Doctor:', doctorId);
+    
+    if (fecha && doctorId) {
+        console.log('📅 Cargando horarios automáticamente para edición');
+        cargarHorariosDisponiblesParaEdicion(fecha, doctorId);
+    }
 }
 
 /**
@@ -2153,73 +2164,176 @@ function configurarEventosEdicionReserva() {
  * @param {number} doctorId ID del doctor
  */
 function cargarHorariosDisponiblesParaEdicion(fecha, doctorId) {
-    $('#horariosDisponiblesEdit').html('<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Cargando horarios...</div>');
+    const servicioId = $('#editServicioSelect').val() || 0;
+    
+    console.log("Cargando horarios para edición - Fecha:", fecha, "Doctor:", doctorId, "Servicio:", servicioId);
+    
+    $('#horariosDisponiblesEdit').html('<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Cargando horarios disponibles...</div>');
     $('#cardHorariosDisponiblesEdit').show();
     
+    // USAR EL MISMO MÉTODO QUE NUEVA RESERVA para generar slots
     $.ajax({
         url: 'ajax/servicios.ajax.php',
         method: 'POST',
         data: {
-            action: 'obtenerHorariosDisponibles',
+            action: 'generarSlotsDisponibles',
+            servicio_id: servicioId,
             doctor_id: doctorId,
-            fecha: fecha,
-            servicio_id: $('#editServicioSelect').val() || 0
+            fecha: fecha
         },
         dataType: 'json',
         success: function(respuesta) {
+            console.log("Respuesta slots para edición:", respuesta);
+            
             if (respuesta.status === 'success' && respuesta.data && respuesta.data.length > 0) {
                 mostrarHorariosDisponiblesEdicion(respuesta.data);
             } else {
                 $('#horariosDisponiblesEdit').html('<div class="text-center text-info">No hay horarios disponibles para este médico en la fecha seleccionada</div>');
             }
         },
-        error: function() {
+        error: function(xhr, status, error) {
+            console.error("Error al cargar horarios para edición:", error);
             $('#horariosDisponiblesEdit').html('<div class="text-center text-danger">Error al cargar horarios disponibles</div>');
         }
     });
 }
 
 /**
- * Muestra los horarios disponibles en el modal de edición
- * @param {Array} horarios Lista de horarios disponibles
+ * Muestra los horarios disponibles en el modal de edición usando el mismo estilo que nueva reserva
+ * @param {Array} slots Lista de slots disponibles
  */
-function mostrarHorariosDisponiblesEdicion(horarios) {
-    let html = '<div class="horarios-grid-edit">';
+function mostrarHorariosDisponiblesEdicion(slots) {
+    console.log("Mostrando", slots.length, "slots para edición");
     
-    horarios.forEach(horario => {
-        const horaInicio = horario.hora_inicio || horario.hora || '';
-        const horaFin = horario.hora_fin || '';
-        const horarioTexto = horaFin ? `${horaInicio} - ${horaFin}` : horaInicio;
+    // 🎯 IMPORTANTE: Mostrar el contenedor de horarios
+    $('#cardHorariosDisponiblesEdit').show();
+    
+    let html = '<div class="row horarios-grid-edit">';
+    
+    slots.forEach((slot, index) => {
+        // Determinar si el slot está disponible
+        const disponible = slot.disponible !== false;
+        const claseDisponibilidad = disponible ? '' : 'no-disponible';
+        
+        // Formatear las horas para mostrar (HH:MM)
+        let horaInicio = '??:??';
+        let horaFin = '??:??';
+
+        if (slot.hora_inicio) {
+            horaInicio = slot.hora_inicio.substring(0, 5);
+        } else if (slot.inicio) {
+            horaInicio = slot.inicio.substring(0, 5);
+        }
+
+        if (slot.hora_fin) {
+            horaFin = slot.hora_fin.substring(0, 5);
+        } else if (slot.fin) {
+            horaFin = slot.fin.substring(0, 5);
+        }
+
+        // Nombre de la sala
+        const nombreSala = slot.sala_nombre || 'Sin sala';
         
         html += `
-            <div class="hora-slot-edit" 
-                 data-inicio="${horaInicio}"
-                 data-fin="${horaFin}">
-                <span class="hora-text">${horarioTexto}</span>
-                <button type="button" class="btn btn-sm btn-outline-primary btn-seleccionar-horario">
-                    <i class="fas fa-check"></i>
-                </button>
+            <div class="col-md-4 col-sm-6 mb-2">
+                <div class="slot-horario-edit ${claseDisponibilidad}" 
+                     data-id="${slot.horario_id || slot.id || index}"
+                     data-inicio="${slot.hora_inicio || slot.inicio || ''}"
+                     data-fin="${slot.hora_fin || slot.fin || ''}"
+                     data-texto="${horaInicio} - ${horaFin}"
+                     data-sala="${nombreSala}"
+                     data-agenda-id="${slot.agenda_id || ''}"
+                     style="cursor: ${disponible ? 'pointer' : 'not-allowed'};">
+                    <div class="slot-content-edit text-center">
+                        <div class="slot-time-edit">${horaInicio} - ${horaFin}</div>
+                        <div class="slot-location-edit text-muted small">${nombreSala}</div>
+                        ${disponible ? '<i class="fas fa-clock text-success"></i>' : '<i class="fas fa-times text-danger"></i>'}
+                    </div>
+                </div>
             </div>
         `;
     });
     
     html += '</div>';
+    
+    // Agregar estilos CSS para los slots
+    html += `
+        <style>
+        .slot-horario-edit {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 10px;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+        .slot-horario-edit:hover:not(.no-disponible) {
+            border-color: #007bff;
+            background: #e3f2fd;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,123,255,0.2);
+        }
+        .slot-horario-edit.selected {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+        .slot-horario-edit.no-disponible {
+            opacity: 0.6;
+            background: #f8d7da;
+            border-color: #dc3545;
+        }
+        .slot-time-edit {
+            font-weight: bold;
+            color: #495057;
+            font-size: 14px;
+        }
+        .slot-location-edit {
+            font-size: 12px;
+        }
+        .horarios-grid-edit {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        </style>
+    `;
+    
     $('#horariosDisponiblesEdit').html(html);
     
-    // Configurar eventos para seleccionar horario
-    $('.btn-seleccionar-horario').on('click', function() {
-        const slot = $(this).closest('.hora-slot-edit');
-        const horaInicio = slot.data('inicio');
-        const horaFin = slot.data('fin');
+    // Configurar eventos para seleccionar horario (solo si está disponible)
+    $('.slot-horario-edit:not(.no-disponible)').off('click').on('click', function() {
+        const horaInicio = $(this).data('inicio');
+        const horaFin = $(this).data('fin');
+        const sala = $(this).data('sala');
+        const agendaId = $(this).data('agenda-id');
+        const horarioTexto = $(this).data('texto');
         
+        // Actualizar campos ocultos/input con las horas seleccionadas
         $('#editHoraInicio').val(horaInicio.substring(0, 5));
         $('#editHoraFin').val(horaFin.substring(0, 5));
         
-        // Resaltar horario seleccionado
-        $('.hora-slot-edit').removeClass('selected');
-        slot.addClass('selected');
+        // Guardar agenda_id si está disponible
+        if (agendaId) {
+            $('#editAgendaId').val(agendaId);
+        }
         
-        mostrarAlerta('success', 'Horario seleccionado: ' + horaInicio.substring(0, 5) + ' - ' + horaFin.substring(0, 5), 'top-end');
+        // Resaltar horario seleccionado
+        $('.slot-horario-edit').removeClass('selected');
+        $(this).addClass('selected');
+        
+        // Actualizar indicador visual
+        $('#horarioSeleccionadoTexto').text(`${horarioTexto} - ${sala}`);
+        $('#alertHorarioSeleccionado').show();
+        
+        // Mostrar mensaje de confirmación
+        mostrarAlerta('success', 
+            `✅ Horario seleccionado: ${horarioTexto}<br>📍 Sala: ${sala}`, 'top-end');
+        
+        console.log("Horario seleccionado para edición:", {
+            inicio: horaInicio,
+            fin: horaFin,
+            sala: sala,
+            agendaId: agendaId,
+            texto: horarioTexto
+        });
     });
 }
 

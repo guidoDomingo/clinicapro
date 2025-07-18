@@ -6196,4 +6196,1608 @@ LINE 1: SELECT CONCAT(nombres, ' ', apellidos) as nombre FROM rh_per...
 LINE 1: ...pellidos) as nombre, cedula, telefono, email FROM pacientes ...
                                                              ^Error al obtener salas activas: SQLSTATE[42703]: Undefined column: 7 ERROR:  column "capacidad" does not exist
 LINE 6:                     capacidad,
-                            ^mdlObtenerSalasActivas: Fallback exitoso, 4 salas obtenidasAJAX obtenerDoctoresPorFecha: Obteniendo doctores para fecha: 2025-07-17AJAX obtenerDoctoresPorFecha: Doctores obtenidos usando método de nueva reserva: 1
+                            ^mdlObtenerSalasActivas: Fallback exitoso, 4 salas obtenidasAJAX obtenerDoctoresPorFecha: Obteniendo doctores para fecha: 2025-07-17AJAX obtenerDoctoresPorFecha: Doctores obtenidos usando método de nueva reserva: 1AJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-17"}AJAX buscarReservas (procesado): Fecha=2025-07-17, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 2 reservasmdlObtenerReservasPorFecha: Primera reserva: {"reserva_id":67,"servicio_id":2,"doctor_id":14,"paciente_id":45,"fecha_reserva":"2025-07-17","hora_inicio":"08:45:00","hora_fin":"09:30:00","reserva_estado":"PENDIENTE","observaciones":"","business_id":1,"created_at":"2025-07-17 19:11:07.938204","updated_at":"2025-07-17 22:05:14.442931","agenda_id":22,"sala_id":1,"sala_nombre":"Sala 1","tarifa_id":null,"doctor":"ronal - ricardo","paciente":"alejandro - visconte","serv_descripcion":"Cirug\u00eda de cataratas por facoemulsificaci\u00f3n","serv_monto":"3000000.00"}AJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-18"}AJAX buscarReservas (procesado): Fecha=2025-07-18, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-18, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-18, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 0 reservasAJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-17"}AJAX buscarReservas (procesado): Fecha=2025-07-17, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 2 reservasmdlObtenerReservasPorFecha: Primera reserva: {"reserva_id":67,"servicio_id":2,"doctor_id":14,"paciente_id":45,"fecha_reserva":"2025-07-17","hora_inicio":"08:45:00","hora_fin":"09:30:00","reserva_estado":"PENDIENTE","observaciones":"","business_id":1,"created_at":"2025-07-17 19:11:07.938204","updated_at":"2025-07-17 22:05:14.442931","agenda_id":22,"sala_id":1,"sala_nombre":"Sala 1","tarifa_id":null,"doctor":"ronal - ricardo","paciente":"alejandro - visconte","serv_descripcion":"Cirug\u00eda de cataratas por facoemulsificaci\u00f3n","serv_monto":"3000000.00"}AJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-17"}AJAX buscarReservas (procesado): Fecha=2025-07-17, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 2 reservasmdlObtenerReservasPorFecha: Primera reserva: {"reserva_id":67,"servicio_id":2,"doctor_id":14,"paciente_id":45,"fecha_reserva":"2025-07-17","hora_inicio":"08:45:00","hora_fin":"09:30:00","reserva_estado":"PENDIENTE","observaciones":"","business_id":1,"created_at":"2025-07-17 19:11:07.938204","updated_at":"2025-07-17 22:05:14.442931","agenda_id":22,"sala_id":1,"sala_nombre":"Sala 1","tarifa_id":null,"doctor":"ronal - ricardo","paciente":"alejandro - visconte","serv_descripcion":"Cirug\u00eda de cataratas por facoemulsificaci\u00f3n","serv_monto":"3000000.00"}mdlObtenerReservaPorId: Buscando reserva con ID: 68mdlObtenerReservaPorId: Reserva existe: SÍmdlObtenerReservaPorId: Reserva encontrada (básica): {"reserva_id":68,"servicio_id":2,"doctor_id":14,"paciente_id":60,"fecha_reserva":"2025-07-17","hora_inicio":"14:00:00","hora_fin":"14:45:00","reserva_estado":"PENDIENTE","observaciones":" - Editado en test","business_id":1,"created_at":"2025-07-17 19:40:40.692728","updated_at":"2025-07-17 22:04:01.491777","agenda_id":22,"sala_id":3,"sala_nombre":"Sala 1","tarifa_id":null,"doctor_nombre":"ronal ricardo","paciente_nombre":"leonardo castillo","cedula":"789897","telefono":"0982321321","servicio_nombre":"Cirug\u00eda de cataratas por facoemulsificaci\u00f3n","servicio_monto":"3000000.00","email":""}mdlObtenerReservaPorId: No se pudo obtener info del doctor: SQLSTATE[42703]: Undefined column: 7 ERROR:  column "nombres" does not exist
+LINE 1: SELECT CONCAT(nombres, ' ', apellidos) as nombre FROM rh_per...
+                      ^mdlObtenerReservaPorId: No se pudo obtener info del paciente: SQLSTATE[42P01]: Undefined table: 7 ERROR:  relation "pacientes" does not exist
+LINE 1: ...pellidos) as nombre, cedula, telefono, email FROM pacientes ...
+                                                             ^Error al obtener salas activas: SQLSTATE[42703]: Undefined column: 7 ERROR:  column "capacidad" does not exist
+LINE 6:                     capacidad,
+                            ^mdlObtenerSalasActivas: Fallback exitoso, 4 salas obtenidasAJAX obtenerDoctoresPorFecha: Obteniendo doctores para fecha: 2025-07-17AJAX obtenerDoctoresPorFecha: Doctores obtenidos usando método de nueva reserva: 1mdlObtenerReservaPorId: Buscando reserva con ID: 68mdlObtenerReservaPorId: Reserva existe: SÍmdlObtenerReservaPorId: Reserva encontrada (básica): {"reserva_id":68,"servicio_id":2,"doctor_id":14,"paciente_id":60,"fecha_reserva":"2025-07-17","hora_inicio":"14:00:00","hora_fin":"14:45:00","reserva_estado":"PENDIENTE","observaciones":" - Editado en test","business_id":1,"created_at":"2025-07-17 19:40:40.692728","updated_at":"2025-07-17 22:04:01.491777","agenda_id":22,"sala_id":3,"sala_nombre":"Sala 1","tarifa_id":null,"doctor_nombre":"ronal ricardo","paciente_nombre":"leonardo castillo","cedula":"789897","telefono":"0982321321","servicio_nombre":"Cirug\u00eda de cataratas por facoemulsificaci\u00f3n","servicio_monto":"3000000.00","email":""}mdlObtenerReservaPorId: No se pudo obtener info del doctor: SQLSTATE[42703]: Undefined column: 7 ERROR:  column "nombres" does not exist
+LINE 1: SELECT CONCAT(nombres, ' ', apellidos) as nombre FROM rh_per...
+                      ^mdlObtenerReservaPorId: No se pudo obtener info del paciente: SQLSTATE[42P01]: Undefined table: 7 ERROR:  relation "pacientes" does not exist
+LINE 1: ...pellidos) as nombre, cedula, telefono, email FROM pacientes ...
+                                                             ^Error al obtener salas activas: SQLSTATE[42703]: Undefined column: 7 ERROR:  column "capacidad" does not exist
+LINE 6:                     capacidad,
+                            ^mdlObtenerSalasActivas: Fallback exitoso, 4 salas obtenidasAJAX obtenerDoctoresPorFecha: Obteniendo doctores para fecha: 2025-07-17AJAX obtenerDoctoresPorFecha: Doctores obtenidos usando método de nueva reserva: 1AJAX obtenerDoctoresPorFecha: Obteniendo doctores para fecha: 2025-07-18AJAX obtenerDoctoresPorFecha: Doctores obtenidos usando método de nueva reserva: 2AJAX obtenerDoctoresPorFecha: Obteniendo doctores para fecha: 2025-07-17AJAX obtenerDoctoresPorFecha: Doctores obtenidos usando método de nueva reserva: 1AJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-17"}AJAX buscarReservas (procesado): Fecha=2025-07-17, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 2 reservasmdlObtenerReservasPorFecha: Primera reserva: {"reserva_id":67,"servicio_id":2,"doctor_id":14,"paciente_id":45,"fecha_reserva":"2025-07-17","hora_inicio":"08:45:00","hora_fin":"09:30:00","reserva_estado":"PENDIENTE","observaciones":"","business_id":1,"created_at":"2025-07-17 19:11:07.938204","updated_at":"2025-07-17 22:05:14.442931","agenda_id":22,"sala_id":1,"sala_nombre":"Sala 1","tarifa_id":null,"doctor":"ronal - ricardo","paciente":"alejandro - visconte","serv_descripcion":"Cirug\u00eda de cataratas por facoemulsificaci\u00f3n","serv_monto":"3000000.00"}AJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-17"}AJAX buscarReservas (procesado): Fecha=2025-07-17, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 2 reservasmdlObtenerReservasPorFecha: Primera reserva: {"reserva_id":67,"servicio_id":2,"doctor_id":14,"paciente_id":45,"fecha_reserva":"2025-07-17","hora_inicio":"08:45:00","hora_fin":"09:30:00","reserva_estado":"PENDIENTE","observaciones":"","business_id":1,"created_at":"2025-07-17 19:11:07.938204","updated_at":"2025-07-17 22:05:14.442931","agenda_id":22,"sala_id":1,"sala_nombre":"Sala 1","tarifa_id":null,"doctor":"ronal - ricardo","paciente":"alejandro - visconte","serv_descripcion":"Cirug\u00eda de cataratas por facoemulsificaci\u00f3n","serv_monto":"3000000.00"}AJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-18"}AJAX buscarReservas (procesado): Fecha=2025-07-18, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-18, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-18, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 0 reservasAJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-18"}AJAX buscarReservas (procesado): Fecha=2025-07-18, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-18, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-18, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 0 reservasAJAX obtenerDoctoresPorFecha: Obteniendo doctores para fecha: 2025-07-23AJAX obtenerDoctoresPorFecha: Doctores obtenidos usando método de nueva reserva: 2AJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-17"}AJAX buscarReservas (procesado): Fecha=2025-07-17, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 2 reservasmdlObtenerReservasPorFecha: Primera reserva: {"reserva_id":67,"servicio_id":2,"doctor_id":14,"paciente_id":45,"fecha_reserva":"2025-07-17","hora_inicio":"08:45:00","hora_fin":"09:30:00","reserva_estado":"PENDIENTE","observaciones":"","business_id":1,"created_at":"2025-07-17 19:11:07.938204","updated_at":"2025-07-17 22:05:14.442931","agenda_id":22,"sala_id":1,"sala_nombre":"Sala 1","tarifa_id":null,"doctor":"ronal - ricardo","paciente":"alejandro - visconte","serv_descripcion":"Cirug\u00eda de cataratas por facoemulsificaci\u00f3n","serv_monto":"3000000.00"}AJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-17"}AJAX buscarReservas (procesado): Fecha=2025-07-17, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 2 reservasmdlObtenerReservasPorFecha: Primera reserva: {"reserva_id":67,"servicio_id":2,"doctor_id":14,"paciente_id":45,"fecha_reserva":"2025-07-17","hora_inicio":"08:45:00","hora_fin":"09:30:00","reserva_estado":"PENDIENTE","observaciones":"","business_id":1,"created_at":"2025-07-17 19:11:07.938204","updated_at":"2025-07-17 22:05:14.442931","agenda_id":22,"sala_id":1,"sala_nombre":"Sala 1","tarifa_id":null,"doctor":"ronal - ricardo","paciente":"alejandro - visconte","serv_descripcion":"Cirug\u00eda de cataratas por facoemulsificaci\u00f3n","serv_monto":"3000000.00"}AJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-18"}AJAX buscarReservas (procesado): Fecha=2025-07-18, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-18, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-18, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 0 reservasAJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-18"}AJAX buscarReservas (procesado): Fecha=2025-07-18, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-18, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-18, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 0 reservasAJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-17"}AJAX buscarReservas (procesado): Fecha=2025-07-17, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 2 reservasmdlObtenerReservasPorFecha: Primera reserva: {"reserva_id":67,"servicio_id":2,"doctor_id":14,"paciente_id":45,"fecha_reserva":"2025-07-17","hora_inicio":"08:45:00","hora_fin":"09:30:00","reserva_estado":"PENDIENTE","observaciones":"","business_id":1,"created_at":"2025-07-17 19:11:07.938204","updated_at":"2025-07-17 22:05:14.442931","agenda_id":22,"sala_id":1,"sala_nombre":"Sala 1","tarifa_id":null,"doctor":"ronal - ricardo","paciente":"alejandro - visconte","serv_descripcion":"Cirug\u00eda de cataratas por facoemulsificaci\u00f3n","serv_monto":"3000000.00"}AJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-17"}AJAX buscarReservas (procesado): Fecha=2025-07-17, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 2 reservasmdlObtenerReservasPorFecha: Primera reserva: {"reserva_id":67,"servicio_id":2,"doctor_id":14,"paciente_id":45,"fecha_reserva":"2025-07-17","hora_inicio":"08:45:00","hora_fin":"09:30:00","reserva_estado":"PENDIENTE","observaciones":"","business_id":1,"created_at":"2025-07-17 19:11:07.938204","updated_at":"2025-07-17 22:05:14.442931","agenda_id":22,"sala_id":1,"sala_nombre":"Sala 1","tarifa_id":null,"doctor":"ronal - ricardo","paciente":"alejandro - visconte","serv_descripcion":"Cirug\u00eda de cataratas por facoemulsificaci\u00f3n","serv_monto":"3000000.00"}AJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-17"}AJAX buscarReservas (procesado): Fecha=2025-07-17, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 2 reservasmdlObtenerReservasPorFecha: Primera reserva: {"reserva_id":67,"servicio_id":2,"doctor_id":14,"paciente_id":45,"fecha_reserva":"2025-07-17","hora_inicio":"08:45:00","hora_fin":"09:30:00","reserva_estado":"PENDIENTE","observaciones":"","business_id":1,"created_at":"2025-07-17 19:11:07.938204","updated_at":"2025-07-17 22:05:14.442931","agenda_id":22,"sala_id":1,"sala_nombre":"Sala 1","tarifa_id":null,"doctor":"ronal - ricardo","paciente":"alejandro - visconte","serv_descripcion":"Cirug\u00eda de cataratas por facoemulsificaci\u00f3n","serv_monto":"3000000.00"}AJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-17"}AJAX buscarReservas (procesado): Fecha=2025-07-17, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 2 reservasmdlObtenerReservasPorFecha: Primera reserva: {"reserva_id":67,"servicio_id":2,"doctor_id":14,"paciente_id":45,"fecha_reserva":"2025-07-17","hora_inicio":"08:45:00","hora_fin":"09:30:00","reserva_estado":"PENDIENTE","observaciones":"","business_id":1,"created_at":"2025-07-17 19:11:07.938204","updated_at":"2025-07-17 22:05:14.442931","agenda_id":22,"sala_id":1,"sala_nombre":"Sala 1","tarifa_id":null,"doctor":"ronal - ricardo","paciente":"alejandro - visconte","serv_descripcion":"Cirug\u00eda de cataratas por facoemulsificaci\u00f3n","serv_monto":"3000000.00"}AJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-18"}AJAX buscarReservas (procesado): Fecha=2025-07-18, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-18, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-18, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 0 reservasAJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-17"}AJAX buscarReservas (procesado): Fecha=2025-07-17, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 2 reservasmdlObtenerReservasPorFecha: Primera reserva: {"reserva_id":67,"servicio_id":2,"doctor_id":14,"paciente_id":45,"fecha_reserva":"2025-07-17","hora_inicio":"08:45:00","hora_fin":"09:30:00","reserva_estado":"PENDIENTE","observaciones":"","business_id":1,"created_at":"2025-07-17 19:11:07.938204","updated_at":"2025-07-17 22:05:14.442931","agenda_id":22,"sala_id":1,"sala_nombre":"Sala 1","tarifa_id":null,"doctor":"ronal - ricardo","paciente":"alejandro - visconte","serv_descripcion":"Cirug\u00eda de cataratas por facoemulsificaci\u00f3n","serv_monto":"3000000.00"}AJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-18"}AJAX buscarReservas (procesado): Fecha=2025-07-18, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-18, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-18, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 0 reservasAJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-18"}AJAX buscarReservas (procesado): Fecha=2025-07-18, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-18, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-18, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 0 reservasAJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-17"}AJAX buscarReservas (procesado): Fecha=2025-07-17, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 2 reservasmdlObtenerReservasPorFecha: Primera reserva: {"reserva_id":67,"servicio_id":2,"doctor_id":14,"paciente_id":45,"fecha_reserva":"2025-07-17","hora_inicio":"08:45:00","hora_fin":"09:30:00","reserva_estado":"PENDIENTE","observaciones":"","business_id":1,"created_at":"2025-07-17 19:11:07.938204","updated_at":"2025-07-17 22:05:14.442931","agenda_id":22,"sala_id":1,"sala_nombre":"Sala 1","tarifa_id":null,"doctor":"ronal - ricardo","paciente":"alejandro - visconte","serv_descripcion":"Cirug\u00eda de cataratas por facoemulsificaci\u00f3n","serv_monto":"3000000.00"}AJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-18"}AJAX buscarReservas (procesado): Fecha=2025-07-18, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-18, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-18, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 0 reservasAJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-17"}AJAX buscarReservas (procesado): Fecha=2025-07-17, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 2 reservasmdlObtenerReservasPorFecha: Primera reserva: {"reserva_id":67,"servicio_id":2,"doctor_id":14,"paciente_id":45,"fecha_reserva":"2025-07-17","hora_inicio":"08:45:00","hora_fin":"09:30:00","reserva_estado":"PENDIENTE","observaciones":"","business_id":1,"created_at":"2025-07-17 19:11:07.938204","updated_at":"2025-07-17 22:05:14.442931","agenda_id":22,"sala_id":1,"sala_nombre":"Sala 1","tarifa_id":null,"doctor":"ronal - ricardo","paciente":"alejandro - visconte","serv_descripcion":"Cirug\u00eda de cataratas por facoemulsificaci\u00f3n","serv_monto":"3000000.00"}AJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-13"}AJAX buscarReservas (procesado): Fecha=2025-07-13, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-13, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-13, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 0 reservasAJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-17"}AJAX buscarReservas (procesado): Fecha=2025-07-17, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 2 reservasmdlObtenerReservasPorFecha: Primera reserva: {"reserva_id":67,"servicio_id":2,"doctor_id":14,"paciente_id":45,"fecha_reserva":"2025-07-17","hora_inicio":"08:45:00","hora_fin":"09:30:00","reserva_estado":"PENDIENTE","observaciones":"","business_id":1,"created_at":"2025-07-17 19:11:07.938204","updated_at":"2025-07-17 22:05:14.442931","agenda_id":22,"sala_id":1,"sala_nombre":"Sala 1","tarifa_id":null,"doctor":"ronal - ricardo","paciente":"alejandro - visconte","serv_descripcion":"Cirug\u00eda de cataratas por facoemulsificaci\u00f3n","serv_monto":"3000000.00"}AJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-13"}AJAX buscarReservas (procesado): Fecha=2025-07-13, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-13, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-13, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 0 reservasAJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-17"}AJAX buscarReservas (procesado): Fecha=2025-07-17, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 2 reservasmdlObtenerReservasPorFecha: Primera reserva: {"reserva_id":67,"servicio_id":2,"doctor_id":14,"paciente_id":45,"fecha_reserva":"2025-07-17","hora_inicio":"08:45:00","hora_fin":"09:30:00","reserva_estado":"PENDIENTE","observaciones":"","business_id":1,"created_at":"2025-07-17 19:11:07.938204","updated_at":"2025-07-17 22:05:14.442931","agenda_id":22,"sala_id":1,"sala_nombre":"Sala 1","tarifa_id":null,"doctor":"ronal - ricardo","paciente":"alejandro - visconte","serv_descripcion":"Cirug\u00eda de cataratas por facoemulsificaci\u00f3n","serv_monto":"3000000.00"}AJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-18"}AJAX buscarReservas (procesado): Fecha=2025-07-18, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-18, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-18, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 0 reservasAJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-17"}AJAX buscarReservas (procesado): Fecha=2025-07-17, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 2 reservasmdlObtenerReservasPorFecha: Primera reserva: {"reserva_id":67,"servicio_id":2,"doctor_id":14,"paciente_id":45,"fecha_reserva":"2025-07-17","hora_inicio":"08:45:00","hora_fin":"09:30:00","reserva_estado":"PENDIENTE","observaciones":"","business_id":1,"created_at":"2025-07-17 19:11:07.938204","updated_at":"2025-07-17 22:05:14.442931","agenda_id":22,"sala_id":1,"sala_nombre":"Sala 1","tarifa_id":null,"doctor":"ronal - ricardo","paciente":"alejandro - visconte","serv_descripcion":"Cirug\u00eda de cataratas por facoemulsificaci\u00f3n","serv_monto":"3000000.00"}AJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-17"}AJAX buscarReservas (procesado): Fecha=2025-07-17, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 2 reservasmdlObtenerReservasPorFecha: Primera reserva: {"reserva_id":67,"servicio_id":2,"doctor_id":14,"paciente_id":45,"fecha_reserva":"2025-07-17","hora_inicio":"08:45:00","hora_fin":"09:30:00","reserva_estado":"PENDIENTE","observaciones":"","business_id":1,"created_at":"2025-07-17 19:11:07.938204","updated_at":"2025-07-17 22:05:14.442931","agenda_id":22,"sala_id":1,"sala_nombre":"Sala 1","tarifa_id":null,"doctor":"ronal - ricardo","paciente":"alejandro - visconte","serv_descripcion":"Cirug\u00eda de cataratas por facoemulsificaci\u00f3n","serv_monto":"3000000.00"}mdlObtenerReservaPorId: Buscando reserva con ID: 68mdlObtenerReservaPorId: Reserva existe: SÍmdlObtenerReservaPorId: Reserva encontrada (básica): {"reserva_id":68,"servicio_id":2,"doctor_id":14,"paciente_id":60,"fecha_reserva":"2025-07-17","hora_inicio":"14:00:00","hora_fin":"14:45:00","reserva_estado":"PENDIENTE","observaciones":" - Editado en test","business_id":1,"created_at":"2025-07-17 19:40:40.692728","updated_at":"2025-07-17 22:04:01.491777","agenda_id":22,"sala_id":3,"sala_nombre":"Sala 1","tarifa_id":null,"doctor_nombre":"ronal ricardo","paciente_nombre":"leonardo castillo","cedula":"789897","telefono":"0982321321","servicio_nombre":"Cirug\u00eda de cataratas por facoemulsificaci\u00f3n","servicio_monto":"3000000.00","email":""}mdlObtenerReservaPorId: No se pudo obtener info del doctor: SQLSTATE[42703]: Undefined column: 7 ERROR:  column "nombres" does not exist
+LINE 1: SELECT CONCAT(nombres, ' ', apellidos) as nombre FROM rh_per...
+                      ^mdlObtenerReservaPorId: No se pudo obtener info del paciente: SQLSTATE[42P01]: Undefined table: 7 ERROR:  relation "pacientes" does not exist
+LINE 1: ...pellidos) as nombre, cedula, telefono, email FROM pacientes ...
+                                                             ^Error al obtener salas activas: SQLSTATE[42703]: Undefined column: 7 ERROR:  column "capacidad" does not exist
+LINE 6:                     capacidad,
+                            ^mdlObtenerSalasActivas: Fallback exitoso, 4 salas obtenidasAJAX obtenerDoctoresPorFecha: Obteniendo doctores para fecha: 2025-07-17AJAX obtenerDoctoresPorFecha: Doctores obtenidos usando método de nueva reserva: 1AJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-17"}AJAX buscarReservas (procesado): Fecha=2025-07-17, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 2 reservasmdlObtenerReservasPorFecha: Primera reserva: {"reserva_id":67,"servicio_id":2,"doctor_id":14,"paciente_id":45,"fecha_reserva":"2025-07-17","hora_inicio":"08:45:00","hora_fin":"09:30:00","reserva_estado":"PENDIENTE","observaciones":"","business_id":1,"created_at":"2025-07-17 19:11:07.938204","updated_at":"2025-07-17 22:05:14.442931","agenda_id":22,"sala_id":1,"sala_nombre":"Sala 1","tarifa_id":null,"doctor":"ronal - ricardo","paciente":"alejandro - visconte","serv_descripcion":"Cirug\u00eda de cataratas por facoemulsificaci\u00f3n","serv_monto":"3000000.00"}AJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-18"}AJAX buscarReservas (procesado): Fecha=2025-07-18, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-18, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-18, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 0 reservasAJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-17"}AJAX buscarReservas (procesado): Fecha=2025-07-17, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 2 reservasmdlObtenerReservasPorFecha: Primera reserva: {"reserva_id":67,"servicio_id":2,"doctor_id":14,"paciente_id":45,"fecha_reserva":"2025-07-17","hora_inicio":"08:45:00","hora_fin":"09:30:00","reserva_estado":"PENDIENTE","observaciones":"","business_id":1,"created_at":"2025-07-17 19:11:07.938204","updated_at":"2025-07-17 22:05:14.442931","agenda_id":22,"sala_id":1,"sala_nombre":"Sala 1","tarifa_id":null,"doctor":"ronal - ricardo","paciente":"alejandro - visconte","serv_descripcion":"Cirug\u00eda de cataratas por facoemulsificaci\u00f3n","serv_monto":"3000000.00"}AJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-17"}AJAX buscarReservas (procesado): Fecha=2025-07-17, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 2 reservasmdlObtenerReservasPorFecha: Primera reserva: {"reserva_id":67,"servicio_id":2,"doctor_id":14,"paciente_id":45,"fecha_reserva":"2025-07-17","hora_inicio":"08:45:00","hora_fin":"09:30:00","reserva_estado":"PENDIENTE","observaciones":"","business_id":1,"created_at":"2025-07-17 19:11:07.938204","updated_at":"2025-07-17 22:05:14.442931","agenda_id":22,"sala_id":1,"sala_nombre":"Sala 1","tarifa_id":null,"doctor":"ronal - ricardo","paciente":"alejandro - visconte","serv_descripcion":"Cirug\u00eda de cataratas por facoemulsificaci\u00f3n","serv_monto":"3000000.00"}mdlObtenerReservaPorId: Buscando reserva con ID: 68mdlObtenerReservaPorId: Reserva existe: SÍmdlObtenerReservaPorId: Reserva encontrada (básica): {"reserva_id":68,"servicio_id":2,"doctor_id":14,"paciente_id":60,"fecha_reserva":"2025-07-17","hora_inicio":"14:00:00","hora_fin":"14:45:00","reserva_estado":"PENDIENTE","observaciones":" - Editado en test","business_id":1,"created_at":"2025-07-17 19:40:40.692728","updated_at":"2025-07-17 22:04:01.491777","agenda_id":22,"sala_id":3,"sala_nombre":"Sala 1","tarifa_id":null,"doctor_nombre":"ronal ricardo","paciente_nombre":"leonardo castillo","cedula":"789897","telefono":"0982321321","servicio_nombre":"Cirug\u00eda de cataratas por facoemulsificaci\u00f3n","servicio_monto":"3000000.00","email":""}mdlObtenerReservaPorId: No se pudo obtener info del doctor: SQLSTATE[42703]: Undefined column: 7 ERROR:  column "nombres" does not exist
+LINE 1: SELECT CONCAT(nombres, ' ', apellidos) as nombre FROM rh_per...
+                      ^mdlObtenerReservaPorId: No se pudo obtener info del paciente: SQLSTATE[42P01]: Undefined table: 7 ERROR:  relation "pacientes" does not exist
+LINE 1: ...pellidos) as nombre, cedula, telefono, email FROM pacientes ...
+                                                             ^Error al obtener salas activas: SQLSTATE[42703]: Undefined column: 7 ERROR:  column "capacidad" does not exist
+LINE 6:                     capacidad,
+                            ^mdlObtenerSalasActivas: Fallback exitoso, 4 salas obtenidasAJAX obtenerDoctoresPorFecha: Obteniendo doctores para fecha: 2025-07-17AJAX obtenerDoctoresPorFecha: Doctores obtenidos usando método de nueva reserva: 1AJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-17"}AJAX buscarReservas (procesado): Fecha=2025-07-17, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 2 reservasmdlObtenerReservasPorFecha: Primera reserva: {"reserva_id":67,"servicio_id":2,"doctor_id":14,"paciente_id":45,"fecha_reserva":"2025-07-17","hora_inicio":"08:45:00","hora_fin":"09:30:00","reserva_estado":"PENDIENTE","observaciones":"","business_id":1,"created_at":"2025-07-17 19:11:07.938204","updated_at":"2025-07-17 22:05:14.442931","agenda_id":22,"sala_id":1,"sala_nombre":"Sala 1","tarifa_id":null,"doctor":"ronal - ricardo","paciente":"alejandro - visconte","serv_descripcion":"Cirug\u00eda de cataratas por facoemulsificaci\u00f3n","serv_monto":"3000000.00"}AJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-18"}AJAX buscarReservas (procesado): Fecha=2025-07-18, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-18, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-18, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 0 reservasAJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-17"}AJAX buscarReservas (procesado): Fecha=2025-07-17, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 2 reservasmdlObtenerReservasPorFecha: Primera reserva: {"reserva_id":67,"servicio_id":2,"doctor_id":14,"paciente_id":45,"fecha_reserva":"2025-07-17","hora_inicio":"08:45:00","hora_fin":"09:30:00","reserva_estado":"PENDIENTE","observaciones":"","business_id":1,"created_at":"2025-07-17 19:11:07.938204","updated_at":"2025-07-17 22:05:14.442931","agenda_id":22,"sala_id":1,"sala_nombre":"Sala 1","tarifa_id":null,"doctor":"ronal - ricardo","paciente":"alejandro - visconte","serv_descripcion":"Cirug\u00eda de cataratas por facoemulsificaci\u00f3n","serv_monto":"3000000.00"}AJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-18"}AJAX buscarReservas (procesado): Fecha=2025-07-18, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-18, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-18, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 0 reservasAJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-17"}AJAX buscarReservas (procesado): Fecha=2025-07-17, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 2 reservasmdlObtenerReservasPorFecha: Primera reserva: {"reserva_id":67,"servicio_id":2,"doctor_id":14,"paciente_id":45,"fecha_reserva":"2025-07-17","hora_inicio":"08:45:00","hora_fin":"09:30:00","reserva_estado":"PENDIENTE","observaciones":"","business_id":1,"created_at":"2025-07-17 19:11:07.938204","updated_at":"2025-07-17 22:05:14.442931","agenda_id":22,"sala_id":1,"sala_nombre":"Sala 1","tarifa_id":null,"doctor":"ronal - ricardo","paciente":"alejandro - visconte","serv_descripcion":"Cirug\u00eda de cataratas por facoemulsificaci\u00f3n","serv_monto":"3000000.00"}AJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-17"}AJAX buscarReservas (procesado): Fecha=2025-07-17, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 2 reservasmdlObtenerReservasPorFecha: Primera reserva: {"reserva_id":67,"servicio_id":2,"doctor_id":14,"paciente_id":45,"fecha_reserva":"2025-07-17","hora_inicio":"08:45:00","hora_fin":"09:30:00","reserva_estado":"PENDIENTE","observaciones":"","business_id":1,"created_at":"2025-07-17 19:11:07.938204","updated_at":"2025-07-17 22:05:14.442931","agenda_id":22,"sala_id":1,"sala_nombre":"Sala 1","tarifa_id":null,"doctor":"ronal - ricardo","paciente":"alejandro - visconte","serv_descripcion":"Cirug\u00eda de cataratas por facoemulsificaci\u00f3n","serv_monto":"3000000.00"}mdlObtenerReservaPorId: Buscando reserva con ID: 68mdlObtenerReservaPorId: Reserva existe: SÍmdlObtenerReservaPorId: Reserva encontrada (básica): {"reserva_id":68,"servicio_id":2,"doctor_id":14,"paciente_id":60,"fecha_reserva":"2025-07-17","hora_inicio":"14:00:00","hora_fin":"14:45:00","reserva_estado":"PENDIENTE","observaciones":" - Editado en test","business_id":1,"created_at":"2025-07-17 19:40:40.692728","updated_at":"2025-07-17 22:04:01.491777","agenda_id":22,"sala_id":3,"sala_nombre":"Sala 1","tarifa_id":null,"doctor_nombre":"ronal ricardo","paciente_nombre":"leonardo castillo","cedula":"789897","telefono":"0982321321","servicio_nombre":"Cirug\u00eda de cataratas por facoemulsificaci\u00f3n","servicio_monto":"3000000.00","email":""}mdlObtenerReservaPorId: No se pudo obtener info del doctor: SQLSTATE[42703]: Undefined column: 7 ERROR:  column "nombres" does not exist
+LINE 1: SELECT CONCAT(nombres, ' ', apellidos) as nombre FROM rh_per...
+                      ^mdlObtenerReservaPorId: No se pudo obtener info del paciente: SQLSTATE[42P01]: Undefined table: 7 ERROR:  relation "pacientes" does not exist
+LINE 1: ...pellidos) as nombre, cedula, telefono, email FROM pacientes ...
+                                                             ^Error al obtener salas activas: SQLSTATE[42703]: Undefined column: 7 ERROR:  column "capacidad" does not exist
+LINE 6:                     capacidad,
+                            ^mdlObtenerSalasActivas: Fallback exitoso, 4 salas obtenidasAJAX obtenerDoctoresPorFecha: Obteniendo doctores para fecha: 2025-07-17AJAX obtenerDoctoresPorFecha: Doctores obtenidos usando método de nueva reserva: 1mdlObtenerReservaPorId: Buscando reserva con ID: 68mdlObtenerReservaPorId: Reserva existe: SÍmdlObtenerReservaPorId: Reserva encontrada (básica): {"reserva_id":68,"servicio_id":2,"doctor_id":14,"paciente_id":60,"fecha_reserva":"2025-07-17","hora_inicio":"14:00:00","hora_fin":"14:45:00","reserva_estado":"PENDIENTE","observaciones":" - Editado en test","business_id":1,"created_at":"2025-07-17 19:40:40.692728","updated_at":"2025-07-17 22:04:01.491777","agenda_id":22,"sala_id":3,"sala_nombre":"Sala 1","tarifa_id":null,"doctor_nombre":"ronal ricardo","paciente_nombre":"leonardo castillo","cedula":"789897","telefono":"0982321321","servicio_nombre":"Cirug\u00eda de cataratas por facoemulsificaci\u00f3n","servicio_monto":"3000000.00","email":""}mdlObtenerReservaPorId: No se pudo obtener info del doctor: SQLSTATE[42703]: Undefined column: 7 ERROR:  column "nombres" does not exist
+LINE 1: SELECT CONCAT(nombres, ' ', apellidos) as nombre FROM rh_per...
+                      ^mdlObtenerReservaPorId: No se pudo obtener info del paciente: SQLSTATE[42P01]: Undefined table: 7 ERROR:  relation "pacientes" does not exist
+LINE 1: ...pellidos) as nombre, cedula, telefono, email FROM pacientes ...
+                                                             ^Error al obtener salas activas: SQLSTATE[42703]: Undefined column: 7 ERROR:  column "capacidad" does not exist
+LINE 6:                     capacidad,
+                            ^mdlObtenerSalasActivas: Fallback exitoso, 4 salas obtenidasAJAX obtenerDoctoresPorFecha: Obteniendo doctores para fecha: 2025-07-17AJAX obtenerDoctoresPorFecha: Doctores obtenidos usando método de nueva reserva: 1mdlObtenerReservaPorId: Buscando reserva con ID: 68mdlObtenerReservaPorId: Reserva existe: SÍmdlObtenerReservaPorId: Reserva encontrada (básica): {"reserva_id":68,"servicio_id":2,"doctor_id":14,"paciente_id":60,"fecha_reserva":"2025-07-17","hora_inicio":"14:00:00","hora_fin":"14:45:00","reserva_estado":"PENDIENTE","observaciones":" - Editado en test","business_id":1,"created_at":"2025-07-17 19:40:40.692728","updated_at":"2025-07-17 22:04:01.491777","agenda_id":22,"sala_id":3,"sala_nombre":"Sala 1","tarifa_id":null,"doctor_nombre":"ronal ricardo","paciente_nombre":"leonardo castillo","cedula":"789897","telefono":"0982321321","servicio_nombre":"Cirug\u00eda de cataratas por facoemulsificaci\u00f3n","servicio_monto":"3000000.00","email":""}mdlObtenerReservaPorId: No se pudo obtener info del doctor: SQLSTATE[42703]: Undefined column: 7 ERROR:  column "nombres" does not exist
+LINE 1: SELECT CONCAT(nombres, ' ', apellidos) as nombre FROM rh_per...
+                      ^mdlObtenerReservaPorId: No se pudo obtener info del paciente: SQLSTATE[42P01]: Undefined table: 7 ERROR:  relation "pacientes" does not exist
+LINE 1: ...pellidos) as nombre, cedula, telefono, email FROM pacientes ...
+                                                             ^Error al obtener salas activas: SQLSTATE[42703]: Undefined column: 7 ERROR:  column "capacidad" does not exist
+LINE 6:                     capacidad,
+                            ^mdlObtenerSalasActivas: Fallback exitoso, 4 salas obtenidasAJAX obtenerDoctoresPorFecha: Obteniendo doctores para fecha: 2025-07-17AJAX obtenerDoctoresPorFecha: Doctores obtenidos usando método de nueva reserva: 1AJAX verificarConflictosEdicion: Verificando conflictos: {"doctor_id":14,"fecha_reserva":"2025-07-17","hora_inicio":"15:15","hora_fin":"15:30","reserva_id":68}Error al verificar conflictos de reserva: SQLSTATE[42P01]: Undefined table: 7 ERROR:  relation "pacientes" does not exist
+LINE 9:                         pacientes p ON sr.paciente_id = p.pa...
+                                ^AJAX editarReservaCompleta: Datos recibidos: {"reserva_id":68,"servicio_id":2,"doctor_id":14,"fecha_reserva":"2025-07-17","hora_inicio":"15:15","hora_fin":"15:30","reserva_estado":"PENDIENTE","observaciones":" - Editado en test","agenda_id":18,"sala_id":3,"tarifa_id":null,"seguro_id":null}ctrEditarReservaCompleta: Procesando edición de reserva ID 68ctrEditarReservaCompleta: Datos validados: {"reserva_id":68,"servicio_id":2,"doctor_id":14,"fecha_reserva":"2025-07-17","hora_inicio":"15:15:00","hora_fin":"15:30:00","reserva_estado":"PENDIENTE","observaciones":" - Editado en test","agenda_id":18,"sala_id":3,"tarifa_id":null,"seguro_id":null}mdlEditarReservaCompleta: Iniciando edición de reserva ID 68mdlEditarReservaCompleta: Datos recibidos: {"reserva_id":68,"servicio_id":2,"doctor_id":14,"fecha_reserva":"2025-07-17","hora_inicio":"15:15:00","hora_fin":"15:30:00","reserva_estado":"PENDIENTE","observaciones":" - Editado en test","agenda_id":18,"sala_id":3,"tarifa_id":null,"seguro_id":null}Error al verificar conflictos de reserva: SQLSTATE[42P01]: Undefined table: 7 ERROR:  relation "pacientes" does not exist
+LINE 9:                         pacientes p ON sr.paciente_id = p.pa...
+                                ^mdlEditarReservaCompleta: Reserva 68 actualizada exitosamentemdlObtenerReservaPorId: Buscando reserva con ID: 68mdlObtenerReservaPorId: Reserva existe: SÍmdlObtenerReservaPorId: Reserva encontrada (básica): {"reserva_id":68,"servicio_id":2,"doctor_id":14,"paciente_id":60,"fecha_reserva":"2025-07-17","hora_inicio":"15:15:00","hora_fin":"15:30:00","reserva_estado":"PENDIENTE","observaciones":" - Editado en test","business_id":1,"created_at":"2025-07-17 19:40:40.692728","updated_at":"2025-07-17 23:01:09.393901","agenda_id":18,"sala_id":3,"sala_nombre":"Sala 1","tarifa_id":null,"doctor_nombre":"ronal ricardo","paciente_nombre":"leonardo castillo","cedula":"789897","telefono":"0982321321","servicio_nombre":"Cirug\u00eda de cataratas por facoemulsificaci\u00f3n","servicio_monto":"3000000.00","email":""}mdlObtenerReservaPorId: No se pudo obtener info del doctor: SQLSTATE[42703]: Undefined column: 7 ERROR:  column "nombres" does not exist
+LINE 1: SELECT CONCAT(nombres, ' ', apellidos) as nombre FROM rh_per...
+                      ^mdlObtenerReservaPorId: No se pudo obtener info del paciente: SQLSTATE[42P01]: Undefined table: 7 ERROR:  relation "pacientes" does not exist
+LINE 1: ...pellidos) as nombre, cedula, telefono, email FROM pacientes ...
+                                                             ^AJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-17"}AJAX buscarReservas (procesado): Fecha=2025-07-17, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 2 reservasmdlObtenerReservasPorFecha: Primera reserva: {"reserva_id":67,"servicio_id":2,"doctor_id":14,"paciente_id":45,"fecha_reserva":"2025-07-17","hora_inicio":"08:45:00","hora_fin":"09:30:00","reserva_estado":"PENDIENTE","observaciones":"","business_id":1,"created_at":"2025-07-17 19:11:07.938204","updated_at":"2025-07-17 22:05:14.442931","agenda_id":22,"sala_id":1,"sala_nombre":"Sala 1","tarifa_id":null,"doctor":"ronal - ricardo","paciente":"alejandro - visconte","serv_descripcion":"Cirug\u00eda de cataratas por facoemulsificaci\u00f3n","serv_monto":"3000000.00"}AJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-18"}AJAX buscarReservas (procesado): Fecha=2025-07-18, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-18, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-18, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 0 reservasAJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-18"}AJAX buscarReservas (procesado): Fecha=2025-07-18, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-18, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-18, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 0 reservasAJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-17"}AJAX buscarReservas (procesado): Fecha=2025-07-17, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 2 reservasmdlObtenerReservasPorFecha: Primera reserva: {"reserva_id":67,"servicio_id":2,"doctor_id":14,"paciente_id":45,"fecha_reserva":"2025-07-17","hora_inicio":"08:45:00","hora_fin":"09:30:00","reserva_estado":"PENDIENTE","observaciones":"","business_id":1,"created_at":"2025-07-17 19:11:07.938204","updated_at":"2025-07-17 22:05:14.442931","agenda_id":22,"sala_id":1,"sala_nombre":"Sala 1","tarifa_id":null,"doctor":"ronal - ricardo","paciente":"alejandro - visconte","serv_descripcion":"Cirug\u00eda de cataratas por facoemulsificaci\u00f3n","serv_monto":"3000000.00"}AJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-17"}AJAX buscarReservas (procesado): Fecha=2025-07-17, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-17, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 2 reservasmdlObtenerReservasPorFecha: Primera reserva: {"reserva_id":67,"servicio_id":2,"doctor_id":14,"paciente_id":45,"fecha_reserva":"2025-07-17","hora_inicio":"08:45:00","hora_fin":"09:30:00","reserva_estado":"PENDIENTE","observaciones":"","business_id":1,"created_at":"2025-07-17 19:11:07.938204","updated_at":"2025-07-17 22:05:14.442931","agenda_id":22,"sala_id":1,"sala_nombre":"Sala 1","tarifa_id":null,"doctor":"ronal - ricardo","paciente":"alejandro - visconte","serv_descripcion":"Cirug\u00eda de cataratas por facoemulsificaci\u00f3n","serv_monto":"3000000.00"}mdlObtenerReservaPorId: Buscando reserva con ID: 68mdlObtenerReservaPorId: Reserva existe: SÍmdlObtenerReservaPorId: Reserva encontrada (básica): {"reserva_id":68,"servicio_id":2,"doctor_id":14,"paciente_id":60,"fecha_reserva":"2025-07-17","hora_inicio":"15:15:00","hora_fin":"15:30:00","reserva_estado":"PENDIENTE","observaciones":" - Editado en test","business_id":1,"created_at":"2025-07-17 19:40:40.692728","updated_at":"2025-07-17 23:01:09.393901","agenda_id":18,"sala_id":3,"sala_nombre":"Sala 1","tarifa_id":null,"doctor_nombre":"ronal ricardo","paciente_nombre":"leonardo castillo","cedula":"789897","telefono":"0982321321","servicio_nombre":"Cirug\u00eda de cataratas por facoemulsificaci\u00f3n","servicio_monto":"3000000.00","email":""}mdlObtenerReservaPorId: No se pudo obtener info del doctor: SQLSTATE[42703]: Undefined column: 7 ERROR:  column "nombres" does not exist
+LINE 1: SELECT CONCAT(nombres, ' ', apellidos) as nombre FROM rh_per...
+                      ^mdlObtenerReservaPorId: No se pudo obtener info del paciente: SQLSTATE[42P01]: Undefined table: 7 ERROR:  relation "pacientes" does not exist
+LINE 1: ...pellidos) as nombre, cedula, telefono, email FROM pacientes ...
+                                                             ^Error al obtener salas activas: SQLSTATE[42703]: Undefined column: 7 ERROR:  column "capacidad" does not exist
+LINE 6:                     capacidad,
+                            ^mdlObtenerSalasActivas: Fallback exitoso, 4 salas obtenidasAJAX obtenerDoctoresPorFecha: Obteniendo doctores para fecha: 2025-07-17AJAX obtenerDoctoresPorFecha: Doctores obtenidos usando método de nueva reserva: 1AJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-18"}AJAX buscarReservas (procesado): Fecha=2025-07-18, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-18, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-18, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 0 reservasAJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-18"}AJAX buscarReservas (procesado): Fecha=2025-07-18, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-18, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-18, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 0 reservasAJAX guardarReserva: Datos recibidos = {"doctor_id":14,"servicio_id":3,"paciente_id":11,"fecha_reserva":"2025-07-18","hora_inicio":"15:20:00","hora_fin":"15:55:00","seguro_id":"2","observaciones":"","agenda_id":23,"sala_id":4}ctrGuardarReserva: Enviando datos al modelo: {"servicio_id":3,"doctor_id":14,"paciente_id":11,"fecha_reserva":"2025-07-18","hora_inicio":"15:20:00","hora_fin":"15:55:00","observaciones":"","reserva_estado":"PENDIENTE","business_id":1,"created_by":9,"agenda_id":23,"sala_id":4,"seguro_id":"2"}[2025-07-17 23:05:32] Intentando guardar reserva: {"servicio_id":3,"doctor_id":14,"paciente_id":11,"fecha_reserva":"2025-07-18","hora_inicio":"15:20:00","hora_fin":"15:55:00","observaciones":"","reserva_estado":"PENDIENTE","business_id":1,"created_by":9,"agenda_id":23,"sala_id":4,"seguro_id":"2"}[2025-07-17 23:05:32] Llamado desde: ModelServicios::mdlGuardarReserva <- ControladorServicios::ctrGuardarReservamdlGuardarReserva: Usando agenda_id=23mdlGuardarReserva: Usando sala_id=4mdlGuardarReserva: Usando sala_id=4SQL a ejecutar: INSERT INTO servicios_reservas...Parámetros: {"servicio_id":3,"doctor_id":"14","paciente_id":11,"fecha_reserva":"2025-07-18","hora_inicio":"15:20:00","hora_fin":"15:55:00","agenda_id":23,"tarifa_id":null,"seguro_id":"2","sala_id":4}Reserva creada con ID: 69AJAX guardarReserva: Reserva creada con ID 69AJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-18"}AJAX buscarReservas (procesado): Fecha=2025-07-18, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-18, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-18, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 1 reservasmdlObtenerReservasPorFecha: Primera reserva: {"reserva_id":69,"servicio_id":3,"doctor_id":14,"paciente_id":11,"fecha_reserva":"2025-07-18","hora_inicio":"15:20:00","hora_fin":"15:55:00","reserva_estado":"PENDIENTE","observaciones":"","business_id":1,"created_at":"2025-07-17 23:05:32.312844","updated_at":null,"agenda_id":23,"sala_id":4,"sala_nombre":"sala 4","tarifa_id":null,"doctor":"ronal - ricardo","paciente":"guido - benitez","serv_descripcion":"Tomograf\u00eda ocular OCT","serv_monto":"500000.00"}AJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-18"}AJAX buscarReservas (procesado): Fecha=2025-07-18, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-18, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-18, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 1 reservasmdlObtenerReservasPorFecha: Primera reserva: {"reserva_id":69,"servicio_id":3,"doctor_id":14,"paciente_id":11,"fecha_reserva":"2025-07-18","hora_inicio":"15:20:00","hora_fin":"15:55:00","reserva_estado":"PENDIENTE","observaciones":"","business_id":1,"created_at":"2025-07-17 23:05:32.312844","updated_at":null,"agenda_id":23,"sala_id":4,"sala_nombre":"sala 4","tarifa_id":null,"doctor":"ronal - ricardo","paciente":"guido - benitez","serv_descripcion":"Tomograf\u00eda ocular OCT","serv_monto":"500000.00"}mdlObtenerReservaPorId: Buscando reserva con ID: 69mdlObtenerReservaPorId: Reserva existe: SÍmdlObtenerReservaPorId: Reserva encontrada (básica): {"reserva_id":69,"servicio_id":3,"doctor_id":14,"paciente_id":11,"fecha_reserva":"2025-07-18","hora_inicio":"15:20:00","hora_fin":"15:55:00","reserva_estado":"PENDIENTE","observaciones":"","business_id":1,"created_at":"2025-07-17 23:05:32.312844","updated_at":null,"agenda_id":23,"sala_id":4,"sala_nombre":"Sala 1","tarifa_id":null,"doctor_nombre":"ronal ricardo","paciente_nombre":"guido benitez","cedula":"465","telefono":"3245345","servicio_nombre":"Tomograf\u00eda ocular OCT","servicio_monto":"500000.00","email":""}mdlObtenerReservaPorId: No se pudo obtener info del doctor: SQLSTATE[42703]: Undefined column: 7 ERROR:  column "nombres" does not exist
+LINE 1: SELECT CONCAT(nombres, ' ', apellidos) as nombre FROM rh_per...
+                      ^mdlObtenerReservaPorId: No se pudo obtener info del paciente: SQLSTATE[42P01]: Undefined table: 7 ERROR:  relation "pacientes" does not exist
+LINE 1: ...pellidos) as nombre, cedula, telefono, email FROM pacientes ...
+                                                             ^Error al obtener salas activas: SQLSTATE[42703]: Undefined column: 7 ERROR:  column "capacidad" does not exist
+LINE 6:                     capacidad,
+                            ^mdlObtenerSalasActivas: Fallback exitoso, 4 salas obtenidasAJAX obtenerDoctoresPorFecha: Obteniendo doctores para fecha: 2025-07-18AJAX obtenerDoctoresPorFecha: Doctores obtenidos usando método de nueva reserva: 2AJAX editarReservaCompleta: Datos recibidos: {"reserva_id":69,"servicio_id":3,"doctor_id":14,"fecha_reserva":"2025-07-18","hora_inicio":"15:20","hora_fin":"15:55","reserva_estado":"PENDIENTE","observaciones":"","agenda_id":23,"sala_id":3,"tarifa_id":null,"seguro_id":null}ctrEditarReservaCompleta: Procesando edición de reserva ID 69ctrEditarReservaCompleta: Datos validados: {"reserva_id":69,"servicio_id":3,"doctor_id":14,"fecha_reserva":"2025-07-18","hora_inicio":"15:20:00","hora_fin":"15:55:00","reserva_estado":"PENDIENTE","observaciones":"","agenda_id":23,"sala_id":3,"tarifa_id":null,"seguro_id":null}mdlEditarReservaCompleta: Iniciando edición de reserva ID 69mdlEditarReservaCompleta: Datos recibidos: {"reserva_id":69,"servicio_id":3,"doctor_id":14,"fecha_reserva":"2025-07-18","hora_inicio":"15:20:00","hora_fin":"15:55:00","reserva_estado":"PENDIENTE","observaciones":"","agenda_id":23,"sala_id":3,"tarifa_id":null,"seguro_id":null}mdlEditarReservaCompleta: Reserva 69 actualizada exitosamentemdlObtenerReservaPorId: Buscando reserva con ID: 69mdlObtenerReservaPorId: Reserva existe: SÍmdlObtenerReservaPorId: Reserva encontrada (básica): {"reserva_id":69,"servicio_id":3,"doctor_id":14,"paciente_id":11,"fecha_reserva":"2025-07-18","hora_inicio":"15:20:00","hora_fin":"15:55:00","reserva_estado":"PENDIENTE","observaciones":"","business_id":1,"created_at":"2025-07-17 23:05:32.312844","updated_at":"2025-07-17 23:06:26.119362","agenda_id":23,"sala_id":3,"sala_nombre":"Sala 1","tarifa_id":null,"doctor_nombre":"ronal ricardo","paciente_nombre":"guido benitez","cedula":"465","telefono":"3245345","servicio_nombre":"Tomograf\u00eda ocular OCT","servicio_monto":"500000.00","email":""}mdlObtenerReservaPorId: No se pudo obtener info del doctor: SQLSTATE[42703]: Undefined column: 7 ERROR:  column "nombres" does not exist
+LINE 1: SELECT CONCAT(nombres, ' ', apellidos) as nombre FROM rh_per...
+                      ^mdlObtenerReservaPorId: No se pudo obtener info del paciente: SQLSTATE[42P01]: Undefined table: 7 ERROR:  relation "pacientes" does not exist
+LINE 1: ...pellidos) as nombre, cedula, telefono, email FROM pacientes ...
+                                                             ^AJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-18"}AJAX buscarReservas (procesado): Fecha=2025-07-18, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-18, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-18, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 1 reservasmdlObtenerReservasPorFecha: Primera reserva: {"reserva_id":69,"servicio_id":3,"doctor_id":14,"paciente_id":11,"fecha_reserva":"2025-07-18","hora_inicio":"15:20:00","hora_fin":"15:55:00","reserva_estado":"PENDIENTE","observaciones":"","business_id":1,"created_at":"2025-07-17 23:05:32.312844","updated_at":"2025-07-17 23:06:26.119362","agenda_id":23,"sala_id":3,"sala_nombre":"sala 3","tarifa_id":null,"doctor":"ronal - ricardo","paciente":"guido - benitez","serv_descripcion":"Tomograf\u00eda ocular OCT","serv_monto":"500000.00"}AJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-18"}AJAX buscarReservas (procesado): Fecha=2025-07-18, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-18, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-18, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 1 reservasmdlObtenerReservasPorFecha: Primera reserva: {"reserva_id":69,"servicio_id":3,"doctor_id":14,"paciente_id":11,"fecha_reserva":"2025-07-18","hora_inicio":"15:20:00","hora_fin":"15:55:00","reserva_estado":"CONFIRMADA","observaciones":"","business_id":1,"created_at":"2025-07-17 23:05:32.312844","updated_at":"2025-07-17 23:06:31.992113","agenda_id":23,"sala_id":3,"sala_nombre":"sala 3","tarifa_id":null,"doctor":"ronal - ricardo","paciente":"guido - benitez","serv_descripcion":"Tomograf\u00eda ocular OCT","serv_monto":"500000.00"}mdlObtenerReservaPorId: Buscando reserva con ID: 69mdlObtenerReservaPorId: Reserva existe: SÍmdlObtenerReservaPorId: Reserva encontrada (básica): {"reserva_id":69,"servicio_id":3,"doctor_id":14,"paciente_id":11,"fecha_reserva":"2025-07-18","hora_inicio":"15:20:00","hora_fin":"15:55:00","reserva_estado":"CONFIRMADA","observaciones":"","business_id":1,"created_at":"2025-07-17 23:05:32.312844","updated_at":"2025-07-17 23:06:31.992113","agenda_id":23,"sala_id":3,"sala_nombre":"Sala 1","tarifa_id":null,"doctor_nombre":"ronal ricardo","paciente_nombre":"guido benitez","cedula":"465","telefono":"3245345","servicio_nombre":"Tomograf\u00eda ocular OCT","servicio_monto":"500000.00","email":""}mdlObtenerReservaPorId: No se pudo obtener info del doctor: SQLSTATE[42703]: Undefined column: 7 ERROR:  column "nombres" does not exist
+LINE 1: SELECT CONCAT(nombres, ' ', apellidos) as nombre FROM rh_per...
+                      ^mdlObtenerReservaPorId: No se pudo obtener info del paciente: SQLSTATE[42P01]: Undefined table: 7 ERROR:  relation "pacientes" does not exist
+LINE 1: ...pellidos) as nombre, cedula, telefono, email FROM pacientes ...
+                                                             ^Error al obtener salas activas: SQLSTATE[42703]: Undefined column: 7 ERROR:  column "capacidad" does not exist
+LINE 6:                     capacidad,
+                            ^mdlObtenerSalasActivas: Fallback exitoso, 4 salas obtenidasAJAX obtenerDoctoresPorFecha: Obteniendo doctores para fecha: 2025-07-18AJAX obtenerDoctoresPorFecha: Doctores obtenidos usando método de nueva reserva: 2mdlObtenerReservaPorId: Buscando reserva con ID: 69mdlObtenerReservaPorId: Reserva existe: SÍmdlObtenerReservaPorId: Reserva encontrada (básica): {"reserva_id":69,"servicio_id":3,"doctor_id":14,"paciente_id":11,"fecha_reserva":"2025-07-18","hora_inicio":"15:20:00","hora_fin":"15:55:00","reserva_estado":"CONFIRMADA","observaciones":"","business_id":1,"created_at":"2025-07-17 23:05:32.312844","updated_at":"2025-07-17 23:06:31.992113","agenda_id":23,"sala_id":3,"sala_nombre":"Sala 1","tarifa_id":null,"doctor_nombre":"ronal ricardo","paciente_nombre":"guido benitez","cedula":"465","telefono":"3245345","servicio_nombre":"Tomograf\u00eda ocular OCT","servicio_monto":"500000.00","email":""}mdlObtenerReservaPorId: No se pudo obtener info del doctor: SQLSTATE[42703]: Undefined column: 7 ERROR:  column "nombres" does not exist
+LINE 1: SELECT CONCAT(nombres, ' ', apellidos) as nombre FROM rh_per...
+                      ^mdlObtenerReservaPorId: No se pudo obtener info del paciente: SQLSTATE[42P01]: Undefined table: 7 ERROR:  relation "pacientes" does not exist
+LINE 1: ...pellidos) as nombre, cedula, telefono, email FROM pacientes ...
+                                                             ^Error al obtener salas activas: SQLSTATE[42703]: Undefined column: 7 ERROR:  column "capacidad" does not exist
+LINE 6:                     capacidad,
+                            ^mdlObtenerSalasActivas: Fallback exitoso, 4 salas obtenidasAJAX obtenerDoctoresPorFecha: Obteniendo doctores para fecha: 2025-07-18AJAX obtenerDoctoresPorFecha: Doctores obtenidos usando método de nueva reserva: 2AJAX verificarConflictosEdicion: Verificando conflictos: {"doctor_id":14,"fecha_reserva":"2025-07-18","hora_inicio":"14:45","hora_fin":"15:20","reserva_id":69}Error al verificar conflictos de reserva: SQLSTATE[42P01]: Undefined table: 7 ERROR:  relation "pacientes" does not exist
+LINE 9:                         pacientes p ON sr.paciente_id = p.pa...
+                                ^AJAX editarReservaCompleta: Datos recibidos: {"reserva_id":69,"servicio_id":3,"doctor_id":14,"fecha_reserva":"2025-07-18","hora_inicio":"14:45","hora_fin":"15:20","reserva_estado":"CONFIRMADA","observaciones":"","agenda_id":18,"sala_id":3,"tarifa_id":null,"seguro_id":null}ctrEditarReservaCompleta: Procesando edición de reserva ID 69ctrEditarReservaCompleta: Datos validados: {"reserva_id":69,"servicio_id":3,"doctor_id":14,"fecha_reserva":"2025-07-18","hora_inicio":"14:45:00","hora_fin":"15:20:00","reserva_estado":"CONFIRMADA","observaciones":"","agenda_id":18,"sala_id":3,"tarifa_id":null,"seguro_id":null}mdlEditarReservaCompleta: Iniciando edición de reserva ID 69mdlEditarReservaCompleta: Datos recibidos: {"reserva_id":69,"servicio_id":3,"doctor_id":14,"fecha_reserva":"2025-07-18","hora_inicio":"14:45:00","hora_fin":"15:20:00","reserva_estado":"CONFIRMADA","observaciones":"","agenda_id":18,"sala_id":3,"tarifa_id":null,"seguro_id":null}Error al verificar conflictos de reserva: SQLSTATE[42P01]: Undefined table: 7 ERROR:  relation "pacientes" does not exist
+LINE 9:                         pacientes p ON sr.paciente_id = p.pa...
+                                ^mdlEditarReservaCompleta: Reserva 69 actualizada exitosamentemdlObtenerReservaPorId: Buscando reserva con ID: 69mdlObtenerReservaPorId: Reserva existe: SÍmdlObtenerReservaPorId: Reserva encontrada (básica): {"reserva_id":69,"servicio_id":3,"doctor_id":14,"paciente_id":11,"fecha_reserva":"2025-07-18","hora_inicio":"14:45:00","hora_fin":"15:20:00","reserva_estado":"CONFIRMADA","observaciones":"","business_id":1,"created_at":"2025-07-17 23:05:32.312844","updated_at":"2025-07-17 23:07:31.529688","agenda_id":18,"sala_id":3,"sala_nombre":"Sala 1","tarifa_id":null,"doctor_nombre":"ronal ricardo","paciente_nombre":"guido benitez","cedula":"465","telefono":"3245345","servicio_nombre":"Tomograf\u00eda ocular OCT","servicio_monto":"500000.00","email":""}mdlObtenerReservaPorId: No se pudo obtener info del doctor: SQLSTATE[42703]: Undefined column: 7 ERROR:  column "nombres" does not exist
+LINE 1: SELECT CONCAT(nombres, ' ', apellidos) as nombre FROM rh_per...
+                      ^mdlObtenerReservaPorId: No se pudo obtener info del paciente: SQLSTATE[42P01]: Undefined table: 7 ERROR:  relation "pacientes" does not exist
+LINE 1: ...pellidos) as nombre, cedula, telefono, email FROM pacientes ...
+                                                             ^AJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-18"}AJAX buscarReservas (procesado): Fecha=2025-07-18, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-18, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-18, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 1 reservasmdlObtenerReservasPorFecha: Primera reserva: {"reserva_id":69,"servicio_id":3,"doctor_id":14,"paciente_id":11,"fecha_reserva":"2025-07-18","hora_inicio":"14:45:00","hora_fin":"15:20:00","reserva_estado":"CONFIRMADA","observaciones":"","business_id":1,"created_at":"2025-07-17 23:05:32.312844","updated_at":"2025-07-17 23:07:31.529688","agenda_id":18,"sala_id":3,"sala_nombre":"sala 3","tarifa_id":null,"doctor":"ronal - ricardo","paciente":"guido - benitez","serv_descripcion":"Tomograf\u00eda ocular OCT","serv_monto":"500000.00"}AJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-18"}AJAX buscarReservas (procesado): Fecha=2025-07-18, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-18, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-18, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 1 reservasmdlObtenerReservasPorFecha: Primera reserva: {"reserva_id":69,"servicio_id":3,"doctor_id":14,"paciente_id":11,"fecha_reserva":"2025-07-18","hora_inicio":"14:45:00","hora_fin":"15:20:00","reserva_estado":"CONFIRMADA","observaciones":"","business_id":1,"created_at":"2025-07-17 23:05:32.312844","updated_at":"2025-07-17 23:07:31.529688","agenda_id":18,"sala_id":3,"sala_nombre":"sala 3","tarifa_id":null,"doctor":"ronal - ricardo","paciente":"guido - benitez","serv_descripcion":"Tomograf\u00eda ocular OCT","serv_monto":"500000.00"}AJAX buscarReservas: POST={"action":"buscarReservas","fecha":"2025-07-18"}AJAX buscarReservas (procesado): Fecha=2025-07-18, DoctorID=null (tipo: NULL), Estado=null, Paciente=null, SalaID=nullctrBuscarReservas: Llamada con Fecha=2025-07-18, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: Fecha=2025-07-18, DoctorID=null, Estado=null, Paciente=null, SalaID=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 1 reservasmdlObtenerReservasPorFecha: Primera reserva: {"reserva_id":69,"servicio_id":3,"doctor_id":14,"paciente_id":11,"fecha_reserva":"2025-07-18","hora_inicio":"14:45:00","hora_fin":"15:20:00","reserva_estado":"CONFIRMADA","observaciones":"","business_id":1,"created_at":"2025-07-17 23:05:32.312844","updated_at":"2025-07-17 23:07:31.529688","agenda_id":18,"sala_id":3,"sala_nombre":"sala 3","tarifa_id":null,"doctor":"ronal - ricardo","paciente":"guido - benitez","serv_descripcion":"Tomograf\u00eda ocular OCT","serv_monto":"500000.00"}mdlObtenerReservaPorId: Buscando reserva con ID: 69mdlObtenerReservaPorId: Reserva existe: SÍmdlObtenerReservaPorId: Reserva encontrada (básica): {"reserva_id":69,"servicio_id":3,"doctor_id":14,"paciente_id":11,"fecha_reserva":"2025-07-18","hora_inicio":"14:45:00","hora_fin":"15:20:00","reserva_estado":"CONFIRMADA","observaciones":"","business_id":1,"created_at":"2025-07-17 23:05:32.312844","updated_at":"2025-07-17 23:07:31.529688","agenda_id":18,"sala_id":3,"sala_nombre":"Sala 1","tarifa_id":null,"doctor_nombre":"ronal ricardo","paciente_nombre":"guido benitez","cedula":"465","telefono":"3245345","servicio_nombre":"Tomograf\u00eda ocular OCT","servicio_monto":"500000.00","email":""}mdlObtenerReservaPorId: No se pudo obtener info del doctor: SQLSTATE[42703]: Undefined column: 7 ERROR:  column "nombres" does not exist
+LINE 1: SELECT CONCAT(nombres, ' ', apellidos) as nombre FROM rh_per...
+                      ^mdlObtenerReservaPorId: No se pudo obtener info del paciente: SQLSTATE[42P01]: Undefined table: 7 ERROR:  relation "pacientes" does not exist
+LINE 1: ...pellidos) as nombre, cedula, telefono, email FROM pacientes ...
+                                                             ^Error al obtener salas activas: SQLSTATE[42703]: Undefined column: 7 ERROR:  column "capacidad" does not exist
+LINE 6:                     capacidad,
+                            ^mdlObtenerSalasActivas: Fallback exitoso, 4 salas obtenidasAJAX obtenerDoctoresPorFecha: Obteniendo doctores para fecha: 2025-07-18AJAX obtenerDoctoresPorFecha: Doctores obtenidos usando método de nueva reserva: 2

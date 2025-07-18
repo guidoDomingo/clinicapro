@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Modal Edición con Slots</title>
+    <link rel="stylesheet" href="view/plugins/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="view/plugins/adminlte/css/adminlte.min.css">
+    <link rel="stylesheet" href="view/plugins/sweetalert2/sweetalert2.min.css">
+    <style>
+        body { background: #f4f4f4; padding: 20px; }
+        .demo-container { max-width: 1200px; margin: 0 auto; }
+        .slot-horario-edit {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 10px;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+        .slot-horario-edit:hover:not(.no-disponible) {
+            border-color: #007bff;
+            background: #e3f2fd;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,123,255,0.2);
+        }
+        .slot-horario-edit.selected {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+        .slot-horario-edit.no-disponible {
+            opacity: 0.6;
+            background: #f8d7da;
+            border-color: #dc3545;
+        }
+        .slot-time-edit {
+            font-weight: bold;
+            color: #495057;
+            font-size: 14px;
+        }
+        .slot-location-edit {
+            font-size: 12px;
+        }
+        .horarios-grid-edit {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <h1><i class="fas fa-test-tube"></i> Test: Modal de Edición con Slots de Horarios</h1>
+        
+        <div class="card">
+            <div class="card-header bg-primary">
+                <h3 class="card-title">Simulación del Modal de Edición</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label>Fecha:</label>
+                        <input type="date" class="form-control" id="testFecha" value="2025-07-17">
+                    </div>
+                    <div class="col-md-4">
+                        <label>Doctor:</label>
+                        <select class="form-control" id="testDoctor">
+                            <option value="">Seleccionar doctor</option>
+                            <option value="14">Dr. ronal ricardo</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label>Servicio:</label>
+                        <select class="form-control" id="testServicio">
+                            <option value="">Seleccionar servicio</option>
+                            <option value="2">Cirugía de cataratas</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary mt-3" onclick="cargarHorariosTest()">
+                    <i class="fas fa-sync"></i> Cargar Horarios con Slots
+                </button>
+                
+                <!-- Contenedor de horarios (simulando el modal) -->
+                <div class="card card-outline card-primary mt-3" id="cardHorariosTest">
+                    <div class="card-header">
+                        <h6 class="card-title">
+                            <i class="fas fa-clock"></i> Horarios Disponibles 
+                            <span class="badge badge-info ml-2">Seleccione un horario</span>
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div id="horariosContainerTest">
+                            <div class="text-center text-muted">
+                                <i class="fas fa-clock"></i> 
+                                Seleccione fecha, doctor y servicio para ver horarios disponibles
+                            </div>
+                        </div>
+                        <div class="alert alert-info mt-2" style="display: none;" id="alertHorarioSeleccionadoTest">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>Horario seleccionado:</strong> <span id="horarioSeleccionadoTextoTest"></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Campos ocultos para mostrar resultado -->
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <label>Hora Inicio (resultado):</label>
+                        <input type="text" class="form-control" id="resultadoInicio" readonly>
+                    </div>
+                    <div class="col-md-6">
+                        <label>Hora Fin (resultado):</label>
+                        <input type="text" class="form-control" id="resultadoFin" readonly>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="view/plugins/jquery/jquery.min.js"></script>
+    <script src="view/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="view/plugins/sweetalert2/sweetalert2.all.min.js"></script>
+    
+    <script>
+    function cargarHorariosTest() {
+        const fecha = $('#testFecha').val();
+        const doctorId = $('#testDoctor').val();
+        const servicioId = $('#testServicio').val();
+        
+        if (!fecha || !doctorId || !servicioId) {
+            Swal.fire('Error', 'Por favor complete todos los campos', 'warning');
+            return;
+        }
+        
+        console.log("Cargando horarios test - Fecha:", fecha, "Doctor:", doctorId, "Servicio:", servicioId);
+        
+        $('#horariosContainerTest').html('<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Cargando horarios...</div>');
+        
+        // Usar el mismo endpoint que nueva reserva
+        $.ajax({
+            url: 'ajax/servicios.ajax.php',
+            method: 'POST',
+            data: {
+                action: 'generarSlotsDisponibles',
+                servicio_id: servicioId,
+                doctor_id: doctorId,
+                fecha: fecha
+            },
+            dataType: 'json',
+            success: function(respuesta) {
+                console.log("Respuesta slots test:", respuesta);
+                
+                if (respuesta.status === 'success' && respuesta.data && respuesta.data.length > 0) {
+                    mostrarSlotsTest(respuesta.data);
+                } else {
+                    $('#horariosContainerTest').html('<div class="text-center text-info">No hay horarios disponibles</div>');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error("Error al cargar horarios test:", error);
+                $('#horariosContainerTest').html('<div class="text-center text-danger">Error: ' + error + '</div>');
+            }
+        });
+    }
+    
+    function mostrarSlotsTest(slots) {
+        console.log("Mostrando", slots.length, "slots test");
+        
+        let html = '<div class="row horarios-grid-edit">';
+        
+        slots.forEach((slot, index) => {
+            const disponible = slot.disponible !== false;
+            const claseDisponibilidad = disponible ? '' : 'no-disponible';
+            
+            let horaInicio = '??:??';
+            let horaFin = '??:??';
+
+            if (slot.hora_inicio) {
+                horaInicio = slot.hora_inicio.substring(0, 5);
+            } else if (slot.inicio) {
+                horaInicio = slot.inicio.substring(0, 5);
+            }
+
+            if (slot.hora_fin) {
+                horaFin = slot.hora_fin.substring(0, 5);
+            } else if (slot.fin) {
+                horaFin = slot.fin.substring(0, 5);
+            }
+
+            const nombreSala = slot.sala_nombre || 'Sin sala';
+            
+            html += `
+                <div class="col-md-4 col-sm-6 mb-2">
+                    <div class="slot-horario-edit ${claseDisponibilidad}" 
+                         data-id="${slot.horario_id || slot.id || index}"
+                         data-inicio="${slot.hora_inicio || slot.inicio || ''}"
+                         data-fin="${slot.hora_fin || slot.fin || ''}"
+                         data-texto="${horaInicio} - ${horaFin}"
+                         data-sala="${nombreSala}"
+                         data-agenda-id="${slot.agenda_id || ''}"
+                         style="cursor: ${disponible ? 'pointer' : 'not-allowed'};">
+                        <div class="slot-content-edit text-center">
+                            <div class="slot-time-edit">${horaInicio} - ${horaFin}</div>
+                            <div class="slot-location-edit text-muted small">${nombreSala}</div>
+                            ${disponible ? '<i class="fas fa-clock text-success"></i>' : '<i class="fas fa-times text-danger"></i>'}
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        html += '</div>';
+        $('#horariosContainerTest').html(html);
+        
+        // Configurar eventos para seleccionar horario
+        $('.slot-horario-edit:not(.no-disponible)').off('click').on('click', function() {
+            const horaInicio = $(this).data('inicio');
+            const horaFin = $(this).data('fin');
+            const sala = $(this).data('sala');
+            const horarioTexto = $(this).data('texto');
+            
+            // Actualizar campos resultado
+            $('#resultadoInicio').val(horaInicio.substring(0, 5));
+            $('#resultadoFin').val(horaFin.substring(0, 5));
+            
+            // Resaltar horario seleccionado
+            $('.slot-horario-edit').removeClass('selected');
+            $(this).addClass('selected');
+            
+            // Actualizar indicador visual
+            $('#horarioSeleccionadoTextoTest').text(`${horarioTexto} - ${sala}`);
+            $('#alertHorarioSeleccionadoTest').show();
+            
+            // Mostrar confirmación
+            Swal.fire({
+                title: '✅ Horario Seleccionado',
+                html: `<strong>${horarioTexto}</strong><br>📍 ${sala}`,
+                icon: 'success',
+                timer: 2000,
+                showConfirmButton: false,
+                position: 'top-end',
+                toast: true
+            });
+            
+            console.log("Horario seleccionado:", { inicio: horaInicio, fin: horaFin, sala: sala });
+        });
+    }
+    
+    // Auto-cargar datos iniciales
+    $(document).ready(function() {
+        $('#testDoctor').val('14');
+        $('#testServicio').val('2');
+    });
+    </script>
+</body>
+</html>
