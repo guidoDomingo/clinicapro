@@ -590,32 +590,45 @@ function inicializarReservasNew() {
         const fechaFormateada = moment(fecha).format('DD/MM/YYYY');
         $('#resumenFechaNew').text(fechaFormateada);
 
-        // AJAX call to get available doctors
-        $.ajax({
-            url: 'ajax/servicios.ajax.php',
-            method: 'POST',
-            data: {
-                action: 'obtenerMedicosPorFecha',
-                fecha: fecha
-            },
-            dataType: 'json',
-            success: function (respuesta) {
-                console.log('Respuesta médicos:', respuesta);
-                cargarTablaMedicos(respuesta);
-            },
-            error: function (xhr, status, error) {
-                console.error('Error al buscar médicos:', error);
-                try {
-                    const respuestaTexto = xhr.responseText;
-                    console.log('Respuesta completa:', respuestaTexto);
-                    if (respuestaTexto) {
-                        const respuestaJson = JSON.parse(respuestaTexto);
-                        console.log('Respuesta JSON:', respuestaJson);
-                    }
-                } catch (e) {
-                    console.log('No se pudo parsear la respuesta como JSON:', xhr.responseText);
-                } $('#tablaMedicosNew tbody').html('<tr><td colspan="5" class="text-center text-danger">Error al cargar médicos</td></tr>');
+        // Realizar ambas llamadas AJAX: médicos y cupos disponibles
+        Promise.all([
+            // Llamada para obtener médicos
+            $.ajax({
+                url: 'ajax/servicios.ajax.php',
+                method: 'POST',
+                data: {
+                    action: 'obtenerMedicosPorFecha',
+                    fecha: fecha
+                },
+                dataType: 'json'
+            }),
+            // Llamada para obtener cupos disponibles por turno
+            $.ajax({
+                url: 'ajax/servicios.ajax.php',
+                method: 'POST',
+                data: {
+                    action: 'obtenerCuposDisponiblesPorTurno',
+                    fecha: fecha
+                },
+                dataType: 'json'
+            })
+        ]).then(function([respuestaMedicos, respuestaCupos]) {
+            console.log('Respuesta médicos:', respuestaMedicos);
+            console.log('Respuesta cupos:', respuestaCupos);
+            
+            // Cargar tabla de médicos
+            cargarTablaMedicos(respuestaMedicos);
+            
+            // Mostrar cupos disponibles
+            if (respuestaCupos && respuestaCupos.data) {
+                mostrarCuposDisponibles(respuestaCupos.data);
             }
+            
+        }).catch(function(error) {
+            console.error('Error al cargar datos:', error);
+            $('#tablaMedicosNew tbody').html('<tr><td colspan="5" class="text-center text-danger">Error al cargar médicos</td></tr>');
+            // Ocultar componente de cupos en caso de error
+            $('#cuposDisponiblesContainer').hide();
         });
     }
 
@@ -724,6 +737,7 @@ function inicializarReservasNew() {
         if (medicos && medicos.length > 0) {
             // Store doctors in global variable for later use
             window.medicosDisponibles = medicos;
+            
             medicos.forEach(function (medico) {
                 // Get doctor ID and name from response
                 const medicoId = medico.doctor_id || medico.id || medico.person_id;
@@ -733,16 +747,20 @@ function inicializarReservasNew() {
                 const turno = medico.turno_nombre || medico.turno || 'No especificado';
                 const disponibles = medico.cupo_disponible || medico.disponibles || 0;
 
+                // Determinar clase CSS para fila si no hay cupos
+                const filaClass = disponibles == 0 ? 'table-danger' : '';
+
                 html += `
-                <tr class="doctor-row" data-medico-id="${medicoId}">
+                <tr class="doctor-row ${filaClass}" data-medico-id="${medicoId}">
                     <td>${counter}</td>
                     <td>${medicoNombre}</td>
                     <td>${turno}</td>
-                    <td>${disponibles}</td>
+                    <td><span class="${disponibles == 0 ? 'text-danger font-weight-bold' : ''}">${disponibles}</span></td>
                     <td>
                         <button class="btn btn-primary btn-circle btn-select-doctor" 
                                 data-medico-id="${medicoId}" 
-                                data-medico-nombre="${medicoNombre}">
+                                data-medico-nombre="${medicoNombre}"
+                                ${disponibles == 0 ? 'disabled' : ''}>
                             <i class="fas fa-check"></i>
                         </button>
                     </td>
@@ -758,6 +776,49 @@ function inicializarReservasNew() {
 
         // Remove any existing time slot rows
         $('.horario-row').remove();
+    }
+
+    /**
+     * Mostrar componente de cupos disponibles por turno
+     * @param {Object} cuposPorTurno - Objeto con los cupos por turno {Mañana: 0, Tarde: 0, Noche: 0}
+     */
+    function mostrarCuposDisponibles(cuposPorTurno) {
+        // Calcular total
+        const total = Object.values(cuposPorTurno).reduce((sum, cupos) => sum + cupos, 0);
+        
+        // Actualizar valores en el DOM
+        $('#cupoManana').text(cuposPorTurno.Mañana || 0);
+        $('#cupoTarde').text(cuposPorTurno.Tarde || 0);
+        $('#cupoNoche').text(cuposPorTurno.Noche || 0);
+        $('#cupoTotal').text(total);
+        
+        // Aplicar estilos según disponibilidad
+        aplicarEstilosCupos('#cupoManana', cuposPorTurno.Mañana || 0);
+        aplicarEstilosCupos('#cupoTarde', cuposPorTurno.Tarde || 0);
+        aplicarEstilosCupos('#cupoNoche', cuposPorTurno.Noche || 0);
+        aplicarEstilosCupos('#cupoTotal', total, true);
+        
+        // Mostrar el componente
+        $('#cuposDisponiblesContainer').show();
+    }
+
+    /**
+     * Aplicar estilos CSS según la cantidad de cupos disponibles
+     * @param {string} selector - Selector CSS del elemento
+     * @param {number} cupos - Cantidad de cupos
+     * @param {boolean} esTotal - Si es el total general
+     */
+    function aplicarEstilosCupos(selector, cupos, esTotal = false) {
+        const elemento = $(selector);
+        
+        // Remover clases anteriores
+        elemento.removeClass('sin-cupos pocos-cupos');
+        
+        if (cupos === 0) {
+            elemento.addClass('sin-cupos');
+        } else if (cupos <= 2 && !esTotal) {
+            elemento.addClass('pocos-cupos');
+        }
     }
 
     /**

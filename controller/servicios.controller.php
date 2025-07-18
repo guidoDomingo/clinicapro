@@ -97,6 +97,15 @@ class ControladorServicios {
     }
     
     /**
+     * Obtiene los cupos disponibles por turno para una fecha específica
+     * @param string $fecha Fecha en formato YYYY-MM-DD
+     * @return array Cupos disponibles por turno
+     */
+    static public function ctrObtenerCuposDisponiblesPorTurno($fecha) {
+        return ModelServicios::mdlObtenerCuposDisponiblesPorTurno($fecha);
+    }
+    
+    /**
      * Crea una nueva reserva
      * @param array $datos Datos de la reserva
      * @return array Resultado de la operación

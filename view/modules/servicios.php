@@ -498,6 +498,50 @@ if (!isset($_SESSION['perfil'])) {
                                                         </button>
                                                     </div>
                                                 </div>
+
+                                                <!-- Componente de Cupos Disponibles por Turno -->
+                                                <div class="cupos-disponibles-container" id="cuposDisponiblesContainer" style="display: none;">
+                                                    <div class="alert alert-info mb-3">
+                                                        <div class="row text-center">
+                                                            <div class="col-12 mb-2">
+                                                                <strong><i class="fas fa-info-circle"></i> Cupos disponibles en todos los turnos</strong>
+                                                            </div>
+                                                            <div class="col-3">
+                                                                <div class="cupo-turno">
+                                                                    <div class="cupo-nombre">Mañana:</div>
+                                                                    <div class="cupo-cantidad" id="cupoManana">0</div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-3">
+                                                                <div class="cupo-turno">
+                                                                    <div class="cupo-nombre">Tarde:</div>
+                                                                    <div class="cupo-cantidad" id="cupoTarde">0</div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-3">
+                                                                <div class="cupo-turno">
+                                                                    <div class="cupo-nombre">Noche:</div>
+                                                                    <div class="cupo-cantidad" id="cupoNoche">0</div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-3">
+                                                                <div class="cupo-turno total">
+                                                                    <div class="cupo-nombre">Total:</div>
+                                                                    <div class="cupo-cantidad" id="cupoTotal">0</div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row mt-2">
+                                                            <div class="col-12 text-center">
+                                                                <small class="text-muted">
+                                                                    <i class="fas fa-minus-circle text-warning"></i> Restar turnos ya asignados
+                                                                    | <span class="text-danger">Si el conteo es 0 mostrar en rojo la fila</span>
+                                                                </small>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
                                                 <div class="form-row">
                                                     <div class="form-col">
                                                         <div class="form-group">
@@ -894,6 +938,51 @@ if (!isset($_SESSION['perfil'])) {
         padding: 10px 15px;
         border-radius: 5px;
         margin-top: 10px;
+    }
+
+    /* Estilos para cupos disponibles por turno */
+    .cupos-disponibles-container {
+        margin-bottom: 15px;
+    }
+
+    .cupo-turno {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .cupo-nombre {
+        font-weight: bold;
+        font-size: 14px;
+        margin-bottom: 5px;
+    }
+
+    .cupo-cantidad {
+        font-size: 18px;
+        font-weight: bold;
+        padding: 8px 12px;
+        border-radius: 20px;
+        background-color: #28a745;
+        color: white;
+        min-width: 40px;
+        text-align: center;
+    }
+
+    .cupo-cantidad.sin-cupos {
+        background-color: #dc3545;
+    }
+
+    .cupo-cantidad.pocos-cupos {
+        background-color: #ffc107;
+        color: #212529;
+    }
+
+    .cupo-turno.total .cupo-cantidad {
+        background-color: #17a2b8;
+    }
+
+    .cupo-turno.total .cupo-cantidad.sin-cupos {
+        background-color: #dc3545;
     }
 </style>
 

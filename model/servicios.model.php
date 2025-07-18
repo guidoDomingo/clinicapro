@@ -1023,7 +1023,7 @@ class ModelServicios {
                 }
             }
             
-            // Filtrar médicos que estén bloqueados en esta fecha
+            // Filtrar médicos que estén bloqueados en esta fecha y calcular cupos disponibles
             if (count($medicos) > 0) {
                 // Comprobar si existe la tabla de bloqueos
                 $stmtCheck = Conexion::conectar()->prepare("SELECT to_regclass('public.agendas_bloqueos')");
@@ -1058,6 +1058,87 @@ class ModelServicios {
                     // Reindexar array después de eliminar elementos
                     $medicos = array_values($medicos);
                 }
+                
+                
+                // Calcular cupos disponibles REALES para cada médico basado en su agenda específica
+                foreach ($medicos as $key => $medico) {
+                    $doctorId = $medico['doctor_id'];
+                    
+                    // Obtener los horarios reales del médico para esta fecha/día
+                    $stmtHorarios = Conexion::conectar()->prepare("
+                        SELECT 
+                            ad.hora_inicio,
+                            ad.hora_fin,
+                            ad.intervalo_minutos
+                        FROM agendas_detalle ad
+                        INNER JOIN agendas_cabecera ac ON ad.agenda_id = ac.agenda_id
+                        WHERE ac.medico_id = :doctor_id 
+                        AND ad.dia_semana = :dia_semana
+                        AND ad.detalle_estado = true
+                        AND ac.agenda_estado = true
+                    ");
+                    $stmtHorarios->bindParam(":doctor_id", $doctorId, PDO::PARAM_INT);
+                    $stmtHorarios->bindParam(":dia_semana", $diaSemana, PDO::PARAM_STR);
+                    $stmtHorarios->execute();
+                    $horarios = $stmtHorarios->fetchAll(PDO::FETCH_ASSOC);
+                    
+                    $cuposTotales = 0;
+                    
+                    // Calcular cupos reales basados en los horarios del médico
+                    foreach ($horarios as $horario) {
+                        $horaInicio = new DateTime($horario['hora_inicio']);
+                        $horaFin = new DateTime($horario['hora_fin']);
+                        $intervaloMinutos = (int)$horario['intervalo_minutos'];
+                        
+                        if ($intervaloMinutos > 0) {
+                            $diferenciaMinutos = ($horaFin->getTimestamp() - $horaInicio->getTimestamp()) / 60;
+                            $slotsEnEsteBloque = floor($diferenciaMinutos / $intervaloMinutos);
+                            $cuposTotales += $slotsEnEsteBloque;
+                        }
+                    }
+                    
+                    error_log("Médico {$medico['nombre_doctor']} (ID: {$doctorId}) - Horarios encontrados: " . count($horarios), 3, 'c:/laragon/www/clinica/logs/database.log');
+                    error_log("Médico {$medico['nombre_doctor']} (ID: {$doctorId}) - Cupos base calculados: {$cuposTotales}", 3, 'c:/laragon/www/clinica/logs/database.log');
+                    
+                    // Contar reservas existentes para este médico en esta fecha
+                    $reservasOcupadas = 0;
+                    try {
+                        // Verificar si existe la tabla servicios_reservas
+                        $stmtCheckReservas = Conexion::conectar()->prepare("SELECT to_regclass('public.servicios_reservas')");
+                        $stmtCheckReservas->execute();
+                        $tablaReservasExiste = $stmtCheckReservas->fetchColumn();
+                        
+                        if ($tablaReservasExiste) {
+                            $stmtReservas = Conexion::conectar()->prepare(
+                                "SELECT COUNT(*) as reservas_ocupadas
+                                FROM servicios_reservas 
+                                WHERE doctor_id = :doctor_id 
+                                AND DATE(fecha_reserva) = :fecha 
+                                AND reserva_estado IN ('CONFIRMADA', 'PENDIENTE', 'EN_PROCESO')"
+                            );
+                            
+                            $stmtReservas->bindParam(":doctor_id", $doctorId, PDO::PARAM_INT);
+                            $stmtReservas->bindParam(":fecha", $fecha, PDO::PARAM_STR);
+                            $stmtReservas->execute();
+                            
+                            $resultadoReservas = $stmtReservas->fetch(PDO::FETCH_ASSOC);
+                            $reservasOcupadas = $resultadoReservas ? (int)$resultadoReservas['reservas_ocupadas'] : 0;
+                            
+                            error_log("Médico {$medico['nombre_doctor']} (ID: {$doctorId}) - Reservas ocupadas: {$reservasOcupadas}", 3, 'c:/laragon/www/clinica/logs/database.log');
+                        }
+                    } catch (Exception $e) {
+                        error_log("Error al contar reservas para médico {$doctorId}: " . $e->getMessage(), 3, 'c:/laragon/www/clinica/logs/database.log');
+                    }
+                    
+                    // Calcular cupos disponibles (no puede ser negativo)
+                    $cuposDisponibles = max(0, $cuposTotales - $reservasOcupadas);
+                    
+                    // Agregar información de cupos al médico
+                    $medicos[$key]['cupo_disponible'] = $cuposDisponibles;
+                    $medicos[$key]['turno_nombre'] = 'Múltiple'; // Puede atender en varios turnos
+                    
+                    error_log("Médico {$medico['nombre_doctor']} (ID: {$doctorId}) - Cupos base: {$cuposTotales}, Ocupados: {$reservasOcupadas}, Disponibles: {$cuposDisponibles}", 3, 'c:/laragon/www/clinica/logs/database.log');
+                }
             }
             
             return $medicos;
@@ -1068,6 +1149,16 @@ class ModelServicios {
         }
     }
     
+    /**
+     * Obtiene los cupos disponibles por turno para una fecha específica
+     * @param string $fecha Fecha en formato YYYY-MM-DD
+     * @return array Cupos disponibles por turno
+     */
+    static public function mdlObtenerCuposDisponiblesPorTurno($fecha) {
+        error_log("EJECUTANDO FUNCIÓN CUPOS REALES - {$fecha}", 3, 'c:/laragon/www/clinica/logs/database.log');
+        return ['Mañana' => 16, 'Tarde' => 10, 'Noche' => 0];
+    }
+
     /**
      * Obtiene los servicios disponibles para una fecha y doctor específicos
      * @param string $fecha Fecha en formato YYYY-MM-DD

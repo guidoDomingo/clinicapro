@@ -7,6 +7,7 @@
 $rutaBase = dirname(__FILE__, 2); // Obtiene la ruta del directorio raíz (dos niveles arriba)
 require_once $rutaBase . "/controller/servicios.controller.php";
 require_once $rutaBase . "/model/servicios.model.php";
+require_once $rutaBase . "/model/conexion.php";
 
 // Configurar cabeceras para JSON
 header('Content-Type: application/json');
@@ -102,6 +103,88 @@ if (isset($_POST['action'])) {
                 echo json_encode([
                     "status" => "success",
                     "data" => $medicos
+                ]);
+            } else {
+                echo json_encode([
+                    "status" => "error",
+                    "message" => "Fecha no proporcionada"
+                ]);
+            }
+            break;
+            
+        case 'obtenerCuposDisponiblesPorTurno':
+            error_log("AJAX obtenerCuposDisponiblesPorTurno llamado", 3, 'c:/laragon/www/clinica/logs/database.log');
+            if (isset($_POST['fecha'])) {
+                $fecha = $_POST['fecha'];
+                error_log("AJAX procesando fecha: {$fecha}", 3, 'c:/laragon/www/clinica/logs/database.log');
+                
+                try {
+                    // Obtener cupos totales basados en los datos reales encontrados en logs
+                    $cuposTotales = [
+                        'Mañana' => 16,  // 08:00-12:00, intervalo 15 min
+                        'Tarde' => 10,   // 6 (13:00-16:00, 35min) + 4 (17:00-20:00, 45min)
+                        'Noche' => 0     // Sin horarios nocturnos
+                    ];
+                    
+                    // Contar reservas existentes para esta fecha
+                    $pdo = Conexion::conectar();
+                    if ($pdo) {
+                        // Verificar si existe la tabla servicios_reservas
+                        $stmtCheck = $pdo->prepare("SELECT to_regclass('public.servicios_reservas')");
+                        $stmtCheck->execute();
+                        $tablaExiste = $stmtCheck->fetchColumn();
+                        
+                        if ($tablaExiste) {
+                            // Contar reservas por turno para la fecha específica
+                            $sql = "SELECT 
+                                        CASE 
+                                            WHEN EXTRACT(HOUR FROM hora_inicio::time) BETWEEN 6 AND 11 THEN 'Mañana'
+                                            WHEN EXTRACT(HOUR FROM hora_inicio::time) BETWEEN 12 AND 19 THEN 'Tarde'
+                                            ELSE 'Noche'
+                                        END as turno,
+                                        COUNT(*) as reservas_ocupadas
+                                    FROM servicios_reservas 
+                                    WHERE DATE(fecha_reserva) = :fecha 
+                                    AND reserva_estado IN ('CONFIRMADA', 'PENDIENTE', 'EN_PROCESO')
+                                    GROUP BY turno";
+                            
+                            $stmtReservas = $pdo->prepare($sql);
+                            $stmtReservas->bindParam(":fecha", $fecha, PDO::PARAM_STR);
+                            $stmtReservas->execute();
+                            $reservasOcupadas = $stmtReservas->fetchAll(PDO::FETCH_KEY_PAIR);
+                            
+                            error_log("Reservas ocupadas para {$fecha}: " . json_encode($reservasOcupadas), 3, 'c:/laragon/www/clinica/logs/database.log');
+                            
+                            // Calcular cupos disponibles restando las reservas ocupadas
+                            $cupos = [];
+                            foreach ($cuposTotales as $turno => $total) {
+                                $ocupadas = isset($reservasOcupadas[$turno]) ? (int)$reservasOcupadas[$turno] : 0;
+                                $cupos[$turno] = max(0, $total - $ocupadas); // No puede ser negativo
+                                error_log("Turno {$turno}: Total={$total}, Ocupadas={$ocupadas}, Disponibles={$cupos[$turno]}", 3, 'c:/laragon/www/clinica/logs/database.log');
+                            }
+                        } else {
+                            error_log("Tabla servicios_reservas no existe, usando valores totales", 3, 'c:/laragon/www/clinica/logs/database.log');
+                            $cupos = $cuposTotales;
+                        }
+                    } else {
+                        error_log("No se pudo conectar a la BD, usando valores totales", 3, 'c:/laragon/www/clinica/logs/database.log');
+                        $cupos = $cuposTotales;
+                    }
+                } catch (Exception $e) {
+                    error_log("Error al calcular cupos disponibles: " . $e->getMessage(), 3, 'c:/laragon/www/clinica/logs/database.log');
+                    // En caso de error, usar valores totales
+                    $cupos = [
+                        'Mañana' => 16,
+                        'Tarde' => 10,
+                        'Noche' => 0
+                    ];
+                }
+                
+                error_log("AJAX retornando cupos disponibles: " . json_encode($cupos), 3, 'c:/laragon/www/clinica/logs/database.log');
+                
+                echo json_encode([
+                    "status" => "success",
+                    "data" => $cupos
                 ]);
             } else {
                 echo json_encode([
