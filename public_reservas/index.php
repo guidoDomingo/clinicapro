@@ -82,6 +82,26 @@ if (isset($_POST['action'])) {
             header("Location: " . $resultadoAuth['redirect']);
             exit;
         }
+    } elseif ($_POST['action'] === 'verificar_email') {
+        // Verificar si un email ya existe
+        $email = $_POST['email'] ?? '';
+        $existe = ReservasPublicModel::mdlVerificarEmailExistente($email);
+        
+        if ($isAjax) {
+            header('Content-Type: application/json');
+            echo json_encode(['existe' => $existe]);
+            exit;
+        }
+    } elseif ($_POST['action'] === 'verificar_documento') {
+        // Verificar si un documento ya existe
+        $documento = $_POST['documento'] ?? '';
+        $existe = ReservasPublicModel::mdlVerificarDocumentoExistente($documento);
+        
+        if ($isAjax) {
+            header('Content-Type: application/json');
+            echo json_encode(['existe' => $existe]);
+            exit;
+        }
     }
     
     // Si llegamos aquí, hubo un error o resultadoAuth es null

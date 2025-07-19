@@ -70,9 +70,9 @@
                     </div>
                     <div class="col-4">
                         <button type="submit" class="btn btn-primary btn-block" id="btnLogin">
-                            <span class="normal-text">Ingresar</span>
-                            <span class="spinner-border spinner-border-sm ms-1" role="status" style="display: none;">
-                                <span class="visually-hidden">Cargando...</span>
+                            <span class="btn-text">Ingresar</span>
+                            <span class="btn-spinner" style="display: none;">
+                                <i class="fas fa-spinner fa-spin"></i> Ingresando...
                             </span>
                         </button>
                     </div>
@@ -100,117 +100,75 @@
                     
                     // Mostrar spinner y deshabilitar botón
                     const $button = $('#btnLogin');
-                    const $spinner = $button.find('.spinner-border');
-                    const $text = $button.find('.normal-text');
+                    const $spinner = $button.find('.btn-spinner');
+                    const $text = $button.find('.btn-text');
                     
+                    $text.hide();
                     $spinner.show();
-                    $text.text('Ingresando...');
                     $button.prop('disabled', true);
                     
-                    // Usar la URL del API
-                    var apiUrl = window.location.origin + '/api/auth/login';
-                    console.log('URL de la API:', apiUrl);
+                    // Crear FormData para enviar al sistema local
+                    var formData = new FormData();
+                    formData.append('action', 'login');
+                    formData.append('email', $('#loginEmail').val());
+                    formData.append('password', $('#loginPassword').val());
+                    formData.append('rememberMe', $('#rememberMe').is(':checked') ? 'on' : 'off');
                     
-                    // Usar jQuery AJAX para mayor compatibilidad
-                    $.ajax({
-                        url: apiUrl,
-                        type: 'POST',
-                        dataType: 'json',
-                        contentType: 'application/json',
+                    console.log('Enviando login al sistema local');
+                    
+                    // Usar fetch para enviar al AuthController local
+                    fetch('index.php', {
+                        method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json'
+                            'X-Requested-With': 'XMLHttpRequest'
                         },
-                        data: JSON.stringify(formData),
-                        success: function(data) {
-                            console.log('Respuesta exitosa:', data);
-                            
-                            // Ocultar spinner y restaurar botón
-                            $spinner.hide();
-                            $text.text('Ingresar');
-                            $button.prop('disabled', false);
-                            
-                            if (data && data.status === 'success') {
-                                let successMessage = (data.data && data.data.message) ? 
-                                    data.data.message : 'Inicio de sesión exitoso';
-                                
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Bienvenido',
-                                    text: successMessage,
-                                    showConfirmButton: false,
-                                    timer: 1500
-                                }).then(() => {
-                                    // Redirigir a la página especificada
-                                    console.log('Redirigiendo a:', (data.data && data.data.redirect) ? data.data.redirect : 'index.php?accion=reservar');
-                                    
-                                    if (data.data && data.data.redirect) {
-                                        // Si la redirección es 'home', reemplazarla por la URL de reserva
-                                        if (data.data.redirect === 'home') {
-                                            window.location.href = 'index.php?accion=reservar';
-                                        } else {
-                                            window.location.href = data.data.redirect;
-                                        }
-                                    } else {
-                                        window.location.href = 'index.php?accion=reservar';
-                                    }
-                                });
-                            } else {
-                                var errorMessage = (data && data.error && data.error.message) ? 
-                                    data.error.message : 'Error al iniciar sesión';
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Error',
-                                    text: errorMessage
-                                });
-                            }
-                        },
-                        error: function(xhr, status, error) {
-                            // Ocultar spinner y restaurar botón
-                            $spinner.hide();
-                            $text.text('Ingresar');
-                            $button.prop('disabled', false);
-                            
-                            console.error('Error en la solicitud AJAX:', status, error);
-                            console.log('Respuesta del servidor:', xhr.responseText);
-                            
-                            let errorMessage = 'Error al conectar con el servidor';
-                            
-                            if (status === 'parsererror') {
-                                errorMessage = 'Error al procesar la respuesta del servidor. Por favor, intente de nuevo.';
-                                
-                                // Si hay respuesta pero no es JSON válido
-                                if (xhr.responseText) {
-                                    console.log('Respuesta no JSON:', xhr.responseText);
-                                    // Si la respuesta contiene HTML, podría ser un error 500
-                                    if (xhr.responseText.includes('<!DOCTYPE html>') || 
-                                        xhr.responseText.includes('<html>')) {
-                                        errorMessage = 'Error interno del servidor. Por favor, contacte al administrador.';
-                                    }
-                                }
-                            } else {
-                                // Intentar parsear JSON si hay respuesta
-                                try {
-                                    if (xhr.responseText) {
-                                        let jsonResponse = JSON.parse(xhr.responseText);
-                                        if (jsonResponse && jsonResponse.error && jsonResponse.error.message) {
-                                            if (Array.isArray(jsonResponse.error.message)) {
-                                                errorMessage = jsonResponse.error.message.join(' ');
-                                            } else {
-                                                errorMessage = jsonResponse.error.message;
-                                            }
-                                        }
-                                    }
-                                } catch (e) {
-                                    console.error('Error al parsear respuesta:', e);
-                                }
-                            }
-                            
+                        body: formData
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        }
+                        throw new Error('Error en la respuesta del servidor');
+                    })
+                    .then(data => {
+                        console.log('Respuesta exitosa:', data);
+                        
+                        // Ocultar spinner y restaurar botón
+                        $spinner.hide();
+                        $text.show();
+                        $button.prop('disabled', false);
+                        
+                        if (!data.error) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Bienvenido',
+                                text: data.mensaje,
+                                showConfirmButton: false,
+                                timer: 1500
+                            }).then(() => {
+                                window.location.href = data.redirect || 'index.php?accion=reservar';
+                            });
+                        } else {
                             Swal.fire({
                                 icon: 'error',
-                                title: 'Error de Inicio de Sesión',
-                                text: errorMessage
+                                title: 'Error',
+                                text: data.mensaje
                             });
                         }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        
+                        // Ocultar spinner y restaurar botón
+                        $spinner.hide();
+                        $text.show();
+                        $button.prop('disabled', false);
+                        
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error de Inicio de Sesión',
+                            text: 'Error al conectar con el servidor. Por favor, intente nuevamente.'
+                        });
                     });
                     
                     return false;

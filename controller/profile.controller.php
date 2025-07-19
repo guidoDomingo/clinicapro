@@ -270,7 +270,18 @@ if (isset($_POST['action']) && !empty($_POST['action'])) {
     if (session_status() == PHP_SESSION_NONE) {
         session_start();
     }
-    $userId = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
+    
+    // Verificar autenticación: puede venir del sistema principal o del módulo de reservas públicas
+    $userId = null;
+    
+    // Primero verificar si es del sistema principal
+    if (isset($_SESSION['user_id']) && $_SESSION['user_id'] > 0) {
+        $userId = $_SESSION['user_id'];
+    }
+    // Si no, verificar si es del módulo de reservas públicas
+    elseif (isset($_SESSION['paciente_id']) && $_SESSION['paciente_id'] > 0) {
+        $userId = $_SESSION['paciente_id'];
+    }
     
     if (!$userId) {
         echo json_encode([

@@ -341,6 +341,17 @@ class AuthController {
                     ];
                 }
                 
+                // Verificar que el documento no esté ya registrado
+                $existeDocumento = ReservasPublicModel::mdlVerificarDocumentoExistente($datos['documento']);
+                
+                if ($existeDocumento) {
+                    error_log("ctrRegisterUser: El documento ya está registrado: " . $datos['documento'], 3, "c:/laragon/www/clinica/logs/auth.log");
+                    return [
+                        'error' => true,
+                        'mensaje' => 'El número de documento ya está registrado en el sistema'
+                    ];
+                }
+                
                 // Registrar el nuevo usuario
                 $resultado = ReservasPublicModel::mdlRegistrarUsuario($datos);
                 error_log("ctrRegisterUser: Resultado del registro: " . json_encode($resultado), 3, "c:/laragon/www/clinica/logs/auth.log");

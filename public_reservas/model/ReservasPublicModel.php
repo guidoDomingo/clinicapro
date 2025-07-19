@@ -455,6 +455,33 @@ class ReservasPublicModel {
     }
     
     /**
+     * Verifica si un documento ya está registrado en el sistema
+     * @param string $documento Documento a verificar
+     * @return bool True si el documento ya existe, false en caso contrario
+     */
+    static public function mdlVerificarDocumentoExistente($documento) {
+        error_log("mdlVerificarDocumentoExistente: Verificando si el documento $documento ya está registrado", 3, "c:/laragon/www/clinica/logs/auth.log");
+        
+        try {
+            $stmt = Conexion::conectar()->prepare(
+                "SELECT COUNT(*) FROM sys_register WHERE reg_document = :documento"
+            );
+            
+            $stmt->bindParam(":documento", $documento, PDO::PARAM_STR);
+            $stmt->execute();
+            
+            $existe = ($stmt->fetchColumn() > 0);
+            
+            error_log("mdlVerificarDocumentoExistente: Documento ya existe: " . ($existe ? 'sí' : 'no'), 3, "c:/laragon/www/clinica/logs/auth.log");
+            
+            return $existe;
+        } catch (PDOException $e) {
+            error_log("mdlVerificarDocumentoExistente: Error al verificar documento: " . $e->getMessage(), 3, "c:/laragon/www/clinica/logs/auth.log");
+            return false;
+        }
+    }
+    
+    /**
      * Registra un nuevo usuario en el sistema
      * @param array $datos Datos del usuario
      * @return array Resultado del registro

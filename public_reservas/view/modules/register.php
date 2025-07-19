@@ -188,14 +188,115 @@
 $(document).ready(function() {
   console.log('Script de registro inicializado');
   
+  // Función para verificar si un email ya existe
+  function verificarEmailUnico(email) {
+    return fetch('index.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: 'action=verificar_email&email=' + encodeURIComponent(email)
+    })
+    .then(response => response.json())
+    .then(data => {
+      return !data.existe; // Retorna true si NO existe (es único)
+    })
+    .catch(error => {
+      console.error('Error al verificar email:', error);
+      return true; // En caso de error, permitir continuar
+    });
+  }
+  
+  // Función para verificar si un documento ya existe
+  function verificarDocumentoUnico(documento) {
+    return fetch('index.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: 'action=verificar_documento&documento=' + encodeURIComponent(documento)
+    })
+    .then(response => response.json())
+    .then(data => {
+      return !data.existe; // Retorna true si NO existe (es único)
+    })
+    .catch(error => {
+      console.error('Error al verificar documento:', error);
+      return true; // En caso de error, permitir continuar
+    });
+  }
+  
+  // Event listeners para validación en tiempo real
+  let emailTimeout, documentoTimeout;
+  
+  $('#regEmail').on('input', function() {
+    const email = $(this).val();
+    const $field = $(this);
+    
+    // Limpiar timeout anterior
+    clearTimeout(emailTimeout);
+    
+    // Limpiar indicadores previos
+    $field.removeClass('is-valid is-invalid');
+    $('#emailFeedback').remove();
+    
+    if (email.length > 0 && email.includes('@')) {
+      emailTimeout = setTimeout(async () => {
+        try {
+          const emailUnico = await verificarEmailUnico(email);
+          if (emailUnico) {
+            $field.addClass('is-valid');
+            $field.after('<div id="emailFeedback" class="valid-feedback">Email disponible</div>');
+          } else {
+            $field.addClass('is-invalid');
+            $field.after('<div id="emailFeedback" class="invalid-feedback">Este email ya está registrado</div>');
+          }
+        } catch (error) {
+          console.error('Error al validar email:', error);
+        }
+      }, 500); // Esperar 500ms después de que pare de escribir
+    }
+  });
+  
+  $('#regDoc').on('input', function() {
+    const documento = $(this).val();
+    const $field = $(this);
+    
+    // Limpiar timeout anterior
+    clearTimeout(documentoTimeout);
+    
+    // Limpiar indicadores previos
+    $field.removeClass('is-valid is-invalid');
+    $('#docFeedback').remove();
+    
+    if (documento.length >= 7) { // Validar solo si tiene al menos 7 caracteres
+      documentoTimeout = setTimeout(async () => {
+        try {
+          const documentoUnico = await verificarDocumentoUnico(documento);
+          if (documentoUnico) {
+            $field.addClass('is-valid');
+            $field.after('<div id="docFeedback" class="valid-feedback">Documento disponible</div>');
+          } else {
+            $field.addClass('is-invalid');
+            $field.after('<div id="docFeedback" class="invalid-feedback">Este documento ya está registrado</div>');
+          }
+        } catch (error) {
+          console.error('Error al validar documento:', error);
+        }
+      }, 500); // Esperar 500ms después de que pare de escribir
+    }
+  });
+
   // Botón alternativo para enviar el formulario
   $('#btnRegistrarAlternativo').click(function() {
     console.log('Botón alternativo presionado');
     enviarFormulario();
   });
   
-  // Función para enviar el formulario
-  function enviarFormulario() {
+  // Función para enviar el formulario con validaciones de duplicados
+  async function enviarFormulario() {
     console.log('Función enviarFormulario ejecutada');
     
     if(!$('#acceptTerms').is(':checked')) {
@@ -217,7 +318,41 @@ $(document).ready(function() {
       return false;
     }
     
-    console.log('Formulario validado correctamente');
+    // Obtener valores de email y documento
+    const email = $('#regEmail').val();
+    const documento = $('#regDoc').val();
+    
+    // Verificar que el email no esté duplicado
+    try {
+      const emailUnico = await verificarEmailUnico(email);
+      if (!emailUnico) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Email ya registrado',
+          text: 'El email ingresado ya está registrado en el sistema. Por favor use otro email o inicie sesión.'
+        });
+        return false;
+      }
+    } catch (error) {
+      console.error('Error al verificar email único:', error);
+    }
+    
+    // Verificar que el documento no esté duplicado
+    try {
+      const documentoUnico = await verificarDocumentoUnico(documento);
+      if (!documentoUnico) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Documento ya registrado',
+          text: 'El número de documento ingresado ya está registrado en el sistema. Por favor verifique el documento o inicie sesión.'
+        });
+        return false;
+      }
+    } catch (error) {
+      console.error('Error al verificar documento único:', error);
+    }
+    
+    console.log('Formulario validado correctamente - sin duplicados');
     
     // Mostrar spinner y deshabilitar botón
     const $button = $('#btnRegister');

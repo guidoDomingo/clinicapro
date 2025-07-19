@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba de Validaciones AJAX</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Prueba de Validaciones AJAX</h1>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <h3>Verificar Email</h3>
+                <div class="mb-3">
+                    <input type="email" class="form-control" id="testEmail" placeholder="Ingrese un email">
+                    <div id="emailResult" class="mt-2"></div>
+                </div>
+                <button class="btn btn-primary" onclick="verificarEmail()">Verificar Email</button>
+            </div>
+            
+            <div class="col-md-6">
+                <h3>Verificar Documento</h3>
+                <div class="mb-3">
+                    <input type="text" class="form-control" id="testDoc" placeholder="Ingrese un documento">
+                    <div id="docResult" class="mt-2"></div>
+                </div>
+                <button class="btn btn-primary" onclick="verificarDocumento()">Verificar Documento</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        function verificarEmail() {
+            const email = $('#testEmail').val();
+            
+            if (!email) {
+                $('#emailResult').html('<div class="alert alert-warning">Ingrese un email</div>');
+                return;
+            }
+            
+            fetch('index.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: 'action=verificar_email&email=' + encodeURIComponent(email)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.existe) {
+                    $('#emailResult').html('<div class="alert alert-danger"><i class="fas fa-times"></i> Email YA EXISTE en el sistema</div>');
+                } else {
+                    $('#emailResult').html('<div class="alert alert-success"><i class="fas fa-check"></i> Email DISPONIBLE</div>');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                $('#emailResult').html('<div class="alert alert-danger">Error al verificar: ' + error.message + '</div>');
+            });
+        }
+        
+        function verificarDocumento() {
+            const documento = $('#testDoc').val();
+            
+            if (!documento) {
+                $('#docResult').html('<div class="alert alert-warning">Ingrese un documento</div>');
+                return;
+            }
+            
+            fetch('index.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: 'action=verificar_documento&documento=' + encodeURIComponent(documento)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.existe) {
+                    $('#docResult').html('<div class="alert alert-danger"><i class="fas fa-times"></i> Documento YA EXISTE en el sistema</div>');
+                } else {
+                    $('#docResult').html('<div class="alert alert-success"><i class="fas fa-check"></i> Documento DISPONIBLE</div>');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                $('#docResult').html('<div class="alert alert-danger">Error al verificar: ' + error.message + '</div>');
+            });
+        }
+    </script>
+</body>
+</html>
