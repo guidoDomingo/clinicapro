@@ -122,11 +122,18 @@ class SysRegisterController
             $regId = $this->registerModel->create($data);
             $registration = $this->registerModel->find($regId);
             
-            // Get the automatically created user
+            // Log para debugging
+            \Api\Core\Logger::info("Registration created with ID: $regId", 'Registration process');
+            \Api\Core\Logger::info($registration, 'Registration data');
+            
+            // Get the user by email instead of reg_id (more reliable)
             $user = $this->userModel->raw(
-                "SELECT * FROM sys_users WHERE reg_id = :reg_id",
-                ['reg_id' => $regId]
+                "SELECT * FROM sys_users WHERE user_email = :email ORDER BY user_id DESC LIMIT 1",
+                ['email' => $registration['reg_email']]
             )->fetch();
+            
+            // Log para debugging
+            \Api\Core\Logger::info($user, 'User data for email sending');
             
             // Assign default role (Usuario - ID 2)
             if ($user) {
@@ -137,6 +144,8 @@ class SysRegisterController
                 
                 // Activate user account
                 $this->userModel->activateUser($user['user_id']);
+            } else {
+                \Api\Core\Logger::error("No user found for email: " . $registration['reg_email'], 'Registration error');
             }
             
             Response::success([

@@ -90,7 +90,7 @@ class ReservasPublicModel {
                     last_name, 
                     document_number,
                     email,
-                    phone
+                    phone_number
                 FROM 
                     rh_person 
                 WHERE 
@@ -320,19 +320,25 @@ class ReservasPublicModel {
         error_log("mdlVerificarUsuario: Verificando usuario con email $email", 3, "c:/laragon/www/clinica/logs/auth.log");
         
         try {
-            // Primero buscamos en la tabla de pacientes registrados
+            // Buscar usuario en las tablas del sistema principal
             $stmt = Conexion::conectar()->prepare(
                 "SELECT 
-                    pr.paciente_id,
-                    pr.email,
-                    pr.password,
-                    p.first_name || ' ' || p.last_name AS nombre
+                    su.user_id,
+                    su.user_email,
+                    su.user_pass,
+                    su.user_is_active,
+                    sr.reg_name || ' ' || sr.reg_lastname AS nombre,
+                    p.person_id
                 FROM 
-                    reservas_pacientes_auth pr
+                    sys_users su
+                INNER JOIN 
+                    sys_register sr ON su.reg_id = sr.reg_id
                 LEFT JOIN 
-                    rh_person p ON pr.paciente_id = p.person_id
+                    person_system_user psu ON su.user_id = psu.system_user_id
+                LEFT JOIN 
+                    rh_person p ON psu.person_id = p.person_id
                 WHERE 
-                    pr.email = :email
+                    su.user_email = :email AND su.user_is_active = true
                 LIMIT 1"
             );
             
@@ -345,35 +351,36 @@ class ReservasPublicModel {
                 error_log("mdlVerificarUsuario: Usuario no encontrado con email $email", 3, "c:/laragon/www/clinica/logs/auth.log");
                 return [
                     'error' => true,
-                    'mensaje' => 'El email no está registrado en el sistema'
+                    'mensaje' => 'Credenciales inválidas'
                 ];
             }
             
             // Verificar la contraseña
-            if (password_verify($password, $usuario['password'])) {
-                error_log("mdlVerificarUsuario: Contraseña correcta para usuario ID " . $usuario['paciente_id'], 3, "c:/laragon/www/clinica/logs/auth.log");
+            if (password_verify($password, $usuario['user_pass'])) {
+                error_log("mdlVerificarUsuario: Contraseña correcta para usuario ID " . $usuario['user_id'], 3, "c:/laragon/www/clinica/logs/auth.log");
                 
                 // Actualizar último login
                 $updateStmt = Conexion::conectar()->prepare(
-                    "UPDATE reservas_pacientes_auth 
-                     SET ultimo_login = CURRENT_TIMESTAMP 
-                     WHERE paciente_id = :paciente_id"
+                    "UPDATE sys_users 
+                     SET user_last_login = CURRENT_TIMESTAMP 
+                     WHERE user_id = :user_id"
                 );
                 
-                $updateStmt->bindParam(":paciente_id", $usuario['paciente_id'], PDO::PARAM_INT);
+                $updateStmt->bindParam(":user_id", $usuario['user_id'], PDO::PARAM_INT);
                 $updateStmt->execute();
                 
                 return [
                     'error' => false,
-                    'paciente_id' => $usuario['paciente_id'],
-                    'email' => $usuario['email'],
+                    'paciente_id' => $usuario['user_id'],
+                    'person_id' => $usuario['person_id'],
+                    'email' => $usuario['user_email'],
                     'nombre' => $usuario['nombre']
                 ];
             } else {
                 error_log("mdlVerificarUsuario: Contraseña incorrecta para email $email", 3, "c:/laragon/www/clinica/logs/auth.log");
                 return [
                     'error' => true,
-                    'mensaje' => 'Contraseña incorrecta'
+                    'mensaje' => 'Credenciales inválidas'
                 ];
             }
         } catch (PDOException $e) {
@@ -430,7 +437,7 @@ class ReservasPublicModel {
         
         try {
             $stmt = Conexion::conectar()->prepare(
-                "SELECT COUNT(*) FROM reservas_pacientes_auth WHERE email = :email"
+                "SELECT COUNT(*) FROM sys_register WHERE reg_email = :email"
             );
             
             $stmt->bindParam(":email", $email, PDO::PARAM_STR);
@@ -463,9 +470,9 @@ class ReservasPublicModel {
             // Primero creamos el registro en rh_person
             $stmtPerson = $db->prepare(
                 "INSERT INTO rh_person 
-                 (first_name, last_name, document_number, email, phone, created_at)
+                 (first_name, last_name, document_number, email, phone_number, birth_date, created_at)
                  VALUES 
-                 (:first_name, :last_name, :document_number, :email, :phone, CURRENT_TIMESTAMP)
+                 (:first_name, :last_name, :document_number, :email, :phone_number, :birth_date, CURRENT_TIMESTAMP)
                  RETURNING person_id"
             );
             
@@ -473,7 +480,8 @@ class ReservasPublicModel {
             $stmtPerson->bindParam(":last_name", $datos['apellido'], PDO::PARAM_STR);
             $stmtPerson->bindParam(":document_number", $datos['documento'], PDO::PARAM_STR);
             $stmtPerson->bindParam(":email", $datos['email'], PDO::PARAM_STR);
-            $stmtPerson->bindParam(":phone", $datos['telefono'], PDO::PARAM_STR);
+            $stmtPerson->bindParam(":phone_number", $datos['telefono'], PDO::PARAM_STR);
+            $stmtPerson->bindParam(":birth_date", $datos['fecha_nacimiento'], PDO::PARAM_STR);
             
             $stmtPerson->execute();
             $personId = $stmtPerson->fetchColumn();
@@ -487,35 +495,105 @@ class ReservasPublicModel {
                 ];
             }
             
-            // Ahora creamos el registro de autenticación
-            $stmtAuth = $db->prepare(
-                "INSERT INTO reservas_pacientes_auth 
-                 (paciente_id, email, password, fecha_registro, ultimo_login)
+            // 1. Primero insertamos en sys_register (esto activará el trigger que crea sys_users)
+            $stmtRegister = $db->prepare(
+                "INSERT INTO sys_register 
+                 (reg_document, reg_name, reg_lastname, reg_email, reg_phone, reg_bdate, reg_activation)
                  VALUES 
-                 (:paciente_id, :email, :password, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)"
+                 (:reg_document, :reg_name, :reg_lastname, :reg_email, :reg_phone, :reg_bdate, 'pending')
+                 RETURNING reg_id"
             );
             
-            $stmtAuth->bindParam(":paciente_id", $personId, PDO::PARAM_INT);
-            $stmtAuth->bindParam(":email", $datos['email'], PDO::PARAM_STR);
-            $stmtAuth->bindParam(":password", $datos['password'], PDO::PARAM_STR);
+            $stmtRegister->bindParam(":reg_document", $datos['documento'], PDO::PARAM_STR);
+            $stmtRegister->bindParam(":reg_name", $datos['nombre'], PDO::PARAM_STR);
+            $stmtRegister->bindParam(":reg_lastname", $datos['apellido'], PDO::PARAM_STR);
+            $stmtRegister->bindParam(":reg_email", $datos['email'], PDO::PARAM_STR);
+            $stmtRegister->bindParam(":reg_phone", $datos['telefono'], PDO::PARAM_STR);
+            $stmtRegister->bindParam(":reg_bdate", $datos['fecha_nacimiento'], PDO::PARAM_STR);
             
-            if (!$stmtAuth->execute()) {
+            $stmtRegister->execute();
+            $regId = $stmtRegister->fetchColumn();
+            
+            if (!$regId) {
                 $db->rollBack();
-                error_log("mdlRegistrarUsuario: Error al crear registro de autenticación", 3, "c:/laragon/www/clinica/logs/auth.log");
+                error_log("mdlRegistrarUsuario: Error al crear registro en sys_register", 3, "c:/laragon/www/clinica/logs/auth.log");
                 return [
                     'error' => true,
-                    'mensaje' => 'Error al crear el registro de autenticación'
+                    'mensaje' => 'Error al crear el registro de usuario'
                 ];
             }
+            
+            // 2. Actualizar la contraseña en sys_users (el trigger ya creó el usuario)
+            $stmtUser = $db->prepare(
+                "UPDATE sys_users 
+                 SET user_pass = :password, user_is_active = true, user_expire = NOW() + INTERVAL '1 year'
+                 WHERE reg_id = :reg_id
+                 RETURNING user_id"
+            );
+            
+            $stmtUser->bindParam(":password", $datos['password'], PDO::PARAM_STR);
+            $stmtUser->bindParam(":reg_id", $regId, PDO::PARAM_INT);
+            
+            $stmtUser->execute();
+            $userId = $stmtUser->fetchColumn();
+            
+            if (!$userId) {
+                $db->rollBack();
+                error_log("mdlRegistrarUsuario: Error al actualizar contraseña en sys_users", 3, "c:/laragon/www/clinica/logs/auth.log");
+                return [
+                    'error' => true,
+                    'mensaje' => 'Error al configurar credenciales de usuario'
+                ];
+            }
+            
+            // 3. Crear el perfil en rh_person
+            $stmtPerson = $db->prepare(
+                "INSERT INTO rh_person 
+                 (first_name, last_name, document_number, email, phone_number, birth_date, created_at, is_active)
+                 VALUES 
+                 (:first_name, :last_name, :document_number, :email, :phone_number, :birth_date, CURRENT_TIMESTAMP, true)
+                 RETURNING person_id"
+            );
+            
+            $stmtPerson->bindParam(":first_name", $datos['nombre'], PDO::PARAM_STR);
+            $stmtPerson->bindParam(":last_name", $datos['apellido'], PDO::PARAM_STR);
+            $stmtPerson->bindParam(":document_number", $datos['documento'], PDO::PARAM_STR);
+            $stmtPerson->bindParam(":email", $datos['email'], PDO::PARAM_STR);
+            $stmtPerson->bindParam(":phone_number", $datos['telefono'], PDO::PARAM_STR);
+            $stmtPerson->bindParam(":birth_date", $datos['fecha_nacimiento'], PDO::PARAM_STR);
+            
+            $stmtPerson->execute();
+            $personId = $stmtPerson->fetchColumn();
+            
+            if (!$personId) {
+                $db->rollBack();
+                error_log("mdlRegistrarUsuario: Error al crear perfil en rh_person", 3, "c:/laragon/www/clinica/logs/auth.log");
+                return [
+                    'error' => true,
+                    'mensaje' => 'Error al crear el perfil de usuario'
+                ];
+            }
+            
+            // 4. Vincular el usuario del sistema con la persona
+            $stmtLink = $db->prepare(
+                "INSERT INTO person_system_user (person_id, system_user_id, assigned_at)
+                 VALUES (:person_id, :system_user_id, CURRENT_TIMESTAMP)"
+            );
+            
+            $stmtLink->bindParam(":person_id", $personId, PDO::PARAM_INT);
+            $stmtLink->bindParam(":system_user_id", $userId, PDO::PARAM_INT);
+            
+            $stmtLink->execute();
             
             // Si todo está bien, confirmamos la transacción
             $db->commit();
             
-            error_log("mdlRegistrarUsuario: Registro exitoso para usuario con ID $personId", 3, "c:/laragon/www/clinica/logs/auth.log");
+            error_log("mdlRegistrarUsuario: Registro exitoso para usuario con ID $userId", 3, "c:/laragon/www/clinica/logs/auth.log");
             
             return [
                 'error' => false,
-                'paciente_id' => $personId,
+                'paciente_id' => $userId,
+                'person_id' => $personId,
                 'mensaje' => 'Usuario registrado con éxito'
             ];
         } catch (PDOException $e) {

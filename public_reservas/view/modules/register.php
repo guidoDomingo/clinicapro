@@ -82,22 +82,6 @@
             </div>
           </div>
         </div>
-        <!-- <div class="input-group mb-3">
-          <input type="password" id="regPassword" name="reg_password" class="form-control" placeholder="Contraseña" required>
-          <div class="input-group-append">
-            <div class="input-group-text">
-              <span class="fas fa-lock"></span>
-            </div>
-          </div>
-        </div>
-        <div class="input-group mb-3">
-          <input type="password" id="regConfirmPassword" name="reg_confirm_password" class="form-control" placeholder="Confirmar contraseña" required>
-          <div class="input-group-append">
-            <div class="input-group-text">
-              <span class="fas fa-lock"></span>
-            </div>
-          </div>
-        </div> -->
         <div class="input-group mb-3">
           <input type="date" id="regBdate" name="reg_bdate" class="form-control" placeholder="Fecha de nacimiento" required>
           <div class="input-group-append">
@@ -105,6 +89,10 @@
               <span class="fas fa-calendar"></span>
             </div>
           </div>
+        </div>
+        <div class="alert alert-info">
+          <i class="fas fa-info-circle mr-2"></i>
+          <strong>Nota:</strong> Su contraseña temporal será enviada por correo electrónico una vez completado el registro.
         </div>
         <div class="row">
           <div class="col-8">
@@ -118,9 +106,9 @@
           <!-- /.col -->
           <div class="col-4">
             <button type="submit" class="btn btn-primary btn-block" id="btnRegister">
-              <span class="normal-text">Registrar</span>
-              <span class="spinner-border spinner-border-sm ms-1" role="status" style="display: none;">
-                <span class="visually-hidden">Cargando...</span>
+              <span class="btn-text">Registrar</span>
+              <span class="btn-spinner" style="display: none;">
+                <i class="fas fa-spinner fa-spin"></i> Registrando...
               </span>
             </button>
           </div>
@@ -170,8 +158,19 @@
       </div>
       <div class="modal-body">
         <p>¡Su registro ha sido completado exitosamente!</p>
-        <p>Se ha enviado un correo electrónico con sus credenciales de acceso. Por favor, revise su bandeja de entrada y siga las instrucciones para activar su cuenta.</p>
-        <p>Una vez activada su cuenta, podrá iniciar sesión y acceder a todos los servicios del sistema de reservas.</p>
+        <p><strong>Se ha enviado un correo electrónico con sus credenciales de acceso.</strong></p>
+        
+        <div class="alert alert-info">
+          <h6><i class="fas fa-info-circle mr-2"></i>Próximos pasos:</h6>
+          <ol class="mb-0">
+            <li>Revise su bandeja de entrada de email</li>
+            <li><strong>Usuario:</strong> Su dirección de correo electrónico</li>
+            <li><strong>Contraseña:</strong> La contraseña temporal enviada por email</li>
+            <li>Inicie sesión para acceder al sistema de reservas</li>
+          </ol>
+        </div>
+        
+        <p class="text-muted"><small>Si no encuentra el correo, revise su carpeta de spam.</small></p>
       </div>
       <div class="modal-footer">
         <a href="index.php?view=login" class="btn btn-primary">Ir a Iniciar Sesión</a>
@@ -208,16 +207,6 @@ $(document).ready(function() {
       return false;
     }
     
-    // Verificar que las contraseñas coincidan
-    if($('#regPassword').val() !== $('#regConfirmPassword').val()) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Las contraseñas no coinciden'
-      });
-      return false;
-    }
-    
     // Verificar que la fecha de nacimiento esté presente
     if(!$('#regBdate').val()) {
       Swal.fire({
@@ -230,109 +219,106 @@ $(document).ready(function() {
     
     console.log('Formulario validado correctamente');
     
-    // Obtener los datos del formulario en el formato que espera la API
-    var formData = {
-      reg_document: $('#regDoc').val(),
-      reg_name: $('#regName').val(),
-      reg_lastname: $('#regLastName').val(),
-      reg_email: $('#regEmail').val(),
-      reg_phone: $('#regTel').val(),
-      reg_password: $('#regPassword').val(),
-      reg_confirm_password: $('#regConfirmPassword').val(),
-      reg_bdate: $('#regBdate').val(), // Añadido el campo de fecha de nacimiento
-      reg_activation: 'pending'
-    };
-    
     // Mostrar spinner y deshabilitar botón
     const $button = $('#btnRegister');
-    const $spinner = $button.find('.spinner-border');
-    const $text = $button.find('.normal-text');
+    const $spinner = $button.find('.btn-spinner');
+    const $text = $button.find('.btn-text');
     
+    $text.hide();
     $spinner.show();
-    $text.text('Registrando...');
     $button.prop('disabled', true);
     
-    // Usar la URL que sabemos que funciona
-    var apiUrl = window.location.origin + '/api/register';
-    console.log('URL de la API:', apiUrl);
-    console.log('Enviando datos:', formData);
+    // Usar la URL del sistema public_reservas en lugar de la API
+    var formAction = 'index.php';
+    console.log('URL de destino:', formAction);
     
-    // Usar jQuery AJAX para mayor compatibilidad
-    $.ajax({
-      url: apiUrl,
-      type: 'POST',
-      dataType: 'json',
-      contentType: 'application/json',
-      data: JSON.stringify(formData),
-      success: function(data) {
-        console.log('Respuesta exitosa:', data);
-        
-        // Ocultar spinner y restaurar botón
-        $spinner.hide();
-        $text.text('Registrar');
-        $button.prop('disabled', false);
-        
-        // Verificar si la respuesta contiene un error
-        if (data && data.error) {
-          var errorMessage = 'Ha ocurrido un error al procesar su registro.';
-          if (data.error.message) {
-            errorMessage = data.error.message;
-          }
-          
-          Swal.fire({
-            icon: 'error',
-            title: 'Error de Registro',
-            text: errorMessage
-          });
-        } else {
-          // Mostrar modal de éxito
-          $('#successModal').modal('show');
-          
-          // Limpiar el formulario
-          $('#frmRegister')[0].reset();
-        }
+    // Crear FormData con los nombres de campos esperados por AuthController
+    var formData = new FormData();
+    formData.append('action', 'register');
+    formData.append('regName', $('#regName').val());
+    formData.append('regLastName', $('#regLastName').val());
+    formData.append('regEmail', $('#regEmail').val());
+    formData.append('regDoc', $('#regDoc').val());
+    formData.append('regTel', $('#regTel').val());
+    formData.append('regBdate', $('#regBdate').val());
+    formData.append('acceptTerms', $('#acceptTerms').is(':checked') ? 'on' : 'off');
+    
+    console.log('Enviando datos via FormData (sin contraseñas)');
+    
+    // Usar fetch para enviar al AuthController
+    fetch(formAction, {
+      method: 'POST',
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest'
       },
-      error: function(xhr, status, error) {
-        // Ocultar spinner y restaurar botón
-        $spinner.hide();
-        $text.text('Registrar');
-        $button.prop('disabled', false);
-        
-        console.error('Error en la solicitud AJAX:');
-        console.error('Status:', status);
-        console.error('Error:', error);
-        console.error('Respuesta:', xhr.responseText);
-        
-        // Mostrar detalles del error para diagnóstico
-        let errorMessage = 'Error desconocido';
-        try {
-          let jsonResponse = JSON.parse(xhr.responseText);
-          if (jsonResponse && jsonResponse.error) {
-            errorMessage = jsonResponse.error.message || 'Error en el servidor';
+      body: formData
+    })
+    .then(response => {
+      // Verificar si la respuesta es exitosa
+      if (response.ok) {
+        return response.json(); // Obtener como JSON
+      }
+      throw new Error('Error en la respuesta del servidor');
+    })
+    .then(data => {
+      console.log('Respuesta exitosa:', data);
+      
+      // Ocultar spinner y restaurar botón
+      $spinner.hide();
+      $text.show();
+      $button.prop('disabled', false);
+      
+      // Si no hay error, es exitoso
+      if (!data.error) {
+        // Mostrar modal de éxito con información sobre el email
+        Swal.fire({
+          icon: 'success',
+          title: 'Registro Exitoso',
+          html: `
+            <p><strong>${data.mensaje}</strong></p>
+            <div class="alert alert-info mt-3">
+              <i class="fas fa-envelope mr-2"></i>
+              <strong>Próximos pasos:</strong><br>
+              1. Revise su bandeja de entrada de email<br>
+              2. Use su <strong>email</strong> como usuario<br>
+              3. Use la <strong>contraseña temporal</strong> enviada por correo<br>
+              4. Inicie sesión para acceder al sistema
+            </div>
+          `,
+          showConfirmButton: true,
+          confirmButtonText: 'Ir a Iniciar Sesión',
+          allowOutsideClick: false
+        }).then((result) => {
+          if (result.isConfirmed) {
+            // Limpiar formulario
+            $('#frmRegister')[0].reset();
+            
+            // Redirigir al login
+            window.location.href = 'index.php?view=login';
           }
-        } catch (e) {
-          errorMessage = 'Error de comunicación: ' + error;
-          
-          // Prueba con otra URL si falla
-          if (xhr.status === 404) {
-            console.log('Intentando con URL alternativa...');
-            setTimeout(function() {
-              intentarConURLAlternativa(formData);
-            }, 500);
-          }
-        }
-        
+        });
+      } else {
+        // Mostrar error
         Swal.fire({
           icon: 'error',
           title: 'Error de Registro',
-          html: 'Ha ocurrido un error al procesar su registro.<br><br>' +
-                '<strong>Detalles técnicos:</strong><br>' +
-                'URL: ' + apiUrl + '<br>' +
-                'Código: ' + xhr.status + '<br>' + 
-                'Error: ' + errorMessage,
-          confirmButtonText: 'Entendido'
+          text: data.mensaje
         });
       }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      
+      // Ocultar spinner y restaurar botón
+      $spinner.hide();
+      $text.show();
+      $button.prop('disabled', false);
+      
+      Swal.fire({
+        icon: 'error',
+        title: 'Error de Registro',
+        text: 'Ha ocurrido un error al procesar su registro. Por favor, intente nuevamente.'
+      });
     });
   }
   

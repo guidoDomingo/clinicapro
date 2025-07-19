@@ -439,3 +439,54 @@ Data: {
     "reg_lastname": "isnardi"
 }
 ----------------------------------------
+[2025-07-19 14:33:56] [INFO] [user.controller.php:195] user: guidoruiz11@guido.com
+Data: guidoruiz11@guido.com
+----------------------------------------
+[2025-07-19 14:33:56] [INFO] [user.controller.php:196] user: BX97Pebe
+Data: BX97Pebe
+----------------------------------------
+[2025-07-19 14:33:56] [INFO] [user.controller.php:245] Login attempt for user: guidoruiz11@guido.com
+Data: 
+----------------------------------------
+[2025-07-19 14:47:12] [INFO] [user.controller.php:195] user: ruizguido@gmail.com
+Data: ruizguido@gmail.com
+----------------------------------------
+[2025-07-19 14:47:12] [INFO] [user.controller.php:196] user: Lxb7pwQS
+Data: Lxb7pwQS
+----------------------------------------
+[2025-07-19 14:47:12] [INFO] [user.controller.php:245] Login attempt for user: ruizguido@gmail.com
+Data: {
+    "user_id": 73,
+    "reg_id": 76,
+    "user_email": "ruizguido@gmail.com",
+    "user_pass": "$2y$10$vP5ycFM2QufW5OssiPytsuqpze7bsK7EHC0dDgvwDMc35MnhmbDee",
+    "user_expire": "2026-07-19 14:46:41.515268",
+    "user_first_login": null,
+    "user_last_login": null,
+    "user_is_active": true,
+    "profile_photo": null,
+    "reg_name": "guido",
+    "reg_lastname": "ruiz"
+}
+----------------------------------------
+[2025-07-19 14:47:58] [INFO] [user.controller.php:195] user: ruizguido@gmail.com
+Data: ruizguido@gmail.com
+----------------------------------------
+[2025-07-19 14:47:58] [INFO] [user.controller.php:196] user: $2y$10$vP5ycFM2QufW5OssiPytsuqpze7bsK7EHC0dDgvwDMc35MnhmbDee
+Data: $2y$10$vP5ycFM2QufW5OssiPytsuqpze7bsK7EHC0dDgvwDMc35MnhmbDee
+----------------------------------------
+[2025-07-19 14:47:58] [INFO] [user.controller.php:245] Login attempt for user: ruizguido@gmail.com
+Data: {
+    "user_id": 73,
+    "reg_id": 76,
+    "user_email": "ruizguido@gmail.com",
+    "user_pass": "$2y$10$vP5ycFM2QufW5OssiPytsuqpze7bsK7EHC0dDgvwDMc35MnhmbDee",
+    "user_expire": "2026-07-19 14:46:41.515268",
+    "user_first_login": null,
+    "user_last_login": "2025-07-19 14:47:12.62323",
+    "user_is_active": true,
+    "profile_photo": null,
+    "reg_name": "guido",
+    "reg_lastname": "ruiz"
+}
+----------------------------------------

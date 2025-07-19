@@ -9,6 +9,7 @@ class WelcomeEmail {
     private $userName;
     private $startLink;
     private $password;
+    private $userEmail;
     
     /**
      * Constructor de la clase
@@ -16,11 +17,13 @@ class WelcomeEmail {
      * @param string $userName  Nombre del usuario
      * @param string $startLink Enlace de inicio para el usuario
      * @param string $password  Contraseña del usuario
+     * @param string $userEmail Email del usuario (será usado como usuario de login)
      */
-    public function __construct($userName, $startLink, $password) {
+    public function __construct($userName, $startLink, $password, $userEmail = null) {
         $this->userName = $userName;
         $this->startLink = $startLink;
         $this->password = $password;
+        $this->userEmail = $userEmail ?: $userName; // Si no se proporciona email, usar userName
     }
     
     /**
@@ -97,7 +100,7 @@ class WelcomeEmail {
             <p>A continuación, encontrarás tus credenciales de acceso:</p>
             
             <div class="credentials">
-                <p><strong>Usuario:</strong> ' . htmlspecialchars($this->userName) . '</p>
+                <p><strong>Usuario:</strong> ' . htmlspecialchars($this->userEmail) . '</p>
                 <p><strong>Contraseña:</strong> ' . htmlspecialchars($this->password) . '</p>
             </div>
             

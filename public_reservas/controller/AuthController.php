@@ -276,7 +276,7 @@ class AuthController {
         if (isset($_POST['action']) && $_POST['action'] === 'register') {
             try {
                 // Verificar que todos los campos obligatorios estén completos
-                $camposRequeridos = ['regName', 'regLastName', 'regEmail', 'regDoc', 'regTel', 'regPassword', 'regConfirmPassword'];
+                $camposRequeridos = ['regName', 'regLastName', 'regEmail', 'regDoc', 'regTel'];
                 
                 foreach ($camposRequeridos as $campo) {
                     if (!isset($_POST[$campo]) || empty($_POST[$campo])) {
@@ -297,23 +297,8 @@ class AuthController {
                     ];
                 }
                 
-                // Verificar que las contraseñas coincidan
-                if ($_POST['regPassword'] !== $_POST['regConfirmPassword']) {
-                    error_log("ctrRegisterUser: Las contraseñas no coinciden", 3, "c:/laragon/www/clinica/logs/auth.log");
-                    return [
-                        'error' => true,
-                        'mensaje' => 'Las contraseñas no coinciden'
-                    ];
-                }
-                
-                // Verificar que la contraseña cumpla los requisitos mínimos
-                if (strlen($_POST['regPassword']) < 8) {
-                    error_log("ctrRegisterUser: Contraseña muy corta", 3, "c:/laragon/www/clinica/logs/auth.log");
-                    return [
-                        'error' => true,
-                        'mensaje' => 'La contraseña debe tener al menos 8 caracteres'
-                    ];
-                }
+                // Generar contraseña temporal automáticamente
+                $passwordTemporal = self::generarPasswordTemporal();
                 
                 // Verificar que se hayan aceptado los términos y condiciones
                 if (!isset($_POST['acceptTerms']) || $_POST['acceptTerms'] !== 'on') {
@@ -331,7 +316,9 @@ class AuthController {
                     'email' => $_POST['regEmail'],
                     'documento' => $_POST['regDoc'],
                     'telefono' => $_POST['regTel'],
-                    'password' => password_hash($_POST['regPassword'], PASSWORD_DEFAULT)
+                    'fecha_nacimiento' => isset($_POST['regBdate']) ? $_POST['regBdate'] : null,
+                    'password' => password_hash($passwordTemporal, PASSWORD_DEFAULT),
+                    'password_temporal' => $passwordTemporal
                 ];
                 
                 // Log para verificar que los datos se están recogiendo correctamente
@@ -366,26 +353,26 @@ class AuthController {
                     ];
                 }
                 
-                // Iniciar sesión con los datos del nuevo usuario
-                if (session_status() == PHP_SESSION_NONE) {
-                    session_start();
+                // Enviar credenciales por correo del usuario RECIÉN REGISTRADO
+                try {
+                    self::enviarCredencialesPorCorreo($datos);
+                    error_log("ctrRegisterUser: Credenciales enviadas por correo a: " . $datos['email'], 3, "c:/laragon/www/clinica/logs/auth.log");
+                } catch (Exception $e) {
+                    error_log("ctrRegisterUser: Error al enviar credenciales: " . $e->getMessage(), 3, "c:/laragon/www/clinica/logs/auth.log");
                 }
                 
-                $_SESSION['paciente_id'] = $resultado['paciente_id'];
-                $_SESSION['paciente_nombre'] = $datos['nombre'] . ' ' . $datos['apellido'];
-                $_SESSION['paciente_email'] = $datos['email'];
-                $_SESSION['paciente_tipo'] = 'paciente';
+                // NO iniciar sesión automáticamente - el usuario debe hacer login con las credenciales enviadas por email
+                error_log("ctrRegisterUser: Registro exitoso para: " . $datos['email'] . ". Usuario debe hacer login manual.", 3, "c:/laragon/www/clinica/logs/auth.log");
                 
-                error_log("ctrRegisterUser: Registro exitoso para: " . $datos['email'], 3, "c:/laragon/www/clinica/logs/auth.log");
-                
-                // Preparar resultado con redirección
+                // Preparar resultado SIN redirección automática
                 $resultado = [
                     'error' => false,
-                    'mensaje' => '¡Registro exitoso! Bienvenido/a, ' . $datos['nombre'],
-                    'redirect' => 'index.php?accion=reservar'
+                    'mensaje' => '¡Registro exitoso! Hemos enviado sus credenciales de acceso a ' . $datos['email'] . '. Por favor, revise su correo e inicie sesión.',
+                    'email_sent' => true,
+                    'redirect_to_login' => true
                 ];
                 
-                error_log("ctrRegisterUser: Registro exitoso con redirección: " . json_encode($resultado), 3, "c:/laragon/www/clinica/logs/auth.log");
+                error_log("ctrRegisterUser: Registro exitoso sin inicio de sesión automático: " . json_encode($resultado), 3, "c:/laragon/www/clinica/logs/auth.log");
                 
                 return $resultado;
             } catch (Exception $e) {
@@ -532,5 +519,100 @@ class AuthController {
         }
         
         return null;
+    }
+    
+    /**
+     * Envía credenciales por correo electrónico al usuario recién registrado
+     * @param array $datos Datos del usuario registrado
+     */
+    static private function enviarCredencialesPorCorreo($datos) {
+        // Cargar la clase WelcomeEmail del sistema principal
+        require_once __DIR__ . '/../../sys_sql/WelcomeEmail.php';
+        require_once __DIR__ . '/../../vendor/autoload.php';
+        
+        try {
+            $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
+            
+            error_log("enviarCredencialesPorCorreo: Iniciando envío de email a: " . $datos['email'], 3, "c:/laragon/www/clinica/logs/auth.log");
+            
+            // Configuración SMTP - usar Mailtrap para testing
+            $mail->isSMTP();
+            $mail->Host = 'sandbox.smtp.mailtrap.io';
+            $mail->SMTPAuth = true;
+            $mail->Username = '403823a30f75f1'; // Mailtrap username
+            $mail->Password = 'dd01ed75f12dbf'; // Mailtrap password
+            $mail->SMTPSecure = \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port = 2525; // Puerto correcto para Mailtrap
+            $mail->CharSet = 'UTF-8';
+            
+            // Habilitar debug verbose para Mailtrap
+            $mail->SMTPDebug = 2;
+            $mail->Debugoutput = function($str, $level) {
+                error_log("PHPMailer Debug: $str", 3, "c:/laragon/www/clinica/logs/auth.log");
+            };
+            
+            // Configurar remitente y destinatario
+            $mail->setFrom('noreply@miclinica.com', 'MiClinica - Sistema de Reservas');
+            $mail->addAddress($datos['email'], $datos['nombre'] . ' ' . $datos['apellido']);
+            
+            error_log("enviarCredencialesPorCorreo: Configuración SMTP establecida", 3, "c:/laragon/www/clinica/logs/auth.log");
+            
+            // Crear el contenido del email usando WelcomeEmail
+            $userName = $datos['nombre'] . ' ' . $datos['apellido'];
+            $startLink = "http://localhost/clinica/public_reservas";
+            $password = isset($datos['password_temporal']) ? $datos['password_temporal'] : "Verifique su correo";
+            $userEmail = $datos['email']; // El email será el usuario de login
+            
+            $welcomeEmail = new WelcomeEmail($userName, $startLink, $password, $userEmail);
+            $emailBody = $welcomeEmail->getBody();
+            
+            // Configurar contenido del correo
+            $mail->isHTML(true);
+            $mail->Subject = '¡Bienvenido a MiClinica! - Sus credenciales de acceso';
+            $mail->Body = $emailBody;
+            
+            // Agregar texto alternativo para clientes que no soportan HTML
+            $mail->AltBody = "
+Bienvenido/a a MiClinica, {$userName}!
+
+Sus credenciales de acceso son:
+- Usuario: {$datos['email']}
+- Contraseña temporal: {$password}
+
+Para iniciar sesión, vaya a: {$startLink}
+
+Use su email como usuario y la contraseña temporal proporcionada.
+Por seguridad, le recomendamos cambiar su contraseña después del primer inicio de sesión.
+
+Saludos cordiales,
+Equipo de MiClinica
+";
+            
+            // Enviar el correo
+            error_log("enviarCredencialesPorCorreo: Intentando enviar email...", 3, "c:/laragon/www/clinica/logs/auth.log");
+            $mail->send();
+            error_log("✅ Correo enviado exitosamente a: " . $datos['email'] . " con contraseña: " . $password, 3, "c:/laragon/www/clinica/logs/auth.log");
+            
+        } catch (Exception $e) {
+            error_log("❌ Error al enviar correo: " . $e->getMessage(), 3, "c:/laragon/www/clinica/logs/auth.log");
+            error_log("❌ Detalles del error PHPMailer: " . $mail->ErrorInfo, 3, "c:/laragon/www/clinica/logs/auth.log");
+            // No lanzar excepción, solo registrar el error
+        }
+    }
+    
+    /**
+     * Genera una contraseña temporal segura
+     * @return string Contraseña temporal
+     */
+    static private function generarPasswordTemporal() {
+        // Generar una contraseña de 8 caracteres con letras y números
+        $caracteres = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
+        $password = '';
+        
+        for ($i = 0; $i < 8; $i++) {
+            $password .= $caracteres[rand(0, strlen($caracteres) - 1)];
+        }
+        
+        return $password;
     }
 }
