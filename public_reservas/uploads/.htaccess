@@ -1,0 +1,15 @@
+# Denegar acceso directo a todos los archivos
+Order deny,allow
+Deny from all
+
+# Permitir solo tipos de archivos específicos para visualización
+<FilesMatch "\.(pdf|jpg|jpeg|png)$">
+    Order allow,deny
+    Allow from all
+</FilesMatch>
+
+# Establecer headers de seguridad
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "DENY"
+</IfModule>

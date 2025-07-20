@@ -252,13 +252,21 @@ function setupDynamicDataLoading() {
         }
     });
 
-    // Actualizar resumen cuando se cambia un campo en datos del paciente
-    $('#paso5 input, #paso5 select, #paso5 textarea').on('change', function() {
+    // Actualizar resumen cuando se cambia un campo en datos del paciente (ahora paso 6)
+    $('#paso6 input, #paso6 select, #paso6 textarea').on('change', function() {
         updateResumenReserva();
     });
     
+    // Manejar la subida de archivos
+    setupFileUpload();
+    
     // Al cambiar el horario
     $('#horario').on('change', function() {
+        updateResumenReserva();
+    });
+    
+    // Al cambiar el seguro médico (paso 5)
+    $('#seguro_id').on('change', function() {
         updateResumenReserva();
     });
 }
@@ -285,23 +293,32 @@ function updateResumenReserva() {
     const horario = $('#horario').val();
     const horarioText = $('#horario option:selected').text();
     
-    // Datos del paciente
+    // Datos del seguro médico
+    const seguroId = $('#seguro_id').val();
+    const seguroText = $('#seguro_id option:selected').text();
+    
+    // Datos del paciente (desde campos ocultos)
     const nombrePaciente = $('#nombre_paciente').val();
     const apellidoPaciente = $('#apellido_paciente').val();
     const documento = $('#documento_paciente').val();
-    const seguro = $('#seguro_id option:selected').text();
     
     // Construir HTML del resumen
     let resumenHTML = '';
     
-    if (fecha || servicioId || doctorId || horario || nombrePaciente) {
+    if (fecha || servicioId || doctorId || horario) {
         resumenHTML += '<div class="card border-primary mb-3">';
         resumenHTML += '<div class="card-header bg-primary text-white">Datos de la Reserva</div>';
         resumenHTML += '<div class="card-body">';
         
         // Datos de la cita
         if (fecha) {
-            resumenHTML += `<p><strong><i class="far fa-calendar-alt mr-2"></i>Fecha:</strong> ${fecha}</p>`;
+            const fechaFormateada = new Date(fecha).toLocaleDateString('es-ES', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            resumenHTML += `<p><strong><i class="far fa-calendar-alt mr-2"></i>Fecha:</strong> ${fechaFormateada}</p>`;
         }
         
         if (servicioId && servicioText !== 'Seleccione un servicio') {
@@ -316,12 +333,19 @@ function updateResumenReserva() {
             resumenHTML += `<p><strong><i class="far fa-clock mr-2"></i>Horario:</strong> ${horarioText}</p>`;
         }
         
+        // Seguro médico
+        if (seguroId && seguroText !== 'Sin seguro / Particular') {
+            resumenHTML += `<p><strong><i class="fas fa-shield-alt mr-2"></i>Seguro:</strong> ${seguroText}</p>`;
+        } else if (seguroText === 'Sin seguro / Particular') {
+            resumenHTML += `<p><strong><i class="fas fa-user mr-2"></i>Modalidad:</strong> Particular</p>`;
+        }
+        
         resumenHTML += '</div></div>';
         
-        // Datos del paciente si están completados
+        // Datos del paciente (información del perfil)
         if (nombrePaciente || apellidoPaciente || documento) {
             resumenHTML += '<div class="card border-info">';
-            resumenHTML += '<div class="card-header bg-info text-white">Datos del Paciente</div>';
+            resumenHTML += '<div class="card-header bg-info text-white">Información del Paciente</div>';
             resumenHTML += '<div class="card-body">';
             
             if (nombrePaciente && apellidoPaciente) {
@@ -332,9 +356,7 @@ function updateResumenReserva() {
                 resumenHTML += `<p><strong><i class="fas fa-id-card mr-2"></i>Documento:</strong> ${documento}</p>`;
             }
             
-            if (seguro && seguro !== 'Sin seguro / Particular') {
-                resumenHTML += `<p><strong><i class="fas fa-heartbeat mr-2"></i>Seguro:</strong> ${seguro}</p>`;
-            }
+            resumenHTML += '<small class="text-muted"><i class="fas fa-info-circle mr-1"></i>Esta información se tomó de su perfil de usuario.</small>';
             
             resumenHTML += '</div></div>';
         }
@@ -526,4 +548,117 @@ function verificarReserva() {
             });
         }
     });
+}
+
+/**
+ * Configura la funcionalidad de subida de archivos
+ */
+function setupFileUpload() {
+    const fileInput = $('#archivos_reserva');
+    const fileList = $('#archivos_lista');
+    
+    // Validar archivos cuando se seleccionan
+    fileInput.on('change', function() {
+        const files = this.files;
+        let fileListHTML = '';
+        let validFiles = [];
+        
+        // Validaciones
+        const maxFiles = 5;
+        const maxSizePerFile = 10 * 1024 * 1024; // 10MB
+        const allowedExtensions = ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'];
+        
+        if (files.length > maxFiles) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Demasiados archivos',
+                text: `Solo puede subir un máximo de ${maxFiles} archivos.`,
+                confirmButtonText: 'Entendido'
+            });
+            return;
+        }
+        
+        // Validar cada archivo
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            const fileExtension = file.name.split('.').pop().toLowerCase();
+            const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+            
+            // Validar extensión
+            if (!allowedExtensions.includes(fileExtension)) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Formato no válido',
+                    text: `El archivo "${file.name}" no tiene un formato válido. Formatos permitidos: ${allowedExtensions.join(', ')}.`,
+                    confirmButtonText: 'Entendido'
+                });
+                continue;
+            }
+            
+            // Validar tamaño
+            if (file.size > maxSizePerFile) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Archivo muy grande',
+                    text: `El archivo "${file.name}" (${fileSizeMB}MB) supera el límite de 10MB.`,
+                    confirmButtonText: 'Entendido'
+                });
+                continue;
+            }
+            
+            validFiles.push(file);
+            
+            // Agregar archivo a la lista visual
+            fileListHTML += `
+                <div class="file-item border rounded p-2 mb-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fas fa-file-${getFileIcon(fileExtension)} mr-2"></i>
+                            <strong>${file.name}</strong>
+                            <small class="text-muted">(${fileSizeMB}MB)</small>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-danger remove-file" data-index="${i}">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        fileList.html(fileListHTML);
+        
+        // Manejar eliminación de archivos
+        $('.remove-file').on('click', function() {
+            const index = $(this).data('index');
+            $(this).closest('.file-item').remove();
+            
+            // Crear un nuevo FileList sin el archivo eliminado
+            const dt = new DataTransfer();
+            for (let i = 0; i < files.length; i++) {
+                if (i !== index) {
+                    dt.items.add(files[i]);
+                }
+            }
+            fileInput[0].files = dt.files;
+            
+            // Actualizar la lista
+            setupFileUpload();
+        });
+    });
+}
+
+/**
+ * Retorna el ícono de FontAwesome apropiado para cada tipo de archivo
+ */
+function getFileIcon(extension) {
+    const icons = {
+        'pdf': 'pdf',
+        'jpg': 'image',
+        'jpeg': 'image',
+        'png': 'image',
+        'doc': 'word',
+        'docx': 'word'
+    };
+    
+    return icons[extension] || 'file';
 }

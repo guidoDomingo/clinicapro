@@ -80,7 +80,7 @@ $seguros = ReservasPublicController::ctrObtenerSeguros();
                 <h4 class="mb-0"><i class="fas fa-calendar-plus mr-2"></i>Nueva Reserva</h4>
             </div>
             <div class="card-body">
-                <form id="formReserva" method="POST">
+                <form id="formReserva" method="POST" enctype="multipart/form-data">
                     <!-- Paso 1: Fecha -->
                     <div class="form-section" id="paso1">
                         <h5 class="border-bottom pb-2 mb-3">1. Seleccione la Fecha</h5>
@@ -145,79 +145,64 @@ $seguros = ReservasPublicController::ctrObtenerSeguros();
                         </div>
                     </div>
 
-                    <!-- Paso 5: Datos del Paciente -->
+                    <!-- Paso 5: Seguro Médico -->
                     <div class="form-section d-none" id="paso5">
-                        <h5 class="border-bottom pb-2 mb-3">5. Ingrese sus Datos</h5>
+                        <h5 class="border-bottom pb-2 mb-3">5. Seleccione Seguro Médico</h5>
                         
-                        <?php if ($pacienteData && !empty($pacienteData['nombre'])): ?>
-                        <div class="alert alert-success mb-3">
-                            <i class="fas fa-user-check mr-2"></i> Sus datos se han cargado automáticamente. Verifique que sean correctos.
+                        <div class="alert alert-info mb-3">
+                            <i class="fas fa-shield-alt mr-2"></i> Seleccione su seguro médico o deje la opción "Sin seguro / Particular" si no tiene uno.
                         </div>
-                        <?php endif; ?>
                         
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="nombre_paciente">Nombre <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="nombre_paciente" name="nombre_paciente" 
-                                           value="<?php echo htmlspecialchars($pacienteData['nombre'] ?? ''); ?>" required>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="apellido_paciente">Apellido <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="apellido_paciente" name="apellido_paciente" 
-                                           value="<?php echo htmlspecialchars($pacienteData['apellido'] ?? ''); ?>" required>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="documento_paciente">Documento de Identidad <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="documento_paciente" name="documento_paciente" 
-                                           value="<?php echo htmlspecialchars($pacienteData['documento'] ?? ''); ?>" required>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="seguro_id">Seguro Médico</label>
-                                    <select class="form-control" id="seguro_id" name="seguro_id">
-                                        <option value="">Sin seguro / Particular</option>
-                                        <?php foreach($seguros as $seguro): ?>
-                                        <option value="<?php echo $seguro['prov_id']; ?>"><?php echo $seguro['prov_razon']; ?></option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="email_paciente">Email <span class="text-danger">*</span></label>
-                                    <input type="email" class="form-control" id="email_paciente" name="email_paciente" 
-                                           value="<?php echo htmlspecialchars($pacienteData['email'] ?? ''); ?>" required>
-                                    <small class="form-text text-muted">Recibirá confirmación en este email</small>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="telefono_paciente">Teléfono <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="telefono_paciente" name="telefono_paciente" 
-                                           value="<?php echo htmlspecialchars($pacienteData['telefono'] ?? ''); ?>" required>
-                                </div>
-                            </div>
-                        </div>
-
                         <div class="form-group">
-                            <label for="observaciones">Observaciones</label>
-                            <textarea class="form-control" id="observaciones" name="observaciones" rows="3"></textarea>
+                            <label for="seguro_id">Seguro Médico</label>
+                            <select class="form-control" id="seguro_id" name="seguro_id">
+                                <option value="">Sin seguro / Particular</option>
+                                <?php foreach($seguros as $seguro): ?>
+                                <option value="<?php echo $seguro['prov_id']; ?>"><?php echo $seguro['prov_razon']; ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                            <small class="form-text text-muted">Esta información nos ayuda a procesar mejor su cita médica.</small>
                         </div>
 
                         <div class="btn-group">
                             <button type="button" class="btn btn-secondary prev-step" data-prev="paso4"><i class="fas fa-arrow-left mr-1"></i> Anterior</button>
+                            <button type="button" class="btn btn-primary next-step ml-2" data-next="paso6">Siguiente <i class="fas fa-arrow-right ml-1"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- Paso 6: Subir Archivos y Observaciones -->
+                    <div class="form-section d-none" id="paso6">
+                        <h5 class="border-bottom pb-2 mb-3">6. Archivos y Observaciones</h5>
+                        
+                        <div class="alert alert-info mb-3">
+                            <i class="fas fa-file-upload mr-2"></i> Puede subir archivos relevantes para su cita (estudios, análisis, etc.).
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="archivos_reserva">Archivos Adjuntos</label>
+                            <input type="file" class="form-control-file" id="archivos_reserva" name="archivos_reserva[]" multiple accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                            <small class="form-text text-muted">
+                                Formatos permitidos: PDF, JPG, PNG, DOC, DOCX. Máximo 5 archivos de 10MB cada uno.
+                            </small>
+                            <div id="archivos_lista" class="mt-2"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="observaciones">Observaciones</label>
+                            <textarea class="form-control" id="observaciones" name="observaciones" rows="4" 
+                                      placeholder="Describa brevemente el motivo de su consulta o cualquier información relevante..."></textarea>
+                            <small class="form-text text-muted">Esta información ayudará al médico a prepararse mejor para su consulta.</small>
+                        </div>
+
+                        <!-- Campos ocultos con datos del usuario del perfil -->
+                        <input type="hidden" id="nombre_paciente" name="nombre_paciente" value="<?php echo htmlspecialchars($pacienteData['nombre'] ?? ''); ?>">
+                        <input type="hidden" id="apellido_paciente" name="apellido_paciente" value="<?php echo htmlspecialchars($pacienteData['apellido'] ?? ''); ?>">
+                        <input type="hidden" id="documento_paciente" name="documento_paciente" value="<?php echo htmlspecialchars($pacienteData['documento'] ?? ''); ?>">
+                        <input type="hidden" id="email_paciente" name="email_paciente" value="<?php echo htmlspecialchars($pacienteData['email'] ?? ''); ?>">
+                        <input type="hidden" id="telefono_paciente" name="telefono_paciente" value="<?php echo htmlspecialchars($pacienteData['telefono'] ?? ''); ?>">
+
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-secondary prev-step" data-prev="paso5"><i class="fas fa-arrow-left mr-1"></i> Anterior</button>
                             <button type="submit" name="guardarReserva" value="1" class="btn btn-success ml-2"><i class="fas fa-save mr-1"></i> Guardar Reserva</button>
                         </div>
                     </div>
@@ -263,7 +248,8 @@ $seguros = ReservasPublicController::ctrObtenerSeguros();
                         <li>Elija el servicio médico que necesita</li>
                         <li>Seleccione el médico de su preferencia</li>
                         <li>Escoja un horario disponible</li>
-                        <li>Complete sus datos personales</li>
+                        <li>Seleccione su seguro médico (opcional)</li>
+                        <li>Suba archivos y agregue observaciones</li>
                         <li>Confirme su reserva con el código que recibirá por email</li>
                     </ol>
                 </div>

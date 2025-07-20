@@ -1800,11 +1800,11 @@ class ModelServicios {
                 "INSERT INTO servicios_reservas (
                     servicio_id, doctor_id, paciente_id, fecha_reserva, 
                     hora_inicio, hora_fin, observaciones, reserva_estado, 
-                    business_id, created_by, agenda_id, tarifa_id, seguro_id, sala_id
+                    business_id, created_by, agenda_id, tarifa_id, seguro_id, sala_id, origen_reserva
                 ) VALUES (
                     :servicio_id, :doctor_id, :paciente_id, :fecha_reserva, 
                     :hora_inicio, :hora_fin, :observaciones, :reserva_estado, 
-                    :business_id, :created_by, :agenda_id, :tarifa_id, :seguro_id, :sala_id
+                    :business_id, :created_by, :agenda_id, :tarifa_id, :seguro_id, :sala_id, :origen_reserva
                 ) RETURNING reserva_id"
             );
             
@@ -1846,10 +1846,10 @@ class ModelServicios {
             error_log("mdlGuardarReserva: Usando sala_id=" . (isset($datos['sala_id']) ? $datos['sala_id'] : "null"), 
                       3, 'c:/laragon/www/clinica/logs/reservas.log');
             
-            // Bindear sala_id si está disponible
-            $salaId = isset($datos['sala_id']) ? $datos['sala_id'] : null;
-            $stmt->bindParam(":sala_id", $salaId, $salaId ? PDO::PARAM_INT : PDO::PARAM_NULL);
-            error_log("mdlGuardarReserva: Usando sala_id=" . (isset($datos['sala_id']) ? $datos['sala_id'] : "null"), 
+            // Bindear origen_reserva
+            $origenReserva = isset($datos['origen_reserva']) ? $datos['origen_reserva'] : 'SISTEMA';
+            $stmt->bindParam(":origen_reserva", $origenReserva, PDO::PARAM_STR);
+            error_log("mdlGuardarReserva: Usando origen_reserva=" . $origenReserva, 
                       3, 'c:/laragon/www/clinica/logs/reservas.log');
                       
             error_log("SQL a ejecutar: INSERT INTO servicios_reservas...", 3, 'c:/laragon/www/clinica/logs/reservas.log');

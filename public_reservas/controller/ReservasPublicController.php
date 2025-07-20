@@ -5,6 +5,7 @@
  */
 
 require_once __DIR__ . "/../model/ReservasPublicModel.php";
+require_once __DIR__ . "/AuthController.php";
 
 class ReservasPublicController {
     
@@ -380,7 +381,8 @@ class ReservasPublicController {
                     'hora_fin' => $horaFinFormateada,
                     'reserva_estado' => 'PENDIENTE',
                     'observaciones' => isset($_POST['observaciones']) ? $_POST['observaciones'] : '',
-                    'codigo_seguimiento' => $codigoSeguimiento
+                    'codigo_seguimiento' => $codigoSeguimiento,
+                    'origen_reserva' => 'ONLINE' // Marcar como reserva online
                 ];
                 
                 // Añadir agenda_id si se encontró
@@ -423,6 +425,35 @@ class ReservasPublicController {
                     3, "c:/laragon/www/clinica/logs/public_reservas.log");
                 
                 if ($reservaId) {
+                    // Log del ID de reserva obtenido
+                    error_log("ctrProcesarReserva: Reserva guardada exitosamente con ID: $reservaId", 
+                        3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                    
+                    // Procesar archivos adjuntos si se subieron
+                    $archivosSubidos = [];
+                    error_log("ctrProcesarReserva: Verificando archivos subidos...", 
+                        3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                    error_log("ctrProcesarReserva: \$_FILES = " . json_encode($_FILES), 
+                        3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                    
+                    if (isset($_FILES['archivos_reserva']) && !empty($_FILES['archivos_reserva']['name'][0])) {
+                        error_log("ctrProcesarReserva: Se encontraron archivos para procesar", 
+                            3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                        
+                        $archivosSubidos = $this->procesarArchivosReserva($_FILES['archivos_reserva'], $reservaId, $codigoSeguimiento);
+                        
+                        if (!empty($archivosSubidos)) {
+                            error_log("ctrProcesarReserva: Se subieron " . count($archivosSubidos) . " archivos para la reserva ID: $reservaId", 
+                                3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                        } else {
+                            error_log("ctrProcesarReserva: No se subió ningún archivo exitosamente", 
+                                3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                        }
+                    } else {
+                        error_log("ctrProcesarReserva: No se encontraron archivos en \$_FILES['archivos_reserva']", 
+                            3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                    }
+                    
                     // Obtener los datos del paciente para la confirmación
                     $userData = AuthController::ctrGetUserData();
                     $nombrePaciente = $userData['nombre'] . ' ' . $userData['apellido'];
@@ -455,6 +486,9 @@ class ReservasPublicController {
                         3, "c:/laragon/www/clinica/logs/public_reservas.log");
                     
                     // Enviar notificación por email simplificada (sin código de verificación)
+                    error_log("ctrProcesarReserva: Iniciando envío de email de confirmación a: $emailPaciente", 
+                        3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                    
                     $this->enviarEmailConfirmacion(
                         $emailPaciente,
                         $nombrePaciente,
@@ -503,6 +537,10 @@ class ReservasPublicController {
      * @param string $nombreServicio Nombre del servicio reservado (opcional)
      */
     private function enviarEmailConfirmacion($email, $nombrePaciente, $fecha, $horario, $codigoSeguimiento, $codigoVerificacion, $nombreMedico = null, $nombreServicio = null) {
+        error_log("enviarEmailConfirmacion: Iniciando envío de email", 3, "c:/laragon/www/clinica/logs/public_reservas.log");
+        error_log("enviarEmailConfirmacion: Email destino: $email", 3, "c:/laragon/www/clinica/logs/public_reservas.log");
+        error_log("enviarEmailConfirmacion: Paciente: $nombrePaciente", 3, "c:/laragon/www/clinica/logs/public_reservas.log");
+        
         // Formato de la fecha
         $fechaFormato = date('d/m/Y', strtotime($fecha));
         
@@ -567,16 +605,84 @@ class ReservasPublicController {
         </html>
         ";
         
-        // Cabeceras del email
-        $cabeceras = "MIME-Version: 1.0" . "\r\n";
-        $cabeceras .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-        $cabeceras .= "From: Clínica <noreply@clinica.com>" . "\r\n";
-        
-        // Enviar email
-        mail($email, $asunto, $mensaje, $cabeceras);
-        
-        // Registrar en log
-        error_log("Email de confirmación enviado a: $email para la reserva: $codigoSeguimiento");
+        // Usar PHPMailer para enviar el correo
+        try {
+            error_log("enviarEmailConfirmacion: Verificando PHPMailer...", 3, "c:/laragon/www/clinica/logs/public_reservas.log");
+            
+            // Verificar si PHPMailer está disponible
+            $autoloadPath = __DIR__ . '/../../vendor/autoload.php';
+            error_log("enviarEmailConfirmacion: Buscando autoload en: $autoloadPath", 3, "c:/laragon/www/clinica/logs/public_reservas.log");
+            
+            if (file_exists($autoloadPath)) {
+                error_log("enviarEmailConfirmacion: Autoload encontrado, cargando PHPMailer...", 3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                
+                require_once $autoloadPath;
+                
+                $mail = new PHPMailer\PHPMailer\PHPMailer(true);
+                
+                error_log("enviarEmailConfirmacion: PHPMailer instanciado, configurando SMTP...", 3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                
+                // Configuración de Mailtrap
+                $mail->isSMTP();
+                $mail->Host = 'sandbox.smtp.mailtrap.io';
+                $mail->SMTPAuth = true;
+                $mail->Username = '3ae65edb6ed0c8';
+                $mail->Password = 'baa78e4b56a1e6';
+                $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
+                $mail->Port = 2525;
+                
+                error_log("enviarEmailConfirmacion: SMTP configurado, preparando mensaje...", 3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                
+                // Configuración del correo
+                $mail->setFrom('noreply@clinica.com', 'Sistema de Reservas - Clínica');
+                $mail->addAddress($email, $nombrePaciente);
+                
+                $mail->isHTML(true);
+                $mail->Subject = $asunto;
+                $mail->Body = $mensaje;
+                $mail->CharSet = 'UTF-8';
+                
+                error_log("enviarEmailConfirmacion: Enviando correo...", 3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                
+                // Enviar correo
+                $mail->send();
+                error_log("enviarEmailConfirmacion: ✅ Email enviado exitosamente a: $email para la reserva: $codigoSeguimiento", 
+                    3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                
+            } else {
+                error_log("enviarEmailConfirmacion: ⚠️ Autoload no encontrado, usando mail() nativo", 3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                
+                // Fallback al método mail() nativo
+                $cabeceras = "MIME-Version: 1.0" . "\r\n";
+                $cabeceras .= "Content-type:text/html;charset=UTF-8" . "\r\n";
+                $cabeceras .= "From: Clínica <noreply@clinica.com>" . "\r\n";
+                
+                $resultado = mail($email, $asunto, $mensaje, $cabeceras);
+                if ($resultado) {
+                    error_log("enviarEmailConfirmacion: ✅ Email enviado con mail() nativo a: $email", 3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                } else {
+                    error_log("enviarEmailConfirmacion: ❌ Error enviando con mail() nativo", 3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                }
+            }
+            
+        } catch (Exception $e) {
+            error_log("Error enviando email: " . $e->getMessage(), 
+                3, "c:/laragon/www/clinica/logs/public_reservas.log");
+            
+            // Intentar con mail() nativo como fallback
+            try {
+                $cabeceras = "MIME-Version: 1.0" . "\r\n";
+                $cabeceras .= "Content-type:text/html;charset=UTF-8" . "\r\n";
+                $cabeceras .= "From: Clínica <noreply@clinica.com>" . "\r\n";
+                
+                mail($email, $asunto, $mensaje, $cabeceras);
+                error_log("Email enviado con fallback mail() a: $email", 
+                    3, "c:/laragon/www/clinica/logs/public_reservas.log");
+            } catch (Exception $e2) {
+                error_log("Error total enviando email: " . $e2->getMessage(), 
+                    3, "c:/laragon/www/clinica/logs/public_reservas.log");
+            }
+        }
     }
     
     /**
@@ -633,6 +739,200 @@ class ReservasPublicController {
         $reservas = ReservasPublicModel::mdlObtenerReservasPaciente($pacienteId);
         
         return $reservas;
+    }
+    
+    /**
+     * Obtiene los archivos asociados a una reserva
+     * @param int $reservaId ID de la reserva
+     * @return array Lista de archivos
+     */
+    static public function ctrObtenerArchivosReserva($reservaId) {
+        return ReservasPublicModel::mdlObtenerArchivosPorReserva($reservaId);
+    }
+    
+    /**
+     * Obtiene los archivos por código de seguimiento
+     * @param string $codigoSeguimiento Código de seguimiento de la reserva
+     * @return array Lista de archivos
+     */
+    static public function ctrObtenerArchivosPorCodigo($codigoSeguimiento) {
+        return ReservasPublicModel::mdlObtenerArchivosPorCodigo($codigoSeguimiento);
+    }
+    
+    /**
+     * Procesa los archivos adjuntos de una reserva
+     * @param array $files Array de archivos $_FILES
+     * @param int $reservaId ID de la reserva
+     * @param string $codigoSeguimiento Código de seguimiento de la reserva
+     * @return array Lista de archivos procesados exitosamente
+     */
+    private function procesarArchivosReserva($files, $reservaId, $codigoSeguimiento) {
+        error_log("procesarArchivosReserva: Iniciando procesamiento de archivos para reserva $reservaId", 
+            3, "c:/laragon/www/clinica/logs/public_reservas.log");
+        error_log("procesarArchivosReserva: Archivos recibidos: " . json_encode($files), 
+            3, "c:/laragon/www/clinica/logs/public_reservas.log");
+        
+        $archivosSubidos = [];
+        $directorioBase = __DIR__ . "/../uploads/reservas/";
+        
+        // Crear directorio específico para esta reserva
+        $directorioReserva = $directorioBase . $codigoSeguimiento . "/";
+        if (!file_exists($directorioReserva)) {
+            if (mkdir($directorioReserva, 0755, true)) {
+                error_log("procesarArchivosReserva: Directorio creado: $directorioReserva", 
+                    3, "c:/laragon/www/clinica/logs/public_reservas.log");
+            } else {
+                error_log("procesarArchivosReserva: ERROR - No se pudo crear directorio: $directorioReserva", 
+                    3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                return [];
+            }
+        } else {
+            error_log("procesarArchivosReserva: Directorio ya existe: $directorioReserva", 
+                3, "c:/laragon/www/clinica/logs/public_reservas.log");
+        }
+        
+        // Configuración de validaciones
+        $maxFiles = 5;
+        $maxSizePerFile = 10 * 1024 * 1024; // 10MB
+        $allowedExtensions = ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'];
+        
+        // Procesar cada archivo
+        for ($i = 0; $i < count($files['name']); $i++) {
+            if ($files['error'][$i] === UPLOAD_ERR_OK) {
+                $fileName = $files['name'][$i];
+                $fileTmpName = $files['tmp_name'][$i];
+                $fileSize = $files['size'][$i];
+                $fileExtension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+                
+                // Validar extensión
+                if (!in_array($fileExtension, $allowedExtensions)) {
+                    error_log("ctrProcesarReserva: Archivo rechazado - extensión no válida: $fileName", 
+                        3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                    continue;
+                }
+                
+                // Validar tamaño
+                if ($fileSize > $maxSizePerFile) {
+                    error_log("ctrProcesarReserva: Archivo rechazado - tamaño excesivo: $fileName (" . round($fileSize / 1024 / 1024, 2) . "MB)", 
+                        3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                    continue;
+                }
+                
+                // Generar nombre único para evitar colisiones
+                $nombreSeguro = time() . "_" . $i . "_" . preg_replace('/[^a-zA-Z0-9._-]/', '', $fileName);
+                $rutaCompleta = $directorioReserva . $nombreSeguro;
+                
+                // Debug antes de mover el archivo
+                error_log("procesarArchivosReserva: Intentando mover archivo...", 
+                    3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                error_log("procesarArchivosReserva: - Archivo temporal: $fileTmpName", 
+                    3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                error_log("procesarArchivosReserva: - ¿Existe temp?: " . (file_exists($fileTmpName) ? 'SÍ' : 'NO'), 
+                    3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                error_log("procesarArchivosReserva: - ¿Es archivo subido?: " . (is_uploaded_file($fileTmpName) ? 'SÍ' : 'NO'), 
+                    3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                error_log("procesarArchivosReserva: - Destino: $rutaCompleta", 
+                    3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                error_log("procesarArchivosReserva: - ¿Directorio escribible?: " . (is_writable($directorioReserva) ? 'SÍ' : 'NO'), 
+                    3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                
+                // Mover el archivo
+                if (move_uploaded_file($fileTmpName, $rutaCompleta)) {
+                    $archivosSubidos[] = [
+                        'nombre_original' => $fileName,
+                        'nombre_archivo' => $nombreSeguro,
+                        'ruta' => $rutaCompleta,
+                        'tamaño' => $fileSize,
+                        'tipo' => $fileExtension,
+                        'codigo_seguimiento' => $codigoSeguimiento
+                    ];
+                    
+                    error_log("procesarArchivosReserva: ✅ Archivo subido exitosamente: $fileName -> $nombreSeguro", 
+                        3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                } else {
+                    $lastError = error_get_last();
+                    error_log("procesarArchivosReserva: ❌ Error moviendo archivo: $fileName", 
+                        3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                    error_log("procesarArchivosReserva: ❌ Último error PHP: " . ($lastError ? $lastError['message'] : 'No hay error específico'), 
+                        3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                }
+            } else {
+                error_log("ctrProcesarReserva: Error en upload de archivo: " . $files['name'][$i] . " - Error: " . $files['error'][$i], 
+                    3, "c:/laragon/www/clinica/logs/public_reservas.log");
+            }
+        }
+        
+        // Guardar información de archivos en la base de datos si es necesario
+        if (!empty($archivosSubidos)) {
+            $this->guardarInformacionArchivos($reservaId, $archivosSubidos);
+        }
+        
+        return $archivosSubidos;
+    }
+    
+    /**
+     * Guarda la información de los archivos en la base de datos
+     * @param int $reservaId ID de la reserva
+     * @param array $archivos Lista de archivos subidos
+     */
+    private function guardarInformacionArchivos($reservaId, $archivos) {
+        error_log("guardarInformacionArchivos: Iniciando guardado para reserva $reservaId con " . count($archivos) . " archivos", 
+            3, "c:/laragon/www/clinica/logs/public_reservas.log");
+        
+        try {
+            require_once __DIR__ . "/../model/ReservasPublicModel.php";
+            
+            // Obtener ID del usuario autenticado
+            $userData = AuthController::ctrGetUserData();
+            $usuarioId = null;
+            
+            // Intentar obtener el user_id de diferentes formas
+            if (isset($userData['user_id'])) {
+                $usuarioId = $userData['user_id'];
+            } elseif (isset($userData['id'])) {
+                $usuarioId = $userData['id'];
+            } elseif (isset($_SESSION['user_id'])) {
+                $usuarioId = $_SESSION['user_id'];
+            }
+            
+            error_log("guardarInformacionArchivos: Usuario ID: " . ($usuarioId ?: 'NULL'), 
+                3, "c:/laragon/www/clinica/logs/public_reservas.log");
+            error_log("guardarInformacionArchivos: Datos completos de usuario: " . json_encode($userData), 
+                3, "c:/laragon/www/clinica/logs/public_reservas.log");
+            
+            foreach ($archivos as $index => $archivo) {
+                error_log("guardarInformacionArchivos: Procesando archivo " . ($index + 1) . ": " . $archivo['nombre_original'], 
+                    3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                
+                $datosArchivo = [
+                    'reserva_id' => $reservaId,
+                    'codigo_seguimiento' => $archivo['codigo_seguimiento'] ?? '',
+                    'nombre_original' => $archivo['nombre_original'],
+                    'nombre_archivo' => $archivo['nombre_archivo'],
+                    'ruta_archivo' => $archivo['ruta'],
+                    'tipo_archivo' => $archivo['tipo'],
+                    'tamaño_archivo' => $archivo['tamaño'],
+                    'subido_por' => $usuarioId,
+                    'estado' => 'ACTIVO'
+                ];
+                
+                error_log("guardarInformacionArchivos: Datos del archivo: " . json_encode($datosArchivo), 
+                    3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                
+                $archivoId = ReservasPublicModel::mdlGuardarArchivo($datosArchivo);
+                
+                if ($archivoId) {
+                    error_log("guardarInformacionArchivos: ✅ Archivo guardado en BD - ID: $archivoId, Reserva: $reservaId, Archivo: " . $archivo['nombre_original'], 
+                        3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                } else {
+                    error_log("guardarInformacionArchivos: ❌ Error guardando archivo en BD: " . $archivo['nombre_original'], 
+                        3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                }
+            }
+        } catch (Exception $e) {
+            error_log("guardarInformacionArchivos: ❌ Excepción guardando información de archivos: " . $e->getMessage(), 
+                3, "c:/laragon/www/clinica/logs/public_reservas.log");
+        }
     }
 }
 ?>

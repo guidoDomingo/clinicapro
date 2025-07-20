@@ -317,7 +317,8 @@ class ControladorServicios {
             'observaciones' => $datos['observaciones'] ?? '',
             'reserva_estado' => 'PENDIENTE',
             'business_id' => isset($_SESSION['business_id']) ? $_SESSION['business_id'] : 1,
-            'created_by' => isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 1
+            'created_by' => isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 1,
+            'origen_reserva' => $datos['origen_reserva'] ?? 'SISTEMA' // Default a SISTEMA si no se especifica
         ];
           // Incluir campos opcionales si están presentes en la petición
         if (!empty($datos['agenda_id'])) {

@@ -879,5 +879,171 @@ class ReservasPublicModel {
             ];
         }
     }
+    
+    /**
+     * Guarda la información de un archivo en la base de datos
+     * @param array $datosArchivo Datos del archivo a guardar
+     * @return int|false ID del archivo guardado o false en caso de error
+     */
+    static public function mdlGuardarArchivo($datosArchivo) {
+        try {
+            error_log("mdlGuardarArchivo: Iniciando guardado de archivo: " . $datosArchivo['nombre_original'], 
+                3, "c:/laragon/www/clinica/logs/public_reservas.log");
+            
+            $stmt = Conexion::conectar()->prepare("
+                INSERT INTO reserva_archivos 
+                (reserva_id, codigo_seguimiento, nombre_original, nombre_archivo, 
+                 ruta_archivo, tipo_archivo, tamano_archivo, subido_por, estado)
+                VALUES 
+                (:reserva_id, :codigo_seguimiento, :nombre_original, :nombre_archivo,
+                 :ruta_archivo, :tipo_archivo, :tamano_archivo, :subido_por, :estado)
+                RETURNING archivo_id
+            ");
+            
+            $stmt->bindParam(":reserva_id", $datosArchivo['reserva_id'], PDO::PARAM_INT);
+            $stmt->bindParam(":codigo_seguimiento", $datosArchivo['codigo_seguimiento'], PDO::PARAM_STR);
+            $stmt->bindParam(":nombre_original", $datosArchivo['nombre_original'], PDO::PARAM_STR);
+            $stmt->bindParam(":nombre_archivo", $datosArchivo['nombre_archivo'], PDO::PARAM_STR);
+            $stmt->bindParam(":ruta_archivo", $datosArchivo['ruta_archivo'], PDO::PARAM_STR);
+            $stmt->bindParam(":tipo_archivo", $datosArchivo['tipo_archivo'], PDO::PARAM_STR);
+            $stmt->bindParam(":tamano_archivo", $datosArchivo['tamaño_archivo'], PDO::PARAM_INT);
+            $stmt->bindParam(":subido_por", $datosArchivo['subido_por'], PDO::PARAM_INT);
+            $stmt->bindParam(":estado", $datosArchivo['estado'], PDO::PARAM_STR);
+            
+            error_log("mdlGuardarArchivo: Ejecutando query con parámetros: " . json_encode($datosArchivo), 
+                3, "c:/laragon/www/clinica/logs/public_reservas.log");
+            
+            if ($stmt->execute()) {
+                $result = $stmt->fetch(PDO::FETCH_ASSOC);
+                $archivoId = $result['archivo_id'];
+                
+                error_log("mdlGuardarArchivo: ✅ Archivo guardado exitosamente con ID: $archivoId", 
+                    3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                
+                return $archivoId;
+            } else {
+                error_log("mdlGuardarArchivo: ❌ Error ejecutando statement", 
+                    3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                return false;
+            }
+            
+        } catch (PDOException $e) {
+            error_log("mdlGuardarArchivo: ❌ Error PDO: " . $e->getMessage(), 
+                3, "c:/laragon/www/clinica/logs/public_reservas.log");
+            return false;
+        }
+    }
+    
+    /**
+     * Obtiene todos los archivos asociados a una reserva
+     * @param int $reservaId ID de la reserva
+     * @return array Lista de archivos
+     */
+    static public function mdlObtenerArchivosPorReserva($reservaId) {
+        try {
+            $stmt = Conexion::conectar()->prepare("
+                SELECT 
+                    archivo_id,
+                    reserva_id,
+                    codigo_seguimiento,
+                    nombre_original,
+                    nombre_archivo,
+                    ruta_archivo,
+                    tipo_archivo,
+                    tamaño_archivo,
+                    fecha_subida,
+                    subido_por,
+                    estado
+                FROM reserva_archivos 
+                WHERE reserva_id = :reserva_id AND estado = 'ACTIVO'
+                ORDER BY fecha_subida ASC
+            ");
+            
+            $stmt->bindParam(":reserva_id", $reservaId, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Error al obtener archivos de reserva: " . $e->getMessage());
+            return [];
+        }
+    }
+    
+    /**
+     * Obtiene archivos por código de seguimiento
+     * @param string $codigoSeguimiento Código de seguimiento de la reserva
+     * @return array Lista de archivos
+     */
+    static public function mdlObtenerArchivosPorCodigo($codigoSeguimiento) {
+        try {
+            $stmt = Conexion::conectar()->prepare("
+                SELECT 
+                    ra.*,
+                    r.reserva_id,
+                    r.fecha_reserva,
+                    r.hora_inicio,
+                    CONCAT(p.first_name, ' ', p.last_name) as paciente_nombre
+                FROM reserva_archivos ra
+                INNER JOIN reservas r ON ra.reserva_id = r.reserva_id
+                INNER JOIN rh_person p ON r.paciente_id = p.person_id
+                WHERE ra.codigo_seguimiento = :codigo_seguimiento AND ra.estado = 'ACTIVO'
+                ORDER BY ra.fecha_subida ASC
+            ");
+            
+            $stmt->bindParam(":codigo_seguimiento", $codigoSeguimiento, PDO::PARAM_STR);
+            $stmt->execute();
+            
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Error al obtener archivos por código: " . $e->getMessage());
+            return [];
+        }
+    }
+    
+    /**
+     * Elimina un archivo (marca como eliminado)
+     * @param int $archivoId ID del archivo
+     * @param int $usuarioId ID del usuario que elimina
+     * @return bool True si se eliminó exitosamente
+     */
+    static public function mdlEliminarArchivo($archivoId, $usuarioId) {
+        try {
+            $stmt = Conexion::conectar()->prepare("
+                UPDATE reserva_archivos 
+                SET estado = 'ELIMINADO', 
+                    fecha_subida = CURRENT_TIMESTAMP
+                WHERE archivo_id = :archivo_id
+            ");
+            
+            $stmt->bindParam(":archivo_id", $archivoId, PDO::PARAM_INT);
+            
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            error_log("Error al eliminar archivo: " . $e->getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Obtiene información de un archivo específico
+     * @param int $archivoId ID del archivo
+     * @return array|false Datos del archivo o false si no existe
+     */
+    static public function mdlObtenerArchivoPorId($archivoId) {
+        try {
+            $stmt = Conexion::conectar()->prepare("
+                SELECT * FROM reserva_archivos 
+                WHERE archivo_id = :archivo_id AND estado = 'ACTIVO'
+            ");
+            
+            $stmt->bindParam(":archivo_id", $archivoId, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Error al obtener archivo: " . $e->getMessage());
+            return false;
+        }
+    }
 }
 ?>
