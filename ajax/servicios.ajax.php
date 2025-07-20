@@ -455,11 +455,18 @@ if (isset($_POST['action'])) {
                 $salaId = intval($_POST['sala_id']);
             }
             
+            // Procesar filtro de origen
+            $origen = null;
+            if (isset($_POST['origen']) && $_POST['origen'] !== '0' && $_POST['origen'] !== '') {
+                $origen = trim($_POST['origen']);
+            }
+            
             error_log("AJAX buscarReservas (procesado): Fecha=" . ($fecha ?? "null") . 
                       ", DoctorID=" . ($doctorId ?? "null") . " (tipo: " . gettype($doctorId) . ")" .
                       ", Estado=" . ($estado ?? "null") . 
                       ", Paciente=" . ($paciente ?? "null") . 
-                      ", SalaID=" . ($salaId ?? "null"),
+                      ", SalaID=" . ($salaId ?? "null") .
+                      ", Origen=" . ($origen ?? "null"),
                       3, 'c:/laragon/www/clinica/logs/reservas.log');
             
             try {
@@ -473,7 +480,7 @@ if (isset($_POST['action'])) {
                 }
                 
                 // Obtener reservas según los filtros
-                $reservas = ControladorServicios::ctrBuscarReservas($fecha, $doctorId, $estado, $paciente, $salaId);
+                $reservas = ControladorServicios::ctrBuscarReservas($fecha, $doctorId, $estado, $paciente, $salaId, $origen);
                 
                 // Enviar respuesta con información de filtros para depuración
                 echo json_encode([
@@ -483,7 +490,9 @@ if (isset($_POST['action'])) {
                         "fecha" => $fecha,
                         "doctor_id" => $doctorId,
                         "estado" => $estado,
-                        "paciente" => $paciente
+                        "paciente" => $paciente,
+                        "sala_id" => $salaId,
+                        "origen" => $origen
                     ]
                 ]);
             } catch (Exception $e) {
@@ -495,7 +504,9 @@ if (isset($_POST['action'])) {
                         "fecha" => $fecha,
                         "doctor_id" => $doctorId,
                         "estado" => $estado,
-                        "paciente" => $paciente
+                        "paciente" => $paciente,
+                        "sala_id" => $salaId,
+                        "origen" => $origen
                     ]
                 ]);
             }

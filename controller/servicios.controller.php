@@ -11,7 +11,96 @@ require_once $rutaBase . "/model/servicios.model.php";
 class ControladorServicios {
     
     /**
-     * Obtiene todas las categorías de servicios
+         /**
+     * Busca reservas según los filtros especificados
+     * @param string $fecha Fecha de la reserva (opcional)
+     * @param int $doctorId ID del doctor (opcional)
+     * @param string $estado Estado de la reserva (opcional)
+     * @param string $paciente Nombre del paciente para búsqueda (opcional)
+     * @param int $salaId ID de la sala (opcional)
+     * @param string $origen Origen de la reserva (opcional)
+     * @return array Lista de reservas que coinciden con los filtros
+     */
+    static public function ctrBuscarReservas($fecha = null, $doctorId = null, $estado = null, $paciente = null, $salaId = null, $origen = null) {
+        error_log("ctrBuscarReservas: Llamada con Fecha=" . ($fecha ?? "null") . 
+                 ", DoctorID=" . ($doctorId ?? "null") . 
+                 ", Estado=" . ($estado ?? "null") . 
+                 ", Paciente=" . ($paciente ?? "null") . 
+                 ", SalaID=" . ($salaId ?? "null") .
+                 ", Origen=" . ($origen ?? "null"),
+                 3, "c:/laragon/www/clinica/logs/reservas.log");
+          // Si se está filtrando por doctor, usamos la consulta optimizada
+        if ($doctorId !== null) {
+            error_log("ctrBuscarReservas: Usando consulta específica para doctor_id=$doctorId", 
+                     3, "c:/laragon/www/clinica/logs/reservas.log");
+            // Pasar todos los parámetros para filtrado completo
+            return ModelServicios::mdlBuscarReservasPorDoctor($doctorId, $fecha, $estado, $paciente, $salaId, $origen);
+        }
+        
+        // Si se está filtrando solo por estado
+        if ($estado !== null && $estado !== '' && $doctorId === null) {
+            error_log("ctrBuscarReservas: Filtrando específicamente por estado=$estado", 
+                     3, "c:/laragon/www/clinica/logs/reservas.log");
+            return ModelServicios::mdlObtenerReservasPorFecha($fecha, $doctorId, $estado, $paciente, $salaId, $origen);
+        }
+        
+        // Si se está filtrando solo por paciente
+        if ($paciente !== null && trim($paciente) !== '' && $doctorId === null && ($estado === null || $estado === '')) {
+            error_log("ctrBuscarReservas: Filtrando específicamente por paciente=$paciente", 
+                     3, "c:/laragon/www/clinica/logs/reservas.log");
+            return ModelServicios::mdlObtenerReservasPorFecha($fecha, $doctorId, $estado, $paciente, $salaId, $origen);
+        }
+        
+        // En caso contrario, usamos la consulta general con todos los filtros
+        return ModelServicios::mdlObtenerReservasPorFecha($fecha, $doctorId, $estado, $paciente, $salaId, $origen);
+    }
+    
+    /**
+     * Obtiene todos los médicos disponibles
+     * @return array Lista de médicos
+     */
+    static public function ctrObtenerMedicos() {
+        return ModelServicios::mdlObtenerMedicos();
+    }
+      /**
+     * Obtiene los horarios disponibles para un doctor específico en una fecha
+     * @param int $servicioId ID del servicio (opcional)
+     * @param int $doctorId ID del doctor
+     * @param string $fecha Fecha para la verificación (formato YYYY-MM-DD)
+     * @return array Listado de horarios disponibles
+     */
+    static public function ctrObtenerHorariosDisponibles($servicioId, $doctorId, $fecha) {
+        try {
+            // Verificar que los parámetros necesarios sean válidos
+            // El servicio ID ahora es opcional
+            if (empty($doctorId) || empty($fecha)) {
+                error_log("ctrObtenerHorariosDisponibles: Parámetros incompletos. DoctorID=$doctorId, Fecha=$fecha", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+                return [];
+            }
+
+            // Validar formato de la fecha
+            $fechaObj = DateTime::createFromFormat('Y-m-d', $fecha);
+            if (!$fechaObj) {
+                error_log("ctrObtenerHorariosDisponibles: Formato de fecha inválido: $fecha", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+                return [];
+            }
+
+            // Obtener los horarios disponibles del modelo
+            $horarios = ModelServicios::mdlObtenerHorariosDisponibles($servicioId, $doctorId, $fecha);
+            
+            // Registrar cuántos horarios se encontraron
+            error_log("ctrObtenerHorariosDisponibles: Se encontraron " . count($horarios) . " horarios disponibles", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+            
+            return $horarios;
+            
+        } catch (Exception $e) {
+            error_log("ERROR en ctrObtenerHorariosDisponibles: " . $e->getMessage(), 3, 'c:/laragon/www/clinica/logs/servicios.log');
+            return [];
+        }
+    }
+    
+    /**
+     * Obtiene las categorías de servicios
      * @return array Lista de categorías
      */
     static public function ctrObtenerCategorias() {
@@ -348,91 +437,6 @@ class ControladorServicios {
     static public function ctrObtenerProveedoresSeguro() {
         return ModelServicios::mdlObtenerProveedoresSeguro();
     }
-      /**
-     * Busca reservas con filtros
-     * @param string $fecha Fecha de reserva (opcional)
-     * @param int $doctorId ID del doctor (opcional)
-     * @param string $estado Estado de la reserva (opcional)
-     * @param string $paciente Nombre del paciente para búsqueda (opcional)
-     * @return array Lista de reservas que coinciden con los filtros
-     */
-    static public function ctrBuscarReservas($fecha = null, $doctorId = null, $estado = null, $paciente = null, $salaId = null) {
-        error_log("ctrBuscarReservas: Llamada con Fecha=" . ($fecha ?? "null") . 
-                 ", DoctorID=" . ($doctorId ?? "null") . 
-                 ", Estado=" . ($estado ?? "null") . 
-                 ", Paciente=" . ($paciente ?? "null") . 
-                 ", SalaID=" . ($salaId ?? "null"),
-                 3, "c:/laragon/www/clinica/logs/reservas.log");
-          // Si se está filtrando por doctor, usamos la consulta optimizada
-        if ($doctorId !== null) {
-            error_log("ctrBuscarReservas: Usando consulta específica para doctor_id=$doctorId", 
-                     3, "c:/laragon/www/clinica/logs/reservas.log");
-            // Pasar todos los parámetros para filtrado completo
-            return ModelServicios::mdlBuscarReservasPorDoctor($doctorId, $fecha, $estado, $paciente, $salaId);
-        }
-        
-        // Si se está filtrando solo por estado
-        if ($estado !== null && $estado !== '' && $doctorId === null) {
-            error_log("ctrBuscarReservas: Filtrando específicamente por estado=$estado", 
-                     3, "c:/laragon/www/clinica/logs/reservas.log");
-            return ModelServicios::mdlObtenerReservasPorFecha($fecha, $doctorId, $estado, $paciente, $salaId);
-        }
-        
-        // Si se está filtrando solo por paciente
-        if ($paciente !== null && trim($paciente) !== '' && $doctorId === null && ($estado === null || $estado === '')) {
-            error_log("ctrBuscarReservas: Filtrando específicamente por paciente=$paciente", 
-                     3, "c:/laragon/www/clinica/logs/reservas.log");
-            return ModelServicios::mdlObtenerReservasPorFecha($fecha, $doctorId, $estado, $paciente, $salaId);
-        }
-        
-        // En caso contrario, usamos la consulta general con todos los filtros
-        return ModelServicios::mdlObtenerReservasPorFecha($fecha, $doctorId, $estado, $paciente, $salaId);
-    }
-    
-    /**
-     * Obtiene todos los médicos disponibles
-     * @return array Lista de médicos
-     */
-    static public function ctrObtenerMedicos() {
-        return ModelServicios::mdlObtenerMedicos();
-    }
-      /**
-     * Obtiene los horarios disponibles para un doctor específico en una fecha
-     * @param int $servicioId ID del servicio (opcional)
-     * @param int $doctorId ID del doctor
-     * @param string $fecha Fecha para la verificación (formato YYYY-MM-DD)
-     * @return array Listado de horarios disponibles
-     */
-    static public function ctrObtenerHorariosDisponibles($servicioId, $doctorId, $fecha) {
-        try {
-            // Verificar que los parámetros necesarios sean válidos
-            // El servicio ID ahora es opcional
-            if (empty($doctorId) || empty($fecha)) {
-                error_log("ctrObtenerHorariosDisponibles: Parámetros incompletos. DoctorID=$doctorId, Fecha=$fecha", 3, 'c:/laragon/www/clinica/logs/servicios.log');
-                return [];
-            }
-
-            // Validar formato de la fecha
-            $fechaObj = DateTime::createFromFormat('Y-m-d', $fecha);
-            if (!$fechaObj) {
-                error_log("ctrObtenerHorariosDisponibles: Formato de fecha inválido: $fecha", 3, 'c:/laragon/www/clinica/logs/servicios.log');
-                return [];
-            }
-
-            // Obtener los horarios disponibles del modelo
-            $horarios = ModelServicios::mdlObtenerHorariosDisponibles($servicioId, $doctorId, $fecha);
-            
-            // Registrar cuántos horarios se encontraron
-            error_log("ctrObtenerHorariosDisponibles: Se encontraron " . count($horarios) . " horarios disponibles", 3, 'c:/laragon/www/clinica/logs/servicios.log');
-            
-            return $horarios;
-            
-        } catch (Exception $e) {
-            error_log("ERROR en ctrObtenerHorariosDisponibles: " . $e->getMessage(), 3, 'c:/laragon/www/clinica/logs/servicios.log');
-            return [];
-        }
-    }
-    
     /**
      * Envía un mensaje de WhatsApp utilizando la API externa
      * @param string $telefono Número de teléfono con código de país (sin el +)

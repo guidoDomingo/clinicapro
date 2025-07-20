@@ -1311,10 +1311,13 @@ class ModelServicios {
      * @param string $fecha Fecha en formato YYYY-MM-DD
      * @param int $doctorId ID del doctor (opcional)
      * @param string $estado Estado de la reserva (opcional)
+     * @param string $paciente Nombre del paciente (opcional)
+     * @param int $salaId ID de la sala (opcional)
+     * @param string $origen Origen de la reserva (opcional)
      * @return array Lista de reservas
-     */    static public function mdlObtenerReservasPorFecha($fecha, $doctorId = null, $estado = null, $paciente = null, $salaId = null) {
+     */    static public function mdlObtenerReservasPorFecha($fecha, $doctorId = null, $estado = null, $paciente = null, $salaId = null, $origen = null) {
         try {
-            error_log("mdlObtenerReservasPorFecha: Fecha=$fecha, DoctorID=" . ($doctorId ?? "null") . ", Estado=" . ($estado ?? "null") . ", Paciente=" . ($paciente ?? "null") . ", SalaID=" . ($salaId ?? "null"), 3, "c:/laragon/www/clinica/logs/reservas.log");
+            error_log("mdlObtenerReservasPorFecha: Fecha=$fecha, DoctorID=" . ($doctorId ?? "null") . ", Estado=" . ($estado ?? "null") . ", Paciente=" . ($paciente ?? "null") . ", SalaID=" . ($salaId ?? "null") . ", Origen=" . ($origen ?? "null"), 3, "c:/laragon/www/clinica/logs/reservas.log");
             
             // Verificar si existe la tabla de reservas
             $stmtCheck = Conexion::conectar()->prepare("SELECT to_regclass('public.servicios_reservas')");
@@ -1351,6 +1354,7 @@ class ModelServicios {
                 sr.sala_id,
                 s.sala_nombre,
                 sr.tarifa_id,
+                sr.origen_reserva,
                 rp.first_name ||' - ' || rp.last_name as doctor,
                 rp2.first_name ||' - ' || rp2.last_name as paciente,
                 rs.serv_descripcion,
@@ -1392,6 +1396,11 @@ class ModelServicios {
                 $sql .= " AND s.sala_id = :sala_id";
             }
             
+            // Filtrar por origen de reserva
+            if ($origen !== null && trim($origen) !== '') {
+                $sql .= " AND sr.origen_reserva = :origen";
+            }
+            
             $sql .= " ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASC";
             
             error_log("mdlObtenerReservasPorFecha: SQL=$sql", 3, "c:/laragon/www/clinica/logs/reservas.log");
@@ -1419,6 +1428,10 @@ class ModelServicios {
             
             if ($salaId !== null) {
                 $stmt->bindParam(":sala_id", $salaId, PDO::PARAM_INT);
+            }
+            
+            if ($origen !== null && trim($origen) !== '') {
+                $stmt->bindParam(":origen", $origen, PDO::PARAM_STR);
             }
             
             $stmt->execute();
@@ -2088,10 +2101,10 @@ class ModelServicios {
      * @param string $paciente Nombre del paciente para búsqueda (opcional)
      * @return array Lista de reservas encontradas
      */
-    static public function mdlBuscarReservasPorDoctor($doctorId, $fecha = null, $estado = null, $paciente = null, $salaId = null) {
+    static public function mdlBuscarReservasPorDoctor($doctorId, $fecha = null, $estado = null, $paciente = null, $salaId = null, $origen = null) {
         try {
             error_log("mdlBuscarReservasPorDoctor: Ejecutando consulta directa para doctor_id=$doctorId, fecha=" . 
-                     ($fecha ? $fecha : "NULL") . ", estado=" . ($estado ?? "NULL") . ", paciente=" . ($paciente ?? "NULL") . ", salaId=" . ($salaId ?? "NULL"), 
+                     ($fecha ? $fecha : "NULL") . ", estado=" . ($estado ?? "NULL") . ", paciente=" . ($paciente ?? "NULL") . ", salaId=" . ($salaId ?? "NULL") . ", origen=" . ($origen ?? "NULL"), 
                      3, "c:/laragon/www/clinica/logs/reservas.log");
             
             $sql = "SELECT 
@@ -2111,6 +2124,7 @@ class ModelServicios {
                 sr.sala_id,
                 s.sala_nombre,
                 sr.tarifa_id,
+                sr.origen_reserva,
                 rp.first_name ||' - ' || rp.last_name as doctor,
                 rp2.first_name ||' - ' || rp2.last_name as paciente,
                 rs.serv_descripcion,
@@ -2143,6 +2157,11 @@ class ModelServicios {
                 $sql .= " AND s.sala_id = :sala_id";
             }
             
+            // Filtro por origen de reserva
+            if ($origen !== null && trim($origen) !== '') {
+                $sql .= " AND sr.origen_reserva = :origen";
+            }
+            
             $sql .= " ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASC";
             
             $stmt = Conexion::conectar()->prepare($sql);
@@ -2166,6 +2185,11 @@ class ModelServicios {
             // Bindear parámetro de sala si se proporciona
             if ($salaId !== null) {
                 $stmt->bindParam(':sala_id', $salaId, PDO::PARAM_INT);
+            }
+            
+            // Bindear parámetro de origen si se proporciona
+            if ($origen !== null && trim($origen) !== '') {
+                $stmt->bindParam(':origen', $origen, PDO::PARAM_STR);
             }
             
             $stmt->execute();

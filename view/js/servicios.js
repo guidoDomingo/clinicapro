@@ -48,6 +48,7 @@ $(document).ready(function () {
             // Limpiamos selectores para evitar problemas de caché
             $('#selectMedicoReservas').empty();
             $('#selectEstadoReserva').val('0');
+            $('#selectOrigenReserva').val('0');
 
             cargarMedicosParaFiltroReservas();
             cargarSalasParaFiltroReservas();
@@ -1302,6 +1303,11 @@ function inicializarTabReservas() {
         buscarReservas();
     });
 
+    $(document).on('change', '#selectOrigenReserva', function () {
+        console.log('Filtro de origen cambiado - ejecutando búsqueda automática');
+        buscarReservas();
+    });
+
     $(document).on('change', '#fechaReservas', function () {
         console.log('Filtro de fecha cambiado - ejecutando búsqueda automática');
         buscarReservas();
@@ -1527,10 +1533,13 @@ function buscarReservas() {
     // Obtener sala seleccionada
     const salaId = $('#selectSalaFiltro').val() || '0';
 
+    // Obtener origen seleccionado
+    const origen = $('#selectOrigenReserva').val() || '0';
+
     // Obtener paciente y asegurar que no sea un string vacío
     const paciente = $('#buscarPacienteReserva').val() ? $('#buscarPacienteReserva').val().trim() : '';
 
-    console.log(`Buscando reservas - Fecha: ${fecha}, Doctor: ${doctorId}, Estado: ${estado}, Sala: ${salaId}, Paciente: ${paciente}`);
+    console.log(`Buscando reservas - Fecha: ${fecha}, Doctor: ${doctorId}, Estado: ${estado}, Sala: ${salaId}, Origen: ${origen}, Paciente: ${paciente}`);
 
     // Debug para verificar valores
     console.log('Elementos DOM:');
@@ -1568,6 +1577,11 @@ function buscarReservas() {
         requestData.sala_id = salaId;
     }
 
+    // Añadir origen solo si es diferente de 0 o "0"
+    if (origen && origen !== '0') {
+        requestData.origen = origen;
+    }
+
     // Añadir paciente solo si no está vacío
     if (paciente && paciente.trim() !== '') {
         requestData.paciente = paciente;
@@ -1581,7 +1595,7 @@ function buscarReservas() {
         data: requestData,
         dataType: "json",
         beforeSend: function () {
-            $('#tablaReservas tbody').html('<tr><td colspan="10" class="text-center"><i class="fas fa-spinner fa-spin"></i> Cargando reservas...</td></tr>');
+            $('#tablaReservas tbody').html('<tr><td colspan="11" class="text-center"><i class="fas fa-spinner fa-spin"></i> Cargando reservas...</td></tr>');
         },
         success: function (respuesta) {
             console.log("Respuesta de búsqueda de reservas:", respuesta);
@@ -1595,6 +1609,10 @@ function buscarReservas() {
                 let filas = '';
 
                 respuesta.data.forEach(function (reserva) {
+                    // Debug: Ver qué contiene cada reserva
+                    console.log("Datos de reserva:", reserva);
+                    console.log("Origen de reserva:", reserva.origen_reserva);
+                    
                     // Formatear la fecha para mostrar
                     const fechaFormateada = formatearFechaParaMostrar(reserva.fecha_reserva);
                     // Determinar color según estado
@@ -1645,6 +1663,17 @@ function buscarReservas() {
                     // Nombre de la sala (si está disponible)
                     const sala = reserva.sala_nombre || 'Sin asignar';
 
+                    // Determinar origen y su badge
+                    const origen = reserva.origen_reserva || 'SISTEMA';
+                    let badgeOrigen = '';
+                    if (origen === 'ONLINE') {
+                        badgeOrigen = '<span class="badge badge-info"><i class="fas fa-globe mr-1"></i>Online</span>';
+                    } else {
+                        badgeOrigen = '<span class="badge badge-secondary"><i class="fas fa-desktop mr-1"></i>Sistema</span>';
+                    }
+                    
+                    console.log("Badge de origen generado:", badgeOrigen);
+
                     filas += `<tr class="${claseFila}">
                         <td>${fechaFormateada}</td>
                         <td>${diaSemana}</td>
@@ -1654,14 +1683,21 @@ function buscarReservas() {
                         <td>${reserva.serv_descripcion || reserva.nombre_servicio || 'N/A'}</td>
                         <td>${reserva.sala_nombre || 'Sin asignar'}</td>
                         <td>${reserva.serv_monto ? `$${parseFloat(reserva.serv_monto).toFixed(2)}` : 'N/A'}</td>
-                        <td><span class="badge badge-${claseFila.includes('warning') ? 'warning estado-pendiente' :
-                            claseFila.includes('success') ? 'success estado-confirmada' :
-                                claseFila.includes('info') ? 'info estado-completada' :
-                                    claseFila.includes('danger') ? 'danger estado-cancelada' : 'secondary'}">${iconoEstado} ${reserva.reserva_estado}</span></td>                        <td>
+                        <td>
+                            <span class="badge badge-${claseFila.includes('warning') ? 'warning estado-pendiente' :
+                                claseFila.includes('success') ? 'success estado-confirmada' :
+                                    claseFila.includes('info') ? 'info estado-completada' :
+                                        claseFila.includes('danger') ? 'danger estado-cancelada' : 'secondary'}">
+                                ${iconoEstado} ${reserva.reserva_estado}
+                            </span>
+                        </td>
+                        <td>${badgeOrigen}</td>
+                        <td>
                             <div class="btn-group">
                                 <button class="btn btn-info btn-sm btnVerReserva" data-id="${reserva.reserva_id}" title="Ver detalles">
                                     <i class="fas fa-eye"></i>
-                                </button>                                ${reserva.reserva_estado === 'PENDIENTE' ?
+                                </button>
+                                ${reserva.reserva_estado === 'PENDIENTE' ?
                             `<button class="btn btn-success btn-sm btnConfirmarReserva" data-id="${reserva.reserva_id}" title="Confirmar reserva">
                                     <i class="fas fa-check"></i>
                                 </button>` : ''}
@@ -1674,7 +1710,7 @@ function buscarReservas() {
                                 </button>` : ''}
                                 <button class="btn btn-warning btn-sm btnEditarReserva" data-id="${reserva.reserva_id}" title="Editar">
                                     <i class="fas fa-edit"></i>
-                                </button>                                
+                                </button>
                                 <button class="btn btn-danger btn-sm btnCancelarReserva" data-id="${reserva.reserva_id}" title="Cancelar">
                                     <i class="fas fa-times"></i>
                                 </button>
@@ -1692,14 +1728,14 @@ function buscarReservas() {
                 $('#tablaReservas tbody').html(filas);
             } else {
                 // Mostrar mensaje si no hay reservas
-                $('#tablaReservas tbody').html('<tr><td colspan="10" class="text-center">No se encontraron reservas con los filtros seleccionados</td></tr>');
+                $('#tablaReservas tbody').html('<tr><td colspan="11" class="text-center">No se encontraron reservas con los filtros seleccionados</td></tr>');
             }
         },
         error: function (xhr, status, error) {
             console.error("Error al buscar reservas:", error);
 
             // Mostrar mensaje de error
-            $('#tablaReservas tbody').html('<tr><td colspan="10" class="text-center text-danger">Error al cargar reservas: ' + error + '</td></tr>');
+            $('#tablaReservas tbody').html('<tr><td colspan="11" class="text-center text-danger">Error al cargar reservas: ' + error + '</td></tr>');
 
             // Intentar obtener más detalles del error
             try {
@@ -1726,6 +1762,9 @@ function limpiarFiltrosReservas() {
 
     // Restablecer estado a "Todos"
     $('#selectEstadoReserva').val('0');
+
+    // Restablecer origen a "Todos"
+    $('#selectOrigenReserva').val('0');
 
     // Restablecer sala a "Todas"
     $('#selectSalaFiltro').val('0');

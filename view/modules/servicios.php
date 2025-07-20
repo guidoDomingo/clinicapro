@@ -398,7 +398,15 @@ if (!isset($_SESSION['perfil'])) {
                                                 </option>
                                             </select>
                                         </div>
-                                        <div class="col-md-3">
+                                        <div class="col-md-2">
+                                            <label for="selectOrigenReserva">Origen:</label>
+                                            <select class="form-control" id="selectOrigenReserva">
+                                                <option value="0">Todos los orígenes</option>
+                                                <option value="SISTEMA">Sistema Principal</option>
+                                                <option value="ONLINE">Reservas Online</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-2">
                                             <label for="buscarPacienteReserva">Buscar Paciente:</label>
                                             <input type="text" class="form-control" id="buscarPacienteReserva" placeholder="Nombre del paciente...">
                                         </div>
@@ -427,6 +435,7 @@ if (!isset($_SESSION['perfil'])) {
                                                     <th>Sala</th>
                                                     <th>Monto</th>
                                                     <th>Estado</th>
+                                                    <th>Origen</th>
                                                     <th>Acciones</th>
                                                 </tr>
                                             </thead>

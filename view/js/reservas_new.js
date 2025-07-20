@@ -2521,10 +2521,16 @@ function procesarParametrosURLPaciente() {
     const estado = estadoElem ? estadoElem.value : '0';
     console.log('Estado seleccionado (directo del DOM):', estado);
 
+    // Obtener sala seleccionada
+    const salaId = $('#selectSalaFiltro').val() || '0';
+
+    // Obtener origen seleccionado
+    const origen = $('#selectOrigenReserva').val() || '0';
+
     // Obtener paciente y asegurar que no sea un string vacío
     const paciente = $('#buscarPacienteReserva').val() ? $('#buscarPacienteReserva').val().trim() : '';
 
-    console.log(`Buscando reservas - Fecha: ${fecha}, Doctor: ${doctorId}, Estado: ${estado}, Paciente: ${paciente}`);
+    console.log(`Buscando reservas - Fecha: ${fecha}, Doctor: ${doctorId}, Estado: ${estado}, Sala: ${salaId}, Origen: ${origen}, Paciente: ${paciente}`);
 
     // Debug para verificar valores
     console.log('Elementos DOM:');
@@ -2557,6 +2563,16 @@ function procesarParametrosURLPaciente() {
         requestData.estado = estado;
     }
 
+    // Añadir sala solo si es diferente de 0 o "0"
+    if (salaId && salaId !== '0') {
+        requestData.sala_id = salaId;
+    }
+
+    // Añadir origen solo si es diferente de 0 o "0"
+    if (origen && origen !== '0') {
+        requestData.origen = origen;
+    }
+
     // Añadir paciente solo si no está vacío
     if (paciente && paciente.trim() !== '') {
         requestData.paciente = paciente;
@@ -2570,7 +2586,7 @@ function procesarParametrosURLPaciente() {
         data: requestData,
         dataType: "json",
         beforeSend: function () {
-            $('#tablaReservas tbody').html('<tr><td colspan="10" class="text-center"><i class="fas fa-spinner fa-spin"></i> Cargando reservas...</td></tr>');
+            $('#tablaReservas tbody').html('<tr><td colspan="11" class="text-center"><i class="fas fa-spinner fa-spin"></i> Cargando reservas...</td></tr>');
         },
         success: function (respuesta) {
             console.log("Respuesta de búsqueda de reservas:", respuesta);
@@ -2634,6 +2650,15 @@ function procesarParametrosURLPaciente() {
                     // Nombre de la sala (si está disponible)
                     const sala = reserva.sala_nombre || 'Sin asignar';
 
+                    // Determinar origen y su badge
+                    const origen = reserva.origen_reserva || 'SISTEMA';
+                    let badgeOrigen = '';
+                    if (origen === 'ONLINE') {
+                        badgeOrigen = '<span class="badge badge-info"><i class="fas fa-globe mr-1"></i>Online</span>';
+                    } else {
+                        badgeOrigen = '<span class="badge badge-secondary"><i class="fas fa-desktop mr-1"></i>Sistema</span>';
+                    }
+
                     filas += `<tr class="${claseFila}">
                         <td>${fechaFormateada}</td>
                         <td>${diaSemana}</td>
@@ -2643,10 +2668,15 @@ function procesarParametrosURLPaciente() {
                         <td>${reserva.serv_descripcion || reserva.nombre_servicio || 'N/A'}</td>
                         <td>${reserva.sala_nombre || 'Sin asignar'}</td>
                         <td>${reserva.serv_monto ? `$${parseFloat(reserva.serv_monto).toFixed(2)}` : 'N/A'}</td>
-                        <td><span class="badge badge-${claseFila.includes('warning') ? 'warning estado-pendiente' :
-                            claseFila.includes('success') ? 'success estado-confirmada' :
-                                claseFila.includes('info') ? 'info estado-completada' :
-                                    claseFila.includes('danger') ? 'danger estado-cancelada' : 'secondary'}">${iconoEstado} ${reserva.reserva_estado}</span></td>                        <td>
+                        <td>
+                            <span class="badge badge-${claseFila.includes('warning') ? 'warning estado-pendiente' :
+                                claseFila.includes('success') ? 'success estado-confirmada' :
+                                    claseFila.includes('info') ? 'info estado-completada' :
+                                        claseFila.includes('danger') ? 'danger estado-cancelada' : 'secondary'}">
+                                ${iconoEstado} ${reserva.reserva_estado}
+                            </span>
+                        </td>
+                        <td>${badgeOrigen}</td>                        <td>
                             <div class="btn-group">
                                 <button class="btn btn-info btn-sm btnVerReserva" data-id="${reserva.reserva_id}" title="Ver detalles">
                                     <i class="fas fa-eye"></i>
@@ -2681,14 +2711,14 @@ function procesarParametrosURLPaciente() {
                 $('#tablaReservas tbody').html(filas);
             } else {
                 // Mostrar mensaje si no hay reservas
-                $('#tablaReservas tbody').html('<tr><td colspan="10" class="text-center">No se encontraron reservas con los filtros seleccionados</td></tr>');
+                $('#tablaReservas tbody').html('<tr><td colspan="11" class="text-center">No se encontraron reservas con los filtros seleccionados</td></tr>');
             }
         },
         error: function (xhr, status, error) {
             console.error("Error al buscar reservas:", error);
 
             // Mostrar mensaje de error
-            $('#tablaReservas tbody').html('<tr><td colspan="10" class="text-center text-danger">Error al cargar reservas: ' + error + '</td></tr>');
+            $('#tablaReservas tbody').html('<tr><td colspan="11" class="text-center text-danger">Error al cargar reservas: ' + error + '</td></tr>');
 
             // Intentar obtener más detalles del error
             try {
@@ -2905,5 +2935,31 @@ $(document).on('click', '.btnEnviarWhatsApp', function() {
                 icon: 'error'
             });
         }
+    });
+
+    // Event listeners para filtros automáticos
+    $(document).on('change', '#selectMedicoReservas', function () {
+        console.log('Filtro de médico cambiado - ejecutando búsqueda automática');
+        buscarReservas();
+    });
+
+    $(document).on('change', '#selectEstadoReserva', function () {
+        console.log('Filtro de estado cambiado - ejecutando búsqueda automática');
+        buscarReservas();
+    });
+
+    $(document).on('change', '#selectSalaFiltro', function () {
+        console.log('Filtro de sala cambiado - ejecutando búsqueda automática');
+        buscarReservas();
+    });
+
+    $(document).on('change', '#selectOrigenReserva', function () {
+        console.log('Filtro de origen cambiado - ejecutando búsqueda automática');
+        buscarReservas();
+    });
+
+    $(document).on('change', '#fechaReservas', function () {
+        console.log('Filtro de fecha cambiado - ejecutando búsqueda automática');
+        buscarReservas();
     });
 });
