@@ -7,6 +7,43 @@
     })
     $('.compose-textarea').summernote()
 
+    // Verificación periódica de sesión
+    function verificarSesion() {
+        $.ajax({
+            url: 'ajax/verificar_sesion.ajax.php',
+            method: 'POST',
+            dataType: 'json',
+            success: function(response) {
+                if (!response.sesion_activa) {
+                    // La sesión ha expirado, redirigir al login
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Sesión Expirada',
+                        text: 'Tu sesión ha expirado. Serás redirigido al login.',
+                        showConfirmButton: false,
+                        timer: 3000
+                    }).then(() => {
+                        window.location.href = '?ruta=login';
+                    });
+                }
+            },
+            error: function() {
+                // En caso de error, asumir que la sesión no es válida
+                console.log('Error al verificar sesión');
+            }
+        });
+    }
+
+    // Verificar sesión cada 5 minutos (300000 ms) solo si estamos en páginas protegidas
+    if (window.location.href.includes('ruta=')) {
+        const ruta = new URLSearchParams(window.location.search).get('ruta');
+        const paginasProtegidas = ['home', 'consultas', 'personas', 'roles', 'perfil', 'rhpersonas', 'preformatos', 'agendas', 'servicios', 'rs_servicios', 'citas', 'profesiones', 'especialidades', 'motivos', 'empresas', 'tipos_proveedores', 'proveedores', 'salas', 'turnos'];
+        
+        if (paginasProtegidas.includes(ruta)) {
+            setInterval(verificarSesion, 300000); // 5 minutos
+        }
+    }
+
   //    // DropzoneJS Demo Code Start
   // Dropzone.autoDiscover = false
 

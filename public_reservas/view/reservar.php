@@ -323,7 +323,7 @@ $(document).ready(function() {
                             Swal.fire({
                                 icon: 'success',
                                 title: '¡Reserva creada!',
-                                text: response.mensaje + '. Su código de seguimiento es: ' + response.codigo,
+                                text: response.mensaje + '. Su código de seguimiento es: ' + response.codigo + '. Se ha enviado un email con el resumen y detalles de su reserva.',
                                 confirmButtonText: 'Continuar'
                             }).then(() => {
                                 // Redirigir a la página de consulta

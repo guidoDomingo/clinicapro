@@ -29,7 +29,7 @@ function initDatePicker() {
     if ($('.datepicker').length > 0) {
         $('.datepicker').datepicker({
             format: 'yyyy-mm-dd',
-            startDate: '+1d', // A partir de mañana
+            startDate: '+0d', // A partir de hoy
             endDate: '+30d', // Hasta 30 días en el futuro
             autoclose: true,
             todayHighlight: true,
@@ -312,7 +312,10 @@ function updateResumenReserva() {
         
         // Datos de la cita
         if (fecha) {
-            const fechaFormateada = new Date(fecha).toLocaleDateString('es-ES', {
+            // Crear fecha de forma más robusta para evitar problemas de zona horaria
+            const fechaParts = fecha.split('-');
+            const fechaObj = new Date(fechaParts[0], fechaParts[1] - 1, fechaParts[2]);
+            const fechaFormateada = fechaObj.toLocaleDateString('es-ES', {
                 weekday: 'long',
                 year: 'numeric',
                 month: 'long',

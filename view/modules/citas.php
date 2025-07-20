@@ -28,8 +28,6 @@ if (!isset($_SESSION['perfil'])) {
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item"><a href="inicio">Inicio</a></li>
                         <li class="breadcrumb-item active">Servicios Médicos</li>
-                        <li class="breadcrumb-item"><a href="crear_tabla_reservas_ui.php" target="_blank" class="text-danger">Crear Tablas Reservas</a></li>
-                        <li class="breadcrumb-item"><a href="test_reserva.php" target="_blank">Probar Reservas</a></li>
                         <li class="breadcrumb-item"><a href="diagnostico_agenda_medico.php" target="_blank" class="text-primary"><i class="fas fa-stethoscope"></i> Diagnóstico</a></li>
                     </ol>
                 </div>

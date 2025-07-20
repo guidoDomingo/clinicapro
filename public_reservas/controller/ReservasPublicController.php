@@ -461,20 +461,20 @@ class ReservasPublicController {
                     
                     // Obtener detalles del médico para el correo
                     $medicos = self::ctrObtenerMedicosDisponibles($_POST['fecha_reserva']);
-                    $nombreMedico = 'Médico Asignado'; // Valor por defecto
+                    $nombreMedico = ''; // Valor por defecto vacío
                     foreach ($medicos as $medico) {
-                        if ($medico['doctor_id'] == $datosReserva['doctor_id']) {
-                            $nombreMedico = $medico['nombre'];
+                        if (isset($medico['doctor_id']) && $medico['doctor_id'] == $datosReserva['doctor_id']) {
+                            $nombreMedico = isset($medico['nombre_doctor']) ? $medico['nombre_doctor'] : 'Médico Asignado';
                             break;
                         }
                     }
                     
                     // Obtener detalles del servicio para el correo
                     $servicios = self::ctrObtenerServicios();
-                    $nombreServicio = 'Servicio Reservado'; // Valor por defecto
+                    $nombreServicio = ''; // Valor por defecto vacío
                     foreach ($servicios as $servicio) {
-                        if ($servicio['serv_id'] == $datosReserva['servicio_id']) {
-                            $nombreServicio = $servicio['serv_descripcion'];
+                        if (isset($servicio['serv_id']) && $servicio['serv_id'] == $datosReserva['servicio_id']) {
+                            $nombreServicio = isset($servicio['serv_descripcion']) ? $servicio['serv_descripcion'] : 'Servicio Solicitado';
                             break;
                         }
                     }
@@ -553,12 +553,13 @@ class ReservasPublicController {
         <head>
             <title>Confirmación de Reserva</title>
             <style>
-                body { font-family: Arial, sans-serif; line-height: 1.6; }
-                .container { max-width: 600px; margin: 0 auto; border: 1px solid #ddd; padding: 20px; }
-                .header { background-color: #3498db; color: white; padding: 10px; text-align: center; }
+                body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                .container { max-width: 600px; margin: 0 auto; border: 1px solid #ddd; padding: 20px; border-radius: 8px; }
+                .header { background-color: #3498db; color: white; padding: 15px; text-align: center; border-radius: 8px 8px 0 0; }
                 .content { padding: 20px; }
-                .code { background: #f8f9fa; padding: 10px; font-size: 18px; font-weight: bold; text-align: center; margin: 20px 0; letter-spacing: 5px; }
-                .footer { background-color: #f8f9fa; padding: 10px; text-align: center; font-size: 12px; }
+                .details { background: #f8f9fa; padding: 15px; margin: 15px 0; border-left: 4px solid #3498db; }
+                .footer { background-color: #f8f9fa; padding: 15px; text-align: center; font-size: 12px; border-radius: 0 0 8px 8px; }
+                .highlight { color: #3498db; font-weight: bold; }
             </style>
         </head>
         <body>
@@ -568,34 +569,35 @@ class ReservasPublicController {
                 </div>
                 <div class='content'>
                     <p>Estimado/a <b>$nombrePaciente</b>,</p>
-                    <p>Su cita ha sido reservada correctamente con los siguientes detalles:</p>
+                    <p>Su cita ha sido <span class='highlight'>reservada exitosamente</span>. A continuación encontrará el resumen de su reserva:</p>
+                    
+                    <div class='details'>
+                        <h3>Detalles de su Reserva</h3>
+                        <ul style='list-style: none; padding: 0;'>
+                            <li><b>📋 Código de seguimiento:</b> $codigoSeguimiento</li>
+                            <li><b>📅 Fecha:</b> $fechaFormato</li>
+                            <li><b>⏰ Horario:</b> $horario</li>";
+                        
+        if (!empty($nombreMedico)) {
+            $mensaje .= "<li><b>👨‍⚕️ Médico:</b> $nombreMedico</li>";
+        }
+        
+        if (!empty($nombreServicio)) {
+            $mensaje .= "<li><b>🏥 Servicio:</b> $nombreServicio</li>";
+        }
+                        
+        $mensaje .= "
+                        </ul>
+                    </div>
+                    
+                    <p><strong>¿Qué sigue ahora?</strong></p>
                     <ul>
-                        <li><b>Código de seguimiento:</b> $codigoSeguimiento</li>
-                        <li><b>Fecha:</b> $fechaFormato</li>
-                        <li><b>Horario:</b> $horario</li>";
-                        
-        if ($nombreMedico) {
-            $mensaje .= "<li><b>Médico:</b> $nombreMedico</li>";
-        }
-        
-        if ($nombreServicio) {
-            $mensaje .= "<li><b>Servicio:</b> $nombreServicio</li>";
-        }
-                        
-        $mensaje .= "
-                    </ul>";
-        
-        // Solo mostrar el código de verificación si se proporcionó uno
-        if (!empty($codigoVerificacion)) {
-            $mensaje .= "
-                    <p>Para confirmar su cita, utilice el siguiente código de verificación:</p>
-                    <div class='code'>$codigoVerificacion</div>";
-        }
-        
-        $mensaje .= "
-                    <p>Puede verificar el estado de su reserva en cualquier momento ingresando a nuestro sistema con su código de seguimiento.</p>
-                    <p>Si tiene alguna pregunta o necesita reprogramar su cita, por favor contáctenos lo antes posible.</p>
-                    <p>¡Gracias por confiar en nosotros!</p>
+                        <li>Puede consultar el estado de su reserva en cualquier momento usando su código de seguimiento</li>
+                        <li>Recibirá notificaciones sobre cualquier cambio en su cita</li>
+                        <li>Si necesita reprogramar o cancelar, contáctenos lo antes posible</li>
+                    </ul>
+                    
+                    <p>¡Gracias por confiar en nosotros para su atención médica!</p>
                 </div>
                 <div class='footer'>
                     <p>© " . date('Y') . " Clínica. Todos los derechos reservados.</p>
@@ -626,10 +628,13 @@ class ReservasPublicController {
                 $mail->isSMTP();
                 $mail->Host = 'sandbox.smtp.mailtrap.io';
                 $mail->SMTPAuth = true;
-                $mail->Username = '3ae65edb6ed0c8';
-                $mail->Password = 'baa78e4b56a1e6';
+                $mail->Username = '403823a30f75f1'; // Mailtrap username actualizado
+                $mail->Password = 'dd01ed75f12dbf'; // Mailtrap password actualizado
                 $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
                 $mail->Port = 2525;
+                
+                // Deshabilitar debug para producción
+                $mail->SMTPDebug = 0;
                 
                 error_log("enviarEmailConfirmacion: SMTP configurado, preparando mensaje...", 3, "c:/laragon/www/clinica/logs/public_reservas.log");
                 

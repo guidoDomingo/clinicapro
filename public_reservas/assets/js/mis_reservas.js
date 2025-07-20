@@ -68,7 +68,7 @@ function cargarReservasPaciente() {
                     // Añadir a la lista correspondiente según estado
                     if (reserva.reserva_estado === 'PENDIENTE') {
                         reservasPendientes.push(reservaCard);
-                    } else if (reserva.reserva_estado === 'COMPLETADA' || reserva.reserva_estado === 'ATENDIDA') {
+                    } else if (reserva.reserva_estado === 'COMPLETADA' || reserva.reserva_estado === 'ATENDIDA' || reserva.reserva_estado === 'CONFIRMADA') {
                         reservasCompletadas.push(reservaCard);
                     } else if (reserva.reserva_estado === 'CANCELADA') {
                         reservasCanceladas.push(reservaCard);
@@ -142,12 +142,37 @@ function crearReservaCard(reserva) {
     
     // Configurar el estado y el badge
     const estadoBadge = card.querySelector('.estado-badge');
-    estadoBadge.textContent = reserva.reserva_estado;
+    
+    // Mapear estados a textos más amigables
+    let textoEstado = reserva.reserva_estado;
+    switch (reserva.reserva_estado) {
+        case 'PENDIENTE':
+            textoEstado = 'Pendiente';
+            break;
+        case 'CONFIRMADA':
+            textoEstado = 'Confirmada';
+            break;
+        case 'COMPLETADA':
+            textoEstado = 'Completada';
+            break;
+        case 'ATENDIDA':
+            textoEstado = 'Atendida';
+            break;
+        case 'CANCELADA':
+            textoEstado = 'Cancelada';
+            break;
+    }
+    
+    estadoBadge.textContent = textoEstado;
     
     if (reserva.reserva_estado === 'PENDIENTE') {
         estadoBadge.classList.add('badge', 'badge-warning');
-    } else if (reserva.reserva_estado === 'COMPLETADA' || reserva.reserva_estado === 'ATENDIDA') {
+    } else if (reserva.reserva_estado === 'CONFIRMADA') {
         estadoBadge.classList.add('badge', 'badge-success');
+        // Añadir clase especial para reservas confirmadas
+        card.classList.add('confirmada');
+    } else if (reserva.reserva_estado === 'COMPLETADA' || reserva.reserva_estado === 'ATENDIDA') {
+        estadoBadge.classList.add('badge', 'badge-primary');
     } else if (reserva.reserva_estado === 'CANCELADA') {
         estadoBadge.classList.add('badge', 'badge-danger');
         card.classList.add('bg-light');

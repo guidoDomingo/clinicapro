@@ -126,4 +126,31 @@ if (!AuthController::isAuthenticated()) {
 .reserva-card.bg-light {
     opacity: 0.8;
 }
+
+/* Estilos especiales para reservas confirmadas */
+.reserva-card.confirmada {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-left: 4px solid #28a745 !important;
+    box-shadow: 0 2px 4px rgba(40, 167, 69, 0.1);
+}
+
+.reserva-card.confirmada .card-header {
+    background-color: rgba(40, 167, 69, 0.1);
+    border-bottom: 1px solid rgba(40, 167, 69, 0.2);
+}
+
+.reserva-card.confirmada:hover {
+    box-shadow: 0 4px 8px rgba(40, 167, 69, 0.2);
+}
+
+/* Animación para resaltar reservas confirmadas */
+@keyframes confirmada-pulse {
+    0% { box-shadow: 0 2px 4px rgba(40, 167, 69, 0.1); }
+    50% { box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3); }
+    100% { box-shadow: 0 2px 4px rgba(40, 167, 69, 0.1); }
+}
+
+.reserva-card.confirmada {
+    animation: confirmada-pulse 2s infinite;
+}
 </style>

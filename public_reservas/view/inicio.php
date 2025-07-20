@@ -268,8 +268,8 @@ $seguros = ReservasPublicController::ctrObtenerSeguros();
                 html: `
                     <p><?php echo $resultadoReserva['mensaje']; ?></p>
                     <p>Código de seguimiento: <strong><?php echo $resultadoReserva['codigo']; ?></strong></p>
-                    <p>Se ha enviado un email a <strong><?php echo $resultadoReserva['email']; ?></strong> con los detalles de su reserva y un código de verificación.</p>
-                    <p>Por favor, verifique su reserva para confirmarla.</p>
+                    <p>Se ha enviado un email a <strong><?php echo $resultadoReserva['email']; ?></strong> con el resumen y detalles de su reserva.</p>
+                    <p>Puede consultar el estado de su reserva en cualquier momento usando su código de seguimiento.</p>
                 `,
                 confirmButtonText: 'Entendido'
             }).then((result) => {

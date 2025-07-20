@@ -785,4 +785,199 @@ LINE 12:                     reservas_pacientes_auth pa ON p.person_i...
 LINE 12:                     reservas_pacientes_auth pa ON p.person_i...
                              ^mdlObtenerPacientePorId: Error al buscar paciente: SQLSTATE[42P01]: Undefined table: 7 ERROR:  relation "reservas_pacientes_auth" does not exist
 LINE 12:                     reservas_pacientes_auth pa ON p.person_i...
+                             ^POST data: {"action":"login","email":"celso@celso.com","password":"******","rememberMe":"off"}ctrLoginUser: Función llamada. POST: {"action":"login","email":"celso@celso.com","password":"guido123","rememberMe":"off"}ctrLoginUser: Iniciando login para email: celso@celso.commdlVerificarUsuario: Verificando usuario con email celso@celso.commdlVerificarUsuario: Contraseña correcta para usuario ID 74ctrLoginUser: Resultado verificación usuario: {"error":false,"paciente_id":"74","person_id":86,"email":"celso@celso.com","nombre":"celso venegas"}ctrLoginUser: Sesión iniciada para usuario ID: 74ctrLoginUser: Login exitoso: {"error":false,"mensaje":"\u00a1Bienvenido\/a, celso venegas!","redirect":"index.php?accion=reservar"}Resultado de login en index.php: {"error":false,"mensaje":"\u00a1Bienvenido\/a, celso venegas!","redirect":"index.php?accion=reservar"}mdlObtenerPacientePorId: Error al buscar paciente: SQLSTATE[42P01]: Undefined table: 7 ERROR:  relation "reservas_pacientes_auth" does not exist
+LINE 12:                     reservas_pacientes_auth pa ON p.person_i...
+                             ^mdlObtenerPacientePorId: Error al buscar paciente: SQLSTATE[42P01]: Undefined table: 7 ERROR:  relation "reservas_pacientes_auth" does not exist
+LINE 12:                     reservas_pacientes_auth pa ON p.person_i...
+                             ^mdlObtenerPacientePorId: Error al buscar paciente: SQLSTATE[42P01]: Undefined table: 7 ERROR:  relation "reservas_pacientes_auth" does not exist
+LINE 12:                     reservas_pacientes_auth pa ON p.person_i...
+                             ^mdlObtenerPacientePorId: Error al buscar paciente: SQLSTATE[42P01]: Undefined table: 7 ERROR:  relation "reservas_pacientes_auth" does not exist
+LINE 12:                     reservas_pacientes_auth pa ON p.person_i...
+                             ^mdlObtenerPacienteDesdeUsuario: Buscando perfil de usuario con ID 74mdlObtenerPacienteDesdeUsuario: Perfil encontrado para person_id: 86mdlObtenerPacienteDesdeUsuario: Datos completos: {"person_id":86,"document_number":"5004617","birth_date":"1995-08-04","first_name":"celso","last_name":"venegas","phone_number":"0982313358","gender":"M","record_number":null,"address":"madrid","email":"celso@celso.com","department_id":null,"city_id":null,"is_minor":false,"guardian_name":null,"guardian_document":null,"created_at":"2025-07-19 15:03:57.815436-04","registered_by":null,"modified_by":null,"last_modified_at":"2025-07-19 15:17:18.09067-04","last_accessed_at":null,"owner_id":null,"is_active":true,"business_id":null,"profile_photo":null}POST data: {"action":"verificar_documento","documento":"5004615"}mdlVerificarDocumentoExistente: Verificando si el documento 5004615 ya está registradomdlVerificarDocumentoExistente: Documento ya existe: síPOST data: {"action":"verificar_documento","documento":"5004618"}mdlVerificarDocumentoExistente: Verificando si el documento 5004618 ya está registradomdlVerificarDocumentoExistente: Documento ya existe: noPOST data: {"action":"verificar_email","email":"pablo@"}mdlVerificarEmailExistente: Verificando si el email pablo@ ya está registradomdlVerificarEmailExistente: Email ya existe: noPOST data: {"action":"verificar_email","email":"pablo@pa"}mdlVerificarEmailExistente: Verificando si el email pablo@pa ya está registradomdlVerificarEmailExistente: Email ya existe: noPOST data: {"action":"verificar_email","email":"pablo@pablo"}mdlVerificarEmailExistente: Verificando si el email pablo@pablo ya está registradomdlVerificarEmailExistente: Email ya existe: noPOST data: {"action":"verificar_email","email":"pablo@pablo.com"}mdlVerificarEmailExistente: Verificando si el email pablo@pablo.com ya está registradomdlVerificarEmailExistente: Email ya existe: noPOST data: {"action":"verificar_email","email":"pablo@pablo.com"}mdlVerificarEmailExistente: Verificando si el email pablo@pablo.com ya está registradomdlVerificarEmailExistente: Email ya existe: noPOST data: {"action":"verificar_documento","documento":"5004618"}mdlVerificarDocumentoExistente: Verificando si el documento 5004618 ya está registradomdlVerificarDocumentoExistente: Documento ya existe: noPOST data: {"action":"register","regName":"pablo","regLastName":"tarso","regEmail":"pablo@pablo.com","regDoc":"5004618","regTel":"0982313358","regBdate":"1995-08-04","acceptTerms":"on"}ctrRegisterUser: Función llamada. POST: {"action":"register","regName":"pablo","regLastName":"tarso","regEmail":"pablo@pablo.com","regDoc":"5004618","regTel":"0982313358","regBdate":"1995-08-04","acceptTerms":"on"}ctrRegisterUser: Datos del usuario procesados: {"nombre":"pablo","apellido":"tarso","email":"pablo@pablo.com","documento":"5004618","telefono":"0982313358"}mdlVerificarEmailExistente: Verificando si el email pablo@pablo.com ya está registradomdlVerificarEmailExistente: Email ya existe: nomdlVerificarDocumentoExistente: Verificando si el documento 5004618 ya está registradomdlVerificarDocumentoExistente: Documento ya existe: nomdlRegistrarUsuario: Registrando nuevo usuario con email pablo@pablo.commdlRegistrarUsuario: Registro exitoso para usuario con ID 75ctrRegisterUser: Resultado del registro: {"error":false,"paciente_id":"75","person_id":"88","mensaje":"Usuario registrado con \u00e9xito"}enviarCredencialesPorCorreo: Iniciando envío de email a: pablo@pablo.comenviarCredencialesPorCorreo: Configuración SMTP establecidaenviarCredencialesPorCorreo: Intentando enviar email...PHPMailer Debug: SERVER -> CLIENT: 220 smtp.mailtrap.io ESMTP ready
+PHPMailer Debug: CLIENT -> SERVER: EHLO clinica.test
+PHPMailer Debug: SERVER -> CLIENT: 250-smtp.mailtrap.io
+250-SIZE 5242880
+250-PIPELINING
+250-ENHANCEDSTATUSCODES
+250-8BITMIME
+250-DSN
+250-AUTH PLAIN LOGIN CRAM-MD5
+250 STARTTLS
+PHPMailer Debug: CLIENT -> SERVER: STARTTLS
+PHPMailer Debug: SERVER -> CLIENT: 220 2.0.0 Start TLS
+PHPMailer Debug: CLIENT -> SERVER: EHLO clinica.test
+PHPMailer Debug: SERVER -> CLIENT: 250-smtp.mailtrap.io
+250-SIZE 5242880
+250-PIPELINING
+250-ENHANCEDSTATUSCODES
+250-8BITMIME
+250-DSN
+250 AUTH PLAIN LOGIN CRAM-MD5
+PHPMailer Debug: CLIENT -> SERVER: AUTH CRAM-MD5
+PHPMailer Debug: SERVER -> CLIENT: 334 PDE1MTA3MzE1NzEuMTc1MzAzMzg5MUBzbXRwLm1haWx0cmFwLmlvPg==
+PHPMailer Debug: CLIENT -> SERVER: [credentials hidden]PHPMailer Debug: SERVER -> CLIENT: 235 2.0.0 OK
+PHPMailer Debug: CLIENT -> SERVER: MAIL FROM:<noreply@miclinica.com>
+PHPMailer Debug: SERVER -> CLIENT: 250 2.1.0 Ok
+PHPMailer Debug: CLIENT -> SERVER: RCPT TO:<pablo@pablo.com>
+PHPMailer Debug: SERVER -> CLIENT: 250 2.1.0 Ok
+PHPMailer Debug: CLIENT -> SERVER: DATA
+PHPMailer Debug: SERVER -> CLIENT: 354 Go ahead
+PHPMailer Debug: CLIENT -> SERVER: Date: Sun, 20 Jul 2025 17:51:31 +0000
+PHPMailer Debug: CLIENT -> SERVER: To: pablo tarso <pablo@pablo.com>
+PHPMailer Debug: CLIENT -> SERVER: From: MiClinica - Sistema de Reservas <noreply@miclinica.com>
+PHPMailer Debug: CLIENT -> SERVER: Subject: =?UTF-8?Q?=C2=A1Bienvenido_a_MiClinica!_-_Sus_credenciales_de_acceso?=
+PHPMailer Debug: CLIENT -> SERVER: Message-ID: <ZFkbyUhQsrs0cAYFjYlJcvvjUTBJHC6PS1NDMQs@clinica.test>
+PHPMailer Debug: CLIENT -> SERVER: X-Mailer: PHPMailer 6.10.0 (https://github.com/PHPMailer/PHPMailer)
+PHPMailer Debug: CLIENT -> SERVER: MIME-Version: 1.0
+PHPMailer Debug: CLIENT -> SERVER: Content-Type: multipart/alternative;
+PHPMailer Debug: CLIENT -> SERVER:  boundary="b1=_ZFkbyUhQsrs0cAYFjYlJcvvjUTBJHC6PS1NDMQs"
+PHPMailer Debug: CLIENT -> SERVER: Content-Transfer-Encoding: 8bit
+PHPMailer Debug: CLIENT -> SERVER: 
+PHPMailer Debug: CLIENT -> SERVER: --b1=_ZFkbyUhQsrs0cAYFjYlJcvvjUTBJHC6PS1NDMQs
+PHPMailer Debug: CLIENT -> SERVER: Content-Type: text/plain; charset=UTF-8
+PHPMailer Debug: CLIENT -> SERVER: Content-Transfer-Encoding: 8bit
+PHPMailer Debug: CLIENT -> SERVER: 
+PHPMailer Debug: CLIENT -> SERVER: 
+PHPMailer Debug: CLIENT -> SERVER: Bienvenido/a a MiClinica, pablo tarso!
+PHPMailer Debug: CLIENT -> SERVER: 
+PHPMailer Debug: CLIENT -> SERVER: Sus credenciales de acceso son:
+PHPMailer Debug: CLIENT -> SERVER: - Usuario: pablo@pablo.com
+PHPMailer Debug: CLIENT -> SERVER: - Contraseña temporal: PxpttNV7
+PHPMailer Debug: CLIENT -> SERVER: 
+PHPMailer Debug: CLIENT -> SERVER: Para iniciar sesión, vaya a: http://localhost/clinica/public_reservas
+PHPMailer Debug: CLIENT -> SERVER: 
+PHPMailer Debug: CLIENT -> SERVER: Use su email como usuario y la contraseña temporal proporcionada.
+PHPMailer Debug: CLIENT -> SERVER: Por seguridad, le recomendamos cambiar su contraseña después del primer inicio de sesión.
+PHPMailer Debug: CLIENT -> SERVER: 
+PHPMailer Debug: CLIENT -> SERVER: Saludos cordiales,
+PHPMailer Debug: CLIENT -> SERVER: Equipo de MiClinica
+PHPMailer Debug: CLIENT -> SERVER: 
+PHPMailer Debug: CLIENT -> SERVER: --b1=_ZFkbyUhQsrs0cAYFjYlJcvvjUTBJHC6PS1NDMQs
+PHPMailer Debug: CLIENT -> SERVER: Content-Type: text/html; charset=UTF-8
+PHPMailer Debug: CLIENT -> SERVER: Content-Transfer-Encoding: 8bit
+PHPMailer Debug: CLIENT -> SERVER: 
+PHPMailer Debug: CLIENT -> SERVER: <!DOCTYPE html>
+PHPMailer Debug: CLIENT -> SERVER: <html lang="es">
+PHPMailer Debug: CLIENT -> SERVER: <head>
+PHPMailer Debug: CLIENT -> SERVER:     <meta charset="UTF-8">
+PHPMailer Debug: CLIENT -> SERVER:     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+PHPMailer Debug: CLIENT -> SERVER:     <title>Bienvenido a Clínica</title>
+PHPMailer Debug: CLIENT -> SERVER:     <style>
+PHPMailer Debug: CLIENT -> SERVER:         body {
+PHPMailer Debug: CLIENT -> SERVER:             font-family: Arial, Helvetica, sans-serif;
+PHPMailer Debug: CLIENT -> SERVER:             line-height: 1.6;
+PHPMailer Debug: CLIENT -> SERVER:             color: #333;
+PHPMailer Debug: CLIENT -> SERVER:             margin: 0;
+PHPMailer Debug: CLIENT -> SERVER:             padding: 0;
+PHPMailer Debug: CLIENT -> SERVER:         }
+PHPMailer Debug: CLIENT -> SERVER:         .container {
+PHPMailer Debug: CLIENT -> SERVER:             max-width: 600px;
+PHPMailer Debug: CLIENT -> SERVER:             margin: 0 auto;
+PHPMailer Debug: CLIENT -> SERVER:             padding: 20px;
+PHPMailer Debug: CLIENT -> SERVER:         }
+PHPMailer Debug: CLIENT -> SERVER:         .header {
+PHPMailer Debug: CLIENT -> SERVER:             background-color: #4CAF50;
+PHPMailer Debug: CLIENT -> SERVER:             color: white;
+PHPMailer Debug: CLIENT -> SERVER:             text-align: center;
+PHPMailer Debug: CLIENT -> SERVER:             padding: 15px;
+PHPMailer Debug: CLIENT -> SERVER:             border-radius: 5px 5px 0 0;
+PHPMailer Debug: CLIENT -> SERVER:         }
+PHPMailer Debug: CLIENT -> SERVER:         .content {
+PHPMailer Debug: CLIENT -> SERVER:             background-color: #f9f9f9;
+PHPMailer Debug: CLIENT -> SERVER:             padding: 20px;
+PHPMailer Debug: CLIENT -> SERVER:             border-radius: 0 0 5px 5px;
+PHPMailer Debug: CLIENT -> SERVER:         }
+PHPMailer Debug: CLIENT -> SERVER:         .footer {
+PHPMailer Debug: CLIENT -> SERVER:             text-align: center;
+PHPMailer Debug: CLIENT -> SERVER:             margin-top: 20px;
+PHPMailer Debug: CLIENT -> SERVER:             font-size: 12px;
+PHPMailer Debug: CLIENT -> SERVER:             color: #777;
+PHPMailer Debug: CLIENT -> SERVER:         }
+PHPMailer Debug: CLIENT -> SERVER:         .button {
+PHPMailer Debug: CLIENT -> SERVER:             display: inline-block;
+PHPMailer Debug: CLIENT -> SERVER:             background-color: #4CAF50;
+PHPMailer Debug: CLIENT -> SERVER:             color: white;
+PHPMailer Debug: CLIENT -> SERVER:             text-decoration: none;
+PHPMailer Debug: CLIENT -> SERVER:             padding: 10px 20px;
+PHPMailer Debug: CLIENT -> SERVER:             border-radius: 5px;
+PHPMailer Debug: CLIENT -> SERVER:             margin-top: 20px;
+PHPMailer Debug: CLIENT -> SERVER:         }
+PHPMailer Debug: CLIENT -> SERVER:         .credentials {
+PHPMailer Debug: CLIENT -> SERVER:             background-color: #eee;
+PHPMailer Debug: CLIENT -> SERVER:             padding: 10px;
+PHPMailer Debug: CLIENT -> SERVER:             margin: 15px 0;
+PHPMailer Debug: CLIENT -> SERVER:             border-radius: 5px;
+PHPMailer Debug: CLIENT -> SERVER:             border-left: 4px solid #4CAF50;
+PHPMailer Debug: CLIENT -> SERVER:         }
+PHPMailer Debug: CLIENT -> SERVER:     </style>
+PHPMailer Debug: CLIENT -> SERVER: </head>
+PHPMailer Debug: CLIENT -> SERVER: <body>
+PHPMailer Debug: CLIENT -> SERVER:     <div class="container">
+PHPMailer Debug: CLIENT -> SERVER:         <div class="header">
+PHPMailer Debug: CLIENT -> SERVER:             <h1>¡Bienvenido a Clínica!</h1>
+PHPMailer Debug: CLIENT -> SERVER:         </div>
+PHPMailer Debug: CLIENT -> SERVER:         <div class="content">
+PHPMailer Debug: CLIENT -> SERVER:             <p>Estimado/a <strong>pablo tarso</strong>,</p>
+PHPMailer Debug: CLIENT -> SERVER:             
+PHPMailer Debug: CLIENT -> SERVER:             <p>¡Gracias por registrarte en nuestro sistema de Clínica! Estamos encantados de tenerte como parte de nuestra comunidad.</p>
+PHPMailer Debug: CLIENT -> SERVER:             
+PHPMailer Debug: CLIENT -> SERVER:             <p>A continuación, encontrarás tus credenciales de acceso:</p>
+PHPMailer Debug: CLIENT -> SERVER:             
+PHPMailer Debug: CLIENT -> SERVER:             <div class="credentials">
+PHPMailer Debug: CLIENT -> SERVER:                 <p><strong>Usuario:</strong> pablo@pablo.com</p>
+PHPMailer Debug: CLIENT -> SERVER:                 <p><strong>Contraseña:</strong> PxpttNV7</p>
+PHPMailer Debug: CLIENT -> SERVER:             </div>
+PHPMailer Debug: CLIENT -> SERVER:             
+PHPMailer Debug: CLIENT -> SERVER:             <p>Para acceder al sistema, por favor haz clic en el siguiente enlace:</p>
+PHPMailer Debug: CLIENT -> SERVER:             
+PHPMailer Debug: CLIENT -> SERVER:             <a href="http://localhost/clinica/public_reservas" class="button">Iniciar Sesión</a>
+PHPMailer Debug: CLIENT -> SERVER:             
+PHPMailer Debug: CLIENT -> SERVER:             <p>Por razones de seguridad, te recomendamos cambiar tu contraseña después del primer inicio de sesión.</p>
+PHPMailer Debug: CLIENT -> SERVER:             
+PHPMailer Debug: CLIENT -> SERVER:             <p>Si tienes alguna pregunta o necesitas ayuda, no dudes en contactarnos.</p>
+PHPMailer Debug: CLIENT -> SERVER:             
+PHPMailer Debug: CLIENT -> SERVER:             <p>¡Saludos cordiales!</p>
+PHPMailer Debug: CLIENT -> SERVER:             <p><strong>El equipo de Clínica</strong></p>
+PHPMailer Debug: CLIENT -> SERVER:         </div>
+PHPMailer Debug: CLIENT -> SERVER:         <div class="footer">
+PHPMailer Debug: CLIENT -> SERVER:             <p>Este es un correo electrónico automático. Por favor, no responder a este mensaje.</p>
+PHPMailer Debug: CLIENT -> SERVER:             <p>&copy; 2025 Clínica. Todos los derechos reservados.</p>
+PHPMailer Debug: CLIENT -> SERVER:         </div>
+PHPMailer Debug: CLIENT -> SERVER:     </div>
+PHPMailer Debug: CLIENT -> SERVER: </body>
+PHPMailer Debug: CLIENT -> SERVER: </html>
+PHPMailer Debug: CLIENT -> SERVER: 
+PHPMailer Debug: CLIENT -> SERVER: 
+PHPMailer Debug: CLIENT -> SERVER: --b1=_ZFkbyUhQsrs0cAYFjYlJcvvjUTBJHC6PS1NDMQs--
+PHPMailer Debug: CLIENT -> SERVER: 
+PHPMailer Debug: CLIENT -> SERVER: .
+PHPMailer Debug: SERVER -> CLIENT: 250 2.0.0 Ok: queued
+PHPMailer Debug: CLIENT -> SERVER: QUIT
+PHPMailer Debug: SERVER -> CLIENT: 221 2.0.0 Bye
+✅ Correo enviado exitosamente a: pablo@pablo.com con contraseña: PxpttNV7ctrRegisterUser: Credenciales enviadas por correo a: pablo@pablo.comctrRegisterUser: Registro exitoso para: pablo@pablo.com. Usuario debe hacer login manual.ctrRegisterUser: Registro exitoso sin inicio de sesión automático: {"error":false,"mensaje":"\u00a1Registro exitoso! Hemos enviado sus credenciales de acceso a pablo@pablo.com. Por favor, revise su correo e inicie sesi\u00f3n.","email_sent":true,"redirect_to_login":true}Resultado de registro en index.php: {"error":false,"mensaje":"\u00a1Registro exitoso! Hemos enviado sus credenciales de acceso a pablo@pablo.com. Por favor, revise su correo e inicie sesi\u00f3n.","email_sent":true,"redirect_to_login":true}POST data: {"action":"login","email":"pablo@pablo.com","password":"******","rememberMe":"on"}ctrLoginUser: Función llamada. POST: {"action":"login","email":"pablo@pablo.com","password":"PxpttNV7","rememberMe":"on"}ctrLoginUser: Iniciando login para email: pablo@pablo.commdlVerificarUsuario: Verificando usuario con email pablo@pablo.commdlVerificarUsuario: Contraseña correcta para usuario ID 75ctrLoginUser: Resultado verificación usuario: {"error":false,"paciente_id":"75","person_id":88,"email":"pablo@pablo.com","nombre":"pablo tarso"}ctrLoginUser: Sesión iniciada para usuario ID: 75mdlGuardarToken: Guardando token para paciente ID 75mdlEliminarToken: Eliminando token para paciente ID 75mdlEliminarToken: Error al eliminar token: SQLSTATE[42P01]: Undefined table: 7 ERROR:  relation "reservas_auth_tokens" does not exist
+LINE 1: DELETE FROM reservas_auth_tokens WHERE paciente_id = $1
+                    ^mdlGuardarToken: Error al guardar token: SQLSTATE[42P01]: Undefined table: 7 ERROR:  relation "reservas_auth_tokens" does not exist
+LINE 1: INSERT INTO reservas_auth_tokens 
+                    ^ctrLoginUser: Token guardado: noctrLoginUser: Login exitoso: {"error":false,"mensaje":"\u00a1Bienvenido\/a, pablo tarso!","redirect":"index.php?accion=reservar"}Resultado de login en index.php: {"error":false,"mensaje":"\u00a1Bienvenido\/a, pablo tarso!","redirect":"index.php?accion=reservar"}mdlObtenerPacientePorId: Error al buscar paciente: SQLSTATE[42P01]: Undefined table: 7 ERROR:  relation "reservas_pacientes_auth" does not exist
+LINE 12:                     reservas_pacientes_auth pa ON p.person_i...
+                             ^mdlObtenerPacienteDesdeUsuario: Buscando perfil de usuario con ID 75mdlObtenerPacienteDesdeUsuario: Perfil encontrado para person_id: 88mdlObtenerPacienteDesdeUsuario: Datos completos: {"person_id":88,"document_number":"5004618","birth_date":"1995-08-04","first_name":"pablo","last_name":"tarso","phone_number":"0982313358","gender":null,"record_number":null,"address":null,"email":"pablo@pablo.com","department_id":null,"city_id":null,"is_minor":false,"guardian_name":null,"guardian_document":null,"created_at":"2025-07-20 13:51:31.722228-04","registered_by":null,"modified_by":null,"last_modified_at":null,"last_accessed_at":null,"owner_id":null,"is_active":true,"business_id":null,"profile_photo":null}mdlObtenerPacientePorId: Error al buscar paciente: SQLSTATE[42P01]: Undefined table: 7 ERROR:  relation "reservas_pacientes_auth" does not exist
+LINE 12:                     reservas_pacientes_auth pa ON p.person_i...
+                             ^POST data: {"action":"login","email":"pablo@pablo.com","password":"******","rememberMe":"off"}ctrLoginUser: Función llamada. POST: {"action":"login","email":"pablo@pablo.com","password":"pablo123","rememberMe":"off"}ctrLoginUser: Iniciando login para email: pablo@pablo.commdlVerificarUsuario: Verificando usuario con email pablo@pablo.commdlVerificarUsuario: Contraseña correcta para usuario ID 75ctrLoginUser: Resultado verificación usuario: {"error":false,"paciente_id":"75","person_id":88,"email":"pablo@pablo.com","nombre":"pablo tarso"}ctrLoginUser: Sesión iniciada para usuario ID: 75ctrLoginUser: Login exitoso: {"error":false,"mensaje":"\u00a1Bienvenido\/a, pablo tarso!","redirect":"index.php?accion=reservar"}Resultado de login en index.php: {"error":false,"mensaje":"\u00a1Bienvenido\/a, pablo tarso!","redirect":"index.php?accion=reservar"}mdlObtenerPacientePorId: Error al buscar paciente: SQLSTATE[42P01]: Undefined table: 7 ERROR:  relation "reservas_pacientes_auth" does not exist
+LINE 12:                     reservas_pacientes_auth pa ON p.person_i...
+                             ^mdlObtenerPacientePorId: Error al buscar paciente: SQLSTATE[42P01]: Undefined table: 7 ERROR:  relation "reservas_pacientes_auth" does not exist
+LINE 12:                     reservas_pacientes_auth pa ON p.person_i...
+                             ^mdlObtenerPacientePorId: Error al buscar paciente: SQLSTATE[42P01]: Undefined table: 7 ERROR:  relation "reservas_pacientes_auth" does not exist
+LINE 12:                     reservas_pacientes_auth pa ON p.person_i...
+                             ^mdlObtenerPacientePorId: Error al buscar paciente: SQLSTATE[42P01]: Undefined table: 7 ERROR:  relation "reservas_pacientes_auth" does not exist
+LINE 12:                     reservas_pacientes_auth pa ON p.person_i...
+                             ^mdlObtenerPacientePorId: Error al buscar paciente: SQLSTATE[42P01]: Undefined table: 7 ERROR:  relation "reservas_pacientes_auth" does not exist
+LINE 12:                     reservas_pacientes_auth pa ON p.person_i...
+                             ^mdlObtenerPacientePorId: Error al buscar paciente: SQLSTATE[42P01]: Undefined table: 7 ERROR:  relation "reservas_pacientes_auth" does not exist
+LINE 12:                     reservas_pacientes_auth pa ON p.person_i...
+                             ^mdlObtenerPacientePorId: Error al buscar paciente: SQLSTATE[42P01]: Undefined table: 7 ERROR:  relation "reservas_pacientes_auth" does not exist
+LINE 12:                     reservas_pacientes_auth pa ON p.person_i...
+                             ^mdlObtenerPacientePorId: Error al buscar paciente: SQLSTATE[42P01]: Undefined table: 7 ERROR:  relation "reservas_pacientes_auth" does not exist
+LINE 12:                     reservas_pacientes_auth pa ON p.person_i...
+                             ^mdlObtenerPacientePorId: Error al buscar paciente: SQLSTATE[42P01]: Undefined table: 7 ERROR:  relation "reservas_pacientes_auth" does not exist
+LINE 12:                     reservas_pacientes_auth pa ON p.person_i...
                              ^

@@ -90,6 +90,18 @@
 
 <?php 
 
+// Verificar si se está intentando acceder a una página protegida sin sesión válida
+$rutaSolicitada = isset($_GET["ruta"]) ? $_GET["ruta"] : "home";
+$paginasProtegidas = ["home", "consultas", "personas", "roles", "perfil", "rhpersonas", "preformatos", "agendas", "servicios", "rs_servicios", "citas", "profesiones", "especialidades", "motivos", "empresas", "tipos_proveedores", "proveedores", "salas", "turnos"];
+
+// Si se intenta acceder a una página protegida sin sesión válida, redirigir al login
+if (in_array($rutaSolicitada, $paginasProtegidas) && (!isset($_SESSION["iniciarSesion"]) || $_SESSION["iniciarSesion"] != "ok")) {
+    echo '<script>
+        window.location.href = "?ruta=login";
+    </script>';
+    exit();
+}
+
 if (isset($_SESSION["iniciarSesion"]) && $_SESSION["iniciarSesion"] == "ok") {
     echo '<body class="sidebar-mini layout-navbar-fixed layout-footer-fixed text-sm control-sidebar-slide-open sidebar-collapse layout-fixed" style="height: auto;">';
     echo '<div class="wrapper">'; 
