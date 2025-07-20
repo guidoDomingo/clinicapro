@@ -120,6 +120,10 @@ if (isset($_GET['updated']) && $_GET['updated'] === 'true') {
         </div>
     <?php endif; ?>
 
+    <!-- Cargar librerías necesarias -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <div class="row">
         <div class="col-md-3">
             <!-- Profile Image -->
@@ -129,7 +133,7 @@ if (isset($_GET['updated']) && $_GET['updated'] === 'true') {
                         <img class="profile-user-img img-fluid img-circle" id="userProfileImage"
                             src="<?php echo (isset($profileData['profile_photo']) && $profileData['profile_photo']) ? 
                             '../view/uploads/profile/' . $profileData['profile_photo'] : 
-                            'https://via.placeholder.com/150'; ?>" 
+                            'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgdmlld0JveD0iMCAwIDE1MCAxNTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiBmaWxsPSIjZGRkIi8+CjxjaXJjbGUgY3g9Ijc1IiBjeT0iNjAiIHI9IjIwIiBmaWxsPSIjOTk5Ii8+CjxwYXRoIGQ9Im00MCA5MGMwLTIwIDEwLTMwIDM1LTMwczM1IDEwIDM1IDMwdjYwSDQweiIgZmlsbD0iIzk5OSIvPgo8L3N2Zz4K'; ?>" 
                             alt="Foto de perfil del usuario" style="width: 100px; height: 100px;">
                     </div>
 
@@ -356,7 +360,7 @@ if (isset($_GET['updated']) && $_GET['updated'] === 'true') {
                                     <label for="currentPassword" class="col-sm-4 col-form-label">Contraseña Actual <span class="text-danger">*</span></label>
                                     <div class="col-sm-8">
                                         <input type="password" class="form-control" id="currentPassword"
-                                            placeholder="Contraseña actual" name="current_password" required>
+                                            placeholder="Contraseña actual" name="current_password">
                                     </div>
                                 </div>
                                 <div class="form-group row">
@@ -364,7 +368,7 @@ if (isset($_GET['updated']) && $_GET['updated'] === 'true') {
                                     <div class="col-sm-8">
                                         <input type="password" class="form-control" id="newPassword"
                                             placeholder="Nueva contraseña" name="new_password" 
-                                            minlength="6" required>
+                                            minlength="6">
                                         <small class="form-text text-muted">Mínimo 6 caracteres</small>
                                     </div>
                                 </div>
@@ -372,12 +376,12 @@ if (isset($_GET['updated']) && $_GET['updated'] === 'true') {
                                     <label for="confirmPassword" class="col-sm-4 col-form-label">Confirmar Contraseña <span class="text-danger">*</span></label>
                                     <div class="col-sm-8">
                                         <input type="password" class="form-control" id="confirmPassword"
-                                            placeholder="Confirmar nueva contraseña" name="confirm_password" required>
+                                            placeholder="Confirmar nueva contraseña" name="confirm_password">
                                     </div>
                                 </div>
                                 <div class="form-group row">
                                     <div class="offset-sm-4 col-sm-8">
-                                        <button type="submit" class="btn btn-primary">
+                                        <button type="button" class="btn btn-primary" id="btnChangePassword">
                                             <i class="fas fa-key mr-2"></i> Cambiar Contraseña
                                         </button>
                                     </div>
@@ -464,11 +468,33 @@ $(document).ready(function() {
     //     return validarFormularioPerfil();
     // });
     
-    // Manejar el formulario de cambio de contraseña
-    $('#formChangePassword').on('submit', function(e) {
+    // Manejar el botón de cambio de contraseña
+    $('#btnChangePassword').on('click', function(e) {
+        console.log('=== BOTÓN CAMBIAR CONTRASEÑA CLICKEADO ===');
         e.preventDefault();
-        changePassword();
+        console.log('preventDefault() ejecutado');
+        
+        // Verificar que la función existe
+        if (typeof changePassword === 'function') {
+            console.log('Función changePassword encontrada - ejecutando...');
+            changePassword();
+        } else {
+            console.error('ERROR: Función changePassword no encontrada!');
+            alert('Error: Función changePassword no encontrada');
+        }
     });
+    
+    // También mantener el event listener del formulario como respaldo
+    $('#formChangePassword').on('submit', function(e) {
+        console.log('=== EVENTO SUBMIT DETECTADO (RESPALDO) ===');
+        e.preventDefault();
+        console.log('preventDefault() ejecutado en submit');
+        return false; // Asegurar que no se envíe
+    });
+    
+    // Debug adicional para verificar que los elementos existen
+    console.log('Formulario #formChangePassword encontrado:', $('#formChangePassword').length > 0);
+    console.log('Botón #btnChangePassword encontrado:', $('#btnChangePassword').length > 0);
     
     // Manejar el botón de cambiar foto
     $('#btnChangePhoto').on('click', function() {
@@ -595,13 +621,21 @@ function actualizarPerfil(event) {
  * Cambiar la contraseña del usuario
  */
 function changePassword() {
-    console.log('Función changePassword iniciada');
+    console.log('=== INICIO CAMBIO DE CONTRASEÑA ===');
+    
     const currentPassword = $('#currentPassword').val();
     const newPassword = $('#newPassword').val();
     const confirmPassword = $('#confirmPassword').val();
     
+    console.log('Valores obtenidos:', {
+        current: currentPassword ? 'PRESENTE' : 'VACÍO',
+        new: newPassword ? 'PRESENTE' : 'VACÍO', 
+        confirm: confirmPassword ? 'PRESENTE' : 'VACÍO'
+    });
+    
     // Validar campos vacíos
     if (!currentPassword || !newPassword || !confirmPassword) {
+        console.log('ERROR: Campos vacíos detectados');
         Swal.fire({
             icon: 'error',
             title: 'Error',
@@ -613,6 +647,7 @@ function changePassword() {
     
     // Validar que las contraseñas coincidan
     if (newPassword !== confirmPassword) {
+        console.log('ERROR: Las contraseñas nuevas no coinciden');
         Swal.fire({
             icon: 'error',
             title: 'Error',
@@ -624,6 +659,7 @@ function changePassword() {
     
     // Validar longitud mínima
     if (newPassword.length < 6) {
+        console.log('ERROR: Contraseña muy corta');
         Swal.fire({
             icon: 'error',
             title: 'Error',
@@ -633,7 +669,7 @@ function changePassword() {
         return;
     }
     
-    console.log('Validaciones de contraseña completadas');
+    console.log('Validaciones completadas - iniciando cambio...');
     
     // Mostrar indicador de carga
     Swal.fire({
@@ -645,29 +681,14 @@ function changePassword() {
         }
     });
     
-    // Registrar en consola para depuración
-    console.log('Enviando solicitud de cambio de contraseña');
-    
-    // Crear un objeto formData con los datos
+    // Crear FormData con los datos
     const formData = new FormData();
     formData.append('action', 'changePassword');
     formData.append('current_password', currentPassword);
     formData.append('new_password', newPassword);
     
-    // Logging específico para ver los datos antes de enviarlos
-    console.log('Datos a enviar:', {
-        action: 'changePassword',
-        current_password: currentPassword,
-        new_password: newPassword
-    });
-    
-    // Configuración de modo depuración para facilitar el diagnóstico
-    let useDebugMode = localStorage.getItem('debug_password_change') === 'true';
-    
-    // La ruta para el controlador - usar diagnóstico si está en modo debug
-    const url = useDebugMode ? '../diagnostico_password.php' : '../controller/profile.controller.php';
-    console.log('URL del controlador:', url);
-    console.log('Modo depuración:', useDebugMode ? 'ACTIVADO' : 'DESACTIVADO');
+    const url = '../controller/profile.controller.php';
+    console.log('Enviando petición a:', url);
     
     $.ajax({
         url: url,
@@ -676,62 +697,31 @@ function changePassword() {
         processData: false,
         contentType: false,
         success: function(response) {
-            console.log('Respuesta recibida (raw):', response);
+            console.log('Respuesta recibida:', response);
             
             try {
-                // Intentar analizar la respuesta como JSON
                 let data;
-                
                 if (typeof response === 'string') {
-                    try {
-                        data = JSON.parse(response);
-                        console.log('Respuesta JSON parseada correctamente:', data);
-                    } catch (parseError) {
-                        console.error('Error al parsear JSON:', parseError);
-                        console.log('Contenido de la respuesta:', response);
-                        
-                        // Verificar si la respuesta contiene algún mensaje de error HTML
-                        const htmlErrorMatch = /<b>.*?<\/b>.*?<b>(.*?)<\/b>/s.exec(response);
-                        if (htmlErrorMatch && htmlErrorMatch[1]) {
-                            throw new Error("Error en la respuesta del servidor: " + htmlErrorMatch[1]);
-                        } else {
-                            throw parseError;
-                        }
-                    }
+                    data = JSON.parse(response);
                 } else {
                     data = response;
-                    console.log('Respuesta ya es un objeto:', data);
                 }
                 
+                console.log('Datos procesados:', data);
+                
                 if (data.status === 'success') {
-                    console.log('Cambio de contraseña exitoso');
+                    console.log('ÉXITO: Contraseña cambiada correctamente');
                     Swal.fire({
                         icon: 'success',
                         title: '¡Éxito!',
-                        text: 'Contraseña actualizada correctamente. Se cerrará tu sesión para que inicies con tu nueva contraseña.',
+                        text: data.message,
                         confirmButtonText: 'Continuar'
                     }).then(() => {
-                        // Redirigir al login después de cambiar la contraseña
-                        const redirectUrl = data.redirect || 'index.php';
-                        console.log('Redirigiendo a:', redirectUrl);
-                        
-                        // Crear un formulario para hacer logout y redirigir
-                        const form = document.createElement('form');
-                        form.method = 'POST';
-                        form.action = 'index.php?accion=logout';
-                        form.style.display = 'none';
-                        
-                        const redirectInput = document.createElement('input');
-                        redirectInput.type = 'hidden';
-                        redirectInput.name = 'redirect';
-                        redirectInput.value = redirectUrl;
-                        form.appendChild(redirectInput);
-                        
-                        document.body.appendChild(form);
-                        form.submit();
+                        console.log('Redirigiendo...');
+                        window.location.href = 'index.php';
                     });
                 } else {
-                    console.log('Error devuelto por el servidor:', data.message);
+                    console.log('ERROR del servidor:', data.message);
                     Swal.fire({
                         icon: 'error',
                         title: 'Error',
@@ -740,67 +730,24 @@ function changePassword() {
                     });
                 }
             } catch (e) {
-                console.error('Error al procesar respuesta:', e);
-                console.log('Respuesta recibida (raw):', response);
-                
-                // Intentar detectar mensajes de error en la respuesta
-                let errorMessage = 'Error al procesar la respuesta del servidor';
-                
-                if (typeof response === 'string' && response.includes('contraseña')) {
-                    errorMessage = response;
-                }
-                
-                // Intentamos identificar si hay un mensaje de error en HTML o texto plano
-                if (typeof response === 'string') {
-                    // Buscar mensajes comunes de error en el texto de respuesta
-                    const possibleErrors = [
-                        'contraseña actual no es correcta',
-                        'Error al cambiar',
-                        'No se pudo',
-                        'actualizar'
-                    ];
-                    
-                    for (const phrase of possibleErrors) {
-                        if (response.includes(phrase)) {
-                            errorMessage = response;
-                            break;
-                        }
-                    }
-                }
+                console.error('Error parseando respuesta:', e);
+                console.log('Respuesta raw:', response);
                 
                 Swal.fire({
                     icon: 'error',
-                    title: 'Error',
-                    text: errorMessage,
+                    title: 'Error de procesamiento',
+                    text: 'Error al procesar la respuesta del servidor',
                     confirmButtonText: 'Entendido'
                 });
             }
         },
         error: function(xhr, status, error) {
-            console.error('Error en solicitud AJAX:', status, error);
-            console.log('Respuesta de error:', xhr.responseText);
-            
-            // Intentar mostrar un mensaje más específico si está disponible
-            let errorMessage = 'No se pudo conectar con el servidor. Por favor, inténtalo nuevamente.';
-            
-            if (xhr.responseText) {
-                try {
-                    const errorResponse = JSON.parse(xhr.responseText);
-                    if (errorResponse.message) {
-                        errorMessage = errorResponse.message;
-                    }
-                } catch (e) {
-                    // Si no es JSON válido, usar el texto tal cual si no es muy largo
-                    if (xhr.responseText.length < 100) {
-                        errorMessage = xhr.responseText;
-                    }
-                }
-            }
+            console.error('Error AJAX:', {status, error, response: xhr.responseText});
             
             Swal.fire({
                 icon: 'error',
                 title: 'Error de conexión',
-                text: errorMessage,
+                text: 'Error al comunicarse con el servidor: ' + error,
                 confirmButtonText: 'Entendido'
             });
         }

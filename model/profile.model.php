@@ -174,14 +174,19 @@ class ModelProfile {
     
     /**
      * Verifica si la contraseña actual del usuario es correcta
+     * Compatible con sistema principal y reservas públicas
      * @param int $userId ID del usuario
      * @param string $password Contraseña a verificar
      * @return bool True si la contraseña es correcta, false en caso contrario
      */
     public static function mdlVerifyPassword($userId, $password) {
         try {
+            // Log para debugging
+            error_log("mdlVerifyPassword: Verificando contraseña para usuario ID: $userId", 3, dirname(__DIR__) . "/logs/password_changes.log");
+            
+            // Intentar buscar por user_id directo primero (sistema principal)
             $stmt = Conexion::conectar()->prepare("
-                SELECT user_pass
+                SELECT user_pass, user_email
                 FROM sys_users
                 WHERE user_id = :user_id
             ");
@@ -191,21 +196,55 @@ class ModelProfile {
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
             
             if (!$result) {
-                return false;
+                // Si no se encuentra por user_id, intentar buscar por reg_id 
+                // (para usuarios del sistema de reservas públicas)
+                error_log("mdlVerifyPassword: Usuario no encontrado por user_id, buscando por reg_id...", 3, dirname(__DIR__) . "/logs/password_changes.log");
+                
+                $stmt2 = Conexion::conectar()->prepare("
+                    SELECT su.user_pass, su.user_email, su.user_id
+                    FROM sys_users su
+                    INNER JOIN sys_register sr ON su.reg_id = sr.reg_id
+                    WHERE sr.reg_id = :reg_id OR su.user_id = :user_id2
+                ");
+                
+                $stmt2->bindParam(":reg_id", $userId, PDO::PARAM_INT);
+                $stmt2->bindParam(":user_id2", $userId, PDO::PARAM_INT);
+                $stmt2->execute();
+                $result = $stmt2->fetch(PDO::FETCH_ASSOC);
+                
+                if (!$result) {
+                    error_log("mdlVerifyPassword: Usuario no encontrado en ninguna tabla para ID: $userId", 3, dirname(__DIR__) . "/logs/password_changes.log");
+                    return false;
+                }
             }
             
             $storedHash = $result['user_pass'];
+            error_log("mdlVerifyPassword: Hash encontrado para usuario: " . $result['user_email'], 3, dirname(__DIR__) . "/logs/password_changes.log");
+            error_log("mdlVerifyPassword: Tipo de hash: " . (password_get_info($storedHash)['algo'] ? 'PASSWORD_HASH' : 'OTRO'), 3, dirname(__DIR__) . "/logs/password_changes.log");
             
             // Verificar si es un hash de password_hash()
             if (password_verify($password, $storedHash)) {
+                error_log("mdlVerifyPassword: Contraseña verificada correctamente con password_verify", 3, dirname(__DIR__) . "/logs/password_changes.log");
                 return true;
             }
             
             // Si no coincide, verificar si es un hash MD5 o similar
-            // Comparación directa para hashes MD5 o similares
-            return ($storedHash === md5($password) || $storedHash === $password);
+            if ($storedHash === md5($password)) {
+                error_log("mdlVerifyPassword: Contraseña verificada correctamente con MD5", 3, dirname(__DIR__) . "/logs/password_changes.log");
+                return true;
+            }
+            
+            // Comparación directa (para casos legacy)
+            if ($storedHash === $password) {
+                error_log("mdlVerifyPassword: Contraseña verificada correctamente con comparación directa", 3, dirname(__DIR__) . "/logs/password_changes.log");
+                return true;
+            }
+            
+            error_log("mdlVerifyPassword: Contraseña no coincide con ningún método de verificación", 3, dirname(__DIR__) . "/logs/password_changes.log");
+            return false;
+            
         } catch (PDOException $e) {
-            error_log("Error al verificar contraseña: " . $e->getMessage());
+            error_log("mdlVerifyPassword: Error en base de datos: " . $e->getMessage(), 3, dirname(__DIR__) . "/logs/password_changes.log");
             return false;
         }
     }
