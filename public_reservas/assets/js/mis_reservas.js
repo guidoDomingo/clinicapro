@@ -140,25 +140,12 @@ function crearReservaCard(reserva) {
     card.querySelector('.sala-nombre').textContent = reserva.sala_nombre || 'No especificada';
     card.querySelector('.servicio-monto').textContent = Number(reserva.monto).toLocaleString('es-PY');
     
-    // Mostrar código de seguimiento
-    card.querySelector('.codigo-seguimiento .badge').textContent = reserva.codigo_seguimiento;
-    
     // Configurar el estado y el badge
     const estadoBadge = card.querySelector('.estado-badge');
     estadoBadge.textContent = reserva.reserva_estado;
     
     if (reserva.reserva_estado === 'PENDIENTE') {
         estadoBadge.classList.add('badge', 'badge-warning');
-        
-        // Añadir botón para cancelar cita
-        const btnCancelar = document.createElement('button');
-        btnCancelar.className = 'btn btn-sm btn-danger';
-        btnCancelar.innerHTML = '<i class="fas fa-times-circle mr-1"></i>Cancelar';
-        btnCancelar.onclick = function() { 
-            cancelarReserva(reserva.codigo_seguimiento);
-        };
-        card.querySelector('.acciones-reserva').appendChild(btnCancelar);
-        
     } else if (reserva.reserva_estado === 'COMPLETADA' || reserva.reserva_estado === 'ATENDIDA') {
         estadoBadge.classList.add('badge', 'badge-success');
     } else if (reserva.reserva_estado === 'CANCELADA') {
@@ -169,58 +156,4 @@ function crearReservaCard(reserva) {
     }
     
     return jQuery(card);
-}
-
-/**
- * Cancela una reserva mediante AJAX
- * @param {string} codigo Código de seguimiento de la reserva
- */
-function cancelarReserva(codigo) {
-    Swal.fire({
-        title: '¿Estás seguro?',
-        text: 'Esta acción no se puede deshacer. Se cancelará tu reserva.',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Sí, cancelar',
-        cancelButtonText: 'No, mantener'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            jQuery.ajax({
-                url: 'ajax/reservas.ajax.php',
-                type: 'POST',
-                data: {
-                    action: 'cancelarReserva',
-                    codigo: codigo
-                },
-                dataType: 'json',
-                success: function(response) {
-                    if (response.error) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: response.mensaje
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Reserva cancelada',
-                            text: 'Tu reserva ha sido cancelada correctamente.'
-                        }).then(() => {
-                            // Recargar las reservas
-                            cargarReservasPaciente();
-                        });
-                    }
-                },
-                error: function(xhr, status, error) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'Ocurrió un error al cancelar la reserva: ' + error
-                    });
-                }
-            });
-        }
-    });
 }

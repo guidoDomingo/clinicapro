@@ -85,21 +85,12 @@ if (!AuthController::isAuthenticated()) {
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-8">
+                        <div class="col-md-12">
                             <h5 class="card-title servicio-nombre"></h5>
                             <p class="mb-1"><i class="fas fa-user-md mr-2"></i><span class="doctor-nombre"></span></p>
                             <p class="mb-1"><i class="far fa-clock mr-2"></i><span class="horario-reserva"></span></p>
                             <p class="mb-1"><i class="fas fa-map-marker-alt mr-2"></i><span class="sala-nombre"></span></p>
                             <p class="mb-2"><i class="fas fa-tag mr-2"></i>Monto: <span class="servicio-monto"></span> Gs.</p>
-                        </div>
-                        <div class="col-md-4 text-center">
-                            <div class="codigo-seguimiento mb-2">
-                                <small class="d-block text-muted">Código de seguimiento</small>
-                                <span class="badge badge-secondary p-2"></span>
-                            </div>
-                            <div class="acciones-reserva mt-3">
-                               
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -125,15 +116,6 @@ if (!AuthController::isAuthenticated()) {
 .estado-badge {
     font-size: 0.85rem;
     padding: 0.35em 0.65em;
-}
-
-.codigo-seguimiento .badge {
-    font-size: 1rem;
-    letter-spacing: 1px;
-}
-
-.acciones-reserva .btn {
-    margin: 0 2px;
 }
 
 .reservas-list {
