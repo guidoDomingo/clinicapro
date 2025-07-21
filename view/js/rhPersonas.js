@@ -106,17 +106,40 @@ $(document).ready(function () {
  */
 function inicializarTabla() {
   tablaPersonas = $("#tblPersonas").DataTable({
+    processing: true,
+    serverSide: true,
     ajax: {
       url: "api/persons",
+      type: "GET",
+      data: function(d) {
+        // Mapear parámetros de DataTables a la API
+        return {
+          page: Math.floor(d.start / d.length) + 1,
+          per_page: d.length,
+          search: d.search.value,
+          order_column: d.columns[d.order[0].column].data,
+          order_direction: d.order[0].dir
+        };
+      },
       dataSrc: function (json) {
         console.log("Datos recibidos:", json);
-        if (Array.isArray(json.data)) {
-          return json.data;
-        } else if (json.data?.data) {
-          return json.data.data;
+        
+        // La API devuelve data.data para los registros y data.pagination para metadatos
+        if (json.status === 'success' && json.data) {
+          // Configurar metadatos para DataTables
+          json.recordsTotal = json.data.pagination ? json.data.pagination.total : 0;
+          json.recordsFiltered = json.data.pagination ? json.data.pagination.total : 0;
+          
+          // Devolver solo los datos de los registros
+          return json.data.data || [];
         }
+        
         return [];
       },
+      error: function(xhr, error, thrown) {
+        console.error('Error cargando datos:', error, thrown);
+        console.error('Respuesta del servidor:', xhr.responseText);
+      }
     },
     columns: [
       { data: "person_id" },
@@ -146,6 +169,8 @@ function inicializarTabla() {
         },
       },      {
         data: null,
+        orderable: false,
+        searchable: false,
         render: function (data) {
           const btnVer = `<button class="btn btn-info btn-sm btn-ver" btnId="${data.person_id}" title="Ver detalles"><i class="fas fa-eye"></i></button>`;
           const btnEspecialidades = `<button class="btn btn-purple btn-sm btn-especialidades" btnId="${data.person_id}" title="Gestionar especialidades"><i class="fas fa-stethoscope"></i></button>`;
@@ -160,6 +185,8 @@ function inicializarTabla() {
         },
       },
     ],
+    pageLength: 20,
+    lengthMenu: [[10, 20, 50, 100], [10, 20, 50, 100]],
     responsive: true,
     language: {
       url: "//cdn.datatables.net/plug-ins/1.10.25/i18n/Spanish.json",

@@ -206,3 +206,240 @@ Parameters: {
 [2025-07-20 21:40:33] [INFO] [Model.php:175]
 SQL: SELECT COUNT(*) as total FROM rh_person
 ----------------------------------------
+[2025-07-20 22:02:19] [INFO] [Database.php:219]
+SQL: SELECT * FROM especialidades WHERE activo = :value
+Parameters: {
+    "value": true
+}
+----------------------------------------
+[2025-07-20 22:02:19] [INFO] [Model.php:175]
+SQL: SELECT * FROM rh_person  ORDER BY person_id ASC LIMIT :limit OFFSET :offset
+Parameters: {
+    "limit": 20,
+    "offset": 0
+}
+----------------------------------------
+[2025-07-20 22:02:19] [INFO] [Model.php:175]
+SQL: SELECT COUNT(*) as total FROM rh_person 
+----------------------------------------
+AJAX obtenerCuposDisponiblesPorTurno llamadoAJAX procesando fecha: 2025-07-20Calculando cupos para fecha 2025-07-20, día: DOMINGOHorarios encontrados para 2025-07-20 (DOMINGO): []Cupos totales calculados: {"Ma\u00f1ana":0,"Tarde":0,"Noche":0}Reservas encontradas para 2025-07-20: []Turno Mañana: Total=0, Ocupadas=0, Disponibles=0Turno Tarde: Total=0, Ocupadas=0, Disponibles=0Turno Noche: Total=0, Ocupadas=0, Disponibles=0AJAX retornando cupos disponibles: {"Ma\u00f1ana":0,"Tarde":0,"Noche":0}mdlObtenerServicios: Encontrados 8 servicios en rs_serviciosDEBUG - Fecha: 2025-07-20, Número día: 7, Texto día: DOMINGOBuscando médicos para fecha: 2025-07-20, día: DOMINGONo hay médicos con agenda configurada para DOMINGODEBUG - Fecha: 2025-07-20, Número día: 7, Texto día: DOMINGOBuscando médicos para fecha: 2025-07-20, día: DOMINGONo hay médicos con agenda configurada para DOMINGODEBUG - Fecha: 2025-07-20, Número día: 7, Texto día: DOMINGOBuscando médicos para fecha: 2025-07-20, día: DOMINGONo hay médicos con agenda configurada para DOMINGOAJAX obtenerCuposDisponiblesPorTurno llamadoAJAX procesando fecha: 2025-07-20Calculando cupos para fecha 2025-07-20, día: DOMINGOHorarios encontrados para 2025-07-20 (DOMINGO): []Cupos totales calculados: {"Ma\u00f1ana":0,"Tarde":0,"Noche":0}Reservas encontradas para 2025-07-20: []Turno Mañana: Total=0, Ocupadas=0, Disponibles=0Turno Tarde: Total=0, Ocupadas=0, Disponibles=0Turno Noche: Total=0, Ocupadas=0, Disponibles=0AJAX retornando cupos disponibles: {"Ma\u00f1ana":0,"Tarde":0,"Noche":0}[2025-07-20 22:03:06] [INFO] [Database.php:219]
+SQL: SELECT * FROM especialidades WHERE activo = :value
+Parameters: {
+    "value": true
+}
+----------------------------------------
+[2025-07-20 22:03:06] [INFO] [Model.php:175]
+SQL: SELECT * FROM rh_person  ORDER BY person_id ASC LIMIT :limit OFFSET :offset
+Parameters: {
+    "limit": 20,
+    "offset": 0
+}
+----------------------------------------
+[2025-07-20 22:03:06] [INFO] [Model.php:175]
+SQL: SELECT COUNT(*) as total FROM rh_person 
+----------------------------------------
+[2025-07-20 22:03:20] [INFO] [Database.php:231]
+SQL: SELECT * FROM rh_person WHERE person_id = :id
+Parameters: {
+    "id": "4"
+}
+----------------------------------------
+[2025-07-20 22:03:20] [INFO] [Database.php:231]
+SQL: SELECT * FROM rh_person WHERE person_id = :id
+Parameters: {
+    "id": "4"
+}
+----------------------------------------
+[2025-07-20 22:03:20] [INFO] [Model.php:143]
+SQL: UPDATE rh_person SET is_active = :is_active, last_modified_at = :last_modified_at WHERE person_id = :id
+Parameters: {
+    "is_active": true,
+    "last_modified_at": "2025-07-20 22:03:20",
+    "id": "4"
+}
+----------------------------------------
+[2025-07-20 22:03:20] [INFO] [Database.php:281]
+SQL: UPDATE rh_person SET is_active = :is_active, last_modified_at = :last_modified_at WHERE person_id = :id
+Parameters: {
+    "is_active": true,
+    "last_modified_at": "2025-07-20 22:03:20",
+    "id": "4"
+}
+----------------------------------------
+[2025-07-20 22:03:20] [INFO] [Database.php:231]
+SQL: SELECT * FROM rh_person WHERE person_id = :id
+Parameters: {
+    "id": "4"
+}
+----------------------------------------
+[2025-07-20 22:03:20] [INFO] [Model.php:175]
+SQL: SELECT * FROM rh_person  ORDER BY person_id ASC LIMIT :limit OFFSET :offset
+Parameters: {
+    "limit": 20,
+    "offset": 0
+}
+----------------------------------------
+[2025-07-20 22:03:20] [INFO] [Model.php:175]
+SQL: SELECT COUNT(*) as total FROM rh_person 
+----------------------------------------
+mdlObtenerServicios: Encontrados 8 servicios en rs_serviciosDEBUG - Fecha: 2025-07-20, Número día: 7, Texto día: DOMINGOBuscando médicos para fecha: 2025-07-20, día: DOMINGONo hay médicos con agenda configurada para DOMINGOAJAX obtenerCuposDisponiblesPorTurno llamadoAJAX procesando fecha: 2025-07-20Calculando cupos para fecha 2025-07-20, día: DOMINGOHorarios encontrados para 2025-07-20 (DOMINGO): []Cupos totales calculados: {"Ma\u00f1ana":0,"Tarde":0,"Noche":0}Reservas encontradas para 2025-07-20: []Turno Mañana: Total=0, Ocupadas=0, Disponibles=0Turno Tarde: Total=0, Ocupadas=0, Disponibles=0Turno Noche: Total=0, Ocupadas=0, Disponibles=0AJAX retornando cupos disponibles: {"Ma\u00f1ana":0,"Tarde":0,"Noche":0}DEBUG - Fecha: 2025-07-20, Número día: 7, Texto día: DOMINGOBuscando médicos para fecha: 2025-07-20, día: DOMINGONo hay médicos con agenda configurada para DOMINGOAJAX obtenerCuposDisponiblesPorTurno llamadoAJAX procesando fecha: 2025-07-20Calculando cupos para fecha 2025-07-20, día: DOMINGOHorarios encontrados para 2025-07-20 (DOMINGO): []Cupos totales calculados: {"Ma\u00f1ana":0,"Tarde":0,"Noche":0}Reservas encontradas para 2025-07-20: []Turno Mañana: Total=0, Ocupadas=0, Disponibles=0Turno Tarde: Total=0, Ocupadas=0, Disponibles=0Turno Noche: Total=0, Ocupadas=0, Disponibles=0AJAX retornando cupos disponibles: {"Ma\u00f1ana":0,"Tarde":0,"Noche":0}DEBUG - Fecha: 2025-07-20, Número día: 7, Texto día: DOMINGOBuscando médicos para fecha: 2025-07-20, día: DOMINGONo hay médicos con agenda configurada para DOMINGODEBUG - Fecha: 2025-07-25, Número día: 5, Texto día: VIERNESBuscando médicos para fecha: 2025-07-25, día: VIERNESAgendas encontradas para VIERNES: [{"agenda_id":10,"dia_semana":"VIERNES","agenda_descripcion":"Agenda del m\u00e9dico ID: 13","medico_id":13},{"agenda_id":10,"dia_semana":"VIERNES","agenda_descripcion":"Agenda del m\u00e9dico ID: 13","medico_id":13},{"agenda_id":18,"dia_semana":"VIERNES","agenda_descripcion":"prueba ","medico_id":14},{"agenda_id":18,"dia_semana":"VIERNES","agenda_descripcion":"prueba ","medico_id":14}]DEBUG - Dia semana utilizado para la consulta: 'VIERNES'DEBUG - Días disponibles en agendas_detalle: ["LUNES","MARTES","MIERCOLES","JUEVES","VIERNES","SABADO"]Resultados crudos de la consulta: [{"doctor_id":13,"person_id":53,"nombre_doctor":"Antonio Galeano","doctor_estado":"ACTIVO","agenda_id":10,"medico_id":13,"doctor_match":true,"dia_semana":"VIERNES"},{"doctor_id":14,"person_id":56,"nombre_doctor":"ronal ricardo","doctor_estado":"ACTIVO","agenda_id":18,"medico_id":14,"doctor_match":true,"dia_semana":"VIERNES"}]Médicos encontrados para 2025-07-25 (VIERNES): 2Médico Antonio Galeano (ID: 13) - Horarios encontrados: 2Médico Antonio Galeano (ID: 13) - Cupos base calculados: 7Médico Antonio Galeano (ID: 13) - Reservas ocupadas: 0Médico Antonio Galeano (ID: 13) - Cupos base: 7, Ocupados: 0, Disponibles: 7Médico ronal ricardo (ID: 14) - Horarios encontrados: 2Médico ronal ricardo (ID: 14) - Cupos base calculados: 21Médico ronal ricardo (ID: 14) - Reservas ocupadas: 0Médico ronal ricardo (ID: 14) - Cupos base: 21, Ocupados: 0, Disponibles: 21DEBUG - Fecha: 2025-07-25, Número día: 5, Texto día: VIERNESBuscando médicos para fecha: 2025-07-25, día: VIERNESAgendas encontradas para VIERNES: [{"agenda_id":10,"dia_semana":"VIERNES","agenda_descripcion":"Agenda del m\u00e9dico ID: 13","medico_id":13},{"agenda_id":10,"dia_semana":"VIERNES","agenda_descripcion":"Agenda del m\u00e9dico ID: 13","medico_id":13},{"agenda_id":18,"dia_semana":"VIERNES","agenda_descripcion":"prueba ","medico_id":14},{"agenda_id":18,"dia_semana":"VIERNES","agenda_descripcion":"prueba ","medico_id":14}]DEBUG - Dia semana utilizado para la consulta: 'VIERNES'DEBUG - Días disponibles en agendas_detalle: ["LUNES","MARTES","MIERCOLES","JUEVES","VIERNES","SABADO"]Resultados crudos de la consulta: [{"doctor_id":13,"person_id":53,"nombre_doctor":"Antonio Galeano","doctor_estado":"ACTIVO","agenda_id":10,"medico_id":13,"doctor_match":true,"dia_semana":"VIERNES"},{"doctor_id":14,"person_id":56,"nombre_doctor":"ronal ricardo","doctor_estado":"ACTIVO","agenda_id":18,"medico_id":14,"doctor_match":true,"dia_semana":"VIERNES"}]Médicos encontrados para 2025-07-25 (VIERNES): 2Médico Antonio Galeano (ID: 13) - Horarios encontrados: 2Médico Antonio Galeano (ID: 13) - Cupos base calculados: 7Médico Antonio Galeano (ID: 13) - Reservas ocupadas: 0Médico Antonio Galeano (ID: 13) - Cupos base: 7, Ocupados: 0, Disponibles: 7Médico ronal ricardo (ID: 14) - Horarios encontrados: 2Médico ronal ricardo (ID: 14) - Cupos base calculados: 21Médico ronal ricardo (ID: 14) - Reservas ocupadas: 0Médico ronal ricardo (ID: 14) - Cupos base: 21, Ocupados: 0, Disponibles: 21AJAX obtenerCuposDisponiblesPorTurno llamadoAJAX procesando fecha: 2025-07-25Calculando cupos para fecha 2025-07-25, día: VIERNESHorarios encontrados para 2025-07-25 (VIERNES): [{"hora_inicio":"08:00:00","hora_fin":"12:00:00","intervalo_minutos":15,"medico_id":14,"turno":"Ma\u00f1ana"},{"hora_inicio":"13:00:00","hora_fin":"16:00:00","intervalo_minutos":35,"medico_id":14,"turno":"Tarde"},{"hora_inicio":"17:00:00","hora_fin":"20:00:00","intervalo_minutos":45,"medico_id":13,"turno":"Tarde"},{"hora_inicio":"20:00:00","hora_fin":"23:00:00","intervalo_minutos":60,"medico_id":13,"turno":"Noche"}]Intervalo generado: 08:00-08:15_medico_14 en turno MañanaIntervalo generado: 08:15-08:30_medico_14 en turno MañanaIntervalo generado: 08:30-08:45_medico_14 en turno MañanaIntervalo generado: 08:45-09:00_medico_14 en turno MañanaIntervalo generado: 09:00-09:15_medico_14 en turno MañanaIntervalo generado: 09:15-09:30_medico_14 en turno MañanaIntervalo generado: 09:30-09:45_medico_14 en turno MañanaIntervalo generado: 09:45-10:00_medico_14 en turno MañanaIntervalo generado: 10:00-10:15_medico_14 en turno MañanaIntervalo generado: 10:15-10:30_medico_14 en turno MañanaIntervalo generado: 10:30-10:45_medico_14 en turno MañanaIntervalo generado: 10:45-11:00_medico_14 en turno MañanaIntervalo generado: 11:00-11:15_medico_14 en turno MañanaIntervalo generado: 11:15-11:30_medico_14 en turno MañanaIntervalo generado: 11:30-11:45_medico_14 en turno MañanaIntervalo generado: 11:45-12:00_medico_14 en turno MañanaIntervalo generado: 13:00-13:35_medico_14 en turno TardeIntervalo generado: 13:35-14:10_medico_14 en turno TardeIntervalo generado: 14:10-14:45_medico_14 en turno TardeIntervalo generado: 14:45-15:20_medico_14 en turno TardeIntervalo generado: 15:20-15:55_medico_14 en turno TardeIntervalo generado: 17:00-17:45_medico_13 en turno TardeIntervalo generado: 17:45-18:30_medico_13 en turno TardeIntervalo generado: 18:30-19:15_medico_13 en turno TardeIntervalo generado: 19:15-20:00_medico_13 en turno TardeIntervalo generado: 20:00-21:00_medico_13 en turno NocheIntervalo generado: 21:00-22:00_medico_13 en turno NocheIntervalo generado: 22:00-23:00_medico_13 en turno NocheCupos totales calculados: {"Ma\u00f1ana":16,"Tarde":9,"Noche":3}Reservas encontradas para 2025-07-25: []Turno Mañana: Total=16, Ocupadas=0, Disponibles=16Turno Tarde: Total=9, Ocupadas=0, Disponibles=9Turno Noche: Total=3, Ocupadas=0, Disponibles=3AJAX retornando cupos disponibles: {"Ma\u00f1ana":16,"Tarde":9,"Noche":3}mdlObtenerHorariosDisponibles: SQL para DoctorID=13, Dia=VIERNES: SELECT 
+                ad.detalle_id as horario_id,
+                ad.detalle_id as agenda_id,
+                ac.agenda_id as cabecera_agenda_id,
+                ad.turno_id,
+                t.turno_nombre,
+                ad.sala_id,
+                s.sala_nombre,
+                ac.medico_id as doctor_id,
+                coalesce(p.first_name, '') || ' ' || coalesce(p.last_name, '') as nombre_doctor,
+                ad.dia_semana,
+                ad.hora_inicio,
+                ad.hora_fin,
+                ad.intervalo_minutos,
+                ad.cupo_maximo
+            FROM
+                agendas_detalle ad
+            INNER JOIN 
+                agendas_cabecera ac ON ad.agenda_id = ac.agenda_id
+            INNER JOIN 
+                turnos t ON ad.turno_id = t.turno_id
+            INNER JOIN 
+                salas s ON ad.sala_id = s.sala_id
+            INNER JOIN
+                rh_doctors rd ON rd.doctor_id = ac.medico_id 
+            INNER JOIN 
+                rh_person p ON p.person_id = rd.person_id
+            WHERE
+                ac.medico_id = :doctor_id
+                AND ad.dia_semana = :dia_semana
+                AND ad.detalle_estado = true
+                AND ac.agenda_estado = true
+                ORDER BY ad.hora_inicio ASCmdlObtenerHorariosDisponibles: Se encontraron 2 resultados para DoctorID=13, Dia=VIERNESPrimer resultado: {"horario_id":25,"agenda_id":25,"cabecera_agenda_id":10,"turno_id":3,"turno_nombre":"TARDE","sala_id":1,"sala_nombre":"Sala 1","doctor_id":13,"nombre_doctor":"Antonio Galeano","dia_semana":"VIERNES","hora_inicio":"17:00:00","hora_fin":"20:00:00","intervalo_minutos":45,"cupo_maximo":1}mdlObtenerReservasExistentes: Encontradas 0 reservas para doctor ID 13 en fecha 2025-07-25Verificando reservas existentes para DoctorID=13, Fecha=2025-07-25: 0 encontradasGenerando slots para horario: {"horario_id":25,"agenda_id":25,"cabecera_agenda_id":10,"turno_id":3,"turno_nombre":"TARDE","sala_id":1,"sala_nombre":"Sala 1","doctor_id":13,"nombre_doctor":"Antonio Galeano","dia_semana":"VIERNES","hora_inicio":"17:00:00","hora_fin":"20:00:00","intervalo_minutos":45,"cupo_maximo":1}, Intervalo: 45 minutosGenerando slots para horario: {"horario_id":31,"agenda_id":31,"cabecera_agenda_id":10,"turno_id":4,"turno_nombre":"Noche","sala_id":3,"sala_nombre":"sala 3","doctor_id":13,"nombre_doctor":"Antonio Galeano","dia_semana":"VIERNES","hora_inicio":"20:00:00","hora_fin":"23:00:00","intervalo_minutos":60,"cupo_maximo":1}, Intervalo: 60 minutosSe generaron 7 slots detalladosmdlObtenerHorariosDisponibles: SQL para DoctorID=13, Dia=VIERNES: SELECT 
+                ad.detalle_id as horario_id,
+                ad.detalle_id as agenda_id,
+                ac.agenda_id as cabecera_agenda_id,
+                ad.turno_id,
+                t.turno_nombre,
+                ad.sala_id,
+                s.sala_nombre,
+                ac.medico_id as doctor_id,
+                coalesce(p.first_name, '') || ' ' || coalesce(p.last_name, '') as nombre_doctor,
+                ad.dia_semana,
+                ad.hora_inicio,
+                ad.hora_fin,
+                ad.intervalo_minutos,
+                ad.cupo_maximo
+            FROM
+                agendas_detalle ad
+            INNER JOIN 
+                agendas_cabecera ac ON ad.agenda_id = ac.agenda_id
+            INNER JOIN 
+                turnos t ON ad.turno_id = t.turno_id
+            INNER JOIN 
+                salas s ON ad.sala_id = s.sala_id
+            INNER JOIN
+                rh_doctors rd ON rd.doctor_id = ac.medico_id 
+            INNER JOIN 
+                rh_person p ON p.person_id = rd.person_id
+            WHERE
+                ac.medico_id = :doctor_id
+                AND ad.dia_semana = :dia_semana
+                AND ad.detalle_estado = true
+                AND ac.agenda_estado = true
+                ORDER BY ad.hora_inicio ASCmdlObtenerHorariosDisponibles: Se encontraron 2 resultados para DoctorID=13, Dia=VIERNESPrimer resultado: {"horario_id":25,"agenda_id":25,"cabecera_agenda_id":10,"turno_id":3,"turno_nombre":"TARDE","sala_id":1,"sala_nombre":"Sala 1","doctor_id":13,"nombre_doctor":"Antonio Galeano","dia_semana":"VIERNES","hora_inicio":"17:00:00","hora_fin":"20:00:00","intervalo_minutos":45,"cupo_maximo":1}mdlObtenerReservasExistentes: Encontradas 0 reservas para doctor ID 13 en fecha 2025-07-25Verificando reservas existentes para DoctorID=13, Fecha=2025-07-25: 0 encontradasGenerando slots para horario: {"horario_id":25,"agenda_id":25,"cabecera_agenda_id":10,"turno_id":3,"turno_nombre":"TARDE","sala_id":1,"sala_nombre":"Sala 1","doctor_id":13,"nombre_doctor":"Antonio Galeano","dia_semana":"VIERNES","hora_inicio":"17:00:00","hora_fin":"20:00:00","intervalo_minutos":45,"cupo_maximo":1}, Intervalo: 45 minutosGenerando slots para horario: {"horario_id":31,"agenda_id":31,"cabecera_agenda_id":10,"turno_id":4,"turno_nombre":"Noche","sala_id":3,"sala_nombre":"sala 3","doctor_id":13,"nombre_doctor":"Antonio Galeano","dia_semana":"VIERNES","hora_inicio":"20:00:00","hora_fin":"23:00:00","intervalo_minutos":60,"cupo_maximo":1}, Intervalo: 60 minutosSe generaron 7 slots detalladosmdlObtenerHorariosDisponibles: SQL para DoctorID=13, Dia=VIERNES: SELECT 
+                ad.detalle_id as horario_id,
+                ad.detalle_id as agenda_id,
+                ac.agenda_id as cabecera_agenda_id,
+                ad.turno_id,
+                t.turno_nombre,
+                ad.sala_id,
+                s.sala_nombre,
+                ac.medico_id as doctor_id,
+                coalesce(p.first_name, '') || ' ' || coalesce(p.last_name, '') as nombre_doctor,
+                ad.dia_semana,
+                ad.hora_inicio,
+                ad.hora_fin,
+                ad.intervalo_minutos,
+                ad.cupo_maximo
+            FROM
+                agendas_detalle ad
+            INNER JOIN 
+                agendas_cabecera ac ON ad.agenda_id = ac.agenda_id
+            INNER JOIN 
+                turnos t ON ad.turno_id = t.turno_id
+            INNER JOIN 
+                salas s ON ad.sala_id = s.sala_id
+            INNER JOIN
+                rh_doctors rd ON rd.doctor_id = ac.medico_id 
+            INNER JOIN 
+                rh_person p ON p.person_id = rd.person_id
+            WHERE
+                ac.medico_id = :doctor_id
+                AND ad.dia_semana = :dia_semana
+                AND ad.detalle_estado = true
+                AND ac.agenda_estado = true
+                ORDER BY ad.hora_inicio ASCmdlObtenerHorariosDisponibles: Se encontraron 2 resultados para DoctorID=13, Dia=VIERNESPrimer resultado: {"horario_id":25,"agenda_id":25,"cabecera_agenda_id":10,"turno_id":3,"turno_nombre":"TARDE","sala_id":1,"sala_nombre":"Sala 1","doctor_id":13,"nombre_doctor":"Antonio Galeano","dia_semana":"VIERNES","hora_inicio":"17:00:00","hora_fin":"20:00:00","intervalo_minutos":45,"cupo_maximo":1}mdlObtenerReservasExistentes: Encontradas 0 reservas para doctor ID 13 en fecha 2025-07-25Verificando reservas existentes para DoctorID=13, Fecha=2025-07-25: 0 encontradasGenerando slots para horario: {"horario_id":25,"agenda_id":25,"cabecera_agenda_id":10,"turno_id":3,"turno_nombre":"TARDE","sala_id":1,"sala_nombre":"Sala 1","doctor_id":13,"nombre_doctor":"Antonio Galeano","dia_semana":"VIERNES","hora_inicio":"17:00:00","hora_fin":"20:00:00","intervalo_minutos":45,"cupo_maximo":1}, Intervalo: 45 minutosGenerando slots para horario: {"horario_id":31,"agenda_id":31,"cabecera_agenda_id":10,"turno_id":4,"turno_nombre":"Noche","sala_id":3,"sala_nombre":"sala 3","doctor_id":13,"nombre_doctor":"Antonio Galeano","dia_semana":"VIERNES","hora_inicio":"20:00:00","hora_fin":"23:00:00","intervalo_minutos":60,"cupo_maximo":1}, Intervalo: 60 minutosSe generaron 7 slots detalladosmdlObtenerServicios: Encontrados 8 servicios en rs_serviciosDEBUG - Fecha: 2025-07-20, Número día: 7, Texto día: DOMINGOBuscando médicos para fecha: 2025-07-20, día: DOMINGONo hay médicos con agenda configurada para DOMINGOAJAX obtenerCuposDisponiblesPorTurno llamadoAJAX procesando fecha: 2025-07-20Calculando cupos para fecha 2025-07-20, día: DOMINGOHorarios encontrados para 2025-07-20 (DOMINGO): []Cupos totales calculados: {"Ma\u00f1ana":0,"Tarde":0,"Noche":0}Reservas encontradas para 2025-07-20: []Turno Mañana: Total=0, Ocupadas=0, Disponibles=0Turno Tarde: Total=0, Ocupadas=0, Disponibles=0Turno Noche: Total=0, Ocupadas=0, Disponibles=0AJAX retornando cupos disponibles: {"Ma\u00f1ana":0,"Tarde":0,"Noche":0}DEBUG - Fecha: 2025-07-20, Número día: 7, Texto día: DOMINGOBuscando médicos para fecha: 2025-07-20, día: DOMINGONo hay médicos con agenda configurada para DOMINGOAJAX obtenerCuposDisponiblesPorTurno llamadoAJAX procesando fecha: 2025-07-20Calculando cupos para fecha 2025-07-20, día: DOMINGOHorarios encontrados para 2025-07-20 (DOMINGO): []Cupos totales calculados: {"Ma\u00f1ana":0,"Tarde":0,"Noche":0}Reservas encontradas para 2025-07-20: []Turno Mañana: Total=0, Ocupadas=0, Disponibles=0Turno Tarde: Total=0, Ocupadas=0, Disponibles=0Turno Noche: Total=0, Ocupadas=0, Disponibles=0AJAX retornando cupos disponibles: {"Ma\u00f1ana":0,"Tarde":0,"Noche":0}DEBUG - Fecha: 2025-07-20, Número día: 7, Texto día: DOMINGOBuscando médicos para fecha: 2025-07-20, día: DOMINGONo hay médicos con agenda configurada para DOMINGODEBUG - Fecha: 2025-07-25, Número día: 5, Texto día: VIERNESBuscando médicos para fecha: 2025-07-25, día: VIERNESAgendas encontradas para VIERNES: [{"agenda_id":10,"dia_semana":"VIERNES","agenda_descripcion":"Agenda del m\u00e9dico ID: 13","medico_id":13},{"agenda_id":10,"dia_semana":"VIERNES","agenda_descripcion":"Agenda del m\u00e9dico ID: 13","medico_id":13},{"agenda_id":18,"dia_semana":"VIERNES","agenda_descripcion":"prueba ","medico_id":14},{"agenda_id":18,"dia_semana":"VIERNES","agenda_descripcion":"prueba ","medico_id":14}]DEBUG - Dia semana utilizado para la consulta: 'VIERNES'DEBUG - Días disponibles en agendas_detalle: ["LUNES","MARTES","MIERCOLES","JUEVES","VIERNES","SABADO"]Resultados crudos de la consulta: [{"doctor_id":13,"person_id":53,"nombre_doctor":"Antonio Galeano","doctor_estado":"ACTIVO","agenda_id":10,"medico_id":13,"doctor_match":true,"dia_semana":"VIERNES"},{"doctor_id":14,"person_id":56,"nombre_doctor":"ronal ricardo","doctor_estado":"ACTIVO","agenda_id":18,"medico_id":14,"doctor_match":true,"dia_semana":"VIERNES"}]Médicos encontrados para 2025-07-25 (VIERNES): 2Médico Antonio Galeano (ID: 13) - Horarios encontrados: 2Médico Antonio Galeano (ID: 13) - Cupos base calculados: 7Médico Antonio Galeano (ID: 13) - Reservas ocupadas: 1Médico Antonio Galeano (ID: 13) - Cupos base: 7, Ocupados: 1, Disponibles: 6Médico ronal ricardo (ID: 14) - Horarios encontrados: 2Médico ronal ricardo (ID: 14) - Cupos base calculados: 21Médico ronal ricardo (ID: 14) - Reservas ocupadas: 0Médico ronal ricardo (ID: 14) - Cupos base: 21, Ocupados: 0, Disponibles: 21AJAX obtenerCuposDisponiblesPorTurno llamadoAJAX procesando fecha: 2025-07-25Calculando cupos para fecha 2025-07-25, día: VIERNESHorarios encontrados para 2025-07-25 (VIERNES): [{"hora_inicio":"08:00:00","hora_fin":"12:00:00","intervalo_minutos":15,"medico_id":14,"turno":"Ma\u00f1ana"},{"hora_inicio":"13:00:00","hora_fin":"16:00:00","intervalo_minutos":35,"medico_id":14,"turno":"Tarde"},{"hora_inicio":"17:00:00","hora_fin":"20:00:00","intervalo_minutos":45,"medico_id":13,"turno":"Tarde"},{"hora_inicio":"20:00:00","hora_fin":"23:00:00","intervalo_minutos":60,"medico_id":13,"turno":"Noche"}]Intervalo generado: 08:00-08:15_medico_14 en turno MañanaIntervalo generado: 08:15-08:30_medico_14 en turno MañanaIntervalo generado: 08:30-08:45_medico_14 en turno MañanaIntervalo generado: 08:45-09:00_medico_14 en turno MañanaIntervalo generado: 09:00-09:15_medico_14 en turno MañanaIntervalo generado: 09:15-09:30_medico_14 en turno MañanaIntervalo generado: 09:30-09:45_medico_14 en turno MañanaIntervalo generado: 09:45-10:00_medico_14 en turno MañanaIntervalo generado: 10:00-10:15_medico_14 en turno MañanaIntervalo generado: 10:15-10:30_medico_14 en turno MañanaIntervalo generado: 10:30-10:45_medico_14 en turno MañanaIntervalo generado: 10:45-11:00_medico_14 en turno MañanaIntervalo generado: 11:00-11:15_medico_14 en turno MañanaIntervalo generado: 11:15-11:30_medico_14 en turno MañanaIntervalo generado: 11:30-11:45_medico_14 en turno MañanaIntervalo generado: 11:45-12:00_medico_14 en turno MañanaIntervalo generado: 13:00-13:35_medico_14 en turno TardeIntervalo generado: 13:35-14:10_medico_14 en turno TardeIntervalo generado: 14:10-14:45_medico_14 en turno TardeIntervalo generado: 14:45-15:20_medico_14 en turno TardeIntervalo generado: 15:20-15:55_medico_14 en turno TardeIntervalo generado: 17:00-17:45_medico_13 en turno TardeIntervalo generado: 17:45-18:30_medico_13 en turno TardeIntervalo generado: 18:30-19:15_medico_13 en turno TardeIntervalo generado: 19:15-20:00_medico_13 en turno TardeIntervalo generado: 20:00-21:00_medico_13 en turno NocheIntervalo generado: 21:00-22:00_medico_13 en turno NocheIntervalo generado: 22:00-23:00_medico_13 en turno NocheCupos totales calculados: {"Ma\u00f1ana":16,"Tarde":9,"Noche":3}Reservas encontradas para 2025-07-25: [{"doctor_id":13,"hora_inicio":"20:00:00","hora_fin":"21:00:00","turno":"Noche"}]Intervalo ocupado: 20:00-21:00_medico_13 en turno NocheTurno Mañana: Total=16, Ocupadas=0, Disponibles=16Turno Tarde: Total=9, Ocupadas=0, Disponibles=9Turno Noche: Total=3, Ocupadas=1, Disponibles=2AJAX retornando cupos disponibles: {"Ma\u00f1ana":16,"Tarde":9,"Noche":2}DEBUG - Fecha: 2025-07-25, Número día: 5, Texto día: VIERNESBuscando médicos para fecha: 2025-07-25, día: VIERNESAgendas encontradas para VIERNES: [{"agenda_id":10,"dia_semana":"VIERNES","agenda_descripcion":"Agenda del m\u00e9dico ID: 13","medico_id":13},{"agenda_id":10,"dia_semana":"VIERNES","agenda_descripcion":"Agenda del m\u00e9dico ID: 13","medico_id":13},{"agenda_id":18,"dia_semana":"VIERNES","agenda_descripcion":"prueba ","medico_id":14},{"agenda_id":18,"dia_semana":"VIERNES","agenda_descripcion":"prueba ","medico_id":14}]DEBUG - Dia semana utilizado para la consulta: 'VIERNES'DEBUG - Días disponibles en agendas_detalle: ["LUNES","MARTES","MIERCOLES","JUEVES","VIERNES","SABADO"]Resultados crudos de la consulta: [{"doctor_id":13,"person_id":53,"nombre_doctor":"Antonio Galeano","doctor_estado":"ACTIVO","agenda_id":10,"medico_id":13,"doctor_match":true,"dia_semana":"VIERNES"},{"doctor_id":14,"person_id":56,"nombre_doctor":"ronal ricardo","doctor_estado":"ACTIVO","agenda_id":18,"medico_id":14,"doctor_match":true,"dia_semana":"VIERNES"}]Médicos encontrados para 2025-07-25 (VIERNES): 2Médico Antonio Galeano (ID: 13) - Horarios encontrados: 2Médico Antonio Galeano (ID: 13) - Cupos base calculados: 7Médico Antonio Galeano (ID: 13) - Reservas ocupadas: 1Médico Antonio Galeano (ID: 13) - Cupos base: 7, Ocupados: 1, Disponibles: 6Médico ronal ricardo (ID: 14) - Horarios encontrados: 2Médico ronal ricardo (ID: 14) - Cupos base calculados: 21Médico ronal ricardo (ID: 14) - Reservas ocupadas: 0Médico ronal ricardo (ID: 14) - Cupos base: 21, Ocupados: 0, Disponibles: 21mdlObtenerHorariosDisponibles: SQL para DoctorID=13, Dia=VIERNES: SELECT 
+                ad.detalle_id as horario_id,
+                ad.detalle_id as agenda_id,
+                ac.agenda_id as cabecera_agenda_id,
+                ad.turno_id,
+                t.turno_nombre,
+                ad.sala_id,
+                s.sala_nombre,
+                ac.medico_id as doctor_id,
+                coalesce(p.first_name, '') || ' ' || coalesce(p.last_name, '') as nombre_doctor,
+                ad.dia_semana,
+                ad.hora_inicio,
+                ad.hora_fin,
+                ad.intervalo_minutos,
+                ad.cupo_maximo
+            FROM
+                agendas_detalle ad
+            INNER JOIN 
+                agendas_cabecera ac ON ad.agenda_id = ac.agenda_id
+            INNER JOIN 
+                turnos t ON ad.turno_id = t.turno_id
+            INNER JOIN 
+                salas s ON ad.sala_id = s.sala_id
+            INNER JOIN
+                rh_doctors rd ON rd.doctor_id = ac.medico_id 
+            INNER JOIN 
+                rh_person p ON p.person_id = rd.person_id
+            WHERE
+                ac.medico_id = :doctor_id
+                AND ad.dia_semana = :dia_semana
+                AND ad.detalle_estado = true
+                AND ac.agenda_estado = true
+                ORDER BY ad.hora_inicio ASCmdlObtenerHorariosDisponibles: Se encontraron 2 resultados para DoctorID=13, Dia=VIERNESPrimer resultado: {"horario_id":25,"agenda_id":25,"cabecera_agenda_id":10,"turno_id":3,"turno_nombre":"TARDE","sala_id":1,"sala_nombre":"Sala 1","doctor_id":13,"nombre_doctor":"Antonio Galeano","dia_semana":"VIERNES","hora_inicio":"17:00:00","hora_fin":"20:00:00","intervalo_minutos":45,"cupo_maximo":1}mdlObtenerReservasExistentes: Encontradas 1 reservas para doctor ID 13 en fecha 2025-07-25Primera reserva: {"reserva_id":79,"servicio_id":3,"agenda_id":31,"doctor_id":13,"fecha_reserva":"2025-07-25","hora_inicio":"20:00:00","hora_fin":"21:00:00"}Verificando reservas existentes para DoctorID=13, Fecha=2025-07-25: 1 encontradasGenerando slots para horario: {"horario_id":25,"agenda_id":25,"cabecera_agenda_id":10,"turno_id":3,"turno_nombre":"TARDE","sala_id":1,"sala_nombre":"Sala 1","doctor_id":13,"nombre_doctor":"Antonio Galeano","dia_semana":"VIERNES","hora_inicio":"17:00:00","hora_fin":"20:00:00","intervalo_minutos":45,"cupo_maximo":1}, Intervalo: 45 minutosGenerando slots para horario: {"horario_id":31,"agenda_id":31,"cabecera_agenda_id":10,"turno_id":4,"turno_nombre":"Noche","sala_id":3,"sala_nombre":"sala 3","doctor_id":13,"nombre_doctor":"Antonio Galeano","dia_semana":"VIERNES","hora_inicio":"20:00:00","hora_fin":"23:00:00","intervalo_minutos":60,"cupo_maximo":1}, Intervalo: 60 minutosSlot 20:00:00 - 21:00:00 excluido por reserva existente: 20:00:00 - 21:00:00Se generaron 6 slots detalladosmdlObtenerHorariosDisponibles: SQL para DoctorID=13, Dia=VIERNES: SELECT 
+                ad.detalle_id as horario_id,
+                ad.detalle_id as agenda_id,
+                ac.agenda_id as cabecera_agenda_id,
+                ad.turno_id,
+                t.turno_nombre,
+                ad.sala_id,
+                s.sala_nombre,
+                ac.medico_id as doctor_id,
+                coalesce(p.first_name, '') || ' ' || coalesce(p.last_name, '') as nombre_doctor,
+                ad.dia_semana,
+                ad.hora_inicio,
+                ad.hora_fin,
+                ad.intervalo_minutos,
+                ad.cupo_maximo
+            FROM
+                agendas_detalle ad
+            INNER JOIN 
+                agendas_cabecera ac ON ad.agenda_id = ac.agenda_id
+            INNER JOIN 
+                turnos t ON ad.turno_id = t.turno_id
+            INNER JOIN 
+                salas s ON ad.sala_id = s.sala_id
+            INNER JOIN
+                rh_doctors rd ON rd.doctor_id = ac.medico_id 
+            INNER JOIN 
+                rh_person p ON p.person_id = rd.person_id
+            WHERE
+                ac.medico_id = :doctor_id
+                AND ad.dia_semana = :dia_semana
+                AND ad.detalle_estado = true
+                AND ac.agenda_estado = true
+                ORDER BY ad.hora_inicio ASCmdlObtenerHorariosDisponibles: Se encontraron 2 resultados para DoctorID=13, Dia=VIERNESPrimer resultado: {"horario_id":25,"agenda_id":25,"cabecera_agenda_id":10,"turno_id":3,"turno_nombre":"TARDE","sala_id":1,"sala_nombre":"Sala 1","doctor_id":13,"nombre_doctor":"Antonio Galeano","dia_semana":"VIERNES","hora_inicio":"17:00:00","hora_fin":"20:00:00","intervalo_minutos":45,"cupo_maximo":1}mdlObtenerReservasExistentes: Encontradas 1 reservas para doctor ID 13 en fecha 2025-07-25Primera reserva: {"reserva_id":79,"servicio_id":3,"agenda_id":31,"doctor_id":13,"fecha_reserva":"2025-07-25","hora_inicio":"20:00:00","hora_fin":"21:00:00"}Verificando reservas existentes para DoctorID=13, Fecha=2025-07-25: 1 encontradasGenerando slots para horario: {"horario_id":25,"agenda_id":25,"cabecera_agenda_id":10,"turno_id":3,"turno_nombre":"TARDE","sala_id":1,"sala_nombre":"Sala 1","doctor_id":13,"nombre_doctor":"Antonio Galeano","dia_semana":"VIERNES","hora_inicio":"17:00:00","hora_fin":"20:00:00","intervalo_minutos":45,"cupo_maximo":1}, Intervalo: 45 minutosGenerando slots para horario: {"horario_id":31,"agenda_id":31,"cabecera_agenda_id":10,"turno_id":4,"turno_nombre":"Noche","sala_id":3,"sala_nombre":"sala 3","doctor_id":13,"nombre_doctor":"Antonio Galeano","dia_semana":"VIERNES","hora_inicio":"20:00:00","hora_fin":"23:00:00","intervalo_minutos":60,"cupo_maximo":1}, Intervalo: 60 minutosSlot 20:00:00 - 21:00:00 excluido por reserva existente: 20:00:00 - 21:00:00Se generaron 6 slots detallados

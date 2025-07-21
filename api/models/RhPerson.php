@@ -49,24 +49,46 @@ class RhPerson extends Model
     ];
     
     /**
-     * Get persons with pagination
+     * Get persons with pagination, search and ordering
      * 
      * @param int $page The page number
      * @param int $perPage The number of records per page
+     * @param string $search The search term
+     * @param string $orderColumn The column to order by
+     * @param string $orderDirection The order direction (asc/desc)
      * @return array
      */
-    public function paginate($page = 1, $perPage = 10)
+    public function paginate($page = 1, $perPage = 20, $search = '', $orderColumn = 'person_id', $orderDirection = 'desc')
     {
         $offset = ($page - 1) * $perPage;
         
-        $sql = "SELECT * FROM {$this->table} ORDER BY {$this->primaryKey} DESC LIMIT :limit OFFSET :offset";
-        $persons = $this->raw($sql, [
+        // Sanitize order column to prevent SQL injection
+        $allowedColumns = ['person_id', 'document_number', 'first_name', 'last_name', 'birth_date', 'record_number', 'phone_number', 'is_active'];
+        $orderColumn = in_array($orderColumn, $allowedColumns) ? $orderColumn : 'person_id';
+        $orderDirection = strtoupper($orderDirection) === 'ASC' ? 'ASC' : 'DESC';
+        
+        // Build WHERE clause for search
+        $whereClause = '';
+        $params = [
             'limit' => $perPage,
             'offset' => $offset
-        ])->fetchAll();
+        ];
         
-        $countSql = "SELECT COUNT(*) as total FROM {$this->table}";
-        $totalCount = $this->raw($countSql)->fetch()['total'];
+        if (!empty($search)) {
+            $whereClause = "WHERE first_name ILIKE :search OR last_name ILIKE :search OR document_number ILIKE :search OR phone_number ILIKE :search";
+            $params['search'] = "%{$search}%";
+        }
+        
+        $sql = "SELECT * FROM {$this->table} {$whereClause} ORDER BY {$orderColumn} {$orderDirection} LIMIT :limit OFFSET :offset";
+        $persons = $this->raw($sql, $params)->fetchAll();
+        
+        // Count total records with search filter
+        $countSql = "SELECT COUNT(*) as total FROM {$this->table} {$whereClause}";
+        $countParams = [];
+        if (!empty($search)) {
+            $countParams['search'] = "%{$search}%";
+        }
+        $totalCount = $this->raw($countSql, $countParams)->fetch()['total'];
         
         return [
             'data' => $persons,

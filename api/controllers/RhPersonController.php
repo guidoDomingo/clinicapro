@@ -26,7 +26,7 @@ class RhPersonController
     }
     
     /**
-     * Get all persons
+     * Get all persons with pagination
      * 
      * @return void
      */
@@ -34,9 +34,16 @@ class RhPersonController
     {
         // Get pagination parameters
         $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
-        $perPage = isset($_GET['per_page']) ? (int) $_GET['per_page'] : 10;
+        $perPage = isset($_GET['per_page']) ? (int) $_GET['per_page'] : 20;
         
-        $persons = $this->personModel->paginate($page, $perPage);
+        // Get search parameter
+        $search = isset($_GET['search']) ? $_GET['search'] : '';
+        
+        // Get ordering parameters
+        $orderColumn = isset($_GET['order_column']) ? $_GET['order_column'] : 'person_id';
+        $orderDirection = isset($_GET['order_direction']) ? $_GET['order_direction'] : 'desc';
+        
+        $persons = $this->personModel->paginate($page, $perPage, $search, $orderColumn, $orderDirection);
         Response::success($persons);
     }
     
