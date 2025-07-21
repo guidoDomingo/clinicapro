@@ -2310,17 +2310,19 @@ function procesarParametrosURLPaciente() {
         // Añadir clase de carga para efecto visual
         $('.reservas-existentes').addClass('loading');
         
-        // Destruir la tabla actual si existe, con manejo de errores
+        // Destruir la tabla actual si existe, con manejo de errores mejorado
         try {
             if ($.fn.DataTable.isDataTable('#tablaReservasPorFecha')) {
-                $('#tablaReservasPorFecha').DataTable().destroy();
+                $('#tablaReservasPorFecha').DataTable().clear().destroy();
+                console.log('DataTable destruida correctamente');
             }
             
             // Resetear el contenido de la tabla
             $('#tablaReservasPorFecha tbody').empty();
         } catch (error) {
             console.log('Error al resetear la tabla de reservas:', error);
-            return; // Detener la ejecución si hay un error
+            // En caso de error, forzar reset del HTML
+            $('#tablaReservasPorFecha tbody').empty();
         }
 
         if (!fecha) {
@@ -2382,20 +2384,7 @@ function procesarParametrosURLPaciente() {
                             '<td><small>' + (item.doctor && item.doctor.length > 20 ? item.doctor.substring(0, 20) + '...' : item.doctor) + '</small></td>' +
                             '<td><small>' + (item.paciente && item.paciente.length > 20 ? item.paciente.substring(0, 20) + '...' : item.paciente) + '</small></td>' +
                             '<td><small>' + (item.serv_descripcion && item.serv_descripcion.length > 20 ? item.serv_descripcion.substring(0, 20) + '...' : item.serv_descripcion) + '</small></td>' +
-                            '<td class="text-center"><span class="' + estadoClass + ' small">' + estadoIcono + item.reserva_estado + '</span></td>' +                            '<td class="text-center">' +
-                            // (item.reserva_estado === 'PENDIENTE' ? 
-                            // '<button class="btn btn-success btn-xs btnConfirmarReservaTab" data-id="' + item.reserva_id + '" title="Confirmar reserva">' +
-                            // '<i class="fas fa-check"></i>' +
-                            // '</button>' : 
-                            // (item.reserva_estado === 'CONFIRMADA' ?                            '<button class="btn btn-primary btn-xs btnIrAConsultaTab" ' +
-                            // 'data-paciente-id="' + (item.paciente_id || item.patient_id || '') + '" ' +
-                            // 'data-reserva-id="' + item.reserva_id + '" ' +
-                            // 'data-paciente-nombre="' + (item.paciente || 'Paciente') + '" ' +
-                            // 'title="Ir a Consulta">' +
-                            // '<i class="fas fa-stethoscope"></i>' +
-                            // '</button>' :
-                            // '<i class="fas fa-check-double text-success" title="Reserva confirmada"></i>')) +
-                            // '</td>' +
+                            '<td class="text-center"><span class="' + estadoClass + ' small">' + estadoIcono + item.reserva_estado + '</span></td>' +
                             '</tr>'
                         );
                     });                    // Inicializar los botones alternativos primero
@@ -2409,6 +2398,13 @@ function procesarParametrosURLPaciente() {
                     const opcionesDataTable = {
                         responsive: true,
                         autoWidth: false,
+                        columns: [
+                            { title: "Hora", orderable: true },
+                            { title: "Doctor", orderable: true },
+                            { title: "Paciente", orderable: true },
+                            { title: "Servicio", orderable: true },
+                            { title: "Estado", orderable: true }
+                        ],
                         language: {
                             "sProcessing": "Procesando...",
                             "sLengthMenu": "Mostrar _MENU_",
@@ -2473,29 +2469,47 @@ function procesarParametrosURLPaciente() {
                             ];
                         }
                         
-                        // Inicializar DataTable SOLO UNA VEZ
-                        if (!$.fn.DataTable.isDataTable('#tablaReservasPorFecha')) {
-                            $('#tablaReservasPorFecha').DataTable(opcionesDataTable);
-                            console.log('DataTable inicializada correctamente');
-                        } else {
-                            console.log('DataTable ya está inicializada, saltando...');
+                        // Destruir DataTable existente si existe antes de crear uno nuevo
+                        if ($.fn.DataTable.isDataTable('#tablaReservasPorFecha')) {
+                            $('#tablaReservasPorFecha').DataTable().clear().destroy();
                         }
+                        
+                        // Inicializar DataTable
+                        $('#tablaReservasPorFecha').DataTable(opcionesDataTable);
+                        console.log('DataTable inicializada correctamente');
+                        
                     } catch (error) {
                         console.error('Error al inicializar DataTable:', error);
-                        // En caso de error, intentar inicializar sin botones
-                        if (!$.fn.DataTable.isDataTable('#tablaReservasPorFecha')) {
-                            try {
-                                $('#tablaReservasPorFecha').DataTable({
-                                    responsive: true,
-                                    pageLength: 5,
-                                    order: [[0, 'asc']]
-                                });
-                            } catch (e) {
-                                console.error('Error incluso con configuración básica:', e);
+                        // En caso de error, intentar inicializar sin botones y con configuración mínima
+                        try {
+                            // Destruir tabla existente
+                            if ($.fn.DataTable.isDataTable('#tablaReservasPorFecha')) {
+                                $('#tablaReservasPorFecha').DataTable().clear().destroy();
                             }
+                            
+                            // Configuración de respaldo mínima
+                            $('#tablaReservasPorFecha').DataTable({
+                                responsive: true,
+                                pageLength: 5,
+                                columns: [
+                                    { title: "Hora" },
+                                    { title: "Doctor" },
+                                    { title: "Paciente" },
+                                    { title: "Servicio" },
+                                    { title: "Estado" }
+                                ],
+                                order: [[0, 'asc']]
+                            });
+                            console.log('DataTable inicializada con configuración de respaldo');
+                        } catch (e) {
+                            console.error('Error incluso con configuración básica:', e);
                         }
                     }
                 } else {
+                    // Destruir DataTable existente si existe cuando no hay datos
+                    if ($.fn.DataTable.isDataTable('#tablaReservasPorFecha')) {
+                        $('#tablaReservasPorFecha').DataTable().clear().destroy();
+                    }
                     $('#tablaReservasPorFecha tbody').html('<tr><td colspan="5" class="text-center">No hay reservas para esta fecha</td></tr>');
                 }
             },
