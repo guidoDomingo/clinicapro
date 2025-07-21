@@ -119,65 +119,151 @@ if (isset($_POST['action'])) {
                 error_log("AJAX procesando fecha: {$fecha}", 3, 'c:/laragon/www/clinica/logs/database.log');
                 
                 try {
-                    // Obtener cupos totales basados en los datos reales encontrados en logs
-                    $cuposTotales = [
-                        'Mañana' => 16,  // 08:00-12:00, intervalo 15 min
-                        'Tarde' => 10,   // 6 (13:00-16:00, 35min) + 4 (17:00-20:00, 45min)
-                        'Noche' => 0     // Sin horarios nocturnos
-                    ];
-                    
-                    // Contar reservas existentes para esta fecha
                     $pdo = Conexion::conectar();
                     if ($pdo) {
-                        // Verificar si existe la tabla servicios_reservas
+                        // Obtener el día de la semana en español para la fecha
+                        $diasSemana = [
+                            1 => 'LUNES',
+                            2 => 'MARTES', 
+                            3 => 'MIERCOLES',
+                            4 => 'JUEVES',
+                            5 => 'VIERNES',
+                            6 => 'SABADO',
+                            0 => 'DOMINGO'
+                        ];
+                        
+                        $fechaObj = new DateTime($fecha);
+                        $numeroDia = (int)$fechaObj->format('w'); // 0=domingo, 1=lunes, etc
+                        $diaSemana = $diasSemana[$numeroDia];
+                        
+                        error_log("Calculando cupos para fecha {$fecha}, día: {$diaSemana}", 3, 'c:/laragon/www/clinica/logs/database.log');
+                        
+                        // Calcular cupos disponibles por turno basado en intervalos de tiempo específicos
+                        $sqlHorarios = "SELECT DISTINCT
+                                            ad.hora_inicio,
+                                            ad.hora_fin,
+                                            ad.intervalo_minutos,
+                                            ac.medico_id,
+                                            CASE 
+                                                WHEN EXTRACT(HOUR FROM ad.hora_inicio::time) BETWEEN 6 AND 11 THEN 'Mañana'
+                                                WHEN EXTRACT(HOUR FROM ad.hora_inicio::time) BETWEEN 12 AND 19 THEN 'Tarde'
+                                                ELSE 'Noche'
+                                            END as turno
+                                        FROM agendas_detalle ad
+                                        INNER JOIN agendas_cabecera ac ON ad.agenda_id = ac.agenda_id
+                                        WHERE ac.agenda_estado = true 
+                                        AND ad.dia_semana = :dia_semana
+                                        AND ad.dia_semana IS NOT NULL
+                                        AND ad.hora_inicio IS NOT NULL 
+                                        AND ad.hora_fin IS NOT NULL
+                                        AND ad.intervalo_minutos > 0
+                                        ORDER BY ad.hora_inicio, ac.medico_id";
+                        
+                        $stmtHorarios = $pdo->prepare($sqlHorarios);
+                        $stmtHorarios->bindParam(":dia_semana", $diaSemana, PDO::PARAM_STR);
+                        $stmtHorarios->execute();
+                        $horariosDisponibles = $stmtHorarios->fetchAll(PDO::FETCH_ASSOC);
+                        
+                        error_log("Horarios encontrados para {$fecha} ({$diaSemana}): " . json_encode($horariosDisponibles), 3, 'c:/laragon/www/clinica/logs/database.log');
+                        
+                        // Generar todos los intervalos de tiempo disponibles agrupados por turno
+                        $intervalosDisponibles = ['Mañana' => [], 'Tarde' => [], 'Noche' => []];
+                        
+                        foreach ($horariosDisponibles as $horario) {
+                            $horaInicio = new DateTime($horario['hora_inicio']);
+                            $horaFin = new DateTime($horario['hora_fin']);
+                            $intervaloMinutos = (int)$horario['intervalo_minutos'];
+                            $medicoId = $horario['medico_id'];
+                            $turno = $horario['turno'];
+                            
+                            if ($intervaloMinutos > 0) {
+                                // Generar todos los intervalos específicos para este médico y horario
+                                $horaActual = clone $horaInicio;
+                                while ($horaActual < $horaFin) {
+                                    $horaFinalIntervalo = clone $horaActual;
+                                    $horaFinalIntervalo->add(new DateInterval('PT' . $intervaloMinutos . 'M'));
+                                    
+                                    if ($horaFinalIntervalo <= $horaFin) {
+                                        $claveIntervalo = $horaActual->format('H:i') . '-' . $horaFinalIntervalo->format('H:i') . '_medico_' . $medicoId;
+                                        $intervalosDisponibles[$turno][] = $claveIntervalo;
+                                        
+                                        error_log("Intervalo generado: {$claveIntervalo} en turno {$turno}", 3, 'c:/laragon/www/clinica/logs/database.log');
+                                    }
+                                    
+                                    $horaActual->add(new DateInterval('PT' . $intervaloMinutos . 'M'));
+                                }
+                            }
+                        }
+                        
+                        // Contar cupos totales por turno
+                        $cuposTotales = [
+                            'Mañana' => count($intervalosDisponibles['Mañana']),
+                            'Tarde' => count($intervalosDisponibles['Tarde']),
+                            'Noche' => count($intervalosDisponibles['Noche'])
+                        ];
+                        
+                        error_log("Cupos totales calculados: " . json_encode($cuposTotales), 3, 'c:/laragon/www/clinica/logs/database.log');
+                        
+                        // Verificar si existe la tabla servicios_reservas y contar reservas ocupadas
                         $stmtCheck = $pdo->prepare("SELECT to_regclass('public.servicios_reservas')");
                         $stmtCheck->execute();
                         $tablaExiste = $stmtCheck->fetchColumn();
                         
                         if ($tablaExiste) {
-                            // Contar reservas por turno para la fecha específica
+                            // Contar reservas específicas por turno, médico y horario para la fecha específica
                             $sql = "SELECT 
+                                        sr.doctor_id,
+                                        sr.hora_inicio,
+                                        sr.hora_fin,
                                         CASE 
-                                            WHEN EXTRACT(HOUR FROM hora_inicio::time) BETWEEN 6 AND 11 THEN 'Mañana'
-                                            WHEN EXTRACT(HOUR FROM hora_inicio::time) BETWEEN 12 AND 19 THEN 'Tarde'
+                                            WHEN EXTRACT(HOUR FROM sr.hora_inicio::time) BETWEEN 6 AND 11 THEN 'Mañana'
+                                            WHEN EXTRACT(HOUR FROM sr.hora_inicio::time) BETWEEN 12 AND 19 THEN 'Tarde'
                                             ELSE 'Noche'
-                                        END as turno,
-                                        COUNT(*) as reservas_ocupadas
-                                    FROM servicios_reservas 
-                                    WHERE DATE(fecha_reserva) = :fecha 
-                                    AND reserva_estado IN ('CONFIRMADA', 'PENDIENTE', 'EN_PROCESO')
-                                    GROUP BY turno";
+                                        END as turno
+                                    FROM servicios_reservas sr
+                                    WHERE DATE(sr.fecha_reserva) = :fecha 
+                                    AND sr.reserva_estado IN ('CONFIRMADA', 'PENDIENTE', 'EN_PROCESO')";
                             
                             $stmtReservas = $pdo->prepare($sql);
                             $stmtReservas->bindParam(":fecha", $fecha, PDO::PARAM_STR);
                             $stmtReservas->execute();
-                            $reservasOcupadas = $stmtReservas->fetchAll(PDO::FETCH_KEY_PAIR);
+                            $reservasOcupadas = $stmtReservas->fetchAll(PDO::FETCH_ASSOC);
                             
-                            error_log("Reservas ocupadas para {$fecha}: " . json_encode($reservasOcupadas), 3, 'c:/laragon/www/clinica/logs/database.log');
+                            error_log("Reservas encontradas para {$fecha}: " . json_encode($reservasOcupadas), 3, 'c:/laragon/www/clinica/logs/database.log');
                             
-                            // Calcular cupos disponibles restando las reservas ocupadas
+                            // Marcar intervalos ocupados específicos
+                            $intervalosOcupados = ['Mañana' => [], 'Tarde' => [], 'Noche' => []];
+                            foreach ($reservasOcupadas as $reserva) {
+                                $horaInicio = new DateTime($reserva['hora_inicio']);
+                                $horaFin = new DateTime($reserva['hora_fin']);
+                                $doctorId = $reserva['doctor_id'];
+                                $turno = $reserva['turno'];
+                                
+                                $claveReserva = $horaInicio->format('H:i') . '-' . $horaFin->format('H:i') . '_medico_' . $doctorId;
+                                $intervalosOcupados[$turno][] = $claveReserva;
+                                
+                                error_log("Intervalo ocupado: {$claveReserva} en turno {$turno}", 3, 'c:/laragon/www/clinica/logs/database.log');
+                            }
+                            
+                            // Calcular cupos disponibles restando intervalos ocupados específicos
                             $cupos = [];
                             foreach ($cuposTotales as $turno => $total) {
-                                $ocupadas = isset($reservasOcupadas[$turno]) ? (int)$reservasOcupadas[$turno] : 0;
+                                $ocupadas = count($intervalosOcupados[$turno]);
                                 $cupos[$turno] = max(0, $total - $ocupadas); // No puede ser negativo
                                 error_log("Turno {$turno}: Total={$total}, Ocupadas={$ocupadas}, Disponibles={$cupos[$turno]}", 3, 'c:/laragon/www/clinica/logs/database.log');
                             }
                         } else {
-                            error_log("Tabla servicios_reservas no existe, usando valores totales", 3, 'c:/laragon/www/clinica/logs/database.log');
+                            error_log("Tabla servicios_reservas no existe, usando valores totales calculados", 3, 'c:/laragon/www/clinica/logs/database.log');
                             $cupos = $cuposTotales;
                         }
                     } else {
-                        error_log("No se pudo conectar a la BD, usando valores totales", 3, 'c:/laragon/www/clinica/logs/database.log');
-                        $cupos = $cuposTotales;
+                        error_log("No se pudo conectar a la BD", 3, 'c:/laragon/www/clinica/logs/database.log');
+                        $cupos = ['Mañana' => 0, 'Tarde' => 0, 'Noche' => 0];
                     }
                 } catch (Exception $e) {
                     error_log("Error al calcular cupos disponibles: " . $e->getMessage(), 3, 'c:/laragon/www/clinica/logs/database.log');
-                    // En caso de error, usar valores totales
-                    $cupos = [
-                        'Mañana' => 16,
-                        'Tarde' => 10,
-                        'Noche' => 0
-                    ];
+                    // En caso de error, devolver ceros
+                    $cupos = ['Mañana' => 0, 'Tarde' => 0, 'Noche' => 0];
                 }
                 
                 error_log("AJAX retornando cupos disponibles: " . json_encode($cupos), 3, 'c:/laragon/www/clinica/logs/database.log');
