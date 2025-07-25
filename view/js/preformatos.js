@@ -63,14 +63,6 @@ function inicializarComponentes() {
     // Cargar médicos para el selector de propietario
     cargarMedicos();
     
-    // Inicializar selectores
-    const selectAplicarA = document.getElementById('aplicar-a');
-    if (selectAplicarA) {
-        selectAplicarA.addEventListener('change', function() {
-            cargarPreformatosPorTipo(this.value);
-        });
-    }
-    
     // Inicializar botones
     const btnLimpiar = document.getElementById('btn-limpiar-preformato');
     if (btnLimpiar) {
@@ -119,14 +111,6 @@ function configurarEventos() {
             }
         });
     }
-    
-    // Inicializar el campo de tipo si existe
-    const selectTipo = document.getElementById('tipo-preformato');
-    if (selectTipo) {
-        selectTipo.addEventListener('change', function() {
-            // Aquí se podría implementar alguna lógica específica para el tipo seleccionado
-        });
-    }
 }
 
 /**
@@ -168,6 +152,7 @@ function cargarPreformatosPorTipo(tipo) {
                         <td>${preformato.nombre}</td>
                         <td>${preformato.tipo}</td>
                         <td>${tipoFormulario}</td>
+                        <td>${preformato.propietario || 'N/A'}</td>
                         <td>
                             <div class="btn-group">
                                 <button class="btn btn-info btn-sm btn-editar" data-id="${preformato.id_preformato}" title="Editar preformato">
@@ -248,6 +233,7 @@ function cargarPreformatos(forzarRecarga = false) {
                         <td>${preformato.nombre}</td>
                         <td>${preformato.tipo}</td>
                         <td>${tipoFormulario}</td>
+                        <td>${preformato.propietario || 'N/A'}</td>
                         <td>
                             <button class="btn btn-info btn-sm btn-editar" data-id="${preformato.id_preformato}" title="Editar">
                                 <i class="fas fa-edit"></i>
@@ -507,6 +493,12 @@ function limpiarFormulario() {
     document.getElementById('aplicar-a').selectedIndex = 0;
     document.getElementById('titulo-preformato').value = '';
     
+    // Limpiar el selector de tipo de formulario
+    const tipoFormulario = document.getElementById('tipo-formulario');
+    if (tipoFormulario) {
+        tipoFormulario.selectedIndex = 0;
+    }
+    
     // Limpiar el editor si existe
     if ($('#obs-preformato').summernote) {
         $('#obs-preformato').summernote('code', '');
@@ -693,11 +685,6 @@ function cargarPreformatoParaEdicion(idPreformato) {
                 $("#id-preformato").val(respuesta.data.id_preformato);
                 $("#titulo-preformato").val(respuesta.data.nombre);
                 
-                // Establecer el tipo de preformato
-                if ($("#tipo-preformato").length) {
-                    $("#tipo-preformato").val(respuesta.data.tipo || "");
-                }
-                
                 // Establecer el propietario
                 if ($("#propietario").length) {
                     $("#propietario").val(respuesta.data.creado_por);
@@ -707,11 +694,6 @@ function cargarPreformatoParaEdicion(idPreformato) {
                 if ($("#aplicar-a").length) {
                     const tipoAplicacion = respuesta.data.tipo_aplicacion || respuesta.data.tipo || "";
                     $("#aplicar-a").val(tipoAplicacion);
-                    
-                    // Si es necesario, disparar el evento change para actualizar dependencias
-                    if (tipoAplicacion) {
-                        $("#aplicar-a").trigger('change');
-                    }
                 }
                 
                 // Establecer el tipo de formulario

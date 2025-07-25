@@ -1594,7 +1594,14 @@ function cargarDatosGeneralesConsulta(consulta, archivos) {
             // Si no hay opciones cargadas, cargar los preformatos primero
             const urlParams = new URLSearchParams(window.location.search);
             const formType = urlParams.get('form_type') || 'general';
-            cargarPreformatosConsulta(formType);
+            
+            // Usar el sistema sin duplicados si está disponible
+            if (typeof cargarPreformatosSinDuplicados === 'function') {
+                console.log('🛡️ Usando sistema sin duplicados en consultas.js');
+                cargarPreformatosSinDuplicados('consulta', formType);
+            } else {
+                cargarPreformatosConsulta(formType);
+            }
         }
         
         // Esperar un momento para que se carguen las opciones
@@ -1629,7 +1636,16 @@ function cargarDatosGeneralesConsulta(consulta, archivos) {
         // Verificar si los preformatos ya están cargados
         if (selectFormatoReceta.options.length <= 1) {
             // Si no hay opciones cargadas, cargar los preformatos primero
-            cargarPreformatosReceta();
+            
+            // Usar el sistema sin duplicados si está disponible
+            if (typeof cargarPreformatosSinDuplicados === 'function') {
+                console.log('🛡️ Usando sistema sin duplicados para recetas en consultas.js');
+                const urlParams = new URLSearchParams(window.location.search);
+                const formType = urlParams.get('form_type') || 'general';
+                cargarPreformatosSinDuplicados('receta', formType);
+            } else {
+                cargarPreformatosReceta();
+            }
         }
         
         // Esperar un momento para que se carguen las opciones

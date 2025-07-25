@@ -63,13 +63,16 @@
                                                 <div class="form-group">
                                                     <label for="aplicar-a">Aplicar a:</label>
                                                     <select class="form-control" id="aplicar-a" required>
-                                                        <option value="" selected disabled>Seleccionar</option>
-                                                        <option value="consulta">Consulta</option>
+                                                        <option value="" selected disabled>Seleccionar área de aplicación...</option>
+                                                        <option value="consulta">Área de Consulta/Observaciones</option>
                                                         <option value="receta">Receta de medicamentos</option>
-                                                        <option value="receta_anteojos">Receta de anteojos</option>
                                                         <option value="orden_estudios">Orden de Estudios</option>
                                                         <option value="orden_cirugias">Orden de cirugías</option>
+                                                        <option value="recomendaciones">Recomendaciones</option>
                                                     </select>
+                                                    <small class="form-text text-muted">
+                                                        Define en qué área del formulario aparecerá este preformato
+                                                    </small>
                                                 </div>
                                             </div>
                                         </div>
@@ -80,29 +83,21 @@
                                                     <input type="text" class="form-control" id="titulo-preformato" placeholder="Título del preformato" required>
                                                 </div>
                                             </div>
-                                            <div class="col-md-4">
-                                                <div class="form-group">
-                                                    <label for="tipo-preformato">Tipo</label>
-                                                    <select class="form-control" id="tipo-preformato">
-                                                        <option value="" selected disabled>Seleccionar...</option>
-                                                        <option value="consulta">Consultas generales</option>
-                                                        <option value="receta">Receta de lente</option>
-                                                        <option value="receta_anteojos">Receta de anteojos</option>
-                                                        <option value="orden_estudios">Orden de estudios</option>
-                                                        <option value="orden_cirugias">Orden de cirugías</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-4">
+                                            <div class="col-md-8">
                                                 <div class="form-group">
                                                     <label for="tipo-formulario">Tipo de Formulario</label>
-                                                    <select class="form-control" id="tipo-formulario">
-                                                        <option value="general" selected>General</option>
+                                                    <select class="form-control" id="tipo-formulario" required>
+                                                        <option value="" selected disabled>Seleccionar tipo de formulario...</option>
+                                                        <option value="general">General</option>
                                                         <option value="anteojos">Anteojos</option>
+                                                        <option value="estudios">Estudios</option>
                                                         <option value="dermatologia">Dermatología</option>
                                                         <option value="pediatria">Pediatría</option>
                                                         <option value="ginecologia">Ginecología</option>
                                                     </select>
+                                                    <small class="form-text text-muted">
+                                                        Este preformato se mostrará en el formulario de consultas del tipo seleccionado
+                                                    </small>
                                                 </div>
                                             </div>
                                         </div>
@@ -153,8 +148,9 @@
                                     <tr>
                                         <th>#</th>
                                         <th>Título</th>
-                                        <th>Tipo</th>
-                                        <th>Tipo Formulario</th>
+                                        <th>Aplicar a</th>
+                                        <th>Tipo de Formulario</th>
+                                        <th>Propietario</th>
                                         <th>Acciones</th>
                                     </tr>
                                 </thead>

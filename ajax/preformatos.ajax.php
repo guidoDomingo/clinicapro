@@ -39,7 +39,6 @@ class PreformatosAjax {
                         INNER JOIN preformatos p 
                         ON p.creado_por = rd.doctor_id 
                         WHERE psu.system_user_id = :user_id 
-                        AND p.tipo = :tipo
                         AND p.activo = true
                         AND p.tipo_formulario = :tipo_formulario
                         ORDER BY p.nombre ASC";
@@ -56,7 +55,6 @@ class PreformatosAjax {
                 
                 $stmt = $db->prepare($sql);
                 $stmt->bindParam(":user_id", $userId, PDO::PARAM_INT);
-                $stmt->bindParam(":tipo", $tipo, PDO::PARAM_STR);
                 $stmt->bindParam(":tipo_formulario", $tipoFormulario, PDO::PARAM_STR);
                 $stmt->execute();
                 
@@ -105,7 +103,6 @@ class PreformatosAjax {
                     p.*
                 FROM preformatos p
                 WHERE p.activo = true 
-                AND p.tipo = :tipo
                 AND p.tipo_formulario = :tipo_formulario
                 ORDER BY p.nombre ASC";
                 
@@ -119,7 +116,6 @@ class PreformatosAjax {
                 FILE_APPEND);
             
             $stmt = $db->prepare($sql);
-            $stmt->bindParam(":tipo", $tipo, PDO::PARAM_STR);
             $stmt->bindParam(":tipo_formulario", $tipoFormulario, PDO::PARAM_STR);
             $stmt->execute();
             

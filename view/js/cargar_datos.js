@@ -1,9 +1,5 @@
 /**
- * Script para cargar dato    // Si es el formulario de anteojos, inicializar los selectores específicos
-        if (formType === 'anteojos') {
-            console.log('Detectado formulario de anteojos, inicializando componentes específicos');
-            inicializarSelectoresAnteojos();
-        }de la base de datos en el formulario de consultas
+ * Script para cargar datos de la base de datos en el formulario de consultas
  * y gestionar preformatos y motivos comunes de forma simplificada
  */
 
@@ -30,8 +26,17 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Cargar los motivos comunes y preformatos según el tipo de formulario
         cargarMotivos(formType);
-        cargarPreformatos('consulta', formType);
-        cargarPreformatos('receta', formType);
+        
+        // Usar el sistema sin duplicados si está disponible
+        if (typeof cargarPreformatosSinDuplicados === 'function') {
+            console.log('🛡️ Usando sistema sin duplicados');
+            cargarPreformatosSinDuplicados('consulta', formType);
+            cargarPreformatosSinDuplicados('receta', formType);
+        } else {
+            console.log('⚠️ Sistema sin duplicados no disponible, usando método tradicional');
+            cargarPreformatos('consulta', formType);
+            cargarPreformatos('receta', formType);
+        }
         
         // Si es un formulario de anteojos, inicializar los selectores específicos
         if (formType === 'anteojos') {
@@ -175,13 +180,19 @@ function cargarPreformatos(tipoPreformato, tipoFormulario = 'general', selectorI
     }
     
     // Determinar la operación correcta según el tipo de preformato y formulario
-    // IMPORTANTE: Para formularios de anteojos usamos siempre el tipo 'receta' pero con tipo_formulario 'anteojos'
     let operacion;
     if (tipoFormulario === 'anteojos') {
-        // Para formularios de anteojos, simplificamos: usamos siempre getPreformatosReceta
+        // Para formularios de anteojos, usamos siempre getPreformatosReceta
         operacion = 'getPreformatosReceta';
     } else {
+        // Para otros formularios (general, estudios, etc.) usamos la operación correspondiente
+        // IMPORTANTE: El filtrado se hace por tipo_formulario, no por tipo
         operacion = `getPreformatos${tipoPreformato.charAt(0).toUpperCase() + tipoPreformato.slice(1)}`;
+        
+        if (tipoFormulario === 'estudios') {
+            console.log(`Formulario de estudios: usando operacion ${operacion} con tipo_formulario=${tipoFormulario}`);
+            console.log(`NOTA: Se traerán TODOS los preformatos con tipo_formulario='estudios', independientemente del campo 'tipo'`);
+        }
     }
     
     // Crear FormData
@@ -255,7 +266,7 @@ function cargarPreformatos(tipoPreformato, tipoFormulario = 'general', selectorI
     
     // Función interna para procesar la respuesta y configurar el selector
     function procesarRespuesta(response, selector, tipoPreformato, tipoFormulario) {
-        // Registrar información para formularios de anteojos
+        // Registrar información para formularios especiales
         if (tipoFormulario === 'anteojos') {
             console.log('Respuesta completa para anteojos:', response);
             
@@ -273,6 +284,24 @@ function cargarPreformatos(tipoPreformato, tipoFormulario = 'general', selectorI
                 selector.appendChild(option);
                 
                 return; // Continuar el proceso con esta opción predeterminada
+            }
+        } else if (tipoFormulario === 'estudios') {
+            console.log('Respuesta completa para estudios:', response);
+            
+            // Verificar si hay datos específicos para estudios
+            if (response.status === 'success' && (!response.data || response.data.length === 0)) {
+                console.log('No hay preformatos específicos para estudios en la base de datos.');
+                
+                // Para estudios, mostrar un mensaje más informativo en lugar de crear uno predeterminado
+                const option = document.createElement('option');
+                option.value = '';
+                option.text = 'No hay preformatos disponibles para estudios';
+                option.disabled = true;
+                selector.appendChild(option);
+                
+                return;
+            } else if (response.status === 'success' && response.data && response.data.length > 0) {
+                console.log(`Se encontraron ${response.data.length} preformatos para estudios`);
             }
         }
 

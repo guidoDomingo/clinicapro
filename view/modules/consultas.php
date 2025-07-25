@@ -62,14 +62,13 @@
                                         // Determinar qué formulario cargar
                                         $form_type = isset($_GET['form_type']) ? $_GET['form_type'] : 'general';
                                         
-                                        // Mapeo de tipos de formularios a archivos
-                                        $form_files = [
-                                            'general' => "view/inc/consulta_forms/frmConsultaGeneral.php",
-                                            'anteojos' => "view/inc/consulta_forms/frmConsultaAnteojos.php",
-                                            // Aquí puedes agregar más tipos de formularios cuando los crees
-                                        ];
-                                        
-                                        // Cargar el formulario seleccionado o el predeterminado
+                        // Mapeo de tipos de formularios a archivos
+                        $form_files = [
+                            'general' => "view/inc/consulta_forms/frmConsultaGeneral.php",
+                            'anteojos' => "view/inc/consulta_forms/frmConsultaAnteojos.php",
+                            'estudios' => "view/inc/consulta_forms/frmConsultaEstudios.php",
+                            // Aquí puedes agregar más tipos de formularios cuando los crees
+                        ];                                        // Cargar el formulario seleccionado o el predeterminado
                                         $form_file = isset($form_files[$form_type]) ? $form_files[$form_type] : $form_files['general'];
                                         
                                         // Selector de tipo de formulario
@@ -80,6 +79,7 @@
                                                 <select id="form_type_selector" class="form-control" onchange="cambiarFormulario(this.value)">
                                                     <option value="general" <?php echo ($form_type == 'general') ? 'selected' : ''; ?>>Consulta General</option>
                                                     <option value="anteojos" <?php echo ($form_type == 'anteojos') ? 'selected' : ''; ?>>Receta para Anteojos</option>
+                                                    <option value="estudios" <?php echo ($form_type == 'estudios') ? 'selected' : ''; ?>>Estudios Médicos</option>
                                                     <!-- Agrega más opciones aquí cuando crees nuevos formularios -->
                                                 </select>
                                             </div>
@@ -317,7 +317,9 @@
 
 <!-- Scripts para la funcionalidad del módulo de consultas -->
 <!-- <script src="view/js/icd11-client.js"></script> -->
+<script src="view/js/preformatos_sin_duplicados.js"></script>
 <script src="view/js/icd11-integration.js"></script>
+<script src="view/js/cargar_datos.js"></script>
 <script src="view/js/consultas.js"></script>
 <script src="view/js/remedios.js"></script>
 
