@@ -159,3 +159,144 @@
 .mt-3 {
     margin-top: 1rem;
 }
+
+/* Estilos específicos para formulario de estudios */
+.inputfile {
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    overflow: hidden;
+    position: absolute;
+    z-index: -1;
+}
+
+.label-file {
+    display: inline-block;
+    margin-bottom: 10px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.label-file:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.formfile .form-group {
+    margin-bottom: 20px;
+}
+
+.formfile .table {
+    margin-top: 10px;
+    border: 1px solid #dee2e6;
+}
+
+.formfile .table th {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+    font-weight: 600;
+    text-align: center;
+    padding: 8px;
+}
+
+.formfile .table td {
+    text-align: center;
+    padding: 8px;
+    vertical-align: middle;
+}
+
+.formfile .table td i {
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.formfile .table td i.bi-eye {
+    color: #007bff;
+}
+
+.formfile .table td i.bi-eye:hover {
+    color: #0056b3;
+    transform: scale(1.1);
+}
+
+.formfile .table td i.bi-trash {
+    color: #dc3545;
+}
+
+.formfile .table td i.bi-trash:hover {
+    color: #bd2130;
+    transform: scale(1.1);
+}
+
+/* Estilos para el selector de formularios */
+#form_type_selector {
+    font-weight: 500;
+    background-color: #fff;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+}
+
+#form_type_selector:focus {
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+/* Estilos para áreas de texto de descripción */
+.compose-textarea {
+    resize: vertical;
+    min-height: 100px;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    padding: 10px;
+    font-family: inherit;
+}
+
+.compose-textarea:focus {
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+/* Estilos para el botón de mostrar/ocultar */
+.btn-outline-success {
+    color: #28a745;
+    border-color: #28a745;
+    background-color: transparent;
+}
+
+.btn-outline-success:hover {
+    color: #fff;
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+/* Espaciado específico para el formulario de estudios */
+.form-row.formfile {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.form-row.formfile .form-group {
+    padding-left: 7.5px;
+    padding-right: 7.5px;
+}
+
+/* Responsive para dispositivos móviles */
+@media (max-width: 768px) {
+    .formfile .form-group {
+        margin-bottom: 15px;
+    }
+    
+    .label-file {
+        width: 100%;
+        text-align: center;
+        display: block;
+    }
+    
+    .compose-textarea {
+        min-height: 150px;
+    }
+}

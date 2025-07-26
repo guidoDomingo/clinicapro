@@ -137,6 +137,12 @@
                                 <p>Gestión de Turnos</p>
                             </a>
                         </li>
+                        <li style="padding-left: 20px;" class="nav-item">
+                            <a href="index.php?ruta=tipos-formularios" class="nav-link">
+                                <i class="nav-icon fas fa-file-alt"></i>
+                                <p>Tipos de Formularios</p>
+                            </a>
+                        </li>
                         <li class="nav-item" style="padding-left: 20px;">
                             <a href="index.php?ruta=referencial2" class="nav-link">
                                 <i class="far fa-circle nav-icon"></i>

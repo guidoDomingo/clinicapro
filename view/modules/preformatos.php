@@ -39,6 +39,7 @@
                         <div class="card-header p-2">
                             <ul class="nav nav-pills">
                                 <li class="nav-item"><a class="nav-link active" href="#preformato-textarea" data-toggle="tab">Preformato textarea</a></li>
+                                <li class="nav-item"><a class="nav-link" href="#tipos-formularios" data-toggle="tab">Tipos de Formularios</a></li>
                                 <li class="nav-item"><a class="nav-link" href="#preformato-generico" data-toggle="tab">Preformato genérico</a></li>
                                 <li class="nav-item"><a class="nav-link" href="#otros" data-toggle="tab">Otros</a></li>
                             </ul>
@@ -88,12 +89,7 @@
                                                     <label for="tipo-formulario">Tipo de Formulario</label>
                                                     <select class="form-control" id="tipo-formulario" required>
                                                         <option value="" selected disabled>Seleccionar tipo de formulario...</option>
-                                                        <option value="general">General</option>
-                                                        <option value="anteojos">Anteojos</option>
-                                                        <option value="estudios">Estudios</option>
-                                                        <option value="dermatologia">Dermatología</option>
-                                                        <option value="pediatria">Pediatría</option>
-                                                        <option value="ginecologia">Ginecología</option>
+                                                        <!-- Las opciones se cargarán dinámicamente -->
                                                     </select>
                                                     <small class="form-text text-muted">
                                                         Este preformato se mostrará en el formulario de consultas del tipo seleccionado
@@ -110,6 +106,82 @@
                                             <button type="submit" class="btn btn-primary">Guardar</button>
                                         </div>
                                     </form>
+                                </div>
+                                
+                                <!-- Tab para gestión de tipos de formularios -->
+                                <div class="tab-pane" id="tipos-formularios">
+                                    <div class="row">
+                                        <!-- Formulario para crear/editar tipos de formularios -->
+                                        <div class="col-md-5">
+                                            <div class="card card-primary">
+                                                <div class="card-header">
+                                                    <h3 class="card-title" id="titulo-formulario-tipo">Crear Tipo de Formulario</h3>
+                                                </div>
+                                                <form id="form-tipo-formulario">
+                                                    <input type="hidden" id="tipo-id" name="tipo-id">
+                                                    <div class="card-body">
+                                                        <div class="form-group">
+                                                            <label for="tipo-nombre">Nombre</label>
+                                                            <input type="text" class="form-control" id="tipo-nombre" name="tipo-nombre" placeholder="Ej: Cardiología" required>
+                                                            <div class="invalid-feedback" id="error-nombre"></div>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="tipo-codigo">Código</label>
+                                                            <input type="text" class="form-control" id="tipo-codigo" name="tipo-codigo" placeholder="Ej: cardiologia">
+                                                            <small class="form-text text-muted">Solo letras, números y guiones bajos. Se genera automáticamente si se deja vacío.</small>
+                                                            <div class="invalid-feedback" id="error-codigo"></div>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="tipo-descripcion">Descripción</label>
+                                                            <textarea class="form-control" id="tipo-descripcion" name="tipo-descripcion" rows="3" placeholder="Descripción del tipo de formulario"></textarea>
+                                                        </div>
+                                                    </div>
+                                                    <div class="card-footer">
+                                                        <button type="button" class="btn btn-secondary" id="btn-cancelar-tipo">Cancelar</button>
+                                                        <button type="submit" class="btn btn-primary" id="btn-guardar-tipo">Crear Tipo</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Lista de tipos de formularios -->
+                                        <div class="col-md-7">
+                                            <div class="card">
+                                                <div class="card-header">
+                                                    <h3 class="card-title">Tipos de Formularios Existentes</h3>
+                                                    <div class="card-tools">
+                                                        <button type="button" class="btn btn-sm btn-info" onclick="cargarTiposFormularios()">
+                                                            <i class="fas fa-sync"></i> Actualizar
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="table-responsive">
+                                                        <table class="table table-bordered table-striped table-sm" id="tabla-tipos-formularios">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>#</th>
+                                                                    <th>Nombre</th>
+                                                                    <th>Código</th>
+                                                                    <th>Descripción</th>
+                                                                    <th>Estado</th>
+                                                                    <th>Fecha</th>
+                                                                    <th>Acciones</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="tbody-tipos-formularios">
+                                                                <tr>
+                                                                    <td colspan="7" class="text-center">
+                                                                        <i class="fas fa-spinner fa-spin"></i> Cargando tipos de formularios...
+                                                                    </td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                                 
                                 <!-- Tab para preformatos genéricos -->
@@ -188,6 +260,42 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para editar tipo de formulario -->
+<div class="modal fade" id="modalEditarTipoFormulario" tabindex="-1" role="dialog" aria-labelledby="modalEditarTipoFormularioLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title">Editar Tipo de Formulario</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="editarId" name="editarId">
+                    <div class="form-group">
+                        <label for="editarNombre">Nombre</label>
+                        <input type="text" class="form-control" id="editarNombre" name="editarNombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editarCodigo">Código</label>
+                        <input type="text" class="form-control" id="editarCodigo" name="editarCodigo" required>
+                        <small class="form-text text-muted">Solo letras, números y guiones bajos. Sin espacios.</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="editarDescripcion">Descripción</label>
+                        <textarea class="form-control" id="editarDescripcion" name="editarDescripcion" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

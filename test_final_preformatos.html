@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Final - Preformatos AJAX</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h2>Test Final - Preformatos AJAX (Error 500 corregido)</h2>
+    
+    <button onclick="testGetDoctorByUserId()">Test getDoctorByUserId (Original)</button>
+    <button onclick="testGetPreformatos()">Test getPreformatosConsulta (Original)</button>
+    
+    <div id="results"></div>
+    
+    <script>
+    function testGetDoctorByUserId() {
+        $('#results').html('<p>Probando getDoctorByUserId en endpoint original...</p>');
+        
+        $.ajax({
+            url: 'ajax/preformatos.ajax.php',
+            method: 'POST',
+            data: {
+                operacion: 'getDoctorByUserId',
+                user_id: 1
+            },
+            success: function(response) {
+                $('#results').html('<h3>✓ Éxito getDoctorByUserId:</h3><pre>' + JSON.stringify(response, null, 2) + '</pre>');
+            },
+            error: function(xhr, status, error) {
+                $('#results').html('<h3>✗ Error getDoctorByUserId:</h3>' +
+                    '<p><strong>Status:</strong> ' + xhr.status + '</p>' +
+                    '<p><strong>Error:</strong> ' + error + '</p>' +
+                    '<p><strong>Response Text:</strong></p>' +
+                    '<pre>' + xhr.responseText + '</pre>');
+            }
+        });
+    }
+    
+    function testGetPreformatos() {
+        $('#results').html('<p>Probando getPreformatosConsulta en endpoint original...</p>');
+        
+        $.ajax({
+            url: 'ajax/preformatos.ajax.php',
+            method: 'POST',
+            data: {
+                operacion: 'getPreformatosConsulta',
+                usuario_id: 1,
+                tipo_formulario: 'general'
+            },
+            success: function(response) {
+                $('#results').html('<h3>✓ Éxito getPreformatos:</h3><pre>' + JSON.stringify(response, null, 2) + '</pre>');
+            },
+            error: function(xhr, status, error) {
+                $('#results').html('<h3>✗ Error getPreformatos:</h3>' +
+                    '<p><strong>Status:</strong> ' + xhr.status + '</p>' +
+                    '<p><strong>Error:</strong> ' + error + '</p>' +
+                    '<p><strong>Response Text:</strong></p>' +
+                    '<pre>' + xhr.responseText + '</pre>');
+            }
+        });
+    }
+    
+    // Auto-ejecutar test al cargar la página
+    $(document).ready(function() {
+        testGetDoctorByUserId();
+    });
+    </script>
+</body>
+</html>

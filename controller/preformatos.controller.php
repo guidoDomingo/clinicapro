@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . "/../model/preformatos.model.php";
+require_once __DIR__ . "/../model/conexion.php";
 
 class ControllerPreformatos {
     /**
@@ -178,5 +179,13 @@ class ControllerPreformatos {
         }
         
         return ModelPreformatos::mdlEliminarPreformato($idPreformato);
+    }
+    
+    /**
+     * Obtiene todos los tipos de formularios activos
+     * @return array Arreglo con los tipos de formularios
+     */
+    public static function ctrGetTiposFormularios() {
+        return ModelPreformatos::mdlGetTiposFormularios();
     }
 }

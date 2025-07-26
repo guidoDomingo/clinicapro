@@ -1,0 +1,7 @@
+[2025-07-25 23:11:29] Iniciando debug del endpoint AJAX | Contexto: {"operacion":"getDoctorByUserId","user_id":"9"}
+[2025-07-25 23:11:29] Cargando conexión desde: ../model/conexion.php
+[2025-07-25 23:11:29] Conexión a BD exitosa
+[2025-07-25 23:11:29] Cargando modelo desde: ../model/preformatos.model.php
+[2025-07-25 23:11:29] Cargando controlador desde: ../controller/preformatos.controller.php
+[25-Jul-2025 23:11:29 UTC] PHP Warning:  require_once(model/preformatos.model.php): Failed to open stream: No such file or directory in C:\laragon\www\clinica\controller\preformatos.controller.php on line 2
+[2025-07-25 23:11:29] Error fatal PHP | Contexto: {"mensaje":"Failed opening required 'model\/preformatos.model.php' (include_path='.;C:\/laragon\/etc\/php\/pear')","archivo":"C:\\laragon\\www\\clinica\\controller\\preformatos.controller.php","linea":2}

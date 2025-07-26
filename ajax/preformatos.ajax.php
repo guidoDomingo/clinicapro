@@ -1,5 +1,6 @@
 <?php
-require_once "../controller/preformatos.controller.php";
+require_once __DIR__ . "/../controller/preformatos.controller.php";
+require_once __DIR__ . "/../model/conexion.php";
 
 class PreformatosAjax {
     /**
@@ -177,6 +178,25 @@ class PreformatosAjax {
             'status' => 'success',
             'data' => $usuarios
         ]);
+    }
+    
+    /**
+     * Obtiene todos los tipos de formularios activos
+     */
+    public function ajaxGetTiposFormularios() {
+        try {
+            $tipos = ControllerPreformatos::ctrGetTiposFormularios();
+            
+            echo json_encode([
+                'status' => 'success',
+                'data' => $tipos
+            ]);
+        } catch (Exception $e) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Error al obtener tipos de formularios: ' . $e->getMessage()
+            ]);
+        }
     }
     
     /**
@@ -436,6 +456,10 @@ if (isset($_POST['operacion'])) {
             if (isset($_POST['id_preformato'])) {
                 $preformatos->ajaxEliminarPreformato($_POST['id_preformato']);
             }
+            break;
+            
+        case 'getTiposFormularios':
+            $preformatos->ajaxGetTiposFormularios();
             break;
             
         case 'getDoctorByUserId':

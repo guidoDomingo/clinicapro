@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Específico Error 500</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h2>Debug Específico - Error 500 Preformatos</h2>
+    
+    <button onclick="testDebugEndpoint()">Test Endpoint Debug</button>
+    <button onclick="checkLogFile()">Ver Log Debug</button>
+    
+    <div id="results"></div>
+    
+    <script>
+    function testDebugEndpoint() {
+        $('#results').html('<p>Probando endpoint de debug con user_id: 9...</p>');
+        
+        $.ajax({
+            url: 'ajax/debug_preformatos_500.ajax.php',
+            method: 'POST',
+            data: {
+                operacion: 'getDoctorByUserId',
+                user_id: 9
+            },
+            success: function(response) {
+                $('#results').html('<h3>✓ Debug Exitoso:</h3><pre>' + JSON.stringify(response, null, 2) + '</pre>');
+            },
+            error: function(xhr, status, error) {
+                $('#results').html('<h3>✗ Error en Debug:</h3>' +
+                    '<p><strong>Status:</strong> ' + xhr.status + '</p>' +
+                    '<p><strong>Error:</strong> ' + error + '</p>' +
+                    '<p><strong>Response:</strong></p>' +
+                    '<pre>' + xhr.responseText + '</pre>');
+            }
+        });
+    }
+    
+    function checkLogFile() {
+        // Cargar el archivo de log para ver detalles
+        fetch('logs/debug_500_detallado.log')
+        .then(response => response.text())
+        .then(data => {
+            $('#results').html('<h3>Log Debug:</h3><pre style="background: #f0f0f0; padding: 10px; max-height: 400px; overflow-y: auto;">' + data + '</pre>');
+        })
+        .catch(error => {
+            $('#results').html('<p style="color: red;">Error al cargar log: ' + error + '</p>');
+        });
+    }
+    
+    // Auto-ejecutar al cargar
+    $(document).ready(function() {
+        testDebugEndpoint();
+    });
+    </script>
+</body>
+</html>

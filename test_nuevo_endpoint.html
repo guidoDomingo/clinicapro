@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Nuevo Endpoint</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h2>Test Nuevo Endpoint - Preformatos</h2>
+    
+    <button onclick="testNuevoGetDoctor()">Test Nuevo getDoctorByUserId</button>
+    <button onclick="testNuevoGetPreformatos()">Test Nuevo getPreformatos</button>
+    
+    <div id="results"></div>
+    
+    <script>
+    function testNuevoGetDoctor() {
+        $('#results').html('<p>Probando nuevo endpoint getDoctorByUserId...</p>');
+        
+        $.ajax({
+            url: 'ajax/preformatos_nuevo.ajax.php',
+            method: 'POST',
+            data: {
+                operacion: 'getDoctorByUserId',
+                user_id: 9
+            },
+            success: function(response) {
+                $('#results').html('<h3>✓ Nuevo Endpoint Exitoso:</h3><pre>' + JSON.stringify(response, null, 2) + '</pre>');
+            },
+            error: function(xhr, status, error) {
+                $('#results').html('<h3>✗ Error Nuevo Endpoint:</h3>' +
+                    '<p><strong>Status:</strong> ' + xhr.status + '</p>' +
+                    '<p><strong>Error:</strong> ' + error + '</p>' +
+                    '<p><strong>Response:</strong></p>' +
+                    '<pre>' + xhr.responseText + '</pre>');
+            }
+        });
+    }
+    
+    function testNuevoGetPreformatos() {
+        $('#results').html('<p>Probando nuevo endpoint getPreformatos...</p>');
+        
+        $.ajax({
+            url: 'ajax/preformatos_nuevo.ajax.php',
+            method: 'POST',
+            data: {
+                operacion: 'getPreformatosConsulta',
+                usuario_id: 9,
+                tipo_formulario: 'general'
+            },
+            success: function(response) {
+                $('#results').html('<h3>✓ Nuevo Endpoint Preformatos Exitoso:</h3><pre>' + JSON.stringify(response, null, 2) + '</pre>');
+            },
+            error: function(xhr, status, error) {
+                $('#results').html('<h3>✗ Error Nuevo Endpoint:</h3>' +
+                    '<p><strong>Status:</strong> ' + xhr.status + '</p>' +
+                    '<p><strong>Error:</strong> ' + error + '</p>' +
+                    '<p><strong>Response:</strong></p>' +
+                    '<pre>' + xhr.responseText + '</pre>');
+            }
+        });
+    }
+    
+    // Auto-ejecutar
+    $(document).ready(function() {
+        testNuevoGetDoctor();
+    });
+    </script>
+</body>
+</html>

@@ -40,12 +40,16 @@ include "controller/archivos.controller.php";
 include "controller/user.controller.php";
 include "controller/register.controller.php";
 include "controller/permisos.controller.php";
+include "controller/TipoFormulariosController.php";
+include "controller/preformatos.controller.php";
 
 //MODEL
 include "model/register.model.php";
 include "model/archivos.model.php";
 include "model/consultas.model.php";
-include "model/personas.model.php";
-include "model/permisos.model.php";
+require_once "model/personas.model.php";
+require_once "model/permisos.model.php";
+require_once "model/TipoFormularios.php";
+require_once "model/preformatos.model.php";
 $template = new ControllerTemplate();
 $template -> ctrTemplate();

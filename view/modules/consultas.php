@@ -67,6 +67,7 @@
                             'general' => "view/inc/consulta_forms/frmConsultaGeneral.php",
                             'anteojos' => "view/inc/consulta_forms/frmConsultaAnteojos.php",
                             'estudios' => "view/inc/consulta_forms/frmConsultaEstudios.php",
+                            'informe_imagen' => "view/inc/consulta_forms/frmConsultaInformeImagen.php",
                             // Aquí puedes agregar más tipos de formularios cuando los crees
                         ];                                        // Cargar el formulario seleccionado o el predeterminado
                                         $form_file = isset($form_files[$form_type]) ? $form_files[$form_type] : $form_files['general'];
@@ -80,6 +81,7 @@
                                                     <option value="general" <?php echo ($form_type == 'general') ? 'selected' : ''; ?>>Consulta General</option>
                                                     <option value="anteojos" <?php echo ($form_type == 'anteojos') ? 'selected' : ''; ?>>Receta para Anteojos</option>
                                                     <option value="estudios" <?php echo ($form_type == 'estudios') ? 'selected' : ''; ?>>Estudios Médicos</option>
+                                                    <option value="informe_imagen" <?php echo ($form_type == 'informe_imagen') ? 'selected' : ''; ?>>Informe + Imagen</option>
                                                     <!-- Agrega más opciones aquí cuando crees nuevos formularios -->
                                                 </select>
                                             </div>

@@ -17636,4 +17636,62 @@ LINE 1: ...pellidos) as nombre, cedula, telefono, email FROM pacientes ...
             INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
             LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
             LEFT JOIN salas s on s.sala_id = sr.sala_id 
-            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 1 reservasmdlObtenerReservasPorFecha: Primera reserva: {"reserva_id":79,"servicio_id":3,"doctor_id":13,"paciente_id":4,"fecha_reserva":"2025-07-25","hora_inicio":"20:00:00","hora_fin":"21:00:00","reserva_estado":"CONFIRMADA","observaciones":"","business_id":1,"created_at":"2025-07-20 22:04:18.467139","updated_at":"2025-07-20 22:05:20.680563","agenda_id":31,"sala_id":3,"sala_nombre":"sala 3","tarifa_id":null,"origen_reserva":"SISTEMA","doctor":"Antonio - Galeano","paciente":"karen - medina","serv_descripcion":"Tomograf\u00eda ocular OCT","serv_monto":"500000.00"}
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 1 reservasmdlObtenerReservasPorFecha: Primera reserva: {"reserva_id":79,"servicio_id":3,"doctor_id":13,"paciente_id":4,"fecha_reserva":"2025-07-25","hora_inicio":"20:00:00","hora_fin":"21:00:00","reserva_estado":"CONFIRMADA","observaciones":"","business_id":1,"created_at":"2025-07-20 22:04:18.467139","updated_at":"2025-07-20 22:05:20.680563","agenda_id":31,"sala_id":3,"sala_nombre":"sala 3","tarifa_id":null,"origen_reserva":"SISTEMA","doctor":"Antonio - Galeano","paciente":"karen - medina","serv_descripcion":"Tomograf\u00eda ocular OCT","serv_monto":"500000.00"}mdlObtenerReservasPorFecha: Fecha=2025-07-25, DoctorID=13, Estado=null, Paciente=null, SalaID=null, Origen=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                sr.origen_reserva,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin AND sr.doctor_id = :doctor_id ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 1 reservasmdlObtenerReservasPorFecha: Primera reserva: {"reserva_id":79,"servicio_id":3,"doctor_id":13,"paciente_id":4,"fecha_reserva":"2025-07-25","hora_inicio":"20:00:00","hora_fin":"21:00:00","reserva_estado":"CONFIRMADA","observaciones":"","business_id":1,"created_at":"2025-07-20 22:04:18.467139","updated_at":"2025-07-20 22:05:20.680563","agenda_id":31,"sala_id":3,"sala_nombre":"sala 3","tarifa_id":null,"origen_reserva":"SISTEMA","doctor":"Antonio - Galeano","paciente":"karen - medina","serv_descripcion":"Tomograf\u00eda ocular OCT","serv_monto":"500000.00"}mdlObtenerReservasPorFecha: Fecha=2025-07-25, DoctorID=13, Estado=null, Paciente=null, SalaID=null, Origen=nullmdlObtenerReservasPorFecha: SQL=SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                sr.origen_reserva,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            WHERE 1=1 AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin AND sr.doctor_id = :doctor_id ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASCmdlObtenerReservasPorFecha: Se encontraron 1 reservasmdlObtenerReservasPorFecha: Primera reserva: {"reserva_id":79,"servicio_id":3,"doctor_id":13,"paciente_id":4,"fecha_reserva":"2025-07-25","hora_inicio":"20:00:00","hora_fin":"21:00:00","reserva_estado":"CONFIRMADA","observaciones":"","business_id":1,"created_at":"2025-07-20 22:04:18.467139","updated_at":"2025-07-20 22:05:20.680563","agenda_id":31,"sala_id":3,"sala_nombre":"sala 3","tarifa_id":null,"origen_reserva":"SISTEMA","doctor":"Antonio - Galeano","paciente":"karen - medina","serv_descripcion":"Tomograf\u00eda ocular OCT","serv_monto":"500000.00"}

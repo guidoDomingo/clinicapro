@@ -3,16 +3,22 @@
  * en el sistema de consultas médicas
  */
 
+// Variable global para almacenar los tipos de formularios
+let tiposFormulariosCache = [];
+
 // Cuando el documento esté listo
 document.addEventListener('DOMContentLoaded', function() {
     // Inicializar componentes
     inicializarComponentes();
     
-    // Cargar datos iniciales
-    cargarPreformatos();
-    
     // Configurar eventos
     configurarEventos();
+    
+    // Primero cargar tipos de formularios, luego preformatos
+    cargarTiposFormulariosPreformatos(function() {
+        // Callback: cargar preformatos después de que se carguen los tipos
+        cargarPreformatos();
+    });
 });
 
 /**
@@ -145,7 +151,7 @@ function cargarPreformatosPorTipo(tipo) {
                 // Agregar filas a la tabla
                 response.data.forEach(function(preformato, index) {
                     const row = document.createElement('tr');
-                    const tipoFormulario = preformato.tipo_formulario || 'general';
+                    const tipoFormulario = obtenerNombreTipoFormulario(preformato.tipo_formulario);
                     
                     row.innerHTML = `
                         <td>${index + 1}</td>
@@ -181,6 +187,35 @@ function cargarPreformatosPorTipo(tipo) {
 }
 
 /**
+ * Obtiene el nombre del tipo de formulario por su ID
+ * @param {string|number} tipoFormularioId - ID del tipo de formulario
+ * @returns {string} - Nombre del tipo de formulario
+ */
+function obtenerNombreTipoFormulario(tipoFormularioId) {
+    // Si el ID está vacío, null o undefined
+    if (!tipoFormularioId || tipoFormularioId === '' || tipoFormularioId === 'null') {
+        return 'Sin tipo asignado';
+    }
+    
+    // Primero intentar desde la caché
+    const tipoEnCache = tiposFormulariosCache.find(tipo => tipo.id == tipoFormularioId);
+    if (tipoEnCache) {
+        return tipoEnCache.nombre;
+    }
+    
+    // Si no está en caché, intentar desde el select
+    const selectTipoFormulario = document.getElementById('tipo-formulario');
+    if (selectTipoFormulario) {
+        const option = selectTipoFormulario.querySelector(`option[value="${tipoFormularioId}"]`);
+        if (option) {
+            return option.textContent;
+        }
+    }
+    
+    return `Tipo ${tipoFormularioId}`; // Fallback si no se encuentra
+}
+
+/**
  * Carga los preformatos en la tabla al inicializar la página
  * @param {boolean} forzarRecarga Si es true, destruye y recrea la tabla DataTable
  */
@@ -212,6 +247,12 @@ function cargarPreformatos(forzarRecarga = false) {
         success: function(response) {
             console.log('Respuesta de cargarPreformatos:', response);
             
+            // Verificar si hay error en la respuesta
+            if (response.status === 'error') {
+                console.error('Error del servidor:', response.message);
+                return;
+            }
+            
             // Si es necesario, destruir la tabla para recrearla
             if (forzarRecarga && $.fn.DataTable.isDataTable('#tabla-preformatos')) {
                 $('#tabla-preformatos').DataTable().destroy();
@@ -226,7 +267,8 @@ function cargarPreformatos(forzarRecarga = false) {
                 // Agregar filas a la tabla
                 response.data.forEach(function(preformato, index) {
                     const row = document.createElement('tr');
-                    const tipoFormulario = preformato.tipo_formulario || 'general';
+                    // Usar el nombre que viene de la base de datos o fallback a la función
+                    const tipoFormulario = preformato.tipo_formulario_nombre || obtenerNombreTipoFormulario(preformato.tipo_formulario);
                     
                     row.innerHTML = `
                         <td>${index + 1}</td>
@@ -314,7 +356,12 @@ function guardarPreformato() {
     }
     
     // Obtener el contenido del editor Summernote
-    let contenido = $('#obs-preformato').summernote('code');
+    let contenido = $('#contenido-preformato').summernote('code');
+    
+    // Si Summernote devuelve un objeto jQuery, obtener el HTML del textarea
+    if (contenido && typeof contenido === 'object') {
+        contenido = $('#contenido-preformato').val();
+    }
     
     // Determinar si estamos en modo creación o edición
     const idPreformato = $("#id-preformato").val();
@@ -384,11 +431,10 @@ function guardarPreformato() {
             }
         },
         error: function(xhr, status, error) {
-            console.error("Error al guardar preformato:", error);
             Swal.fire({
                 icon: 'error',
-                title: 'Error',
-                text: 'Error al guardar el preformato',
+                title: 'Error de conexión',
+                text: 'Error al comunicarse con el servidor: ' + error,
                 confirmButtonText: 'Aceptar'
             });
         }
@@ -586,6 +632,88 @@ function cargarMedicoDesdeBackend(usuarioId) {
             option.textContent = `Usuario ID: ${usuarioId}`;
             option.selected = true;
             selectPropietario.appendChild(option);
+        }
+    });
+}
+
+/**
+ * Carga los tipos de formularios disponibles en el selector de preformatos
+ */
+function cargarTiposFormulariosPreformatos(callback) {
+    console.log('=== FUNCIÓN cargarTiposFormulariosPreformatos INICIADA ===');
+    console.log('=== INICIANDO CARGA DE TIPOS DE FORMULARIOS ===');
+    
+    const selectTipoFormulario = document.getElementById('tipo-formulario');
+    console.log('Elemento tipo-formulario encontrado:', selectTipoFormulario);
+    
+    if (!selectTipoFormulario) {
+        console.error('No se encontró el elemento select de tipo formulario');
+        return;
+    }
+    
+    console.log('Preparando petición AJAX...');
+    
+    // Crear FormData para la petición
+    const formData = new FormData();
+    formData.append('operacion', 'getTiposFormularios');
+    
+    console.log('FormData preparado, enviando petición a: ajax/preformatos.ajax.php');
+    
+    // Hacer la petición AJAX
+    $.ajax({
+        type: 'POST',
+        url: 'ajax/preformatos.ajax.php',
+        data: formData,
+        dataType: "json",
+        processData: false,
+        contentType: false,
+        beforeSend: function() {
+            console.log('Petición AJAX enviada...');
+        },
+        success: function(response) {
+            console.log('=== RESPUESTA RECIBIDA ===');
+            console.log('Respuesta tipos formularios:', response);
+            
+            if (response.status === 'success' && response.data) {
+                console.log('Datos válidos recibidos, procesando...');
+                console.log('Número de tipos:', response.data.length);
+                
+                // Guardar en caché para uso posterior
+                tiposFormulariosCache = response.data;
+                
+                // Limpiar selector manteniendo la opción default
+                selectTipoFormulario.innerHTML = '<option value="">Seleccione un tipo de formulario</option>';
+                
+                // Agregar opciones de tipos de formularios
+                response.data.forEach(function(tipo, index) {
+                    console.log(`Agregando tipo ${index + 1}:`, tipo);
+                    const option = document.createElement('option');
+                    option.value = tipo.id;
+                    option.textContent = tipo.nombre;
+                    if (tipo.descripcion) {
+                        option.title = tipo.descripcion;
+                    }
+                    selectTipoFormulario.appendChild(option);
+                });
+                
+                console.log(`✅ Se cargaron ${response.data.length} tipos de formularios exitosamente`);
+                
+                // Ejecutar callback si se proporcionó
+                if (typeof callback === 'function') {
+                    callback();
+                }
+            } else {
+                console.error('❌ Error en respuesta:', response.message || 'Datos inválidos');
+                selectTipoFormulario.innerHTML = '<option value="">Error al cargar tipos</option>';
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('=== ERROR EN PETICIÓN AJAX ===');
+            console.error("Status:", status);
+            console.error("Error:", error);
+            console.error("Response Text:", xhr.responseText);
+            console.error("Status Code:", xhr.status);
+            selectTipoFormulario.innerHTML = '<option value="">Error al cargar tipos</option>';
         }
     });
 }

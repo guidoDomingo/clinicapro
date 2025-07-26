@@ -35,7 +35,8 @@ class ModelPreformatos {
      * @return array Arreglo con los preformatos
      */
     public static function mdlGetPreformatos($tipo, $doctorId = null, $tipoFormulario = 'general') {
-        try {            $sql = "SELECT
+        try {
+            $sql = "SELECT
                     p.id_preformato,
                     p.nombre,
                     p.contenido,
@@ -269,6 +270,27 @@ class ModelPreformatos {
             return $resultado;
         } catch (PDOException $e) {
             error_log("Error al obtener usuarios: " . $e->getMessage());
+            return [];
+        }
+    }
+    
+    /**
+     * Obtiene todos los tipos de formularios activos
+     * @return array Arreglo con los tipos de formularios
+     */
+    public static function mdlGetTiposFormularios() {
+        try {
+            $stmt = Conexion::conectar()->prepare(
+                "SELECT id, nombre, descripcion, codigo 
+                FROM tipo_formularios 
+                WHERE activo = true 
+                ORDER BY nombre ASC"
+            );
+            
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            error_log("Error en mdlGetTiposFormularios: " . $e->getMessage());
             return [];
         }
     }

@@ -1,0 +1,12 @@
+[25-Jul-2025 23:15:20 UTC] PHP Warning:  require_once(model/preformatos.model.php): Failed to open stream: No such file or directory in C:\laragon\www\clinica\controller\preformatos.controller.php on line 2
+[25-Jul-2025 23:15:20 UTC] PHP Fatal error:  Uncaught Error: Failed opening required 'model/preformatos.model.php' (include_path='.;C:/laragon/etc/php/pear') in C:\laragon\www\clinica\controller\preformatos.controller.php:2
+Stack trace:
+#0 C:\laragon\www\clinica\ajax\preformatos_nuevo.ajax.php(20): require_once()
+#1 {main}
+  thrown in C:\laragon\www\clinica\controller\preformatos.controller.php on line 2
+[25-Jul-2025 23:15:24 UTC] PHP Warning:  require_once(model/preformatos.model.php): Failed to open stream: No such file or directory in C:\laragon\www\clinica\controller\preformatos.controller.php on line 2
+[25-Jul-2025 23:15:24 UTC] PHP Fatal error:  Uncaught Error: Failed opening required 'model/preformatos.model.php' (include_path='.;C:/laragon/etc/php/pear') in C:\laragon\www\clinica\controller\preformatos.controller.php:2
+Stack trace:
+#0 C:\laragon\www\clinica\ajax\preformatos_nuevo.ajax.php(20): require_once()
+#1 {main}
+  thrown in C:\laragon\www\clinica\controller\preformatos.controller.php on line 2

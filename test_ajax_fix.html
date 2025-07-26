@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test AJAX Fix - Patrón Correcto</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h2>Test AJAX Fix - Siguiendo Patrón de Empresas</h2>
+    
+    <button onclick="testFixGetDoctor()">Test Fix getDoctorByUserId</button>
+    <button onclick="testFixGetPreformatos()">Test Fix getPreformatos</button>
+    
+    <div id="results"></div>
+    
+    <script>
+    function testFixGetDoctor() {
+        $('#results').html('<p>Probando AJAX fix getDoctorByUserId...</p>');
+        
+        $.ajax({
+            url: 'ajax/preformatos_fix.ajax.php',
+            method: 'POST',
+            data: {
+                operacion: 'getDoctorByUserId',
+                user_id: 9
+            },
+            success: function(response) {
+                $('#results').html('<h3>✓ AJAX Fix Exitoso:</h3><pre>' + JSON.stringify(response, null, 2) + '</pre>');
+            },
+            error: function(xhr, status, error) {
+                $('#results').html('<h3>✗ Error AJAX Fix:</h3>' +
+                    '<p><strong>Status:</strong> ' + xhr.status + '</p>' +
+                    '<p><strong>Error:</strong> ' + error + '</p>' +
+                    '<p><strong>Response:</strong></p>' +
+                    '<pre>' + xhr.responseText + '</pre>');
+            }
+        });
+    }
+    
+    function testFixGetPreformatos() {
+        $('#results').html('<p>Probando AJAX fix getPreformatos...</p>');
+        
+        $.ajax({
+            url: 'ajax/preformatos_fix.ajax.php',
+            method: 'POST',
+            data: {
+                operacion: 'getPreformatosConsulta',
+                usuario_id: 9,
+                tipo_formulario: 'general'
+            },
+            success: function(response) {
+                $('#results').html('<h3>✓ AJAX Fix Preformatos Exitoso:</h3><pre>' + JSON.stringify(response, null, 2) + '</pre>');
+            },
+            error: function(xhr, status, error) {
+                $('#results').html('<h3>✗ Error AJAX Fix:</h3>' +
+                    '<p><strong>Status:</strong> ' + xhr.status + '</p>' +
+                    '<p><strong>Error:</strong> ' + error + '</p>' +
+                    '<p><strong>Response:</strong></p>' +
+                    '<pre>' + xhr.responseText + '</pre>');
+            }
+        });
+    }
+    
+    // Auto-ejecutar
+    $(document).ready(function() {
+        testFixGetDoctor();
+    });
+    </script>
+</body>
+</html>
