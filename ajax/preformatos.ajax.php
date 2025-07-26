@@ -430,6 +430,14 @@ if (isset($_POST['operacion'])) {
             break;
             
         case 'crearPreformato':
+            // Debug: log de los datos recibidos
+            error_log("=== DEBUG CREAR PREFORMATO ===");
+            error_log("Nombre: " . (isset($_POST['nombre']) ? $_POST['nombre'] : 'NO SET'));
+            error_log("Contenido: " . (isset($_POST['contenido']) ? $_POST['contenido'] : 'NO SET'));
+            error_log("Tipo: " . (isset($_POST['tipo']) ? $_POST['tipo'] : 'NO SET'));
+            error_log("Tipo formulario: " . (isset($_POST['tipo_formulario']) ? $_POST['tipo_formulario'] : 'NO SET'));
+            error_log("Creado por: " . (isset($_POST['creado_por']) ? $_POST['creado_por'] : 'NO SET'));
+            
             $datos = [
                 'nombre' => $_POST['nombre'],
                 'contenido' => $_POST['contenido'],

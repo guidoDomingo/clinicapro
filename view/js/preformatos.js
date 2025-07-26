@@ -25,8 +25,16 @@ document.addEventListener('DOMContentLoaded', function() {
  * Inicializa los componentes de la página
  */
 function inicializarComponentes() {
+    // Esperar a que Summernote esté disponible
+    if (typeof $.fn.summernote === 'undefined') {
+        console.log('Summernote no está disponible aún, esperando...');
+        setTimeout(inicializarComponentes, 100);
+        return;
+    }
+    
     // Inicializar editor de texto enriquecido Summernote si existe
     if (document.getElementById('obs-preformato')) {
+        console.log('Inicializando Summernote...');
         // Configuración e inicialización de Summernote (Editor de AdminLTE)
         $('#obs-preformato').summernote({
             placeholder: 'Escriba aquí el contenido del preformato...',
@@ -45,6 +53,9 @@ function inicializarComponentes() {
             fontNames: ['Arial', 'Arial Black', 'Comic Sans MS', 'Courier New', 'Helvetica', 'Impact', 'Tahoma', 'Times New Roman', 'Verdana'],
             fontSizes: ['8', '9', '10', '11', '12', '14', '16', '18', '24', '36', '48', '64', '82', '150']
         });
+        console.log('Summernote inicializado correctamente');
+    } else {
+        console.log('Elemento obs-preformato no encontrado');
     }
     
     // Inicializar Quill editor para preformatos en el modal si existe el contenedor
@@ -356,11 +367,40 @@ function guardarPreformato() {
     }
     
     // Obtener el contenido del editor Summernote
-    let contenido = $('#contenido-preformato').summernote('code');
+    let contenido = '';
+    
+    // Verificar si Summernote está inicializado
+    if ($('#obs-preformato').hasClass('note-editor')) {
+        console.log('Summernote está inicializado, obteniendo contenido...');
+        contenido = $('#obs-preformato').summernote('code');
+    } else {
+        console.log('Summernote no está inicializado, obteniendo valor del textarea...');
+        contenido = $('#obs-preformato').val();
+    }
     
     // Si Summernote devuelve un objeto jQuery, obtener el HTML del textarea
     if (contenido && typeof contenido === 'object') {
-        contenido = $('#contenido-preformato').val();
+        contenido = $('#obs-preformato').val();
+    }
+    
+    // Si todavía no hay contenido, intentar obtenerlo directamente del textarea
+    if (!contenido || contenido.trim() === '') {
+        contenido = $('#obs-preformato').val();
+    }
+    
+    // Debug: mostrar el contenido que se va a enviar
+    console.log('Contenido a enviar:', contenido);
+    console.log('Tipo de contenido:', typeof contenido);
+    console.log('Longitud del contenido:', contenido ? contenido.length : 0);
+    
+    // Validar que el contenido no esté vacío
+    if (!contenido || contenido.trim() === '' || contenido === '<p><br></p>') {
+        Swal.fire({
+            icon: "warning",
+            title: "Campo requerido",
+            text: "Por favor ingrese el contenido del preformato"
+        });
+        return;
     }
     
     // Determinar si estamos en modo creación o edición
@@ -688,7 +728,7 @@ function cargarTiposFormulariosPreformatos(callback) {
                 response.data.forEach(function(tipo, index) {
                     console.log(`Agregando tipo ${index + 1}:`, tipo);
                     const option = document.createElement('option');
-                    option.value = tipo.id;
+                    option.value = tipo.codigo; // Usar código en lugar de ID
                     option.textContent = tipo.nombre;
                     if (tipo.descripcion) {
                         option.title = tipo.descripcion;

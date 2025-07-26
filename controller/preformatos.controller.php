@@ -4,10 +4,40 @@ require_once __DIR__ . "/../model/conexion.php";
 
 class ControllerPreformatos {
     /**
+     * Mapea códigos de formulario a nombres de tipos_formularios
+     * @param string $codigoFormulario Código del formulario
+     * @return string Nombre del tipo de formulario o el código original si no se encuentra mapeo
+     */
+    public static function mapearTipoFormulario($codigoFormulario) {
+        // Mapeo de códigos de formulario a nombres de tipos_formularios
+        $mapeo = [
+            'informe_imagen' => 'Informe + Imagen',
+            'anteojos' => 'Anteojos', 
+            'general' => 'General',
+            'dermatologia' => 'Dermatología',
+            'estudios_medicos' => 'Estudios Médicos',
+            'ginecologia' => 'Ginecología + 1',
+            'pediatria' => 'pediatria',
+            // Agregar más mapeos según sea necesario
+        ];
+        
+        // Si tenemos un mapeo para este código, lo devolvemos
+        if (isset($mapeo[$codigoFormulario])) {
+            return $mapeo[$codigoFormulario];
+        }
+        
+        // Si no encontramos mapeo, devolvemos el código original
+        return $codigoFormulario;
+    }
+
+    /**
      * Obtiene todos los motivos comunes activos
      * @return array Arreglo con los motivos comunes
      */
     public static function ctrGetMotivosComunes($tipo_formulario = 'general') {
+        // Usamos el código directamente sin mapear para la búsqueda
+        error_log("ctrGetMotivosComunes - Tipo Formulario (código): $tipo_formulario");
+        
         return ModelPreformatos::mdlGetMotivosComunes($tipo_formulario);
     }
     
@@ -19,7 +49,9 @@ class ControllerPreformatos {
      * @return array Arreglo con los preformatos
      */
     public static function ctrGetPreformatos($tipo, $doctorId = null, $tipoFormulario = 'general') {
-        error_log("ctrGetPreformatos - Tipo: $tipo, Doctor ID: " . ($doctorId ? $doctorId : 'ninguno') . ", Tipo Formulario: $tipoFormulario");
+        // Usamos el código directamente sin mapear para la búsqueda
+        
+        error_log("ctrGetPreformatos - Tipo: $tipo, Doctor ID: " . ($doctorId ? $doctorId : 'ninguno') . ", Tipo Formulario (código): $tipoFormulario");
         
         try {
             if ($doctorId) {
@@ -134,8 +166,11 @@ class ControllerPreformatos {
         if (!isset($datos['tipo_formulario'])) {
             $datos['tipo_formulario'] = 'general';
         }
+
+        // Guardamos el código directamente sin mapear
+        // $datos['tipo_formulario'] ya contiene el código (ej: 'informe_imagen')
         
-        return ModelPreformatos::mdlCrearPreformato($datos);
+        error_log("ctrCrearPreformato - Tipo formulario (código): " . $datos['tipo_formulario']);        return ModelPreformatos::mdlCrearPreformato($datos);
     }
     
     /**
@@ -163,6 +198,11 @@ class ControllerPreformatos {
         if (!isset($datos['tipo_formulario'])) {
             $datos['tipo_formulario'] = 'general';
         }
+        
+        // Guardamos el código directamente sin mapear
+        // $datos['tipo_formulario'] ya contiene el código (ej: 'informe_imagen')
+        
+        error_log("ctrActualizarPreformato - Tipo formulario (código): " . $datos['tipo_formulario']);
         
         return ModelPreformatos::mdlActualizarPreformato($datos);
     }
