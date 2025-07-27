@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba Formulario Informe + Imagen - Con Datos Reales</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="container mt-4">
+        <h2>Prueba Formulario Informe + Imagen - Datos Reales</h2>
+        
+        <div class="alert alert-info">
+            <strong>Correcciones aplicadas:</strong><br>
+            ✅ Agregado require_once del modelo en controlador<br>
+            ✅ Mejorada detección de formulario (4 métodos)<br>
+            ✅ Manejo de form_type opcional<br>
+            <strong>Datos simulados:</strong> Basados en tu request real
+        </div>
+        
+        <form id="formTest" method="POST">
+            <!-- Campos exactos del formulario real -->
+            <input type="hidden" name="form_type" value="informe_imagen">
+            <input type="hidden" name="txtdocumento" value="5004615">
+            <input type="hidden" name="txtficha" value="">
+            <input type="hidden" name="idPersona" value="81">
+            <input type="hidden" name="motivoscomunes" value="Seleccionar">
+            <input type="hidden" name="formatoConsulta" value="30">
+            <input type="hidden" name="id_persona_file" value="81">
+            <input type="hidden" name="id_usuario" value="1">
+            <input type="hidden" name="id_user" value="9">
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <label class="form-label">Motivo:</label>
+                    <input type="text" name="txtmotivo" class="form-control" value="Revisión fundoscopia">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Equipo Médico:</label>
+                    <input type="text" name="equipoMedico" class="form-control" value="Cirrus 700">
+                </div>
+            </div>
+            
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <label class="form-label">Descripción OD:</label>
+                    <textarea name="descripcion-od-textarea" class="form-control" rows="3">&lt;p&gt;Descripción del ojo derecho&lt;/p&gt;</textarea>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Descripción OI:</label>
+                    <textarea name="descripcion-oi-textarea" class="form-control" rows="3">&lt;p&gt;Descripción del ojo izquierdo&lt;/p&gt;</textarea>
+                </div>
+            </div>
+            
+            <div class="mt-3">
+                <label class="form-label">Consulta:</label>
+                <textarea name="consulta-textarea" class="form-control" rows="2">Examen de fondo de ojo con equipo Cirrus 700</textarea>
+            </div>
+            
+            <div class="mt-3">
+                <label class="form-label">Notas:</label>
+                <textarea name="txtnota" class="form-control" rows="2">Revisión de control</textarea>
+            </div>
+            
+            <div class="mt-4">
+                <button type="button" id="btnProbar" class="btn btn-primary">Probar Endpoint (Simulando formulario real)</button>
+                <button type="button" id="btnProbarSinFormType" class="btn btn-warning">Probar SIN form_type</button>
+                <button type="button" id="btnLimpiar" class="btn btn-secondary">Limpiar</button>
+            </div>
+        </form>
+        
+        <div class="mt-4">
+            <h4>Resultado:</h4>
+            <div id="resultado" class="alert alert-secondary">Esperando prueba...</div>
+        </div>
+        
+        <div class="mt-4">
+            <h4>Datos que se enviarán:</h4>
+            <pre id="datosEnvio" class="bg-light p-3"></pre>
+        </div>
+    </div>
+
+    <script>
+    $(document).ready(function() {
+        function mostrarDatos() {
+            var formData = $('#formTest').serializeArray();
+            var datos = {};
+            formData.forEach(function(item) {
+                datos[item.name] = item.value;
+            });
+            $('#datosEnvio').text(JSON.stringify(datos, null, 2));
+        }
+        
+        // Mostrar datos al cargar
+        mostrarDatos();
+        
+        // Actualizar datos cuando cambien los campos
+        $('#formTest input, #formTest textarea').on('input', mostrarDatos);
+        
+        $('#btnProbar').click(function() {
+            enviarPrueba(true);
+        });
+        
+        $('#btnProbarSinFormType').click(function() {
+            enviarPrueba(false);
+        });
+        
+        function enviarPrueba(incluirFormType) {
+            var formData = $('#formTest').serializeArray();
+            
+            // Si no incluir form_type, eliminarlo
+            if (!incluirFormType) {
+                formData = formData.filter(function(item) {
+                    return item.name !== 'form_type';
+                });
+            }
+            
+            var dataString = $.param(formData);
+            
+            $('#resultado').removeClass().addClass('alert alert-info').html('Enviando datos...');
+            
+            $.ajax({
+                url: '/clinica/ajax/guardar-consulta-informe-imagen.php',
+                type: 'POST',
+                data: dataString,
+                success: function(response) {
+                    console.log('Respuesta exitosa:', response);
+                    $('#resultado').removeClass().addClass('alert alert-success')
+                        .html('<strong>Éxito:</strong><br>' + response);
+                },
+                error: function(xhr, status, error) {
+                    console.log('Error:', error);
+                    console.log('Respuesta:', xhr.responseText);
+                    $('#resultado').removeClass().addClass('alert alert-danger')
+                        .html('<strong>Error:</strong><br><pre>' + xhr.responseText + '</pre>');
+                }
+            });
+        }
+        
+        $('#btnLimpiar').click(function() {
+            $('#resultado').removeClass().addClass('alert alert-secondary').html('Limpiado...');
+        });
+    });
+    </script>
+</body>
+</html>

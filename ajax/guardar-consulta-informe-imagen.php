@@ -1,355 +1,272 @@
 <?php
-// Incluir los archivos de depuración si existen
-if (file_exists("../logs/debug_guardar.php")) {
-    require_once "../logs/debug_guardar.php";
-}
-if (file_exists("../logs/debug_guardar_detallado.php")) {
-    require_once "../logs/debug_guardar_detallado.php";
+// Archivo de debug para consulta informe+imagen
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
+// Crear directorio de logs si no existe
+if (!is_dir('../logs')) {
+    mkdir('../logs', 0777, true);
 }
 
-// Iniciar log de depuración
-if (function_exists('debug_log')) {
-    debug_log("Iniciando proceso de guardar consulta informe+imagen", ["POST" => $_POST], "[INFORME_IMAGEN]");
-}
-if (function_exists('debug_detallado')) {
-    debug_detallado('INICIO', "Iniciando proceso de guardar datos de informe+imagen", ["POST" => $_POST], 'info');
-}
+// Log básico
+file_put_contents('../logs/debug_informe_imagen.log', 
+    date('Y-m-d H:i:s') . " - INICIO DEBUG\n" . 
+    "POST: " . print_r($_POST, true) . "\n" .
+    "FILES: " . print_r($_FILES, true) . "\n", 
+    FILE_APPEND
+);
 
-require_once "../model/conexion.php";
-
-/**
- * Clase para manejar el guardado de consultas de tipo Informe + Imagen
- */
-class TableConsultaInformeImagen {
+try {
+    require_once "../model/conexion.php";
+    require_once "../model/consultas.model.php";
     
-    /**
-     * Obtiene los datos específicos de informe+imagen para una consulta
-     * @param int $idConsulta - ID de la consulta
-     * @return array|null - Datos de informe+imagen o null si no existe
-     */
-    public function obtenerInformeImagenConsulta($idConsulta) {
-        if (!$idConsulta || !is_numeric($idConsulta)) {
-            if (function_exists('debug_detallado')) {
-                debug_detallado('OBTENER_INFORME_IMAGEN', "ID de consulta inválido", [
-                    'id_consulta' => $idConsulta
-                ], 'error');
-            }
-            return null;
-        }
-        
-        try {
-            $db = Conexion::conectar();
-            $stmt = $db->prepare("
-                SELECT 
-                    id_consulta_informe_imagen, id_consulta, 
-                    equipo_medico, descripcion_od, descripcion_oi,
-                    emails_compartir, compartir_activo
-                FROM consulta_informe_imagen 
-                WHERE id_consulta = :id_consulta
-                LIMIT 1
-            ");
-            $stmt->bindParam(":id_consulta", $idConsulta, PDO::PARAM_INT);
-            $stmt->execute();
-            
-            $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
-            
-            if (function_exists('debug_detallado')) {
-                debug_detallado('OBTENER_INFORME_IMAGEN', "Consulta ejecutada", [
-                    'id_consulta' => $idConsulta,
-                    'encontrado' => $resultado !== false,
-                    'datos' => $resultado ?: 'ninguno'
-                ], 'info');
-            }
-            
-            return $resultado ?: null;
-            
-        } catch (Exception $e) {
-            if (function_exists('debug_detallado')) {
-                debug_detallado('OBTENER_INFORME_IMAGEN', "Error en consulta", [
-                    'id_consulta' => $idConsulta,
-                    'error' => $e->getMessage()
-                ], 'error');
-            }
-            return null;
-        }
+    // Verificar datos básicos
+    if (!isset($_POST['idPersona']) || empty($_POST['idPersona'])) {
+        echo "error: No se encontró ID de persona";
+        file_put_contents('../logs/debug_informe_imagen.log', 
+            date('Y-m-d H:i:s') . " - ERROR: No ID de persona\n", 
+            FILE_APPEND
+        );
+        exit;
     }
     
-    /**
-     * Guarda o actualiza los datos específicos de informe+imagen
-     * @param array $datos - Datos del formulario
-     * @param int $idConsulta - ID de la consulta base
-     * @return string|int - "actualizado" o ID del registro, o mensaje de error
-     */
-    public function guardarConsultaInformeImagen($datos, $idConsulta) {
-        if (function_exists('debug_detallado')) {
-            debug_detallado('GUARDAR_INFORME_IMAGEN', "Iniciando guardado", [
-                'id_consulta' => $idConsulta,
-                'datos_recibidos' => array_keys($datos)
-            ], 'info');
-        }
+    // Asegurar que form_type existe
+    if (!isset($_POST['form_type'])) {
+        $_POST['form_type'] = 'informe_imagen';
+    }
+    
+    file_put_contents('../logs/debug_informe_imagen.log', 
+        date('Y-m-d H:i:s') . " - Intentando guardar consulta principal\n", 
+        FILE_APPEND
+    );
+    
+    // Guardar consulta principal
+    $resultado = ModelConsulta::mdlSetConsulta($_POST);
+    
+    file_put_contents('../logs/debug_informe_imagen.log', 
+        date('Y-m-d H:i:s') . " - Resultado consulta principal: " . $resultado . "\n", 
+        FILE_APPEND
+    );
+    
+    if (is_numeric($resultado)) {
+        $idConsulta = $resultado;
         
-        try {
-            $db = Conexion::conectar();
+        // Preparar datos específicos
+        $equipoMedico = $_POST["equipoMedico"] ?? '';
+        $descripcionOd = $_POST["descripcion-od-textarea"] ?? '';
+        $descripcionOi = $_POST["descripcion-oi-textarea"] ?? '';
+        $emailsCompartir = $_POST["emails_compartir"] ?? '';
+        $compartirActivo = isset($_POST["compartir_activo"]) ? 1 : 0;
+        
+        file_put_contents('../logs/debug_informe_imagen.log', 
+            date('Y-m-d H:i:s') . " - Datos específicos extraídos\n" .
+            "Equipo: $equipoMedico\n" .
+            "Descripción OD: " . strlen($descripcionOd) . " chars\n" .
+            "Descripción OI: " . strlen($descripcionOi) . " chars\n", 
+            FILE_APPEND
+        );
+        
+        // Procesar archivos básico
+        $archivosOd = [];
+        $archivosOi = [];
+        
+        // Procesar archivo_od
+        if (isset($_FILES['archivo_od']) && !empty($_FILES['archivo_od']['name'][0])) {
+            file_put_contents('../logs/debug_informe_imagen.log', 
+                date('Y-m-d H:i:s') . " - Procesando archivos OD\n" .
+                "Archivos recibidos: " . print_r($_FILES['archivo_od'], true) . "\n", 
+                FILE_APPEND
+            );
             
-            // Verificar si ya existe un registro para esta consulta
-            $registroExistente = $this->obtenerInformeImagenConsulta($idConsulta);
+            $rutaDestino = '../view/uploads/consultas/informe_imagen/';
+            if (!is_dir($rutaDestino)) {
+                mkdir($rutaDestino, 0777, true);
+            }
             
-            // Preparar los datos
-            $equipoMedico = isset($datos['equipoMedico']) ? trim($datos['equipoMedico']) : '';
-            $descripcionOd = isset($datos['descripcion-od-textarea']) ? trim($datos['descripcion-od-textarea']) : '';
-            $descripcionOi = isset($datos['descripcion-oi-textarea']) ? trim($datos['descripcion-oi-textarea']) : '';
-            $emailsCompartir = isset($datos['txtEmailShare']) ? trim($datos['txtEmailShare']) : '';
-            $compartirActivo = !empty($emailsCompartir) ? 1 : 0;
-            
-            if ($registroExistente) {
-                // Actualizar registro existente
-                $sql = "UPDATE consulta_informe_imagen SET 
-                        equipo_medico = :equipo_medico,
-                        descripcion_od = :descripcion_od,
-                        descripcion_oi = :descripcion_oi,
-                        emails_compartir = :emails_compartir,
-                        compartir_activo = :compartir_activo,
-                        fecha_actualizacion = CURRENT_TIMESTAMP
-                        WHERE id_consulta = :id_consulta";
+            for ($i = 0; $i < count($_FILES['archivo_od']['name']); $i++) {
+                file_put_contents('../logs/debug_informe_imagen.log', 
+                    date('Y-m-d H:i:s') . " - Procesando archivo OD #$i: " . $_FILES['archivo_od']['name'][$i] . 
+                    ", Error: " . $_FILES['archivo_od']['error'][$i] . "\n", 
+                    FILE_APPEND
+                );
                 
-                $stmt = $db->prepare($sql);
-                $stmt->bindParam(":equipo_medico", $equipoMedico, PDO::PARAM_STR);
-                $stmt->bindParam(":descripcion_od", $descripcionOd, PDO::PARAM_STR);
-                $stmt->bindParam(":descripcion_oi", $descripcionOi, PDO::PARAM_STR);
-                $stmt->bindParam(":emails_compartir", $emailsCompartir, PDO::PARAM_STR);
-                $stmt->bindParam(":compartir_activo", $compartirActivo, PDO::PARAM_INT);
-                $stmt->bindParam(":id_consulta", $idConsulta, PDO::PARAM_INT);
-                
-                if ($stmt->execute()) {
-                    if (function_exists('debug_detallado')) {
-                        debug_detallado('GUARDAR_INFORME_IMAGEN', "Actualización exitosa", [
-                            'id_consulta' => $idConsulta
-                        ], 'success');
+                if ($_FILES['archivo_od']['error'][$i] === UPLOAD_ERR_OK) {
+                    $nombreOriginal = $_FILES['archivo_od']['name'][$i];
+                    $extension = pathinfo($nombreOriginal, PATHINFO_EXTENSION);
+                    $nombreUnico = $idConsulta . '_OD_' . time() . '_' . $i . '.' . $extension;
+                    $rutaCompleta = $rutaDestino . $nombreUnico;
+                    
+                    if (move_uploaded_file($_FILES['archivo_od']['tmp_name'][$i], $rutaCompleta)) {
+                        $archivoInfo = [
+                            'nombre_original' => $nombreOriginal,
+                            'nombre_archivo' => $nombreUnico,
+                            'ruta' => 'view/uploads/consultas/informe_imagen/' . $nombreUnico,
+                            'tamano' => $_FILES['archivo_od']['size'][$i],
+                            'fecha_subida' => date('Y-m-d H:i:s'),
+                            'ojo' => 'od'
+                        ];
+                        $archivosOd[] = $archivoInfo;
+                        
+                        file_put_contents('../logs/debug_informe_imagen.log', 
+                            date('Y-m-d H:i:s') . " - Archivo OD guardado exitosamente: $nombreOriginal -> $nombreUnico\n" .
+                            "Info archivo: " . print_r($archivoInfo, true) . "\n", 
+                            FILE_APPEND
+                        );
+                    } else {
+                        file_put_contents('../logs/debug_informe_imagen.log', 
+                            date('Y-m-d H:i:s') . " - ERROR: No se pudo mover archivo OD: $nombreOriginal\n", 
+                            FILE_APPEND
+                        );
                     }
-                    return "actualizado";
-                } else {
-                    throw new Exception("Error al actualizar datos de informe+imagen");
-                }
-                
-            } else {
-                // Crear nuevo registro
-                $sql = "INSERT INTO consulta_informe_imagen 
-                        (id_consulta, equipo_medico, descripcion_od, descripcion_oi, 
-                         emails_compartir, compartir_activo, fecha_creacion, fecha_actualizacion) 
-                        VALUES 
-                        (:id_consulta, :equipo_medico, :descripcion_od, :descripcion_oi, 
-                         :emails_compartir, :compartir_activo, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)";
-                
-                $stmt = $db->prepare($sql);
-                $stmt->bindParam(":id_consulta", $idConsulta, PDO::PARAM_INT);
-                $stmt->bindParam(":equipo_medico", $equipoMedico, PDO::PARAM_STR);
-                $stmt->bindParam(":descripcion_od", $descripcionOd, PDO::PARAM_STR);
-                $stmt->bindParam(":descripcion_oi", $descripcionOi, PDO::PARAM_STR);
-                $stmt->bindParam(":emails_compartir", $emailsCompartir, PDO::PARAM_STR);
-                $stmt->bindParam(":compartir_activo", $compartirActivo, PDO::PARAM_INT);
-                
-                if ($stmt->execute()) {
-                    $nuevoId = $db->lastInsertId();
-                    if (function_exists('debug_detallado')) {
-                        debug_detallado('GUARDAR_INFORME_IMAGEN', "Inserción exitosa", [
-                            'id_consulta' => $idConsulta,
-                            'nuevo_id' => $nuevoId
-                        ], 'success');
-                    }
-                    return $nuevoId;
-                } else {
-                    throw new Exception("Error al insertar datos de informe+imagen");
                 }
             }
+        } else {
+            file_put_contents('../logs/debug_informe_imagen.log', 
+                date('Y-m-d H:i:s') . " - No hay archivos OD para procesar\n" .
+                "isset: " . (isset($_FILES['archivo_od']) ? 'true' : 'false') . "\n" .
+                "empty: " . (isset($_FILES['archivo_od']['name'][0]) ? $_FILES['archivo_od']['name'][0] : 'not set') . "\n", 
+                FILE_APPEND
+            );
+        }
+        
+        // Procesar archivo_oi
+        if (isset($_FILES['archivo_oi']) && !empty($_FILES['archivo_oi']['name'][0])) {
+            file_put_contents('../logs/debug_informe_imagen.log', 
+                date('Y-m-d H:i:s') . " - Procesando archivos OI\n" .
+                "Archivos recibidos: " . print_r($_FILES['archivo_oi'], true) . "\n", 
+                FILE_APPEND
+            );
             
-        } catch (Exception $e) {
-            if (function_exists('debug_detallado')) {
-                debug_detallado('GUARDAR_INFORME_IMAGEN', "Error en guardado", [
-                    'id_consulta' => $idConsulta,
-                    'error' => $e->getMessage()
-                ], 'error');
+            $rutaDestino = '../view/uploads/consultas/informe_imagen/';
+            if (!is_dir($rutaDestino)) {
+                mkdir($rutaDestino, 0777, true);
             }
-            return "Error al guardar datos específicos de informe+imagen: " . $e->getMessage();
-        }
-    }
-}
-
-/**
- * Función para guardar la consulta base (tabla consultas)
- * Reutiliza la lógica existente pero adaptada para informe+imagen
- */
-function guardarConsultaBaseInformeImagen($datos) {
-    if (function_exists('debug_detallado')) {
-        debug_detallado('CONSULTA_BASE', "Iniciando guardado de consulta base", [
-            'datos_keys' => array_keys($datos)
-        ], 'info');
-    }
-    
-    try {
-        require_once "../controller/consultas.controller.php";
-        
-        // Preparar datos para la consulta base
-        $datosConsulta = [
-            "idPersona" => isset($datos["idPersona"]) ? $datos["idPersona"] : "",
-            "motivo" => isset($datos["txtmotivo"]) ? $datos["txtmotivo"] : "",
-            "descripcion" => isset($datos["consulta-textarea"]) ? $datos["consulta-textarea"] : "",
-            "nota" => isset($datos["txtnota"]) ? $datos["txtnota"] : "",
-            "proximaConsulta" => isset($datos["proximaconsulta"]) ? $datos["proximaconsulta"] : "",
-            "whatsapp" => isset($datos["whatsapptxt"]) ? $datos["whatsapptxt"] : "",
-            "email" => isset($datos["email"]) ? $datos["email"] : "",
-            "idUser" => isset($datos["id_user"]) ? $datos["id_user"] : "",
-            "idReserva" => isset($datos["id_reserva"]) ? $datos["id_reserva"] : "0",
-            "medicoId" => isset($datos["medico_id"]) ? $datos["medico_id"] : "",
-            "tipoFormulario" => "informe_imagen"
-        ];
-        
-        // Si es actualización, incluir el ID
-        if (isset($datos["id_consulta"]) && !empty($datos["id_consulta"])) {
-            $datosConsulta["idConsulta"] = $datos["id_consulta"];
-        }
-        
-        if (function_exists('debug_detallado')) {
-            debug_detallado('CONSULTA_BASE', "Datos preparados para controlador", [
-                'datos_consulta' => $datosConsulta
-            ], 'info');
-        }
-        
-        $resultado = ControllerConsulta::ctrSetConsulta($datosConsulta);
-        
-        if (function_exists('debug_detallado')) {
-            debug_detallado('CONSULTA_BASE', "Resultado del controlador", [
-                'resultado' => $resultado
-            ], 'info');
-        }
-        
-        return $resultado;
-        
-    } catch (Exception $e) {
-        if (function_exists('debug_detallado')) {
-            debug_detallado('CONSULTA_BASE', "Error en guardado base", [
-                'error' => $e->getMessage()
-            ], 'error');
-        }
-        return "Error al guardar consulta base: " . $e->getMessage();
-    }
-}
-
-// Verificar que sea una solicitud POST con datos de informe+imagen
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    
-    // Debug: Mostrar todos los datos recibidos
-    if (function_exists('debug_detallado')) {
-        debug_detallado('DEBUG_POST', "Datos POST recibidos", [
-            'form_type' => $_POST["form_type"] ?? 'no_definido',
-            'formatoConsulta' => $_POST["formatoConsulta"] ?? 'no_definido',
-            'idPersona' => $_POST["idPersona"] ?? 'no_definido',
-            'all_post_keys' => array_keys($_POST)
-        ], 'info');
-    }
-    
-    // Verificar múltiples formas de identificar el formulario de informe+imagen
-    $esInformeImagen = false;
-    
-    // Verificación 1: form_type específico
-    if (isset($_POST["form_type"]) && $_POST["form_type"] == "informe_imagen") {
-        $esInformeImagen = true;
-    }
-    
-    // Verificación 2: formatoConsulta = 30 (ID de informe+imagen)
-    if (isset($_POST["formatoConsulta"]) && $_POST["formatoConsulta"] == "30") {
-        $esInformeImagen = true;
-    }
-    
-    // Verificación 3: Presencia de campos específicos de informe+imagen
-    if (isset($_POST["descripcion-od-textarea"]) || isset($_POST["descripcion-oi-textarea"])) {
-        $esInformeImagen = true;
-    }
-    
-    if ($esInformeImagen && isset($_POST["idPersona"]) && !empty($_POST["idPersona"])) {
-    
-    if (function_exists('debug_detallado')) {
-        debug_detallado('DETECCION_TIPO', "Formulario de informe+imagen detectado", [
-            'form_type' => $_POST["form_type"],
-            'id_persona' => $_POST["idPersona"]
-        ], 'info');
-    }
-    
-    // Paso 1: Guardar la consulta base
-    $esActualizacion = isset($_POST["id_consulta"]) && !empty($_POST["id_consulta"]);
-    $idConsulta = 0;
-    
-    if ($esActualizacion) {
-        $idConsulta = intval($_POST["id_consulta"]);
-        if (function_exists('debug_detallado')) {
-            debug_detallado('PROCESO', "Modo actualización detectado", [
-                'id_consulta' => $idConsulta
-            ], 'info');
-        }
-        
-        $resultadoBase = guardarConsultaBaseInformeImagen($_POST);
-        
-        if (!is_numeric($resultadoBase) && !strpos($resultadoBase, 'actualizado')) {
-            echo "error: " . $resultadoBase;
-            exit;
-        }
-    } else {
-        if (function_exists('debug_detallado')) {
-            debug_detallado('PROCESO', "Modo inserción detectado", [], 'info');
-        }
-        
-        $resultadoBase = guardarConsultaBaseInformeImagen($_POST);
-        
-        if (is_numeric($resultadoBase)) {
-            $idConsulta = $resultadoBase;
+            
+            for ($i = 0; $i < count($_FILES['archivo_oi']['name']); $i++) {
+                file_put_contents('../logs/debug_informe_imagen.log', 
+                    date('Y-m-d H:i:s') . " - Procesando archivo OI #$i: " . $_FILES['archivo_oi']['name'][$i] . 
+                    ", Error: " . $_FILES['archivo_oi']['error'][$i] . "\n", 
+                    FILE_APPEND
+                );
+                
+                if ($_FILES['archivo_oi']['error'][$i] === UPLOAD_ERR_OK) {
+                    $nombreOriginal = $_FILES['archivo_oi']['name'][$i];
+                    $extension = pathinfo($nombreOriginal, PATHINFO_EXTENSION);
+                    $nombreUnico = $idConsulta . '_OI_' . time() . '_' . $i . '.' . $extension;
+                    $rutaCompleta = $rutaDestino . $nombreUnico;
+                    
+                    if (move_uploaded_file($_FILES['archivo_oi']['tmp_name'][$i], $rutaCompleta)) {
+                        $archivoInfo = [
+                            'nombre_original' => $nombreOriginal,
+                            'nombre_archivo' => $nombreUnico,
+                            'ruta' => 'view/uploads/consultas/informe_imagen/' . $nombreUnico,
+                            'tamano' => $_FILES['archivo_oi']['size'][$i],
+                            'fecha_subida' => date('Y-m-d H:i:s'),
+                            'ojo' => 'oi'
+                        ];
+                        $archivosOi[] = $archivoInfo;
+                        
+                        file_put_contents('../logs/debug_informe_imagen.log', 
+                            date('Y-m-d H:i:s') . " - Archivo OI guardado exitosamente: $nombreOriginal -> $nombreUnico\n" .
+                            "Info archivo: " . print_r($archivoInfo, true) . "\n", 
+                            FILE_APPEND
+                        );
+                    } else {
+                        file_put_contents('../logs/debug_informe_imagen.log', 
+                            date('Y-m-d H:i:s') . " - ERROR: No se pudo mover archivo OI: $nombreOriginal\n", 
+                            FILE_APPEND
+                        );
+                    }
+                }
+            }
         } else {
-            echo "error: " . $resultadoBase;
-            exit;
-        }
-    }
-    
-    // Paso 2: Guardar los datos específicos de informe+imagen
-    $procesadorInformeImagen = new TableConsultaInformeImagen();
-    $resultadoInformeImagen = $procesadorInformeImagen->guardarConsultaInformeImagen($_POST, $idConsulta);
-    
-    if ($resultadoInformeImagen === "actualizado" || is_numeric($resultadoInformeImagen)) {
-        if (function_exists('debug_detallado')) {
-            debug_detallado('PROCESO', "Guardado de informe+imagen exitoso", [
-                'resultado_informe_imagen' => $resultadoInformeImagen,
-                'id_consulta' => $idConsulta
-            ], 'success');
+            file_put_contents('../logs/debug_informe_imagen.log', 
+                date('Y-m-d H:i:s') . " - No hay archivos OI para procesar\n" .
+                "isset: " . (isset($_FILES['archivo_oi']) ? 'true' : 'false') . "\n" .
+                "empty: " . (isset($_FILES['archivo_oi']['name'][0]) ? $_FILES['archivo_oi']['name'][0] : 'not set') . "\n", 
+                FILE_APPEND
+            );
         }
         
-        if ($esActualizacion) {
-            echo "actualizado id:" . $idConsulta;
-        } else {
+        file_put_contents('../logs/debug_informe_imagen.log', 
+            date('Y-m-d H:i:s') . " - Archivos procesados: OD=" . count($archivosOd) . ", OI=" . count($archivosOi) . "\n", 
+            FILE_APPEND
+        );
+        
+        // Guardar en tabla consulta_informe_imagen
+        $conexion = new Conexion();
+        $db = $conexion->conectar();
+        
+        $sql = "INSERT INTO consulta_informe_imagen 
+                    (id_consulta, equipo_medico, descripcion_od, descripcion_oi, 
+                     emails_compartir, compartir_activo, archivos_od, archivos_oi,
+                     fecha_creacion, fecha_actualizacion) 
+                VALUES 
+                    (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)";
+        
+        $stmt = $db->prepare($sql);
+        $archivosOdJson = json_encode($archivosOd);
+        $archivosOiJson = json_encode($archivosOi);
+        
+        file_put_contents('../logs/debug_informe_imagen.log', 
+            date('Y-m-d H:i:s') . " - Preparando inserción:\n" .
+            "ID Consulta: $idConsulta\n" .
+            "Equipo: $equipoMedico\n" .
+            "Archivos OD JSON: $archivosOdJson\n" .
+            "Archivos OI JSON: $archivosOiJson\n", 
+            FILE_APPEND
+        );
+        
+        $resultado_informe = $stmt->execute([
+            $idConsulta,
+            $equipoMedico,
+            $descripcionOd,
+            $descripcionOi,
+            $emailsCompartir,
+            $compartirActivo,
+            $archivosOdJson,
+            $archivosOiJson
+        ]);
+        
+        file_put_contents('../logs/debug_informe_imagen.log', 
+            date('Y-m-d H:i:s') . " - Resultado inserción informe: " . ($resultado_informe ? 'OK' : 'ERROR') . "\n", 
+            FILE_APPEND
+        );
+        
+        if ($resultado_informe) {
             echo "ok id:" . $idConsulta;
+            file_put_contents('../logs/debug_informe_imagen.log', 
+                date('Y-m-d H:i:s') . " - EXITO COMPLETO: ID $idConsulta\n", 
+                FILE_APPEND
+            );
+        } else {
+            echo "error: Error al guardar datos específicos";
+            file_put_contents('../logs/debug_informe_imagen.log', 
+                date('Y-m-d H:i:s') . " - ERROR: No se pudo insertar en consulta_informe_imagen\n" .
+                "Error info: " . print_r($stmt->errorInfo(), true) . "\n", 
+                FILE_APPEND
+            );
         }
+        
     } else {
-        if (function_exists('debug_detallado')) {
-            debug_detallado('PROCESO', "Error al guardar datos específicos de informe+imagen", [
-                'resultado' => $resultadoInformeImagen,
-                'id_consulta' => $idConsulta
-            ], 'error');
-        }
-        echo "error_informe_imagen: " . $resultadoInformeImagen . " (ID consulta: " . $idConsulta . ")";
+        echo "error: " . $resultado;
+        file_put_contents('../logs/debug_informe_imagen.log', 
+            date('Y-m-d H:i:s') . " - ERROR en consulta principal: $resultado\n", 
+            FILE_APPEND
+        );
     }
-} else {
-    if (function_exists('debug_detallado')) {
-        debug_detallado('DETECCION_TIPO', "No es un formulario de informe+imagen o faltan datos", [
-            'es_post' => $_SERVER["REQUEST_METHOD"] == "POST",
-            'form_type' => $_POST["form_type"] ?? 'no_definido',
-            'formatoConsulta' => $_POST["formatoConsulta"] ?? 'no_definido',
-            'tiene_id_persona' => isset($_POST["idPersona"]),
-            'id_persona_valor' => $_POST["idPersona"] ?? 'no_definido',
-            'tiene_descripcion_od' => isset($_POST["descripcion-od-textarea"]),
-            'tiene_descripcion_oi' => isset($_POST["descripcion-oi-textarea"]),
-            'post_data_keys' => array_keys($_POST ?? [])
-        ], 'warning');
-    }
-    echo "error: Este endpoint es solo para formularios de informe+imagen. form_type=" . ($_POST["form_type"] ?? 'no_definido') . ", formatoConsulta=" . ($_POST["formatoConsulta"] ?? 'no_definido');
+    
+} catch (Exception $e) {
+    echo "error: " . $e->getMessage();
+    file_put_contents('../logs/debug_informe_imagen.log', 
+        date('Y-m-d H:i:s') . " - EXCEPCION: " . $e->getMessage() . "\n" .
+        "Trace: " . $e->getTraceAsString() . "\n", 
+        FILE_APPEND
+    );
 }
 
-} else {
-    echo "error: Método no permitido";
-}
+file_put_contents('../logs/debug_informe_imagen.log', 
+    date('Y-m-d H:i:s') . " - FIN DEBUG\n\n", 
+    FILE_APPEND
+);
 ?>

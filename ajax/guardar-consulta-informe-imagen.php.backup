@@ -1,0 +1,567 @@
+<?php
+// Incluir los archivos de depuración si existen
+if (file_exists("../logs/debug_guardar.php")) {
+    require_once "../logs/debug_guardar.php";
+}
+                $stmt->bindParam(":equipoMedico", $equipoMedico, PDO::PARAM_STR);
+                $stmt->bindParam(":equipo_medico", $equipoMedico, PDO::PARAM_STR);
+                $stmt->bindParam(":descripcion_od", $descripcionOd, PDO::PARAM_STR);
+                $stmt->bindParam(":descripcion_oi", $descripcionOi, PDO::PARAM_STR);
+                $stmt->bindParam(":emails_compartir", $emailsCompartir, PDO::PARAM_STR);
+                $stmt->bindParam(":compartir_activo", $compartirActivo, PDO::PARAM_INT);
+                
+                // Corregir el error de referencia usando variables temporales
+                $archivosOdJson = json_encode($archivosOd);
+                $archivosOiJson = json_encode($archivosOi);
+                $stmt->bindParam(":archivos_od", $archivosOdJson, PDO::PARAM_STR);
+                $stmt->bindParam(":archivos_oi", $archivosOiJson, PDO::PARAM_STR);
+                
+                if ($stmt->execute()) {xists("../logs/debug_guardar_detallado.php")) {
+    require_once "../logs/debug_guardar_detallado.php";
+}
+
+// Iniciar log de depuración
+if (function_exists('debug_log')) {
+    debug_log("Iniciando proceso de guardar consulta informe+imagen", ["POST" => $_POST], "[INFORME_IMAGEN]");
+}
+if (function_exists('debug_detallado')) {
+    debug_detallado('INICIO', "Iniciando proceso de guardar datos de informe+imagen", ["POST" => $_POST], 'info');
+}
+
+require_once "../model/conexion.php";
+
+/**
+ * Clase para manejar el guardado de consultas de tipo Informe + Imagen
+ */
+class TableConsultaInformeImagen {
+    
+    /**
+     * Obtiene los datos específicos de informe+imagen para una consulta
+     * @param int $idConsulta - ID de la consulta
+     * @return array|null - Datos de informe+imagen o null si no existe
+     */
+    public function obtenerInformeImagenConsulta($idConsulta) {
+        if (!$idConsulta || !is_numeric($idConsulta)) {
+            if (function_exists('debug_detallado')) {
+                debug_detallado('OBTENER_INFORME_IMAGEN', "ID de consulta inválido", [
+                    'id_consulta' => $idConsulta
+                ], 'error');
+            }
+            return null;
+        }
+        
+        try {
+            $db = Conexion::conectar();
+            $stmt = $db->prepare("
+                SELECT 
+                    id_consulta_informe_imagen, id_consulta, 
+                    equipo_medico, descripcion_od, descripcion_oi,
+                    emails_compartir, compartir_activo
+                FROM consulta_informe_imagen 
+                WHERE id_consulta = :id_consulta
+                LIMIT 1
+            ");
+            $stmt->bindParam(":id_consulta", $idConsulta, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if (function_exists('debug_detallado')) {
+                debug_detallado('OBTENER_INFORME_IMAGEN', "Consulta ejecutada", [
+                    'id_consulta' => $idConsulta,
+                    'encontrado' => $resultado !== false,
+                    'datos' => $resultado ?: 'ninguno'
+                ], 'info');
+            }
+            
+            return $resultado ?: null;
+            
+        } catch (Exception $e) {
+            if (function_exists('debug_detallado')) {
+                debug_detallado('OBTENER_INFORME_IMAGEN', "Error en consulta", [
+                    'id_consulta' => $idConsulta,
+                    'error' => $e->getMessage()
+                ], 'error');
+            }
+            return null;
+        }
+    }
+    
+    /**
+     * Guarda o actualiza los datos específicos de informe+imagen
+     * @param array $datos - Datos del formulario
+     * @param int $idConsulta - ID de la consulta base
+     * @return string|int - "actualizado" o ID del registro, o mensaje de error
+     */
+    public function guardarConsultaInformeImagen($datos, $idConsulta) {
+        if (function_exists('debug_detallado')) {
+            debug_detallado('GUARDAR_INFORME_IMAGEN', "Iniciando guardado", [
+                'id_consulta' => $idConsulta,
+                'datos_recibidos' => array_keys($datos),
+                'archivos_recibidos' => isset($_FILES) ? array_keys($_FILES) : []
+            ], 'info');
+        }
+        
+        try {
+            $db = Conexion::conectar();
+            
+            // Verificar si ya existe un registro para esta consulta
+            $registroExistente = $this->obtenerInformeImagenConsulta($idConsulta);
+            
+            // Preparar los datos básicos
+            $equipoMedico = isset($datos['equipoMedico']) ? trim($datos['equipoMedico']) : '';
+            $descripcionOd = isset($datos['descripcion-od-textarea']) ? trim($datos['descripcion-od-textarea']) : '';
+            $descripcionOi = isset($datos['descripcion-oi-textarea']) ? trim($datos['descripcion-oi-textarea']) : '';
+            $emailsCompartir = isset($datos['txtEmailShare']) ? trim($datos['txtEmailShare']) : '';
+            $compartirActivo = !empty($emailsCompartir) ? 1 : 0;
+            
+            // Procesar archivos de imágenes
+            $archivosOd = $this->procesarArchivos('archivo_od', $idConsulta, 'OD');
+            $archivosOi = $this->procesarArchivos('archivo_oi', $idConsulta, 'OI');
+            
+            if ($registroExistente) {
+                // Actualizar registro existente
+                $sql = "UPDATE consulta_informe_imagen SET 
+                        equipo_medico = :equipo_medico,
+                        descripcion_od = :descripcion_od,
+                        descripcion_oi = :descripcion_oi,
+                        emails_compartir = :emails_compartir,
+                        compartir_activo = :compartir_activo,
+                        archivos_od = :archivos_od,
+                        archivos_oi = :archivos_oi,
+                        fecha_actualizacion = CURRENT_TIMESTAMP
+                        WHERE id_consulta = :id_consulta";
+                
+                $stmt = $db->prepare($sql);
+                $stmt->bindParam(":equipo_medico", $equipoMedico, PDO::PARAM_STR);
+                $stmt->bindParam(":descripcion_od", $descripcionOd, PDO::PARAM_STR);
+                $stmt->bindParam(":descripcion_oi", $descripcionOi, PDO::PARAM_STR);
+                $stmt->bindParam(":emails_compartir", $emailsCompartir, PDO::PARAM_STR);
+                $stmt->bindParam(":compartir_activo", $compartirActivo, PDO::PARAM_INT);
+                $stmt->bindParam(":archivos_od", json_encode($archivosOd), PDO::PARAM_STR);
+                $stmt->bindParam(":archivos_oi", json_encode($archivosOi), PDO::PARAM_STR);
+                $stmt->bindParam(":id_consulta", $idConsulta, PDO::PARAM_INT);
+                
+                if ($stmt->execute()) {
+                    if (function_exists('debug_detallado')) {
+                        debug_detallado('GUARDAR_INFORME_IMAGEN', "Actualización exitosa", [
+                            'id_consulta' => $idConsulta,
+                            'archivos_od_count' => count($archivosOd),
+                            'archivos_oi_count' => count($archivosOi)
+                        ], 'success');
+                    }
+                    return "actualizado";
+                } else {
+                    throw new Exception("Error al actualizar datos de informe+imagen");
+                }
+                
+            } else {
+                // Crear nuevo registro
+                $sql = "INSERT INTO consulta_informe_imagen 
+                        (id_consulta, equipo_medico, descripcion_od, descripcion_oi, 
+                         emails_compartir, compartir_activo, archivos_od, archivos_oi,
+                         fecha_creacion, fecha_actualizacion) 
+                        VALUES 
+                        (:id_consulta, :equipo_medico, :descripcion_od, :descripcion_oi, 
+                         :emails_compartir, :compartir_activo, :archivos_od, :archivos_oi,
+                         CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)";
+                
+                $stmt = $db->prepare($sql);
+                $stmt->bindParam(":id_consulta", $idConsulta, PDO::PARAM_INT);
+                $stmt->bindParam(":equipo_medico", $equipoMedico, PDO::PARAM_STR);
+                $stmt->bindParam(":descripcion_od", $descripcionOd, PDO::PARAM_STR);
+                $stmt->bindParam(":descripcion_oi", $descripcionOi, PDO::PARAM_STR);
+                $stmt->bindParam(":emails_compartir", $emailsCompartir, PDO::PARAM_STR);
+                $stmt->bindParam(":compartir_activo", $compartirActivo, PDO::PARAM_INT);
+                $stmt->bindParam(":archivos_od", json_encode($archivosOd), PDO::PARAM_STR);
+                $stmt->bindParam(":archivos_oi", json_encode($archivosOi), PDO::PARAM_STR);
+                
+                if ($stmt->execute()) {
+                    $nuevoId = $db->lastInsertId();
+                    if (function_exists('debug_detallado')) {
+                        debug_detallado('GUARDAR_INFORME_IMAGEN', "Inserción exitosa", [
+                            'id_consulta' => $idConsulta,
+                            'nuevo_id' => $nuevoId,
+                            'archivos_od_count' => count($archivosOd),
+                            'archivos_oi_count' => count($archivosOi)
+                        ], 'success');
+                    }
+                    return $nuevoId;
+                } else {
+                    throw new Exception("Error al insertar datos de informe+imagen");
+                }
+            }
+            
+        } catch (Exception $e) {
+            if (function_exists('debug_detallado')) {
+                debug_detallado('GUARDAR_INFORME_IMAGEN', "Error en guardado", [
+                    'id_consulta' => $idConsulta,
+                    'error' => $e->getMessage()
+                ], 'error');
+            }
+            return "Error al guardar datos específicos de informe+imagen: " . $e->getMessage();
+        }
+    }
+    
+    /**
+     * Procesa y guarda archivos de imagen para OD o OI
+     * @param string $campo - Nombre del campo de archivo (archivo_od o archivo_oi)
+     * @param int $idConsulta - ID de la consulta
+     * @param string $ojo - Identificador del ojo (OD o OI)
+     * @return array - Array con información de archivos guardados
+     */
+    private function procesarArchivos($campo, $idConsulta, $ojo) {
+        $archivos = [];
+        
+        if (function_exists('debug_detallado')) {
+            debug_detallado('PROCESAR_ARCHIVOS', "Iniciando procesamiento", [
+                'campo' => $campo,
+                'id_consulta' => $idConsulta,
+                'ojo' => $ojo,
+                'files_isset' => isset($_FILES[$campo]),
+                'files_content' => isset($_FILES[$campo]) ? $_FILES[$campo] : 'no existe'
+            ], 'info');
+        }
+        
+        // Verificar si el campo de archivo existe
+        if (!isset($_FILES[$campo])) {
+            if (function_exists('debug_detallado')) {
+                debug_detallado('PROCESAR_ARCHIVOS', "Campo de archivo no existe", ['campo' => $campo], 'warning');
+            }
+            return $archivos;
+        }
+        
+        // Verificar si hay archivos
+        $hayArchivos = false;
+        if (is_array($_FILES[$campo]['name'])) {
+            // Múltiples archivos
+            foreach ($_FILES[$campo]['name'] as $nombre) {
+                if (!empty($nombre)) {
+                    $hayArchivos = true;
+                    break;
+                }
+            }
+        } else {
+            // Archivo único
+            $hayArchivos = !empty($_FILES[$campo]['name']);
+        }
+        
+        if (!$hayArchivos) {
+            if (function_exists('debug_detallado')) {
+                debug_detallado('PROCESAR_ARCHIVOS', "No hay archivos para procesar", [
+                    'campo' => $campo,
+                    'nombres' => $_FILES[$campo]['name']
+                ], 'warning');
+            }
+            return $archivos;
+        }
+        
+        $rutaDestino = '../view/uploads/consultas/informe_imagen/';
+        
+        // Crear directorio si no existe
+        if (!is_dir($rutaDestino)) {
+            mkdir($rutaDestino, 0777, true);
+            if (function_exists('debug_detallado')) {
+                debug_detallado('PROCESAR_ARCHIVOS', "Directorio creado", ['ruta' => $rutaDestino], 'info');
+            }
+        }
+        
+        // Manejar archivo único o múltiples archivos
+        $nombres = is_array($_FILES[$campo]['name']) ? $_FILES[$campo]['name'] : [$_FILES[$campo]['name']];
+        $tmpNames = is_array($_FILES[$campo]['tmp_name']) ? $_FILES[$campo]['tmp_name'] : [$_FILES[$campo]['tmp_name']];
+        $sizes = is_array($_FILES[$campo]['size']) ? $_FILES[$campo]['size'] : [$_FILES[$campo]['size']];
+        $errors = is_array($_FILES[$campo]['error']) ? $_FILES[$campo]['error'] : [$_FILES[$campo]['error']];
+        
+        if (function_exists('debug_detallado')) {
+            debug_detallado('PROCESAR_ARCHIVOS', "Archivos a procesar", [
+                'cantidad' => count($nombres),
+                'nombres' => $nombres,
+                'errores' => $errors
+            ], 'info');
+        }
+        
+        for ($i = 0; $i < count($nombres); $i++) {
+            if ($errors[$i] === UPLOAD_ERR_OK && !empty($nombres[$i])) {
+                $nombreOriginal = $nombres[$i];
+                $extension = pathinfo($nombreOriginal, PATHINFO_EXTENSION);
+                $nombreUnico = $idConsulta . '_' . $ojo . '_' . time() . '_' . $i . '.' . $extension;
+                $rutaCompleta = $rutaDestino . $nombreUnico;
+                
+                if (move_uploaded_file($tmpNames[$i], $rutaCompleta)) {
+                    $archivos[] = [
+                        'nombre_original' => $nombreOriginal,
+                        'nombre_archivo' => $nombreUnico,
+                        'ruta' => 'view/uploads/consultas/informe_imagen/' . $nombreUnico,
+                        'tamano' => $sizes[$i],
+                        'fecha_subida' => date('Y-m-d H:i:s'),
+                        'ojo' => $ojo
+                    ];
+                    
+                    if (function_exists('debug_detallado')) {
+                        debug_detallado('ARCHIVO_GUARDADO', "Archivo guardado exitosamente", [
+                            'archivo' => $nombreOriginal,
+                            'ruta' => $rutaCompleta,
+                            'ojo' => $ojo,
+                            'tamano' => $sizes[$i]
+                        ], 'success');
+                    }
+                } else {
+                    if (function_exists('debug_detallado')) {
+                        debug_detallado('ARCHIVO_ERROR', "Error al mover archivo", [
+                            'archivo' => $nombreOriginal,
+                            'ruta_destino' => $rutaCompleta,
+                            'ojo' => $ojo,
+                            'tmp_name' => $tmpNames[$i]
+                        ], 'error');
+                    }
+                }
+            } else {
+                if (function_exists('debug_detallado')) {
+                    debug_detallado('ARCHIVO_SALTADO', "Archivo saltado", [
+                        'archivo' => $nombres[$i],
+                        'error_code' => $errors[$i],
+                        'error_message' => $this->getUploadErrorMessage($errors[$i])
+                    ], 'warning');
+                }
+            }
+        }
+        
+        if (function_exists('debug_detallado')) {
+            debug_detallado('PROCESAR_ARCHIVOS', "Procesamiento completado", [
+                'campo' => $campo,
+                'archivos_procesados' => count($archivos),
+                'archivos_detalle' => $archivos
+            ], 'info');
+        }
+        
+        return $archivos;
+    }
+    
+    /**
+     * Obtiene el mensaje de error de upload
+     */
+    private function getUploadErrorMessage($errorCode) {
+        switch ($errorCode) {
+            case UPLOAD_ERR_OK:
+                return 'No hay error, el archivo se subió correctamente';
+            case UPLOAD_ERR_INI_SIZE:
+                return 'El archivo subido excede la directiva upload_max_filesize de php.ini';
+            case UPLOAD_ERR_FORM_SIZE:
+                return 'El archivo subido excede la directiva MAX_FILE_SIZE del formulario HTML';
+            case UPLOAD_ERR_PARTIAL:
+                return 'El archivo se subió parcialmente';
+            case UPLOAD_ERR_NO_FILE:
+                return 'No se subió ningún archivo';
+            case UPLOAD_ERR_NO_TMP_DIR:
+                return 'Falta una carpeta temporal';
+            case UPLOAD_ERR_CANT_WRITE:
+                return 'Error al escribir el archivo en el disco';
+            case UPLOAD_ERR_EXTENSION:
+                return 'Una extensión de PHP detuvo la subida del archivo';
+            default:
+                return 'Error desconocido';
+        }
+    }
+}
+
+/**
+ * Función para guardar la consulta base (tabla consultas)
+ * Reutiliza la lógica existente pero adaptada para informe+imagen
+ */
+function guardarConsultaBaseInformeImagen($datos) {
+    if (function_exists('debug_detallado')) {
+        debug_detallado('CONSULTA_BASE', "Iniciando guardado de consulta base", [
+            'datos_keys' => array_keys($datos)
+        ], 'info');
+    }
+    
+    try {
+        require_once "../model/consultas.model.php";
+        require_once "../controller/consultas.controller.php";
+        
+        // Preparar datos para la consulta base
+        $datosConsulta = [
+            "idPersona" => isset($datos["idPersona"]) ? $datos["idPersona"] : "",
+            "motivo" => isset($datos["txtmotivo"]) ? $datos["txtmotivo"] : "",
+            "descripcion" => isset($datos["consulta-textarea"]) ? $datos["consulta-textarea"] : "",
+            "nota" => isset($datos["txtnota"]) ? $datos["txtnota"] : "",
+            "proximaConsulta" => isset($datos["proximaconsulta"]) ? $datos["proximaconsulta"] : "",
+            "whatsapp" => isset($datos["whatsapptxt"]) ? $datos["whatsapptxt"] : "",
+            "email" => isset($datos["email"]) ? $datos["email"] : "",
+            "idUser" => isset($datos["id_user"]) ? $datos["id_user"] : "",
+            "idReserva" => isset($datos["id_reserva"]) ? $datos["id_reserva"] : "0",
+            "medicoId" => isset($datos["medico_id"]) ? $datos["medico_id"] : "",
+            "form_type" => "informe_imagen"  // ← Cambiado de "tipoFormulario" a "form_type"
+        ];
+        
+        // Si es actualización, incluir el ID
+        if (isset($datos["id_consulta"]) && !empty($datos["id_consulta"])) {
+            $datosConsulta["idConsulta"] = $datos["id_consulta"];
+        }
+        
+        if (function_exists('debug_detallado')) {
+            debug_detallado('CONSULTA_BASE', "Datos preparados para controlador", [
+                'datos_consulta' => $datosConsulta
+            ], 'info');
+        }
+        
+        $resultado = ControllerConsulta::ctrSetConsulta($datosConsulta);
+        
+        if (function_exists('debug_detallado')) {
+            debug_detallado('CONSULTA_BASE', "Resultado del controlador", [
+                'resultado' => $resultado
+            ], 'info');
+        }
+        
+        return $resultado;
+        
+    } catch (Exception $e) {
+        if (function_exists('debug_detallado')) {
+            debug_detallado('CONSULTA_BASE', "Error en guardado base", [
+                'error' => $e->getMessage()
+            ], 'error');
+        }
+        return "Error al guardar consulta base: " . $e->getMessage();
+    }
+}
+
+// Verificar que sea una solicitud POST con datos de informe+imagen
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    
+    // Debug: Mostrar todos los datos recibidos
+    if (function_exists('debug_detallado')) {
+        debug_detallado('DEBUG_POST', "Datos POST recibidos", [
+            'form_type' => $_POST["form_type"] ?? 'no_definido',
+            'formatoConsulta' => $_POST["formatoConsulta"] ?? 'no_definido',
+            'idPersona' => $_POST["idPersona"] ?? 'no_definido',
+            'consulta_textarea' => $_POST["consulta-textarea"] ?? 'no_definido',
+            'all_post_keys' => array_keys($_POST),
+            'archivos_recibidos' => isset($_FILES) ? array_keys($_FILES) : [],
+            'archivo_od_count' => isset($_FILES['archivo_od']) && is_array($_FILES['archivo_od']['name']) ? count(array_filter($_FILES['archivo_od']['name'])) : 0,
+            'archivo_oi_count' => isset($_FILES['archivo_oi']) && is_array($_FILES['archivo_oi']['name']) ? count(array_filter($_FILES['archivo_oi']['name'])) : 0
+        ], 'info');
+    }
+    
+    // Verificar múltiples formas de identificar el formulario de informe+imagen
+    $esInformeImagen = false;
+    
+    // Verificación 1: form_type específico (opcional)
+    if (isset($_POST["form_type"]) && $_POST["form_type"] == "informe_imagen") {
+        $esInformeImagen = true;
+        if (function_exists('debug_detallado')) {
+            debug_detallado('DETECCION_TIPO', "Detectado por form_type", [], 'info');
+        }
+    }
+    
+    // Verificación 2: formatoConsulta = 30 (ID de informe+imagen)
+    if (isset($_POST["formatoConsulta"]) && $_POST["formatoConsulta"] == "30") {
+        $esInformeImagen = true;
+        if (function_exists('debug_detallado')) {
+            debug_detallado('DETECCION_TIPO', "Detectado por formatoConsulta=30", [], 'info');
+        }
+    }
+    
+    // Verificación 3: Presencia de campos específicos de informe+imagen
+    if (isset($_POST["descripcion-od-textarea"]) || isset($_POST["descripcion-oi-textarea"])) {
+        $esInformeImagen = true;
+        if (function_exists('debug_detallado')) {
+            debug_detallado('DETECCION_TIPO', "Detectado por campos específicos", [], 'info');
+        }
+    }
+    
+    // Verificación 4: Presencia de archivos OD/OI
+    if (isset($_POST["archivo_od"]) || isset($_POST["archivo_oi"])) {
+        $esInformeImagen = true;
+        if (function_exists('debug_detallado')) {
+            debug_detallado('DETECCION_TIPO', "Detectado por archivos OD/OI", [], 'info');
+        }
+    }
+    
+    if ($esInformeImagen && isset($_POST["idPersona"]) && !empty($_POST["idPersona"])) {
+    
+    if (function_exists('debug_detallado')) {
+        debug_detallado('DETECCION_TIPO', "Formulario de informe+imagen detectado", [
+            'form_type' => $_POST["form_type"],
+            'id_persona' => $_POST["idPersona"]
+        ], 'info');
+    }
+    
+    // Paso 1: Guardar la consulta base
+    $esActualizacion = isset($_POST["id_consulta"]) && !empty($_POST["id_consulta"]);
+    $idConsulta = 0;
+    
+    if ($esActualizacion) {
+        $idConsulta = intval($_POST["id_consulta"]);
+        if (function_exists('debug_detallado')) {
+            debug_detallado('PROCESO', "Modo actualización detectado", [
+                'id_consulta' => $idConsulta
+            ], 'info');
+        }
+        
+        $resultadoBase = guardarConsultaBaseInformeImagen($_POST);
+        
+        if (!is_numeric($resultadoBase) && !strpos($resultadoBase, 'actualizado')) {
+            echo "error: " . $resultadoBase;
+            exit;
+        }
+    } else {
+        if (function_exists('debug_detallado')) {
+            debug_detallado('PROCESO', "Modo inserción detectado", [], 'info');
+        }
+        
+        $resultadoBase = guardarConsultaBaseInformeImagen($_POST);
+        
+        if (is_numeric($resultadoBase)) {
+            $idConsulta = $resultadoBase;
+        } else {
+            echo "error: " . $resultadoBase;
+            exit;
+        }
+    }
+    
+    // Paso 2: Guardar los datos específicos de informe+imagen
+    $procesadorInformeImagen = new TableConsultaInformeImagen();
+    $resultadoInformeImagen = $procesadorInformeImagen->guardarConsultaInformeImagen($_POST, $idConsulta);
+    
+    if ($resultadoInformeImagen === "actualizado" || is_numeric($resultadoInformeImagen)) {
+        if (function_exists('debug_detallado')) {
+            debug_detallado('PROCESO', "Guardado de informe+imagen exitoso", [
+                'resultado_informe_imagen' => $resultadoInformeImagen,
+                'id_consulta' => $idConsulta
+            ], 'success');
+        }
+        
+        if ($esActualizacion) {
+            echo "actualizado id:" . $idConsulta;
+        } else {
+            echo "ok id:" . $idConsulta;
+        }
+    } else {
+        if (function_exists('debug_detallado')) {
+            debug_detallado('PROCESO', "Error al guardar datos específicos de informe+imagen", [
+                'resultado' => $resultadoInformeImagen,
+                'id_consulta' => $idConsulta
+            ], 'error');
+        }
+        echo "error_informe_imagen: " . $resultadoInformeImagen . " (ID consulta: " . $idConsulta . ")";
+    }
+} else {
+    if (function_exists('debug_detallado')) {
+        debug_detallado('DETECCION_TIPO', "No es un formulario de informe+imagen o faltan datos", [
+            'es_post' => $_SERVER["REQUEST_METHOD"] == "POST",
+            'form_type' => $_POST["form_type"] ?? 'no_definido',
+            'formatoConsulta' => $_POST["formatoConsulta"] ?? 'no_definido',
+            'tiene_id_persona' => isset($_POST["idPersona"]),
+            'id_persona_valor' => $_POST["idPersona"] ?? 'no_definido',
+            'tiene_descripcion_od' => isset($_POST["descripcion-od-textarea"]),
+            'tiene_descripcion_oi' => isset($_POST["descripcion-oi-textarea"]),
+            'post_data_keys' => array_keys($_POST ?? [])
+        ], 'warning');
+    }
+    echo "error: Este endpoint es solo para formularios de informe+imagen. form_type=" . ($_POST["form_type"] ?? 'no_definido') . ", formatoConsulta=" . ($_POST["formatoConsulta"] ?? 'no_definido');
+}
+
+} else {
+    echo "error: Método no permitido";
+}
+?>

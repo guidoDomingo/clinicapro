@@ -73,7 +73,8 @@
     <div class="form-row formfile">
          <div class="form-group col-md-6">
             <h5><i class="bi bi-eye"></i> Archivos OD (Ojo Derecho)</h5>
-            <input type="file" name="archivo_od[]" id="archivo_od" class="inputfile" multiple accept="image/*,.pdf">
+                                    <input type="file" name="archivo_od[]" id="archivo_od" class="form-control" multiple accept="image/*,.pdf">
+                        <button type="button" class="btn btn-sm btn-info mt-1" onclick="testArchivosOD()">TEST OD</button>
             <label for="archivo_od" class="btn btn-primary btn-sm label-file">
                 <i class="bi bi-upload"></i> Seleccionar archivos OD
             </label>
@@ -95,7 +96,8 @@
         
         <div class="form-group col-md-6">
             <h5><i class="bi bi-eye"></i> Archivos OI (Ojo Izquierdo)</h5>
-            <input type="file" name="archivo_oi[]" id="archivo_oi" class="inputfile" multiple accept="image/*,.pdf">
+                                    <input type="file" name="archivo_oi[]" id="archivo_oi" class="form-control" multiple accept="image/*,.pdf">
+                        <button type="button" class="btn btn-sm btn-info mt-1" onclick="testArchivosOI()">TEST OI</button>
             <label for="archivo_oi" class="btn btn-primary btn-sm label-file">
                 <i class="bi bi-upload"></i> Seleccionar archivos OI
             </label>
@@ -283,6 +285,8 @@
      * Función para guardar una consulta de informe+imagen
      */
     function guardarConsultaInformeImagen() {
+        console.log('=== INICIO guardarConsultaInformeImagen ===');
+        console.log('Esta función fue llamada correctamente!');
         console.log('Iniciando guardado de consulta de informe+imagen...');
         
         // Prevenir múltiples ejecuciones
@@ -318,8 +322,94 @@
             }
         });
         
-        // Preparar datos del formulario
-        const formData = new FormData(document.getElementById('tblConsulta'));
+        // DEBUG: Verificar archivos antes del envío
+        const archivoOdInput = document.getElementById('archivo_od');
+        const archivoOiInput = document.getElementById('archivo_oi');
+        
+        console.log("DEBUG - Archivos seleccionados:");
+        console.log("archivo_od element:", archivoOdInput);
+        console.log("archivo_oi element:", archivoOiInput);
+        console.log("archivo_od files:", archivoOdInput.files);
+        console.log("archivo_oi files:", archivoOiInput.files);
+        console.log("archivo_od files.length:", archivoOdInput.files.length);
+        console.log("archivo_oi files.length:", archivoOiInput.files.length);
+        
+        // Crear FormData manualmente para evitar conflictos
+        const formData = new FormData();
+        
+        // Agregar campos básicos del formulario
+        const campos = [
+            'txtdocumento', 'txtficha', 'idPersona', 'motivoscomunes', 'txtmotivo',
+            'equipoMedico', 'formatoConsulta', 'descripcion-od-textarea', 'descripcion-oi-textarea',
+            'id_persona_file', 'id_usuario', 'id_consulta_file', 'id_user'
+        ];
+        
+        campos.forEach(campo => {
+            const elemento = document.getElementById(campo);
+            if (elemento) {
+                formData.append(campo, elemento.value || '');
+                console.log(`Campo ${campo}:`, elemento.value || '');
+            }
+        });
+        
+        // Agregar archivos manualmente - CRÍTICO
+        console.log("=== VERIFICANDO ARCHIVOS (SISTEMA REAL) ===");
+        console.log("window.uploadedFiles:", window.uploadedFiles);
+        
+        // Verificar archivos desde el sistema real (window.uploadedFiles)
+        const archivosOD = window.uploadedFiles && window.uploadedFiles['od'] ? window.uploadedFiles['od'] : [];
+        const archivosOI = window.uploadedFiles && window.uploadedFiles['oi'] ? window.uploadedFiles['oi'] : [];
+        
+        console.log("archivosOD:", archivosOD);
+        console.log("archivosOI:", archivosOI);
+        console.log("archivosOD.length:", archivosOD.length);
+        console.log("archivosOI.length:", archivosOI.length);
+        
+        // Agregar archivos desde window.uploadedFiles
+        if (archivosOD && archivosOD.length > 0) {
+            console.log(`*** AGREGANDO ${archivosOD.length} archivo(s) OD desde uploadedFiles ***`);
+            archivosOD.forEach((fileInfo, index) => {
+                // Si hay un objeto File real, usarlo
+                if (fileInfo.file && fileInfo.file instanceof File) {
+                    formData.append('archivo_od[]', fileInfo.file);
+                    console.log(`*** Archivo OD ${index}: ${fileInfo.file.name} (${fileInfo.file.size} bytes) ***`);
+                } else if (fileInfo.nombre) {
+                    // Si solo hay información del archivo (ya subido), crear una referencia
+                    console.log(`*** Archivo OD ${index}: ${fileInfo.nombre} (referencia) ***`);
+                    formData.append('archivo_od_ref[]', fileInfo.nombre);
+                }
+            });
+        } else {
+            console.log("*** NO HAY ARCHIVOS OD en uploadedFiles ***");
+        }
+        
+        // Archivos OI
+        if (archivosOI && archivosOI.length > 0) {
+            console.log(`*** AGREGANDO ${archivosOI.length} archivo(s) OI desde uploadedFiles ***`);
+            archivosOI.forEach((fileInfo, index) => {
+                // Si hay un objeto File real, usarlo
+                if (fileInfo.file && fileInfo.file instanceof File) {
+                    formData.append('archivo_oi[]', fileInfo.file);
+                    console.log(`*** Archivo OI ${index}: ${fileInfo.file.name} (${fileInfo.file.size} bytes) ***`);
+                } else if (fileInfo.nombre) {
+                    // Si solo hay información del archivo (ya subido), crear una referencia
+                    console.log(`*** Archivo OI ${index}: ${fileInfo.nombre} (referencia) ***`);
+                    formData.append('archivo_oi_ref[]', fileInfo.nombre);
+                }
+            });
+        } else {
+            console.log("*** NO HAY ARCHIVOS OI en uploadedFiles ***");
+        }
+        
+        // Verificar el contenido del FormData
+        console.log("FormData entries:");
+        for (let pair of formData.entries()) {
+            if (pair[1] instanceof File) {
+                console.log(pair[0], "FILE:", pair[1].name, pair[1].size, "bytes");
+            } else {
+                console.log(pair[0], pair[1]);
+            }
+        }
         
         // Obtener el ID del usuario logueado
         const usuarioId = document.body.getAttribute('data-user-id') || '';
@@ -453,20 +543,27 @@
      * Manejar upload de archivos específicos OD/OI
      */
     function setupArchivoHandlers() {
+        console.log('*** setupArchivoHandlers() ejecutándose ***');
         // Handler para archivos OD
         const archivoOdInput = document.getElementById('archivo_od');
+        console.log('archivoOdInput encontrado:', archivoOdInput);
         if (archivoOdInput) {
             archivoOdInput.addEventListener('change', function(e) {
+                console.log('*** Event change OD detectado ***');
                 handleArchivoUpload(e, 'od');
             });
+            console.log('Event listener OD agregado');
         }
 
         // Handler para archivos OI
         const archivoOiInput = document.getElementById('archivo_oi');
+        console.log('archivoOiInput encontrado:', archivoOiInput);
         if (archivoOiInput) {
             archivoOiInput.addEventListener('change', function(e) {
+                console.log('*** Event change OI detectado ***');
                 handleArchivoUpload(e, 'oi');
             });
+            console.log('Event listener OI agregado');
         }
     }
 
@@ -474,8 +571,19 @@
      * Manejar subida de archivo específico
      */
     function handleArchivoUpload(event, tipo) {
+        console.log(`*** handleArchivoUpload llamado para ${tipo} ***`);
         const files = event.target.files;
-        if (files.length === 0) return;
+        console.log(`Archivos recibidos:`, files);
+        console.log(`Cantidad de archivos:`, files.length);
+        
+        if (files.length === 0) {
+            console.log(`No hay archivos para ${tipo}`);
+            return;
+        }
+
+        // Llamar a la función que maneja la tabla visual
+        console.log(`*** Llamando a función de tabla para ${tipo} ***`);
+        handleArchivoTable(files, tipo);
 
         const container = document.getElementById(`archivos-${tipo}-container`);
         const list = document.getElementById(`archivos-${tipo}-list`);
@@ -528,10 +636,16 @@
                 name: file.name,
                 size: file.size
             });
+            console.log(`*** Archivo ${file.name} agregado a uploadedFiles[${tipo}] ***`);
+            console.log(`Total archivos en ${tipo}:`, window.uploadedFiles[tipo].length);
         });
 
-        // Limpiar input para permitir seleccionar el mismo archivo de nuevo
-        event.target.value = '';
+        // NO limpiar input inmediatamente para evitar conflictos
+        // Limpiar después de un breve delay para permitir que otros listeners procesen
+        setTimeout(() => {
+            event.target.value = '';
+            console.log(`Input ${tipo} limpiado después del procesamiento`);
+        }, 100);
     }
 
     /**
@@ -585,7 +699,9 @@
 
     // Inicializar handlers cuando el documento esté listo
     document.addEventListener('DOMContentLoaded', function() {
+        console.log('*** DOMContentLoaded ejecutándose - Inicializando handlers de archivos ***');
         setupArchivoHandlers();
+        console.log('*** setupArchivoHandlers llamado desde DOMContentLoaded ***');
     });
 
 // Funciones globales para manejo de archivos
@@ -724,9 +840,12 @@ function formatFileSize(bytes) {
 }
 
 $(document).ready(function() {
-    setupArchivoHandlers();
+    console.log('*** jQuery document ready - DESHABILITADO para evitar conflictos ***');
+    // setupArchivoHandlers(); // COMENTADO para evitar conflictos
 });
 
+/*
+// FUNCIÓN DUPLICADA - COMENTADA PARA EVITAR CONFLICTOS
 function setupArchivoHandlers() {
     // Handler para archivos OD
     $('#archivo_od').on('change', function(e) {
@@ -738,9 +857,12 @@ function setupArchivoHandlers() {
         handleArchivoUpload(e.target.files, 'oi');
     });
 }
+*/
 
-function handleArchivoUpload(files, tipo) {
+function handleArchivoTable(files, tipo) {
+    console.log(`*** handleArchivoTable llamado para ${tipo} con ${files.length} archivos ***`);
     const tbody = document.getElementById(`tabla-archivos-${tipo}`);
+    console.log(`tbody encontrado:`, tbody);
     
     Array.from(files).forEach((file, index) => {
         // Crear fila de la tabla
@@ -773,9 +895,92 @@ function handleArchivoUpload(files, tipo) {
         fila._fileType = tipo;
         
         tbody.appendChild(fila);
+        
+        // NUEVO: Agregar archivo a window.uploadedFiles
+        if (!window.uploadedFiles) window.uploadedFiles = {};
+        if (!window.uploadedFiles[tipo]) window.uploadedFiles[tipo] = [];
+        
+        const fileId = `${tipo}_${Date.now()}_${index}`;
+        window.uploadedFiles[tipo].push({
+            id: fileId,
+            file: file,
+            name: file.name,
+            size: file.size
+        });
+        console.log(`*** Archivo ${file.name} agregado a uploadedFiles[${tipo}] ***`);
+        console.log(`Total archivos en ${tipo}:`, window.uploadedFiles[tipo].length);
     });
     
     // Limpiar el input para permitir seleccionar los mismos archivos de nuevo
     document.getElementById(`archivo_${tipo}`).value = '';
 }
+
+// Funciones de test para verificar archivos
+function testArchivosOD() {
+    const input = document.getElementById('archivo_od');
+    console.log('=== TEST OD (INPUT) ===');
+    console.log('Input element:', input);
+    console.log('Files:', input.files);
+    console.log('Files length:', input.files.length);
+    for (let i = 0; i < input.files.length; i++) {
+        console.log(`Archivo ${i}:`, input.files[i].name, input.files[i].size, 'bytes');
+    }
+    
+    // Test del sistema real
+    console.log('=== TEST OD (UPLOADED FILES) ===');
+    const archivosOD = window.uploadedFiles && window.uploadedFiles['od'] ? window.uploadedFiles['od'] : [];
+    console.log('window.uploadedFiles:', window.uploadedFiles);
+    console.log('archivosOD:', archivosOD);
+    console.log('archivosOD.length:', archivosOD.length);
+    
+    alert(`OD INPUT: ${input.files.length} archivos\nOD UPLOADED: ${archivosOD.length} archivos`);
+}
+
+function testArchivosOI() {
+    const input = document.getElementById('archivo_oi');
+    console.log('=== TEST OI (INPUT) ===');
+    console.log('Input element:', input);
+    console.log('Files:', input.files);
+    console.log('Files length:', input.files.length);
+    for (let i = 0; i < input.files.length; i++) {
+        console.log(`Archivo ${i}:`, input.files[i].name, input.files[i].size, 'bytes');
+    }
+    
+    // Test del sistema real
+    console.log('=== TEST OI (UPLOADED FILES) ===');
+    const archivosOI = window.uploadedFiles && window.uploadedFiles['oi'] ? window.uploadedFiles['oi'] : [];
+    console.log('window.uploadedFiles:', window.uploadedFiles);
+    console.log('archivosOI:', archivosOI);
+    console.log('archivosOI.length:', archivosOI.length);
+    
+    alert(`OI INPUT: ${input.files.length} archivos\nOI UPLOADED: ${archivosOI.length} archivos`);
+}
+
+// Agregar event listener específico para el botón de guardar en formulario informe+imagen
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM Content Loaded - Buscando botón guardar para informe+imagen');
+    
+    // Inicializar uploadedFiles si no existe
+    if (!window.uploadedFiles) {
+        window.uploadedFiles = {};
+        console.log('Inicializando window.uploadedFiles');
+    }
+    
+    const btnGuardarConsulta = document.getElementById('btnGuardarConsulta');
+    console.log('Botón encontrado:', btnGuardarConsulta);
+    
+    if (btnGuardarConsulta) {
+        // Agregar event listener para el botón de guardar
+        btnGuardarConsulta.addEventListener('click', function(e) {
+            console.log('Click interceptado por handler específico de informe+imagen');
+            e.preventDefault();
+            e.stopPropagation();
+            guardarConsultaInformeImagen();
+        }, true);
+        console.log('Event listener específico agregado para informe+imagen');
+    } else {
+        console.error('Botón btnGuardarConsulta no encontrado');
+    }
+});
+
     </script>

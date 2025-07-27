@@ -525,7 +525,9 @@ class ModelConsulta {
                                 descripcion_od,
                                 descripcion_oi,
                                 emails_compartir,
-                                compartir_activo
+                                compartir_activo,
+                                archivos_od,
+                                archivos_oi
                             FROM consulta_informe_imagen 
                             WHERE id_consulta = :id_consulta
                         ");
@@ -540,6 +542,8 @@ class ModelConsulta {
                             $consulta['descripcion_oi'] = $datosInformeImagen['descripcion_oi'];
                             $consulta['emails_compartir'] = $datosInformeImagen['emails_compartir'];
                             $consulta['compartir_activo'] = $datosInformeImagen['compartir_activo'];
+                            $consulta['archivos_od'] = $datosInformeImagen['archivos_od'];
+                            $consulta['archivos_oi'] = $datosInformeImagen['archivos_oi'];
                             $consulta['tiene_datos_informe_imagen'] = true;
                         } else {
                             $consulta['tiene_datos_informe_imagen'] = false;

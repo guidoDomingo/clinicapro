@@ -1,5 +1,5 @@
 <?php
-// require_once "../consultas.model.php";
+// No cargar el modelo aquí, se carga en el archivo ajax que incluye este controlador
 
 class ControllerConsulta {
     public static function ctrSetConsulta($datos) {

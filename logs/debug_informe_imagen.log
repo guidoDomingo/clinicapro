@@ -1,0 +1,200 @@
+2025-07-27 18:01:17 - INICIO DEBUG
+POST: Array
+(
+    [txtdocumento] => 6767677667
+    [txtficha] => 345435435
+    [idPersona] => 46
+    [motivoscomunes] => Seleccionar
+    [txtmotivo] => 
+    [equipoMedico] => Cirrus 700
+    [formatoConsulta] => 30
+    [descripcion-od-textarea] => <p>dsfds</p>
+    [descripcion-oi-textarea] => <p>sdfsd</p>
+    [id_persona_file] => 46
+    [id_usuario] => 1
+    [id_consulta_file] => 
+    [id_user] => 9
+)
+
+FILES: Array
+(
+    [archivo_od] => Array
+        (
+            [name] => Array
+                (
+                    [0] => formulario 3.jpg
+                )
+
+            [full_path] => Array
+                (
+                    [0] => formulario 3.jpg
+                )
+
+            [type] => Array
+                (
+                    [0] => image/jpeg
+                )
+
+            [tmp_name] => Array
+                (
+                    [0] => C:\Users\Guido\AppData\Local\Temp\php7A24.tmp
+                )
+
+            [error] => Array
+                (
+                    [0] => 0
+                )
+
+            [size] => Array
+                (
+                    [0] => 149926
+                )
+
+        )
+
+    [archivo_oi] => Array
+        (
+            [name] => Array
+                (
+                    [0] => formulario 3.jpg
+                )
+
+            [full_path] => Array
+                (
+                    [0] => formulario 3.jpg
+                )
+
+            [type] => Array
+                (
+                    [0] => image/jpeg
+                )
+
+            [tmp_name] => Array
+                (
+                    [0] => C:\Users\Guido\AppData\Local\Temp\php7A25.tmp
+                )
+
+            [error] => Array
+                (
+                    [0] => 0
+                )
+
+            [size] => Array
+                (
+                    [0] => 149926
+                )
+
+        )
+
+)
+
+2025-07-27 18:01:17 - Intentando guardar consulta principal
+2025-07-27 18:01:18 - Resultado consulta principal: 95
+2025-07-27 18:01:18 - Datos específicos extraídos
+Equipo: Cirrus 700
+Descripción OD: 12 chars
+Descripción OI: 12 chars
+2025-07-27 18:01:18 - Procesando archivos OD
+Archivos recibidos: Array
+(
+    [name] => Array
+        (
+            [0] => formulario 3.jpg
+        )
+
+    [full_path] => Array
+        (
+            [0] => formulario 3.jpg
+        )
+
+    [type] => Array
+        (
+            [0] => image/jpeg
+        )
+
+    [tmp_name] => Array
+        (
+            [0] => C:\Users\Guido\AppData\Local\Temp\php7A24.tmp
+        )
+
+    [error] => Array
+        (
+            [0] => 0
+        )
+
+    [size] => Array
+        (
+            [0] => 149926
+        )
+
+)
+
+2025-07-27 18:01:18 - Procesando archivo OD #0: formulario 3.jpg, Error: 0
+2025-07-27 18:01:18 - Archivo OD guardado exitosamente: formulario 3.jpg -> 95_OD_1753639278_0.jpg
+Info archivo: Array
+(
+    [nombre_original] => formulario 3.jpg
+    [nombre_archivo] => 95_OD_1753639278_0.jpg
+    [ruta] => view/uploads/consultas/informe_imagen/95_OD_1753639278_0.jpg
+    [tamano] => 149926
+    [fecha_subida] => 2025-07-27 18:01:18
+    [ojo] => od
+)
+
+2025-07-27 18:01:18 - Procesando archivos OI
+Archivos recibidos: Array
+(
+    [name] => Array
+        (
+            [0] => formulario 3.jpg
+        )
+
+    [full_path] => Array
+        (
+            [0] => formulario 3.jpg
+        )
+
+    [type] => Array
+        (
+            [0] => image/jpeg
+        )
+
+    [tmp_name] => Array
+        (
+            [0] => C:\Users\Guido\AppData\Local\Temp\php7A25.tmp
+        )
+
+    [error] => Array
+        (
+            [0] => 0
+        )
+
+    [size] => Array
+        (
+            [0] => 149926
+        )
+
+)
+
+2025-07-27 18:01:18 - Procesando archivo OI #0: formulario 3.jpg, Error: 0
+2025-07-27 18:01:18 - Archivo OI guardado exitosamente: formulario 3.jpg -> 95_OI_1753639278_0.jpg
+Info archivo: Array
+(
+    [nombre_original] => formulario 3.jpg
+    [nombre_archivo] => 95_OI_1753639278_0.jpg
+    [ruta] => view/uploads/consultas/informe_imagen/95_OI_1753639278_0.jpg
+    [tamano] => 149926
+    [fecha_subida] => 2025-07-27 18:01:18
+    [ojo] => oi
+)
+
+2025-07-27 18:01:18 - Archivos procesados: OD=1, OI=1
+2025-07-27 18:01:18 - Preparando inserción:
+ID Consulta: 95
+Equipo: Cirrus 700
+Archivos OD JSON: [{"nombre_original":"formulario 3.jpg","nombre_archivo":"95_OD_1753639278_0.jpg","ruta":"view\/uploads\/consultas\/informe_imagen\/95_OD_1753639278_0.jpg","tamano":149926,"fecha_subida":"2025-07-27 18:01:18","ojo":"od"}]
+Archivos OI JSON: [{"nombre_original":"formulario 3.jpg","nombre_archivo":"95_OI_1753639278_0.jpg","ruta":"view\/uploads\/consultas\/informe_imagen\/95_OI_1753639278_0.jpg","tamano":149926,"fecha_subida":"2025-07-27 18:01:18","ojo":"oi"}]
+2025-07-27 18:01:18 - Resultado inserción informe: OK
+2025-07-27 18:01:18 - EXITO COMPLETO: ID 95
+2025-07-27 18:01:18 - FIN DEBUG
+

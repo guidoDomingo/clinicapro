@@ -90,12 +90,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const urlParams = new URLSearchParams(window.location.search);
         const formType = urlParams.get('form_type');
         
-        if (formType !== 'anteojos' && !btnGuardarConsulta.dataset.handlerAdded) {
+        if (formType !== 'anteojos' && formType !== 'informe_imagen' && !btnGuardarConsulta.dataset.handlerAdded) {
             btnGuardarConsulta.addEventListener('click', guardarConsulta);
             btnGuardarConsulta.dataset.handlerAdded = 'true';
             console.log('Event listener principal agregado para formulario:', formType || 'general');
         } else if (formType === 'anteojos') {
             console.log('Omitiendo event listener principal porque estamos en modo anteojos');
+        } else if (formType === 'informe_imagen') {
+            console.log('Omitiendo event listener principal porque estamos en modo informe_imagen');
         }
     }
     
@@ -1068,21 +1070,91 @@ function verDetalleConsulta(idConsulta) {
                         case 'informe_imagen':
                             tituloModal = 'Detalle de Consulta - Informe + Imagen';
                             if (datosEspecificos) {
+                                let archivosODHTML = '';
+                                let archivosOIHTML = '';
+                                
+                                // Procesar archivos OD
+                                if (datosEspecificos.archivos_od && datosEspecificos.archivos_od !== '[]') {
+                                    try {
+                                        const archivosOD = typeof datosEspecificos.archivos_od === 'string' ? 
+                                            JSON.parse(datosEspecificos.archivos_od) : datosEspecificos.archivos_od;
+                                        
+                                        if (archivosOD && archivosOD.length > 0) {
+                                            archivosODHTML = '<h6><strong>Archivos OD (Ojo Derecho):</strong></h6><ul>';
+                                            archivosOD.forEach(archivo => {
+                                                archivosODHTML += `
+                                                <li>
+                                                    <i class="bi bi-file-earmark-image"></i> 
+                                                    <strong>${archivo.nombre_original}</strong> 
+                                                    <small class="text-muted">(${formatFileSize(archivo.tamano || 0)})</small>
+                                                    <br><small>Subido: ${archivo.fecha_subida || 'N/A'}</small>
+                                                    <a href="${archivo.ruta}" target="_blank" class="btn btn-sm btn-outline-primary ml-2">
+                                                        <i class="bi bi-eye"></i> Ver
+                                                    </a>
+                                                </li>`;
+                                            });
+                                            archivosODHTML += '</ul>';
+                                        }
+                                    } catch (e) {
+                                        console.error('Error al parsear archivos OD:', e);
+                                        archivosODHTML = '<p class="text-warning">Error al cargar archivos OD</p>';
+                                    }
+                                }
+                                
+                                // Procesar archivos OI
+                                if (datosEspecificos.archivos_oi && datosEspecificos.archivos_oi !== '[]') {
+                                    try {
+                                        const archivosOI = typeof datosEspecificos.archivos_oi === 'string' ? 
+                                            JSON.parse(datosEspecificos.archivos_oi) : datosEspecificos.archivos_oi;
+                                        
+                                        if (archivosOI && archivosOI.length > 0) {
+                                            archivosOIHTML = '<h6><strong>Archivos OI (Ojo Izquierdo):</strong></h6><ul>';
+                                            archivosOI.forEach(archivo => {
+                                                archivosOIHTML += `
+                                                <li>
+                                                    <i class="bi bi-file-earmark-image"></i> 
+                                                    <strong>${archivo.nombre_original}</strong> 
+                                                    <small class="text-muted">(${formatFileSize(archivo.tamano || 0)})</small>
+                                                    <br><small>Subido: ${archivo.fecha_subida || 'N/A'}</small>
+                                                    <a href="${archivo.ruta}" target="_blank" class="btn btn-sm btn-outline-primary ml-2">
+                                                        <i class="bi bi-eye"></i> Ver
+                                                    </a>
+                                                </li>`;
+                                            });
+                                            archivosOIHTML += '</ul>';
+                                        }
+                                    } catch (e) {
+                                        console.error('Error al parsear archivos OI:', e);
+                                        archivosOIHTML = '<p class="text-warning">Error al cargar archivos OI</p>';
+                                    }
+                                }
+                                
                                 camposEspecificos = `
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <p><strong>Tipo de Informe:</strong> ${datosEspecificos.tipo_informe || 'No especificado'}</p>
-                                        <p><strong>Modalidad:</strong> ${datosEspecificos.modalidad || 'No especificado'}</p>
+                                        <p><strong>Equipo Médico:</strong> ${datosEspecificos.equipo_medico || 'No especificado'}</p>
+                                        <p><strong>WhatsApp:</strong> ${datosEspecificos.whatsapp_txt || 'No especificado'}</p>
+                                        <p><strong>Email:</strong> ${datosEspecificos.email || 'No especificado'}</p>
                                     </div>
                                     <div class="col-md-6">
-                                        <p><strong>Técnica:</strong> ${datosEspecificos.tecnica || 'No especificado'}</p>
-                                        <p><strong>Contraste:</strong> ${datosEspecificos.contraste || 'No especificado'}</p>
+                                        <p><strong>Emails Compartir:</strong> ${datosEspecificos.emails_compartir || 'No especificado'}</p>
+                                        <p><strong>Próxima Consulta:</strong> ${datosEspecificos.proxima_consulta ? new Date(datosEspecificos.proxima_consulta).toLocaleDateString('es-ES') : 'No programada'}</p>
                                     </div>
                                 </div>
                                 <div class="row mt-3">
-                                    <div class="col-12">
-                                        <p><strong>Hallazgos:</strong></p>
-                                        <div class="p-2 border rounded">${datosEspecificos.hallazgos || 'Sin hallazgos'}</div>
+                                    <div class="col-md-6">
+                                        <h6><strong>Descripción OD:</strong></h6>
+                                        <div class="p-2 border rounded" style="max-height: 150px; overflow-y: auto;">
+                                            ${datosEspecificos.descripcion_od || 'Sin descripción'}
+                                        </div>
+                                        ${archivosODHTML}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6><strong>Descripción OI:</strong></h6>
+                                        <div class="p-2 border rounded" style="max-height: 150px; overflow-y: auto;">
+                                            ${datosEspecificos.descripcion_oi || 'Sin descripción'}
+                                        </div>
+                                        ${archivosOIHTML}
                                     </div>
                                 </div>`;
                             } else {
@@ -1091,7 +1163,7 @@ function verDetalleConsulta(idConsulta) {
                                     <div class="col-12">
                                         <div class="alert alert-info">
                                             <i class="fas fa-info-circle"></i>
-                                            <strong>Información:</strong> Esta consulta de informe + imagen utiliza los campos generales.
+                                            <strong>Información:</strong> Esta consulta de informe+imagen no tiene datos específicos guardados.
                                         </div>
                                     </div>
                                 </div>`;
@@ -2046,10 +2118,213 @@ function cargarDatosInformeImagenConsulta(consulta, archivos) {
         }, 800);
     }
     
+    // *** NUEVO: Cargar archivos específicos de informe+imagen ***
+    setTimeout(() => {
+        cargarArchivosInformeImagen(consulta);
+    }, 1000);
+    
     // Finalizar carga con archivos
     finalizarCargaConsulta(consulta, archivos);
     
     console.log('📋📷 ✅ Carga de datos de informe+imagen completada');
+}
+
+/**
+ * Función específica para cargar archivos en formulario de informe+imagen
+ * @param {Object} consulta - Datos de la consulta que incluyen archivos_od y archivos_oi
+ */
+function cargarArchivosInformeImagen(consulta) {
+    console.log('*** Cargando archivos específicos de informe+imagen ***');
+    console.log('Consulta recibida:', consulta);
+    
+    // Obtener archivos de la consulta
+    let archivosOD = [];
+    let archivosOI = [];
+    
+    try {
+        // Los archivos vienen como JSON string desde la base de datos
+        if (consulta.archivos_od && consulta.archivos_od !== '[]') {
+            archivosOD = typeof consulta.archivos_od === 'string' ? 
+                JSON.parse(consulta.archivos_od) : consulta.archivos_od;
+        }
+        
+        if (consulta.archivos_oi && consulta.archivos_oi !== '[]') {
+            archivosOI = typeof consulta.archivos_oi === 'string' ? 
+                JSON.parse(consulta.archivos_oi) : consulta.archivos_oi;
+        }
+        
+        console.log('Archivos OD parseados:', archivosOD);
+        console.log('Archivos OI parseados:', archivosOI);
+        
+    } catch (e) {
+        console.error('Error al parsear archivos JSON:', e);
+        return;
+    }
+    
+    // Cargar archivos OD
+    if (archivosOD && archivosOD.length > 0) {
+        console.log(`Cargando ${archivosOD.length} archivo(s) OD`);
+        cargarArchivosEnTabla(archivosOD, 'od');
+    }
+    
+    // Cargar archivos OI  
+    if (archivosOI && archivosOI.length > 0) {
+        console.log(`Cargando ${archivosOI.length} archivo(s) OI`);
+        cargarArchivosEnTabla(archivosOI, 'oi');
+    }
+    
+    console.log('*** Carga de archivos informe+imagen completada ***');
+}
+
+/**
+ * Función para cargar archivos en la tabla específica (OD o OI)
+ * @param {Array} archivos - Lista de archivos a cargar
+ * @param {string} tipo - 'od' o 'oi'
+ */
+function cargarArchivosEnTabla(archivos, tipo) {
+    console.log(`Cargando archivos en tabla ${tipo}:`, archivos);
+    
+    const tbody = document.getElementById(`tabla-archivos-${tipo}`);
+    if (!tbody) {
+        console.error(`Tabla tabla-archivos-${tipo} no encontrada`);
+        return;
+    }
+    
+    // Limpiar tabla existente
+    tbody.innerHTML = '';
+    
+    // Inicializar window.uploadedFiles si no existe
+    if (!window.uploadedFiles) window.uploadedFiles = {};
+    if (!window.uploadedFiles[tipo]) window.uploadedFiles[tipo] = [];
+    
+    // Agregar cada archivo a la tabla
+    archivos.forEach((archivo, index) => {
+        const fila = document.createElement('tr');
+        const numeroFila = index + 1;
+        
+        // Crear fila con datos del archivo
+        fila.innerHTML = `
+            <td>${numeroFila}</td>
+            <td>
+                <i class="bi bi-file-earmark-image"></i> 
+                <span title="${archivo.nombre_original}">${archivo.nombre_original}</span>
+                <small class="text-muted d-block">${formatFileSize(archivo.tamano)}</small>
+            </td>
+            <td>
+                <button type="button" class="btn btn-outline-primary btn-sm" onclick="previewArchivoExistente('${archivo.ruta}', '${archivo.nombre_original}')">
+                    <i class="bi bi-eye"></i> Ver
+                </button>
+            </td>
+            <td>
+                <button type="button" class="btn btn-outline-danger btn-sm" onclick="eliminarArchivoExistente(this, '${archivo.ruta}', '${tipo}')">
+                    <i class="bi bi-trash"></i> Quitar
+                </button>
+            </td>
+        `;
+        
+        // Guardar referencia del archivo en la fila
+        fila._archivoData = archivo;
+        fila._archivoTipo = tipo;
+        
+        tbody.appendChild(fila);
+        
+        // Agregar a window.uploadedFiles como referencia (no File object)
+        window.uploadedFiles[tipo].push({
+            id: `existing_${tipo}_${index}`,
+            archivo_existente: archivo,
+            name: archivo.nombre_original,
+            size: archivo.tamano,
+            ruta: archivo.ruta
+        });
+        
+        console.log(`Archivo ${archivo.nombre_original} agregado a tabla ${tipo}`);
+    });
+    
+    console.log(`Tabla ${tipo} cargada con ${archivos.length} archivos`);
+}
+
+/**
+ * Función para previsualizar archivo existente
+ * @param {string} ruta - Ruta del archivo
+ * @param {string} nombre - Nombre del archivo
+ */
+function previewArchivoExistente(ruta, nombre) {
+    console.log('Previsualizando archivo existente:', ruta);
+    
+    // Determinar si es imagen
+    const esImagen = /\.(jpg|jpeg|png|gif|bmp|webp)$/i.test(nombre);
+    
+    if (esImagen) {
+        // Mostrar imagen en modal
+        Swal.fire({
+            title: nombre,
+            imageUrl: ruta,
+            imageWidth: 'auto',
+            imageHeight: 'auto',
+            showCloseButton: true,
+            showConfirmButton: false,
+            customClass: {
+                image: 'img-fluid'
+            }
+        });
+    } else {
+        // Para otros tipos de archivo, abrir en nueva ventana
+        window.open(ruta, '_blank');
+    }
+}
+
+/**
+ * Función para eliminar archivo existente
+ * @param {HTMLElement} button - Botón que disparó la acción
+ * @param {string} ruta - Ruta del archivo
+ * @param {string} tipo - 'od' o 'oi'
+ */
+function eliminarArchivoExistente(button, ruta, tipo) {
+    Swal.fire({
+        title: '¿Eliminar archivo?',
+        text: 'Esta acción no se puede deshacer',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Eliminar fila de la tabla
+            const fila = button.closest('tr');
+            fila.remove();
+            
+            // Eliminar de window.uploadedFiles
+            if (window.uploadedFiles[tipo]) {
+                window.uploadedFiles[tipo] = window.uploadedFiles[tipo].filter(file => 
+                    file.ruta !== ruta
+                );
+            }
+            
+            console.log(`Archivo ${ruta} eliminado de tabla ${tipo}`);
+            
+            Swal.fire({
+                icon: 'success',
+                title: 'Archivo eliminado',
+                timer: 1500,
+                showConfirmButton: false
+            });
+        }
+    });
+}
+
+/**
+ * Función para formatear el tamaño de archivo en formato legible
+ * @param {number} bytes - Tamaño en bytes
+ * @returns {string} - Tamaño formateado (ej: "1.5 MB")
+ */
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
 
 /**
