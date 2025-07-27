@@ -397,6 +397,57 @@
             formData.append('consulta-textarea', consultaPrincipal);
         }
         
+        // *** CAPTURAR CAMPOS ADICIONALES ***
+        console.log("=== CAPTURANDO CAMPOS ADICIONALES ===");
+        
+        // Capturar nota/observaciones
+        const notaTextarea = document.getElementById('txtnota');
+        if (notaTextarea) {
+            let notaContenido = '';
+            if ($(notaTextarea).data('summernote')) {
+                notaContenido = $(notaTextarea).summernote('code');
+                console.log('Nota desde Summernote:', notaContenido);
+            } else {
+                notaContenido = notaTextarea.value || '';
+                console.log('Nota desde textarea:', notaContenido);
+            }
+            formData.append('txtnota', notaContenido);
+        }
+        
+        // Capturar emails para compartir
+        const emailsCompartir = document.getElementById('txtEmailShare');
+        if (emailsCompartir) {
+            let emailsValue = '';
+            // Si usa Tagify, obtener el valor de los tags
+            if (window.tagify_emails && window.tagify_emails.value) {
+                const tags = window.tagify_emails.value;
+                emailsValue = tags.map(tag => tag.value).join(',');
+                console.log('Emails desde Tagify:', emailsValue);
+            } else {
+                emailsValue = emailsCompartir.value || '';
+                console.log('Emails desde input:', emailsValue);
+            }
+            formData.append('emails_compartir', emailsValue);
+        }
+        
+        // Capturar próxima consulta
+        const proximaConsulta = document.getElementById('proximaconsulta');
+        if (proximaConsulta) {
+            const fechaValue = proximaConsulta.value || '';
+            formData.append('proximaconsulta', fechaValue);
+            console.log('Próxima consulta:', fechaValue);
+        }
+        
+        // Capturar otros campos específicos del formulario
+        const otrosCampos = ['whatsapptxt', 'email'];
+        otrosCampos.forEach(campo => {
+            const elemento = document.getElementById(campo);
+            if (elemento) {
+                formData.append(campo, elemento.value || '');
+                console.log(`Campo adicional ${campo}:`, elemento.value || '');
+            }
+        });
+        
         // Agregar archivos manualmente - CRÍTICO
         console.log("=== VERIFICANDO ARCHIVOS (SISTEMA REAL) ===");
         console.log("window.uploadedFiles:", window.uploadedFiles);
@@ -523,7 +574,14 @@
                     icon: "success",
                     title: "Informe+imagen guardado correctamente",
                     text: "ID del informe: " + idConsultaGuardada,
-                    showConfirmButton: true
+                    showConfirmButton: true,
+                    confirmButtonText: "Continuar"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // *** LIMPIAR FORMULARIO Y RECARGAR CONSULTAS ***
+                        limpiarFormularioInformeImagen();
+                        recargarConsultasYMostrarUltima(idPersona);
+                    }
                 });
                 
                 // Actualizar información del paciente
@@ -537,7 +595,11 @@
                 icon: "success",
                 title: "Informe+imagen actualizado correctamente",
                 showConfirmButton: false,
-                timer: 1500
+                timer: 2000
+            }).then(() => {
+                // *** TAMBIÉN LIMPIAR Y RECARGAR PARA ACTUALIZACIONES ***
+                limpiarFormularioInformeImagen();
+                recargarConsultasYMostrarUltima(idPersona);
             });
             
             if (typeof obtenerResumenConsulta === 'function') {
@@ -1027,5 +1089,158 @@ document.addEventListener('DOMContentLoaded', function() {
         console.error('Botón btnGuardarConsulta no encontrado');
     }
 });
+
+/**
+ * Función para limpiar completamente el formulario de informe+imagen
+ */
+function limpiarFormularioInformeImagen() {
+    console.log('🧹 Limpiando formulario de informe+imagen...');
+    
+    try {
+        // Limpiar campos básicos
+        const camposBasicos = [
+            'txtmotivo', 'equipoMedico', 'whatsapptxt', 'email', 
+            'proximaconsulta', 'txtEmailShare'
+        ];
+        
+        camposBasicos.forEach(campo => {
+            const elemento = document.getElementById(campo);
+            if (elemento) {
+                elemento.value = '';
+                console.log(`✅ Campo ${campo} limpiado`);
+            }
+        });
+        
+        // Limpiar y resetear Summernote areas
+        const summernoteAreas = [
+            'descripcion-od-textarea', 'descripcion-oi-textarea', 
+            'consulta-textarea', 'txtnota'
+        ];
+        
+        summernoteAreas.forEach(areaId => {
+            const elemento = document.getElementById(areaId);
+            if (elemento) {
+                try {
+                    if ($(elemento).data('summernote')) {
+                        $(elemento).summernote('code', '');
+                        console.log(`✅ Summernote ${areaId} limpiado`);
+                    } else {
+                        elemento.value = '';
+                        console.log(`✅ Textarea ${areaId} limpiado`);
+                    }
+                } catch (e) {
+                    console.log(`⚠️ Error al limpiar ${areaId}:`, e.message);
+                    elemento.value = '';
+                }
+            }
+        });
+        
+        // Limpiar selects
+        const selectMotivos = document.getElementById('motivoscomunes');
+        if (selectMotivos) {
+            selectMotivos.selectedIndex = 0;
+            console.log('✅ Select motivos limpiado');
+        }
+        
+        const selectEquipo = document.getElementById('equipoMedico');
+        if (selectEquipo) {
+            selectEquipo.selectedIndex = 0;
+            console.log('✅ Select equipo limpiado');
+        }
+        
+        // Limpiar Tagify (emails)
+        if (window.tagify_emails) {
+            window.tagify_emails.removeAllTags();
+            console.log('✅ Tagify emails limpiado');
+        }
+        
+        // Limpiar tablas de archivos y uploadedFiles
+        limpiarTablasArchivos();
+        
+        // Resetear campos ocultos
+        const camposOcultos = ['id_consulta', 'id_consulta_file'];
+        camposOcultos.forEach(campo => {
+            const elemento = document.getElementById(campo);
+            if (elemento) {
+                elemento.value = '';
+                console.log(`✅ Campo oculto ${campo} limpiado`);
+            }
+        });
+        
+        console.log('🎉 Formulario de informe+imagen limpiado completamente');
+        
+    } catch (error) {
+        console.error('❌ Error al limpiar formulario:', error);
+    }
+}
+
+/**
+ * Función para limpiar las tablas de archivos
+ */
+function limpiarTablasArchivos() {
+    try {
+        // Limpiar tablas OD y OI
+        ['od', 'oi'].forEach(tipo => {
+            const tabla = document.getElementById(`tabla-archivos-${tipo}`);
+            if (tabla) {
+                tabla.innerHTML = '';
+                console.log(`✅ Tabla archivos ${tipo.toUpperCase()} limpiada`);
+            }
+        });
+        
+        // Resetear window.uploadedFiles
+        window.uploadedFiles = {
+            od: [],
+            oi: []
+        };
+        console.log('✅ window.uploadedFiles reseteado');
+        
+        // Limpiar inputs de archivo
+        const inputOD = document.getElementById('archivo_od');
+        const inputOI = document.getElementById('archivo_oi');
+        if (inputOD) inputOD.value = '';
+        if (inputOI) inputOI.value = '';
+        console.log('✅ Inputs de archivo limpiados');
+        
+    } catch (error) {
+        console.error('❌ Error al limpiar tablas de archivos:', error);
+    }
+}
+
+/**
+ * Función para recargar las consultas y mostrar la última
+ */
+function recargarConsultasYMostrarUltima(idPersona) {
+    console.log('🔄 Recargando consultas para persona:', idPersona);
+    
+    try {
+        // Recargar el resumen de consultas si la función existe
+        if (typeof obtenerResumenConsulta === 'function') {
+            obtenerResumenConsulta(idPersona);
+            console.log('✅ Resumen de consultas recargado');
+        }
+        
+        // Recargar la tabla de consultas si existe
+        if (typeof inicializarTablaConsultas === 'function') {
+            setTimeout(() => {
+                inicializarTablaConsultas(idPersona);
+                console.log('✅ Tabla de consultas recargada');
+            }, 1000);
+        }
+        
+        // Si hay una función específica para mostrar la última consulta
+        if (typeof mostrarUltimaConsulta === 'function') {
+            setTimeout(() => {
+                mostrarUltimaConsulta(idPersona);
+                console.log('✅ Última consulta mostrada');
+            }, 1500);
+        }
+        
+        console.log('🎉 Proceso de recarga completado');
+        
+    } catch (error) {
+        console.error('❌ Error al recargar consultas:', error);
+    }
+}
 
     </script>

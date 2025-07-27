@@ -399,3 +399,337 @@ Archivos OI JSON: [{"nombre_original":"formulario 2.jpg","nombre_archivo":"96_OI
 2025-07-27 18:33:56 - EXITO COMPLETO: ID 96
 2025-07-27 18:33:56 - FIN DEBUG
 
+2025-07-27 18:41:22 - INICIO DEBUG
+POST: Array
+(
+    [txtdocumento] => 741852
+    [txtficha] => 555555555555
+    [idPersona] => 61
+    [motivoscomunes] => Seleccionar
+    [txtmotivo] => 
+    [equipoMedico] => Cirrus 700
+    [formatoConsulta] => 30
+    [id_persona_file] => 61
+    [id_usuario] => 1
+    [id_consulta_file] => 
+    [id_user] => 9
+    [descripcion-od-textarea] => <p>sdfsdfs</p>
+    [descripcion-oi-textarea] => <p>sdfsdf</p>
+    [consulta-textarea] => <p><strong style="margin: 0px; padding: 0px; color: rgb(0, 0, 0); font-family: &quot;Open Sans&quot;, Arial, sans-serif; text-align: justify;">Lorem Ipsum</strong><span style="color: rgb(0, 0, 0); font-family: &quot;Open Sans&quot;, Arial, sans-serif; text-align: justify;">&nbsp;es simplemente el texto de relleno de las imprentas y archivos de texto. Lorem Ipsum ha sido el texto de relleno estándar de las industrias desde el año 1500, cuando un impresor (N. del T. persona que se dedica a la imprenta) desconocido usó una galería de textos y los mezcló de tal manera que logró hacer un libro de textos especimen. No sólo sobrevivió 500 años, sino que tambien ingresó como texto de relleno en documentos electrónicos, quedando esencialmente igual al original. Fue popularizado en los 60s con la creación de las hojas "Letraset", las cuales contenian pasajes de Lorem Ipsum, y más recientemente con software de autoedición, como por ejemplo Aldus PageMaker, el cual incluye versiones de Lorem Ipsum.</span></p>
+    [txtnota] => sdfsdfdsf
+    [emails_compartir] => [{"value":"sdfdsf@sdfsdf.com"}]
+    [proximaconsulta] => 2025-07-31
+    [whatsapptxt] => 
+    [email] => 
+)
+
+FILES: Array
+(
+    [archivo_od] => Array
+        (
+            [name] => Array
+                (
+                    [0] => formulario 2.jpg
+                )
+
+            [full_path] => Array
+                (
+                    [0] => formulario 2.jpg
+                )
+
+            [type] => Array
+                (
+                    [0] => image/jpeg
+                )
+
+            [tmp_name] => Array
+                (
+                    [0] => C:\Users\Guido\AppData\Local\Temp\php2C81.tmp
+                )
+
+            [error] => Array
+                (
+                    [0] => 0
+                )
+
+            [size] => Array
+                (
+                    [0] => 162158
+                )
+
+        )
+
+    [archivo_oi] => Array
+        (
+            [name] => Array
+                (
+                    [0] => formulario 3.jpg
+                )
+
+            [full_path] => Array
+                (
+                    [0] => formulario 3.jpg
+                )
+
+            [type] => Array
+                (
+                    [0] => image/jpeg
+                )
+
+            [tmp_name] => Array
+                (
+                    [0] => C:\Users\Guido\AppData\Local\Temp\php2C82.tmp
+                )
+
+            [error] => Array
+                (
+                    [0] => 0
+                )
+
+            [size] => Array
+                (
+                    [0] => 149926
+                )
+
+        )
+
+)
+
+2025-07-27 18:41:22 - Intentando guardar consulta principal
+2025-07-27 18:41:22 - Resultado consulta principal: 97
+2025-07-27 18:41:22 - Datos específicos extraídos
+Equipo: Cirrus 700
+Descripción OD: 14 chars
+Descripción OI: 13 chars
+2025-07-27 18:41:22 - Procesando archivos OD
+Archivos recibidos: Array
+(
+    [name] => Array
+        (
+            [0] => formulario 2.jpg
+        )
+
+    [full_path] => Array
+        (
+            [0] => formulario 2.jpg
+        )
+
+    [type] => Array
+        (
+            [0] => image/jpeg
+        )
+
+    [tmp_name] => Array
+        (
+            [0] => C:\Users\Guido\AppData\Local\Temp\php2C81.tmp
+        )
+
+    [error] => Array
+        (
+            [0] => 0
+        )
+
+    [size] => Array
+        (
+            [0] => 162158
+        )
+
+)
+
+2025-07-27 18:41:22 - Procesando archivo OD #0: formulario 2.jpg, Error: 0
+2025-07-27 18:41:22 - Archivo OD guardado exitosamente: formulario 2.jpg -> 97_OD_1753641682_0.jpg
+Info archivo: Array
+(
+    [nombre_original] => formulario 2.jpg
+    [nombre_archivo] => 97_OD_1753641682_0.jpg
+    [ruta] => view/uploads/consultas/informe_imagen/97_OD_1753641682_0.jpg
+    [tamano] => 162158
+    [fecha_subida] => 2025-07-27 18:41:22
+    [ojo] => od
+)
+
+2025-07-27 18:41:22 - Procesando archivos OI
+Archivos recibidos: Array
+(
+    [name] => Array
+        (
+            [0] => formulario 3.jpg
+        )
+
+    [full_path] => Array
+        (
+            [0] => formulario 3.jpg
+        )
+
+    [type] => Array
+        (
+            [0] => image/jpeg
+        )
+
+    [tmp_name] => Array
+        (
+            [0] => C:\Users\Guido\AppData\Local\Temp\php2C82.tmp
+        )
+
+    [error] => Array
+        (
+            [0] => 0
+        )
+
+    [size] => Array
+        (
+            [0] => 149926
+        )
+
+)
+
+2025-07-27 18:41:22 - Procesando archivo OI #0: formulario 3.jpg, Error: 0
+2025-07-27 18:41:22 - Archivo OI guardado exitosamente: formulario 3.jpg -> 97_OI_1753641682_0.jpg
+Info archivo: Array
+(
+    [nombre_original] => formulario 3.jpg
+    [nombre_archivo] => 97_OI_1753641682_0.jpg
+    [ruta] => view/uploads/consultas/informe_imagen/97_OI_1753641682_0.jpg
+    [tamano] => 149926
+    [fecha_subida] => 2025-07-27 18:41:22
+    [ojo] => oi
+)
+
+2025-07-27 18:41:22 - Archivos procesados: OD=1, OI=1
+2025-07-27 18:41:23 - Preparando inserción:
+ID Consulta: 97
+Equipo: Cirrus 700
+Archivos OD JSON: [{"nombre_original":"formulario 2.jpg","nombre_archivo":"97_OD_1753641682_0.jpg","ruta":"view\/uploads\/consultas\/informe_imagen\/97_OD_1753641682_0.jpg","tamano":162158,"fecha_subida":"2025-07-27 18:41:22","ojo":"od"}]
+Archivos OI JSON: [{"nombre_original":"formulario 3.jpg","nombre_archivo":"97_OI_1753641682_0.jpg","ruta":"view\/uploads\/consultas\/informe_imagen\/97_OI_1753641682_0.jpg","tamano":149926,"fecha_subida":"2025-07-27 18:41:22","ojo":"oi"}]
+2025-07-27 18:41:23 - Resultado inserción informe: OK
+2025-07-27 18:41:23 - EXITO COMPLETO: ID 97
+2025-07-27 18:41:23 - FIN DEBUG
+
+2025-07-27 18:42:09 - INICIO DEBUG
+POST: Array
+(
+    [txtdocumento] => 741852
+    [txtficha] => 555555555555
+    [idPersona] => 61
+    [motivoscomunes] => Seleccionar
+    [txtmotivo] => 
+    [equipoMedico] => Cirrus 700
+    [formatoConsulta] => 
+    [id_persona_file] => 61
+    [id_usuario] => 1
+    [id_consulta_file] => 
+    [id_user] => 9
+    [descripcion-od-textarea] => <p>sdfsdfs</p>
+    [descripcion-oi-textarea] => <p>sdfsdf</p>
+    [consulta-textarea] => <p><strong style="margin: 0px; padding: 0px; color: rgb(0, 0, 0); font-family: &quot;Open Sans&quot;, Arial, sans-serif; text-align: justify;">Lorem Ipsum</strong><span style="color: rgb(0, 0, 0); font-family: &quot;Open Sans&quot;, Arial, sans-serif; text-align: justify;">&nbsp;es simplemente el texto de relleno de las imprentas y archivos de texto. Lorem Ipsum ha sido el texto de relleno estándar de las industrias desde el año 1500, cuando un impresor (N. del T. persona que se dedica a la imprenta) desconocido usó una galería de textos y los mezcló de tal manera que logró hacer un libro de textos especimen. No sólo sobrevivió 500 años, sino que tambien ingresó como texto de relleno en documentos electrónicos, quedando esencialmente igual al original. Fue popularizado en los 60s con la creación de las hojas "Letraset", las cuales contenian pasajes de Lorem Ipsum, y más recientemente con software de autoedición, como por ejemplo Aldus PageMaker, el cual incluye versiones de Lorem Ipsum.</span></p>
+    [txtnota] => sdfsdfdsf
+    [emails_compartir] => [{"value":"sdfdsf@sdfsdf.com"}]
+    [proximaconsulta] => 2025-07-31
+    [whatsapptxt] => 
+    [email] => 
+)
+
+FILES: Array
+(
+    [archivo_od] => Array
+        (
+            [name] => Array
+                (
+                    [0] => formulario 3.jpg
+                )
+
+            [full_path] => Array
+                (
+                    [0] => formulario 3.jpg
+                )
+
+            [type] => Array
+                (
+                    [0] => image/jpeg
+                )
+
+            [tmp_name] => Array
+                (
+                    [0] => C:\Users\Guido\AppData\Local\Temp\phpE2F2.tmp
+                )
+
+            [error] => Array
+                (
+                    [0] => 0
+                )
+
+            [size] => Array
+                (
+                    [0] => 149926
+                )
+
+        )
+
+)
+
+2025-07-27 18:42:09 - Intentando guardar consulta principal
+2025-07-27 18:42:09 - Resultado consulta principal: 98
+2025-07-27 18:42:09 - Datos específicos extraídos
+Equipo: Cirrus 700
+Descripción OD: 14 chars
+Descripción OI: 13 chars
+2025-07-27 18:42:09 - Procesando archivos OD
+Archivos recibidos: Array
+(
+    [name] => Array
+        (
+            [0] => formulario 3.jpg
+        )
+
+    [full_path] => Array
+        (
+            [0] => formulario 3.jpg
+        )
+
+    [type] => Array
+        (
+            [0] => image/jpeg
+        )
+
+    [tmp_name] => Array
+        (
+            [0] => C:\Users\Guido\AppData\Local\Temp\phpE2F2.tmp
+        )
+
+    [error] => Array
+        (
+            [0] => 0
+        )
+
+    [size] => Array
+        (
+            [0] => 149926
+        )
+
+)
+
+2025-07-27 18:42:09 - Procesando archivo OD #0: formulario 3.jpg, Error: 0
+2025-07-27 18:42:09 - Archivo OD guardado exitosamente: formulario 3.jpg -> 98_OD_1753641729_0.jpg
+Info archivo: Array
+(
+    [nombre_original] => formulario 3.jpg
+    [nombre_archivo] => 98_OD_1753641729_0.jpg
+    [ruta] => view/uploads/consultas/informe_imagen/98_OD_1753641729_0.jpg
+    [tamano] => 149926
+    [fecha_subida] => 2025-07-27 18:42:09
+    [ojo] => od
+)
+
+2025-07-27 18:42:09 - No hay archivos OI para procesar
+isset: false
+empty: not set
+2025-07-27 18:42:09 - Archivos procesados: OD=1, OI=0
+2025-07-27 18:42:09 - Preparando inserción:
+ID Consulta: 98
+Equipo: Cirrus 700
+Archivos OD JSON: [{"nombre_original":"formulario 3.jpg","nombre_archivo":"98_OD_1753641729_0.jpg","ruta":"view\/uploads\/consultas\/informe_imagen\/98_OD_1753641729_0.jpg","tamano":149926,"fecha_subida":"2025-07-27 18:42:09","ojo":"od"}]
+Archivos OI JSON: []
+2025-07-27 18:42:09 - Resultado inserción informe: OK
+2025-07-27 18:42:09 - EXITO COMPLETO: ID 98
+2025-07-27 18:42:09 - FIN DEBUG
+
