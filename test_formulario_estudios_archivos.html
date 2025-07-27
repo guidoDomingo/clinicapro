@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Formulario de Estudios con Archivos</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <div class="container mt-4">
+        <h2>🧪 Test - Formulario de Estudios con Archivos</h2>
+        
+        <!-- Formulario de Estudios Simplificado -->
+        <div class="card">
+            <div class="card-body">
+                <form id="tblConsulta">
+                    <input type="hidden" id="idPersona" name="idPersona" value="1">
+                    <input type="hidden" id="form_type" name="form_type" value="estudios">
+                    <input type="hidden" id="id_consulta_actual" name="id_consulta_actual">
+                    
+                    <div class="form-group">
+                        <label>Paciente</label>
+                        <input type="text" class="form-control" value="Paciente Test" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Equipo Médico</label>
+                        <select name="equipo_medico" class="form-control">
+                            <option value="cirrus_500c" selected>Cirrus 500c</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Descripción</label>
+                        <textarea name="consulta-textarea" class="form-control">Estudio de OCT macular normal</textarea>
+                    </div>
+                    
+                    <button type="button" class="btn btn-primary" onclick="guardarConsultaTest()">Guardar Consulta</button>
+                    <button type="button" class="btn btn-info ml-2" onclick="cargarConsultaTest()">Cargar Consulta de Prueba</button>
+                </form>
+                
+                <!-- Contenedor para mostrar archivos existentes -->
+                <div id="filePreviewContainer" class="mt-3" style="display: none;">
+                    <h5>📁 Archivos de la consulta</h5>
+                    <div id="archivos-existentes"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sección de subida de archivos -->
+        <div class="card mt-3">
+            <div class="card-body">
+                <h5>📤 Subir Archivos</h5>
+                <form id="uploadForm">
+                    <input type="hidden" id="id_persona_file" name="id_persona_file" value="1">
+                    <input type="hidden" id="id_consulta_file" name="id_consulta_file">
+                    <input type="hidden" id="id_usuario" name="id_usuario" value="1">
+                    
+                    <div class="form-group">
+                        <input type="file" name="files[]" id="files" multiple class="form-control-file">
+                    </div>
+                    
+                    <button type="button" class="btn btn-success" onclick="subirArchivosTest()">Subir Archivos</button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Área de logs -->
+        <div class="card mt-3">
+            <div class="card-body">
+                <h5>📋 Logs de Prueba</h5>
+                <div id="logs" style="background: #f8f9fa; padding: 10px; border-radius: 5px; height: 200px; overflow-y: auto;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Función para log
+        function log(mensaje) {
+            const logs = document.getElementById('logs');
+            const timestamp = new Date().toLocaleTimeString();
+            logs.innerHTML += `[${timestamp}] ${mensaje}\n`;
+            logs.scrollTop = logs.scrollHeight;
+            console.log(mensaje);
+        }
+        
+        // Función para guardar consulta
+        function guardarConsultaTest() {
+            log('🚀 Iniciando guardado de consulta...');
+            
+            const formData = new FormData(document.getElementById('tblConsulta'));
+            formData.append('id_user', '1');
+            formData.append('id_reserva', '0');
+            formData.append('medico_id', '1');
+            formData.append('txtmotivo', 'Test de estudios');
+            formData.append('txtnota', 'Prueba de funcionamiento');
+            
+            $.ajax({
+                type: 'POST',
+                url: 'ajax/guardar-consulta-estudios.php',
+                data: formData,
+                dataType: "text",
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    log('✅ Respuesta del servidor: ' + response);
+                    
+                    if (response.includes('id:')) {
+                        const partes = response.split('id:');
+                        if (partes.length > 1) {
+                            const idConsulta = partes[1].trim();
+                            document.getElementById('id_consulta_actual').value = idConsulta;
+                            document.getElementById('id_consulta_file').value = idConsulta;
+                            log('📝 ID de consulta guardado: ' + idConsulta);
+                            
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Consulta guardada',
+                                text: 'ID: ' + idConsulta,
+                                timer: 2000
+                            });
+                        }
+                    }
+                },
+                error: function(xhr, status, error) {
+                    log('❌ Error: ' + error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: error
+                    });
+                }
+            });
+        }
+        
+        // Función para subir archivos
+        function subirArchivosTest() {
+            const files = document.getElementById('files').files;
+            const idConsulta = document.getElementById('id_consulta_file').value;
+            
+            if (files.length === 0) {
+                Swal.fire('Seleccione archivos', 'Debe seleccionar al menos un archivo', 'warning');
+                return;
+            }
+            
+            if (!idConsulta) {
+                Swal.fire('Guarde la consulta primero', 'Debe guardar la consulta antes de subir archivos', 'warning');
+                return;
+            }
+            
+            log(`📤 Subiendo ${files.length} archivo(s) para consulta ${idConsulta}...`);
+            
+            const formData = new FormData(document.getElementById('uploadForm'));
+            
+            $.ajax({
+                type: 'POST',
+                url: 'ajax/upload.ajax.php',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    log('✅ Archivos subidos: ' + response);
+                    
+                    // Recargar archivos después de subir
+                    setTimeout(() => {
+                        cargarArchivosDeConsulta(idConsulta);
+                    }, 1000);
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Archivos subidos',
+                        timer: 2000
+                    });
+                },
+                error: function(xhr, status, error) {
+                    log('❌ Error subiendo archivos: ' + error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: error
+                    });
+                }
+            });
+        }
+        
+        // Función para cargar consulta de prueba
+        function cargarConsultaTest() {
+            // Simular consulta con ID conocido
+            const idConsulta = prompt('Ingrese ID de consulta para cargar (o deje vacío para buscar la última):');
+            
+            if (idConsulta) {
+                document.getElementById('id_consulta_actual').value = idConsulta;
+                document.getElementById('id_consulta_file').value = idConsulta;
+                cargarArchivosDeConsulta(idConsulta);
+            } else {
+                // Buscar la última consulta de estudios
+                $.ajax({
+                    url: 'diagnostico_archivos_consulta.php',
+                    success: function(response) {
+                        log('🔍 Buscando última consulta con archivos...');
+                        // Extraer ID de consulta de la respuesta (esto es solo para prueba)
+                        const match = response.match(/Diagnosticando consulta ID:.*?(\d+)/);
+                        if (match) {
+                            const id = match[1];
+                            document.getElementById('id_consulta_actual').value = id;
+                            document.getElementById('id_consulta_file').value = id;
+                            cargarArchivosDeConsulta(id);
+                            log('📋 Cargando consulta ID: ' + id);
+                        }
+                    }
+                });
+            }
+        }
+        
+        // Función para cargar archivos de consulta
+        function cargarArchivosDeConsulta(idConsulta) {
+            log(`📁 Cargando archivos de consulta ${idConsulta}...`);
+            
+            const formData = new FormData();
+            formData.append('id_consulta', idConsulta);
+            formData.append('operacion', 'archivosPorConsulta');
+            
+            $.ajax({
+                type: 'POST',
+                url: 'ajax/archivos.ajax.php',
+                data: formData,
+                dataType: "json",
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    log('📊 Respuesta de archivos: ' + JSON.stringify(response));
+                    
+                    if (response.status === 'success' && response.data) {
+                        mostrarArchivosEnFormulario(response.data);
+                        log(`✅ ${response.data.length} archivo(s) cargado(s)`);
+                    } else {
+                        log('⚠️ No hay archivos para esta consulta');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    log('❌ Error cargando archivos: ' + error);
+                }
+            });
+        }
+        
+        // Incluir la función mostrarArchivosEnFormulario
+        function mostrarArchivosEnFormulario(archivos) {
+            log(`📋 Mostrando ${archivos.length} archivo(s) en formulario`);
+            
+            if (!archivos || archivos.length === 0) {
+                const previewContainer = document.getElementById('filePreviewContainer');
+                if (previewContainer) {
+                    previewContainer.style.display = 'none';
+                }
+                return;
+            }
+            
+            const previewContainer = document.getElementById('filePreviewContainer');
+            if (!previewContainer) {
+                log('❌ No se encontró contenedor filePreviewContainer');
+                return;
+            }
+            
+            previewContainer.style.display = 'block';
+            
+            const archivosExistentes = document.getElementById('archivos-existentes');
+            if (archivosExistentes) {
+                archivosExistentes.innerHTML = '';
+            } else {
+                log('❌ No se encontró div archivos-existentes');
+                return;
+            }
+            
+            const table = document.createElement('table');
+            table.className = 'table table-sm table-bordered table-striped';
+            table.innerHTML = `
+                <thead class="thead-light">
+                    <tr>
+                        <th>Archivo</th>
+                        <th>Tipo</th>
+                        <th>Tamaño</th>
+                        <th>Fecha</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="archivosTableBody">
+                </tbody>
+            `;
+            
+            archivosExistentes.appendChild(table);
+            const tableBody = document.getElementById('archivosTableBody');
+            
+            archivos.forEach((archivo, index) => {
+                let fecha = 'N/A';
+                if (archivo.fecha_creacion) {
+                    try {
+                        fecha = new Date(archivo.fecha_creacion).toLocaleDateString('es-ES');
+                    } catch (e) {
+                        fecha = archivo.fecha_creacion;
+                    }
+                }
+                
+                let iconClass = 'fas fa-file text-secondary';
+                if (archivo.tipo_archivo && archivo.tipo_archivo.includes('image')) {
+                    iconClass = 'fas fa-image text-success';
+                } else if (archivo.tipo_archivo && archivo.tipo_archivo.includes('pdf')) {
+                    iconClass = 'fas fa-file-pdf text-danger';
+                }
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>
+                        <i class="${iconClass} mr-2"></i>
+                        ${archivo.nombre_archivo || 'Sin nombre'}
+                    </td>
+                    <td><small>${archivo.tipo_archivo || 'N/A'}</small></td>
+                    <td><small>${archivo.tamano_mb ? archivo.tamano_mb + ' MB' : 'N/A'}</small></td>
+                    <td><small>${fecha}</small></td>
+                    <td>
+                        <a href="${archivo.ruta_archivo}" class="btn btn-outline-info btn-sm" target="_blank" title="Descargar">
+                            <i class="fas fa-download"></i>
+                        </a>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+            
+            log('✅ Archivos mostrados correctamente en la tabla');
+        }
+        
+        // Log inicial
+        log('🚀 Test de formulario de estudios iniciado');
+    </script>
+</body>
+</html>

@@ -132,6 +132,12 @@
     <button type="button" class="btn btn-primary" id="btnGuardarConsulta">Guardar</button>
 </form>
 
+<!-- Contenedor para mostrar archivos existentes -->
+<div id="filePreviewContainer" class="mt-3" style="display: none;">
+    <h5>📁 Archivos de la consulta</h5>
+    <div id="archivos-existentes"></div>
+</div>
+
 <hr>
 
 <!-- Sección de subida de archivos -->

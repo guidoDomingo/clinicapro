@@ -967,83 +967,155 @@ function verDetalleConsulta(idConsulta) {
                     
                     let camposEspecificos = '';
                     let tituloModal = 'Detalle de Consulta';
-                    let datosAnteojos = null;
+                    let datosEspecificos = null;
                     
                     // Si hay datos específicos, parsearlos
                     if (response.datos_especificos) {
                         try {
-                            datosAnteojos = JSON.parse(response.datos_especificos);
-                            console.log('📊 Datos de anteojos parseados:', datosAnteojos);
+                            datosEspecificos = JSON.parse(response.datos_especificos);
+                            console.log('📊 Datos específicos parseados:', datosEspecificos);
                         } catch (e) {
                             console.error('❌ Error al parsear datos específicos:', e);
                         }
                     }
                     
-                    if (response.tipo_formulario === 'anteojos' && datosAnteojos) {
-                        // Modal para consulta de anteojos con datos reales
-                        tituloModal = 'Detalle de Consulta - Anteojos';
-                        camposEspecificos = `
-                        <div class="row">
-                            <div class="col-md-6">
-                                <h6><strong>Ojo Derecho (OD)</strong></h6>
-                                <p><strong>Esfera:</strong> ${datosAnteojos.od_esf || 'No especificado'}</p>
-                                <p><strong>Cilindro:</strong> ${datosAnteojos.od_cil || 'No especificado'}</p>
-                                <p><strong>Eje:</strong> ${datosAnteojos.ejeod || 'No especificado'}</p>
-                                <p><strong>Adición:</strong> ${datosAnteojos.od_adicion || 'No especificado'}</p>
-                                <p><strong>Altura:</strong> ${datosAnteojos.altura_od || 'No especificado'}</p>
-                                <p><strong>DNP:</strong> ${datosAnteojos.dnpod || 'No especificado'}</p>
-                                <p><strong>Nota:</strong> ${datosAnteojos.notaod || 'No especificado'}</p>
-                            </div>
-                            <div class="col-md-6">
-                                <h6><strong>Ojo Izquierdo (OI)</strong></h6>
-                                <p><strong>Esfera:</strong> ${datosAnteojos.oi_esf || 'No especificado'}</p>
-                                <p><strong>Cilindro:</strong> ${datosAnteojos.oi_cil || 'No especificado'}</p>
-                                <p><strong>Eje:</strong> ${datosAnteojos.ejeoi || 'No especificado'}</p>
-                                <p><strong>Adición:</strong> ${datosAnteojos.oi_adicion || 'No especificado'}</p>
-                                <p><strong>Altura:</strong> ${datosAnteojos.altura_oi || 'No especificado'}</p>
-                                <p><strong>DNP:</strong> ${datosAnteojos.dnpoi || 'No especificado'}</p>
-                                <p><strong>Nota:</strong> ${datosAnteojos.notaoi || 'No especificado'}</p>
-                            </div>
-                        </div>
-                        <div class="row mt-3">
-                            <div class="col-md-6">
-                                <p><strong>Distancia Interpupilar:</strong> ${datosAnteojos.dist_interpupilar || 'No especificado'}</p>
-                                <p><strong>Formato Receta:</strong> ${datosAnteojos.formatoreceta || 'No especificado'}</p>
-                            </div>
-                            <div class="col-md-6">
-                                <p><strong>Formato Consulta:</strong> ${datosAnteojos.formatoConsulta || 'No especificado'}</p>
-                                <p><strong>Ficha:</strong> ${datosAnteojos.txtficha || 'No especificado'}</p>
-                            </div>
-                        </div>`;
-                    } else if (response.tipo_formulario === 'anteojos') {
-                        // Modal para anteojos pero sin datos específicos
-                        tituloModal = 'Detalle de Consulta - Anteojos';
-                        camposEspecificos = `
-                        <div class="row">
-                            <div class="col-12">
-                                <div class="alert alert-warning">
-                                    <i class="fas fa-exclamation-triangle"></i>
-                                    <strong>Atención:</strong> Esta consulta de anteojos no tiene datos específicos guardados.
+                    // Determinar título y campos según tipo de formulario
+                    switch (response.tipo_formulario) {
+                        case 'anteojos':
+                            tituloModal = 'Detalle de Consulta - Anteojos';
+                            if (datosEspecificos) {
+                                camposEspecificos = `
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h6><strong>Ojo Derecho (OD)</strong></h6>
+                                        <p><strong>Esfera:</strong> ${datosEspecificos.od_esf || 'No especificado'}</p>
+                                        <p><strong>Cilindro:</strong> ${datosEspecificos.od_cil || 'No especificado'}</p>
+                                        <p><strong>Eje:</strong> ${datosEspecificos.ejeod || 'No especificado'}</p>
+                                        <p><strong>Adición:</strong> ${datosEspecificos.od_adicion || 'No especificado'}</p>
+                                        <p><strong>Altura:</strong> ${datosEspecificos.altura_od || 'No especificado'}</p>
+                                        <p><strong>DNP:</strong> ${datosEspecificos.dnpod || 'No especificado'}</p>
+                                        <p><strong>Nota:</strong> ${datosEspecificos.notaod || 'No especificado'}</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6><strong>Ojo Izquierdo (OI)</strong></h6>
+                                        <p><strong>Esfera:</strong> ${datosEspecificos.oi_esf || 'No especificado'}</p>
+                                        <p><strong>Cilindro:</strong> ${datosEspecificos.oi_cil || 'No especificado'}</p>
+                                        <p><strong>Eje:</strong> ${datosEspecificos.ejeoi || 'No especificado'}</p>
+                                        <p><strong>Adición:</strong> ${datosEspecificos.oi_adicion || 'No especificado'}</p>
+                                        <p><strong>Altura:</strong> ${datosEspecificos.altura_oi || 'No especificado'}</p>
+                                        <p><strong>DNP:</strong> ${datosEspecificos.dnpoi || 'No especificado'}</p>
+                                        <p><strong>Nota:</strong> ${datosEspecificos.notaoi || 'No especificado'}</p>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>`;
-                    } else {
-                        // Modal para consulta general
-                        tituloModal = 'Detalle de Consulta - General';
-                        camposEspecificos = `
-                        <div class="row">
-                            <div class="col-md-6">
-                                <p><strong>Visión OD:</strong> ${response.visionod || 'No especificado'}</p>
-                                <p><strong>Visión OI:</strong> ${response.visionoi || 'No especificado'}</p>
-                                <p><strong>Tensión OD:</strong> ${response.tensionod || 'No especificado'}</p>
-                                <p><strong>Tensión OI:</strong> ${response.tensionoi || 'No especificado'}</p>
-                            </div>
-                            <div class="col-md-6">
-                                <p><strong>WhatsApp:</strong> ${response.whatsapptxt || 'No especificado'}</p>
-                                <p><strong>Email:</strong> ${response.email || 'No especificado'}</p>
-                                <p><strong>Próxima consulta:</strong> ${response.proximaconsulta ? new Date(response.proximaconsulta).toLocaleDateString('es-ES') : 'No programada'}</p>
-                            </div>
-                        </div>`;
+                                <div class="row mt-3">
+                                    <div class="col-md-6">
+                                        <p><strong>Distancia Interpupilar:</strong> ${datosEspecificos.dist_interpupilar || 'No especificado'}</p>
+                                        <p><strong>Formato Receta:</strong> ${datosEspecificos.formatoreceta || 'No especificado'}</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p><strong>Formato Consulta:</strong> ${datosEspecificos.formatoConsulta || 'No especificado'}</p>
+                                        <p><strong>Ficha:</strong> ${datosEspecificos.txtficha || 'No especificado'}</p>
+                                    </div>
+                                </div>`;
+                            } else {
+                                camposEspecificos = `
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="alert alert-warning">
+                                            <i class="fas fa-exclamation-triangle"></i>
+                                            <strong>Atención:</strong> Esta consulta de anteojos no tiene datos específicos guardados.
+                                        </div>
+                                    </div>
+                                </div>`;
+                            }
+                            break;
+                            
+                        case 'estudios':
+                            tituloModal = 'Detalle de Consulta - Estudios';
+                            if (datosEspecificos) {
+                                camposEspecificos = `
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p><strong>Tipo de Estudio:</strong> ${datosEspecificos.tipo_estudio || 'No especificado'}</p>
+                                        <p><strong>Método:</strong> ${datosEspecificos.metodo || 'No especificado'}</p>
+                                        <p><strong>Área de Estudio:</strong> ${datosEspecificos.area_estudio || 'No especificado'}</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p><strong>Urgencia:</strong> ${datosEspecificos.urgencia || 'No especificado'}</p>
+                                        <p><strong>Preparación:</strong> ${datosEspecificos.preparacion || 'No especificado'}</p>
+                                        <p><strong>Observaciones:</strong> ${datosEspecificos.observaciones_estudio || 'No especificado'}</p>
+                                    </div>
+                                </div>
+                                <div class="row mt-3">
+                                    <div class="col-12">
+                                        <p><strong>Resultados:</strong></p>
+                                        <div class="p-2 border rounded">${datosEspecificos.resultados || 'Sin resultados'}</div>
+                                    </div>
+                                </div>`;
+                            } else {
+                                camposEspecificos = `
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="alert alert-info">
+                                            <i class="fas fa-info-circle"></i>
+                                            <strong>Información:</strong> Esta consulta de estudios utiliza los campos generales de la consulta.
+                                        </div>
+                                    </div>
+                                </div>`;
+                            }
+                            break;
+                            
+                        case 'informe_imagen':
+                            tituloModal = 'Detalle de Consulta - Informe + Imagen';
+                            if (datosEspecificos) {
+                                camposEspecificos = `
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p><strong>Tipo de Informe:</strong> ${datosEspecificos.tipo_informe || 'No especificado'}</p>
+                                        <p><strong>Modalidad:</strong> ${datosEspecificos.modalidad || 'No especificado'}</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p><strong>Técnica:</strong> ${datosEspecificos.tecnica || 'No especificado'}</p>
+                                        <p><strong>Contraste:</strong> ${datosEspecificos.contraste || 'No especificado'}</p>
+                                    </div>
+                                </div>
+                                <div class="row mt-3">
+                                    <div class="col-12">
+                                        <p><strong>Hallazgos:</strong></p>
+                                        <div class="p-2 border rounded">${datosEspecificos.hallazgos || 'Sin hallazgos'}</div>
+                                    </div>
+                                </div>`;
+                            } else {
+                                camposEspecificos = `
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="alert alert-info">
+                                            <i class="fas fa-info-circle"></i>
+                                            <strong>Información:</strong> Esta consulta de informe + imagen utiliza los campos generales.
+                                        </div>
+                                    </div>
+                                </div>`;
+                            }
+                            break;
+                            
+                        default:
+                            // Modal para consulta general
+                            tituloModal = 'Detalle de Consulta - General';
+                            camposEspecificos = `
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Visión OD:</strong> ${response.visionod || 'No especificado'}</p>
+                                    <p><strong>Visión OI:</strong> ${response.visionoi || 'No especificado'}</p>
+                                    <p><strong>Tensión OD:</strong> ${response.tensionod || 'No especificado'}</p>
+                                    <p><strong>Tensión OI:</strong> ${response.tensionoi || 'No especificado'}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>WhatsApp:</strong> ${response.whatsapptxt || 'No especificado'}</p>
+                                    <p><strong>Email:</strong> ${response.email || 'No especificado'}</p>
+                                    <p><strong>Próxima consulta:</strong> ${response.proximaconsulta ? new Date(response.proximaconsulta).toLocaleDateString('es-ES') : 'No programada'}</p>
+                                </div>
+                            </div>`;
+                            break;
                     }
                     
                     let modalContent = `
@@ -1060,7 +1132,7 @@ function verDetalleConsulta(idConsulta) {
                                 <p><strong>Motivo:</strong> ${response.motivo || 'No especificado'} - ${response.txtmotivo || ''}</p>
                             </div>
                             <div class="col-md-6">
-                                <p><strong>Tipo:</strong> <span class="badge badge-${response.tipo_formulario === 'anteojos' ? 'info' : 'primary'}">${response.tipo_formulario === 'anteojos' ? 'Anteojos' : 'General'}</span></p>
+                                <p><strong>Tipo:</strong> <span class="badge badge-${getBadgeColor(response.tipo_formulario)}">${getTipoFormularioDisplay(response.tipo_formulario)}</span></p>
                                 <p><strong>Diagnóstico:</strong> ${response.diagnostico || 'No especificado'}</p>
                             </div>
                         </div>
@@ -1132,6 +1204,31 @@ function verDetalleConsulta(idConsulta) {
             });
         }
     });
+}
+
+/**
+ * Función auxiliar para obtener el color del badge según el tipo de formulario
+ */
+function getBadgeColor(tipoFormulario) {
+    switch (tipoFormulario) {
+        case 'anteojos': return 'info';
+        case 'estudios': return 'success';
+        case 'informe_imagen': return 'warning';
+        default: return 'primary';
+    }
+}
+
+/**
+ * Función auxiliar para obtener el nombre display del tipo de formulario
+ */
+function getTipoFormularioDisplay(tipoFormulario) {
+    switch (tipoFormulario) {
+        case 'anteojos': return 'Anteojos';
+        case 'estudios': return 'Estudios';
+        case 'informe_imagen': return 'Informe + Imagen';
+        case 'general': return 'General';
+        default: return tipoFormulario || 'General';
+    }
 }
 
 /**
@@ -1478,6 +1575,8 @@ function cargarConsultaEnFormulario(consulta, archivos) {
         console.log('✅ Tipo de formulario correcto, cargando datos...');
         if (formType === 'anteojos') {
             cargarDatosAnteojosConsulta(consulta, archivos);
+        } else if (formType === 'estudios') {
+            cargarDatosEstudiosConsulta(consulta, archivos);
         } else {
             cargarDatosGeneralesConsulta(consulta, archivos);
         }
@@ -1713,6 +1812,107 @@ function cargarDatosAnteojosConsulta(consulta, archivos) {
         // Llamar a la función específica para cargar datos de anteojos
         cargarDatosAnteojos(consulta.id_consulta, consulta.id_persona);
     }
+}
+
+/**
+ * Función para cargar los datos específicos de estudios en el formulario
+ * @param {Object} consulta - Datos de la consulta
+ * @param {Array} archivos - Archivos asociados a la consulta (opcional)
+ */
+function cargarDatosEstudiosConsulta(consulta, archivos) {
+    console.log('🔬 Cargando datos de consulta de estudios:', consulta);
+    
+    // Mapear los campos específicos del formulario de estudios
+    const camposEstudios = {
+        'txtmotivo': 'txtmotivo',
+        'diagnostico': 'consulta-textarea', // En estudios, el diagnóstico va en consulta-textarea
+        'observaciones': 'txtnota',
+        'receta_textarea': 'receta-textarea',
+        'proximaconsulta': 'proximaconsulta',
+        'whatsapptxt': 'whatsapptxt',
+        'email': 'email'
+    };
+    
+    // Cargar campos normales (no textareas con Summernote)
+    const camposNormales = ['txtmotivo', 'proximaconsulta', 'whatsapptxt', 'email'];
+    for (const campo of camposNormales) {
+        if (camposEstudios[campo]) {
+            const elemento = document.getElementById(camposEstudios[campo]);
+            if (elemento && consulta[campo] !== undefined) {
+                elemento.value = consulta[campo];
+                console.log(`✅ Campo ${campo} cargado:`, consulta[campo]);
+            }
+        }
+    }
+    
+    // Manejar textareas con Summernote específicos para estudios
+    setTimeout(() => {
+        // Para diagnóstico/consulta-textarea (campo principal en estudios)
+        if (consulta.diagnostico !== undefined) {
+            const consultaTextarea = document.getElementById('consulta-textarea');
+            if (consultaTextarea) {
+                if ($('#consulta-textarea').data('summernote')) {
+                    $('#consulta-textarea').summernote('code', consulta.diagnostico);
+                    console.log('✅ Diagnóstico cargado en Summernote (estudios)');
+                } else {
+                    consultaTextarea.value = consulta.diagnostico;
+                    console.log('✅ Diagnóstico cargado directamente (estudios)');
+                }
+            }
+        }
+        
+        // Para observaciones/txtnota
+        if (consulta.observaciones !== undefined) {
+            const observacionesElement = document.getElementById('txtnota');
+            if (observacionesElement) {
+                observacionesElement.value = consulta.observaciones;
+                console.log('✅ Observaciones cargadas (estudios)');
+            }
+        }
+        
+        // Para receta
+        if (consulta.receta_textarea !== undefined) {
+            const recetaTextarea = document.getElementById('receta-textarea');
+            if (recetaTextarea) {
+                if ($('#receta-textarea').data('summernote')) {
+                    $('#receta-textarea').summernote('code', consulta.receta_textarea);
+                    console.log('✅ Receta cargada en Summernote (estudios)');
+                } else {
+                    recetaTextarea.value = consulta.receta_textarea;
+                    console.log('✅ Receta cargada directamente (estudios)');
+                }
+            }
+        }
+    }, 500);
+    
+    // Manejar selectores específicos para estudios
+    // Motivos comunes
+    const selectMotivosComunes = document.getElementById('motivoscomunes');
+    if (selectMotivosComunes && consulta.motivo) {
+        if (selectMotivosComunes.options.length <= 1) {
+            console.log("🔬 Cargando motivos comunes para estudios");
+            if (typeof cargarMotivosComunes === 'function') {
+                cargarMotivosComunes('estudios');
+            }
+        }
+        
+        setTimeout(() => {
+            // Buscar y seleccionar el motivo
+            for (let i = 0; i < selectMotivosComunes.options.length; i++) {
+                if (selectMotivosComunes.options[i].value === consulta.motivo) {
+                    selectMotivosComunes.selectedIndex = i;
+                    console.log('✅ Motivo seleccionado (estudios):', consulta.motivo);
+                    break;
+                }
+            }
+            selectMotivosComunes.dispatchEvent(new Event('change'));
+        }, 600);
+    }
+    
+    // Finalizar carga con archivos
+    finalizarCargaConsulta(consulta, archivos);
+    
+    console.log('🔬 ✅ Carga de datos de estudios completada');
 }
 
 /**
@@ -2948,61 +3148,45 @@ function mostrarArchivosEnFormulario(archivos) {
     // Verificar que tengamos archivos para mostrar
     if (!archivos || archivos.length === 0) {
         console.log('No hay archivos para mostrar');
+        // Ocultar el contenedor si no hay archivos
+        const previewContainer = document.getElementById('filePreviewContainer');
+        if (previewContainer) {
+            previewContainer.style.display = 'none';
+        }
         return;
     }
     
-    // Obtener el contenedor de previsualizaciones (buscar múltiples opciones)
+    // Obtener el contenedor de previsualizaciones
     let previewContainer = document.getElementById('filePreviewContainer');
     
-    // Si no existe el contenedor específico de anteojos, buscar alternativas para formulario general
     if (!previewContainer) {
-        // Intentar encontrar otros contenedores posibles
-        previewContainer = document.getElementById('archivos-preview') || 
-                          document.querySelector('.archivos-container') ||
-                          document.querySelector('#tblConsulta .card-body') ||
-                          document.getElementById('tblConsulta');
+        console.log('⚠️ Contenedor de archivos no encontrado - probablemente no está disponible en este tipo de formulario');
+        return;
     }
     
-    if (!previewContainer) {
-        console.log('⚠️ No se encontró contenedor de archivos, creando uno temporal');
-        // Crear un contenedor temporal si no existe ninguno
-        const tempContainer = document.createElement('div');
-        tempContainer.id = 'temp-file-preview';
-        tempContainer.className = 'mt-3';
-        tempContainer.innerHTML = '<h6>Archivos de la consulta:</h6>';
-        
-        // Intentar agregarlo al final del formulario con múltiples opciones
-        const formContainer = document.getElementById('tblConsulta') || 
-                             document.querySelector('.content-wrapper') ||
-                             document.querySelector('.card-body') ||
-                             document.querySelector('main') ||
-                             document.querySelector('body');
-                             
-        if (formContainer) {
-            console.log('✅ Contenedor encontrado para archivos:', formContainer.id || formContainer.className);
-            formContainer.appendChild(tempContainer);
-            previewContainer = tempContainer;
-        } else {
-            console.log('⚠️ No se encontró contenedor, los archivos no se mostrarán visualmente');
-            console.log('📋 Archivo disponible:', archivos[0]?.nombre || 'archivo sin nombre');
-            return;
-        }
-    }
+    // Mostrar el contenedor
+    previewContainer.style.display = 'block';
     
     // Limpiar el contenedor antes de agregar nuevos archivos
-    previewContainer.innerHTML = '';
+    const archivosExistentes = document.getElementById('archivos-existentes');
+    if (archivosExistentes) {
+        archivosExistentes.innerHTML = '';
+    } else {
+        console.error('No se encontró el div archivos-existentes');
+        return;
+    }
     
     // Crear una tabla para mostrar los archivos
     const table = document.createElement('table');
-    table.className = 'table table-sm table-bordered';
+    table.className = 'table table-sm table-bordered table-striped';
     table.innerHTML = `
         <thead class="thead-light">
             <tr>
-                <th>Nombre</th>
-                <th>Tipo</th>
-                <th>Tamaño</th>
-                <th>Fecha</th>
-                <th>Acciones</th>
+                <th style="width: 40%;">Archivo</th>
+                <th style="width: 20%;">Tipo</th>
+                <th style="width: 15%;">Tamaño</th>
+                <th style="width: 15%;">Fecha</th>
+                <th style="width: 10%;">Acciones</th>
             </tr>
         </thead>
         <tbody id="archivosTableBody">
@@ -3010,44 +3194,56 @@ function mostrarArchivosEnFormulario(archivos) {
     `;
     
     // Agregar la tabla al contenedor
-    previewContainer.appendChild(table);
+    archivosExistentes.appendChild(table);
     const tableBody = document.getElementById('archivosTableBody');
     
     // Agregar cada archivo a la tabla
-    archivos.forEach(archivo => {
+    archivos.forEach((archivo, index) => {
         // Formatear la fecha
-        const fecha = archivo.fecha_creacion ? new Date(archivo.fecha_creacion).toLocaleDateString('es-ES') : 'N/A';
+        let fecha = 'N/A';
+        if (archivo.fecha_creacion) {
+            try {
+                fecha = new Date(archivo.fecha_creacion).toLocaleDateString('es-ES');
+            } catch (e) {
+                fecha = archivo.fecha_creacion;
+            }
+        }
         
         // Determinar el ícono según el tipo de archivo
         let iconClass = 'fas ';
         if (archivo.tipo_archivo && archivo.tipo_archivo.includes('image')) {
-            iconClass += 'fa-image';
+            iconClass += 'fa-image text-success';
         } else if (archivo.tipo_archivo && archivo.tipo_archivo.includes('pdf')) {
-            iconClass += 'fa-file-pdf';
+            iconClass += 'fa-file-pdf text-danger';
         } else if (archivo.tipo_archivo && (archivo.tipo_archivo.includes('word') || archivo.tipo_archivo.includes('msword'))) {
-            iconClass += 'fa-file-word';
+            iconClass += 'fa-file-word text-primary';
         } else if (archivo.tipo_archivo && (archivo.tipo_archivo.includes('excel') || archivo.tipo_archivo.includes('ms-excel'))) {
-            iconClass += 'fa-file-excel';
+            iconClass += 'fa-file-excel text-success';
         } else if (archivo.tipo_archivo && (archivo.tipo_archivo.includes('powerpoint') || archivo.tipo_archivo.includes('ms-powerpoint'))) {
-            iconClass += 'fa-file-powerpoint';
+            iconClass += 'fa-file-powerpoint text-warning';
         } else {
-            iconClass += 'fa-file';
+            iconClass += 'fa-file text-secondary';
         }
         
         // Crear la fila de la tabla para este archivo
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td><i class="${iconClass} mr-2"></i>${archivo.nombre_archivo || 'Sin nombre'}</td>
-            <td>${archivo.tipo_archivo || 'N/A'}</td>
-            <td>${archivo.tamano_mb ? archivo.tamano_mb + ' MB' : 'N/A'}</td>
-            <td>${fecha}</td>
             <td>
-                <a href="${archivo.ruta_archivo}" class="btn btn-sm btn-info" target="_blank" download>
-                    <i class="fas fa-download"></i>
-                </a>
-                <button class="btn btn-sm btn-danger eliminar-archivo" data-id="${archivo.id_archivo || ''}" data-nombre="${archivo.nombre_archivo || ''}">
-                    <i class="fas fa-trash"></i>
-                </button>
+                <i class="${iconClass} mr-2"></i>
+                <span title="${archivo.nombre_archivo || 'Sin nombre'}">${(archivo.nombre_archivo || 'Sin nombre').length > 30 ? (archivo.nombre_archivo || 'Sin nombre').substring(0, 30) + '...' : (archivo.nombre_archivo || 'Sin nombre')}</span>
+            </td>
+            <td><small>${archivo.tipo_archivo || 'N/A'}</small></td>
+            <td><small>${archivo.tamano_mb ? archivo.tamano_mb + ' MB' : 'N/A'}</small></td>
+            <td><small>${fecha}</small></td>
+            <td>
+                <div class="btn-group btn-group-sm">
+                    <a href="${archivo.ruta_archivo}" class="btn btn-outline-info btn-sm" target="_blank" title="Descargar" download>
+                        <i class="fas fa-download"></i>
+                    </a>
+                    <button class="btn btn-outline-danger btn-sm eliminar-archivo" data-id="${archivo.id_archivo || ''}" data-nombre="${archivo.nombre_archivo || ''}" title="Eliminar">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
             </td>
         `;
         
@@ -3061,7 +3257,20 @@ function mostrarArchivosEnFormulario(archivos) {
             const nombreArchivo = this.getAttribute('data-nombre');
             
             if (idArchivo) {
-                eliminarArchivo(idArchivo);
+                Swal.fire({
+                    title: '¿Eliminar archivo?',
+                    text: `¿Está seguro de que desea eliminar "${nombreArchivo}"?`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        eliminarArchivo(idArchivo);
+                    }
+                });
             } else {
                 Swal.fire({
                     icon: 'warning',
@@ -3072,6 +3281,8 @@ function mostrarArchivosEnFormulario(archivos) {
             }
         });
     });
+    
+    console.log(`✅ ${archivos.length} archivo(s) mostrado(s) correctamente`);
 }
 
 /**
