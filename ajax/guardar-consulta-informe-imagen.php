@@ -48,8 +48,9 @@ try {
         FILE_APPEND
     );
     
-    if (is_numeric($resultado)) {
-        $idConsulta = $resultado;
+    // Aceptar tanto números (nuevas consultas) como "actualizado" (consultas existentes)
+    if (is_numeric($resultado) || $resultado === 'actualizado') {
+        $idConsulta = is_numeric($resultado) ? $resultado : $_POST['id_consulta'];
         
         // Preparar datos específicos
         $equipoMedico = $_POST["equipoMedico"] ?? '';
@@ -197,52 +198,148 @@ try {
         $conexion = new Conexion();
         $db = $conexion->conectar();
         
-        $sql = "INSERT INTO consulta_informe_imagen 
-                    (id_consulta, equipo_medico, descripcion_od, descripcion_oi, 
-                     emails_compartir, compartir_activo, archivos_od, archivos_oi,
-                     fecha_creacion, fecha_actualizacion) 
-                VALUES 
-                    (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)";
-        
-        $stmt = $db->prepare($sql);
-        $archivosOdJson = json_encode($archivosOd);
-        $archivosOiJson = json_encode($archivosOi);
+        // *** VERIFICAR SI ES ACTUALIZACIÓN O INSERCIÓN ***
+        $verificarSql = "SELECT COUNT(*) as existe FROM consulta_informe_imagen WHERE id_consulta = ?";
+        $verificarStmt = $db->prepare($verificarSql);
+        $verificarStmt->execute([$idConsulta]);
+        $existe = $verificarStmt->fetch(PDO::FETCH_ASSOC)['existe'] > 0;
         
         file_put_contents('../logs/debug_informe_imagen.log', 
-            date('Y-m-d H:i:s') . " - Preparando inserción:\n" .
-            "ID Consulta: $idConsulta\n" .
-            "Equipo: $equipoMedico\n" .
-            "Archivos OD JSON: $archivosOdJson\n" .
-            "Archivos OI JSON: $archivosOiJson\n", 
+            date('Y-m-d H:i:s') . " - Verificación: existe=" . ($existe ? 'true' : 'false') . " para id_consulta=$idConsulta\n", 
             FILE_APPEND
         );
         
-        $resultado_informe = $stmt->execute([
-            $idConsulta,
-            $equipoMedico,
-            $descripcionOd,
-            $descripcionOi,
-            $emailsCompartir,
-            $compartirActivo,
-            $archivosOdJson,
-            $archivosOiJson
-        ]);
+        // *** SI ES ACTUALIZACIÓN, OBTENER ARCHIVOS EXISTENTES ***
+        if ($existe) {
+            $obtenerSql = "SELECT archivos_od, archivos_oi FROM consulta_informe_imagen WHERE id_consulta = ?";
+            $obtenerStmt = $db->prepare($obtenerSql);
+            $obtenerStmt->execute([$idConsulta]);
+            $datosExistentes = $obtenerStmt->fetch(PDO::FETCH_ASSOC);
+            
+            // Decodificar archivos existentes
+            $archivosOdExistentes = json_decode($datosExistentes['archivos_od'] ?? '[]', true) ?: [];
+            $archivosOiExistentes = json_decode($datosExistentes['archivos_oi'] ?? '[]', true) ?: [];
+            
+            // Verificar si se enviaron archivos existentes específicos para mantener
+            $archivosOdMantener = [];
+            $archivosOiMantener = [];
+            
+            if (isset($_POST['archivos_existentes_od'])) {
+                $archivosOdMantener = json_decode($_POST['archivos_existentes_od'], true) ?: [];
+            } else {
+                // Si no se especifica qué mantener, mantener todos los existentes si no hay nuevos archivos
+                $archivosOdMantener = (!isset($_FILES['archivo_od']) || empty($_FILES['archivo_od']['name'][0])) 
+                    ? $archivosOdExistentes : [];
+            }
+            
+            if (isset($_POST['archivos_existentes_oi'])) {
+                $archivosOiMantener = json_decode($_POST['archivos_existentes_oi'], true) ?: [];
+            } else {
+                // Si no se especifica qué mantener, mantener todos los existentes si no hay nuevos archivos
+                $archivosOiMantener = (!isset($_FILES['archivo_oi']) || empty($_FILES['archivo_oi']['name'][0])) 
+                    ? $archivosOiExistentes : [];
+            }
+            
+            // Combinar archivos que se mantienen con nuevos
+            $archivosOd = array_merge($archivosOdMantener, $archivosOd);
+            $archivosOi = array_merge($archivosOiMantener, $archivosOi);
+            
+            file_put_contents('../logs/debug_informe_imagen.log', 
+                date('Y-m-d H:i:s') . " - Archivos combinados:\n" .
+                "OD existentes mantenidos: " . count($archivosOdMantener) . "\n" .
+                "OD nuevos agregados: " . count($archivosOd) - count($archivosOdMantener) . "\n" .
+                "OI existentes mantenidos: " . count($archivosOiMantener) . "\n" .
+                "OI nuevos agregados: " . count($archivosOi) - count($archivosOiMantener) . "\n" .
+                "Total OD final: " . count($archivosOd) . "\n" .
+                "Total OI final: " . count($archivosOi) . "\n", 
+                FILE_APPEND
+            );
+        }
+        
+        $archivosOdJson = json_encode($archivosOd);
+        $archivosOiJson = json_encode($archivosOi);
+        
+        if ($existe) {
+            // *** ACTUALIZAR REGISTRO EXISTENTE ***
+            $sql = "UPDATE consulta_informe_imagen 
+                    SET equipo_medico = ?, descripcion_od = ?, descripcion_oi = ?, 
+                        emails_compartir = ?, compartir_activo = ?, archivos_od = ?, archivos_oi = ?,
+                        fecha_actualizacion = CURRENT_TIMESTAMP
+                    WHERE id_consulta = ?";
+            
+            $stmt = $db->prepare($sql);
+            
+            file_put_contents('../logs/debug_informe_imagen.log', 
+                date('Y-m-d H:i:s') . " - Preparando ACTUALIZACIÓN:\n" .
+                "ID Consulta: $idConsulta\n" .
+                "Equipo: $equipoMedico\n" .
+                "Archivos OD JSON: $archivosOdJson\n" .
+                "Archivos OI JSON: $archivosOiJson\n", 
+                FILE_APPEND
+            );
+            
+            $resultado_informe = $stmt->execute([
+                $equipoMedico,
+                $descripcionOd,
+                $descripcionOi,
+                $emailsCompartir,
+                $compartirActivo,
+                $archivosOdJson,
+                $archivosOiJson,
+                $idConsulta
+            ]);
+            
+        } else {
+            // *** INSERTAR NUEVO REGISTRO ***
+            $sql = "INSERT INTO consulta_informe_imagen 
+                        (id_consulta, equipo_medico, descripcion_od, descripcion_oi, 
+                         emails_compartir, compartir_activo, archivos_od, archivos_oi,
+                         fecha_creacion, fecha_actualizacion) 
+                    VALUES 
+                        (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)";
+            
+            $stmt = $db->prepare($sql);
+            
+            file_put_contents('../logs/debug_informe_imagen.log', 
+                date('Y-m-d H:i:s') . " - Preparando INSERCIÓN:\n" .
+                "ID Consulta: $idConsulta\n" .
+                "Equipo: $equipoMedico\n" .
+                "Archivos OD JSON: $archivosOdJson\n" .
+                "Archivos OI JSON: $archivosOiJson\n", 
+                FILE_APPEND
+            );
+            
+            $resultado_informe = $stmt->execute([
+                $idConsulta,
+                $equipoMedico,
+                $descripcionOd,
+                $descripcionOi,
+                $emailsCompartir,
+                $compartirActivo,
+                $archivosOdJson,
+                $archivosOiJson
+            ]);
+        }
         
         file_put_contents('../logs/debug_informe_imagen.log', 
-            date('Y-m-d H:i:s') . " - Resultado inserción informe: " . ($resultado_informe ? 'OK' : 'ERROR') . "\n", 
+            date('Y-m-d H:i:s') . " - Resultado operación informe: " . ($resultado_informe ? 'OK' : 'ERROR') . " (Operación: " . ($existe ? 'UPDATE' : 'INSERT') . ")\n", 
             FILE_APPEND
         );
         
         if ($resultado_informe) {
-            echo "ok id:" . $idConsulta;
+            if ($existe) {
+                echo "actualizado exitosamente - Informe+imagen actualizado id:$idConsulta";
+            } else {
+                echo "guardado exitosamente - Informe+imagen creado id:$idConsulta";
+            }
             file_put_contents('../logs/debug_informe_imagen.log', 
-                date('Y-m-d H:i:s') . " - EXITO COMPLETO: ID $idConsulta\n", 
+                date('Y-m-d H:i:s') . " - EXITO COMPLETO: ID $idConsulta (" . ($existe ? 'actualizado' : 'creado') . ")\n", 
                 FILE_APPEND
             );
         } else {
-            echo "error: Error al guardar datos específicos";
+            echo "error: Error al " . ($existe ? 'actualizar' : 'guardar') . " datos específicos";
             file_put_contents('../logs/debug_informe_imagen.log', 
-                date('Y-m-d H:i:s') . " - ERROR: No se pudo insertar en consulta_informe_imagen\n" .
+                date('Y-m-d H:i:s') . " - ERROR: No se pudo " . ($existe ? 'actualizar' : 'insertar') . " en consulta_informe_imagen\n",
                 "Error info: " . print_r($stmt->errorInfo(), true) . "\n", 
                 FILE_APPEND
             );

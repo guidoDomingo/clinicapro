@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Actualización Informe+Imagen</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .success { color: green; font-weight: bold; }
+        .warning { color: orange; font-weight: bold; }
+        .error { color: red; font-weight: bold; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .test-step { margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <h2>🔄 Test de Actualización - Sistema Informe+Imagen</h2>
+    
+    <div class="section">
+        <h3 class="success">✅ Correcciones Implementadas:</h3>
+        
+        <h4>🔧 Backend (guardar-consulta-informe-imagen.php):</h4>
+        <ul>
+            <li>✅ Verificación automática: INSERT vs UPDATE</li>
+            <li>✅ Consulta SQL diferente según si existe registro</li>
+            <li>✅ Mensajes específicos para creación/actualización</li>
+            <li>✅ Logging detallado para debugging</li>
+        </ul>
+        
+        <h4>🔧 Frontend (frmConsultaInformeImagen.php):</h4>
+        <ul>
+            <li>✅ Campo <code>id_consulta</code> agregado a envío de formulario</li>
+            <li>✅ Establecimiento automático de ID al cargar consulta existente</li>
+        </ul>
+        
+        <h4>🔧 JavaScript (consultas.js):</h4>
+        <ul>
+            <li>✅ Función <code>cargarDatosInformeImagenConsulta</code> establece <code>id_consulta</code></li>
+            <li>✅ Campo oculto creado automáticamente si no existe</li>
+        </ul>
+    </div>
+    
+    <div class="section">
+        <h3>🧪 Proceso de Prueba - Actualización:</h3>
+        
+        <div class="test-step">
+            <strong>1. Crear consulta inicial:</strong>
+            <ul>
+                <li>Llenar formulario nuevo de informe+imagen</li>
+                <li>Agregar archivos OD/OI</li>
+                <li>Guardar → Debería crear nuevo registro</li>
+            </ul>
+        </div>
+        
+        <div class="test-step">
+            <strong>2. Cargar consulta existente:</strong>
+            <ul>
+                <li>Click en "Ver" en la consulta creada</li>
+                <li>Click en "Cargar en formulario"</li>
+                <li>Verificar que datos aparecen en formulario</li>
+                <li class="warning">⚠️ Verificar en consola: "ID Consulta establecido para actualización: [ID]"</li>
+            </ul>
+        </div>
+        
+        <div class="test-step">
+            <strong>3. Modificar y guardar:</strong>
+            <ul>
+                <li>Cambiar algún campo (descripción, equipo, etc.)</li>
+                <li>Agregar/quitar archivos</li>
+                <li>Click en "Guardar Consulta"</li>
+                <li class="success">✅ Debería mostrar: "Informe+imagen actualizado correctamente"</li>
+                <li class="error">❌ NO debería crear nueva consulta</li>
+            </ul>
+        </div>
+        
+        <div class="test-step">
+            <strong>4. Verificar actualización:</strong>
+            <ul>
+                <li>Recargar lista de consultas</li>
+                <li>Verificar que solo hay UNA consulta para ese paciente</li>
+                <li>Verificar que los cambios se guardaron correctamente</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h3>🐛 Debug Information:</h3>
+        
+        <h4>Consola del Navegador (F12):</h4>
+        <ul>
+            <li><code>ID Consulta establecido para actualización: [numero]</code></li>
+            <li><code>Campo id_consulta: [numero]</code></li>
+            <li><code>Verificación: existe=true para id_consulta=[numero]</code></li>
+        </ul>
+        
+        <h4>Log Backend (logs/debug_informe_imagen.log):</h4>
+        <ul>
+            <li><code>Verificación: existe=true/false para id_consulta=[numero]</code></li>
+            <li><code>Preparando ACTUALIZACIÓN/INSERCIÓN</code></li>
+            <li><code>Resultado operación informe: OK (Operación: UPDATE/INSERT)</code></li>
+        </ul>
+    </div>
+    
+    <div class="section">
+        <h3>🎯 Flujo de Actualización:</h3>
+        <p><strong>Crear → Cargar → Modificar → Actualizar (NO crear nuevo)</strong></p>
+        
+        <div style="background: #e3f2fd; padding: 10px; border-radius: 5px; margin: 10px 0;">
+            <strong>🔍 Diagnóstico si sigue creando duplicados:</strong>
+            <ol>
+                <li>Verificar que el campo <code>id_consulta</code> tiene valor en la consola</li>
+                <li>Revisar log backend para ver si detecta existencia correctamente</li>
+                <li>Confirmar que consulta principal también se actualiza (no solo tabla específica)</li>
+            </ol>
+        </div>
+    </div>
+    
+    <p>
+        <a href="index.php?ruta=consultas&form_type=informe_imagen" target="_blank" 
+           style="display: inline-block; padding: 12px 24px; background: #ff9800; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">
+            🧪 PROBAR ACTUALIZACIÓN
+        </a>
+        
+        <a href="logs/debug_informe_imagen.log" target="_blank" 
+           style="display: inline-block; padding: 12px 24px; background: #607d8b; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; margin-left: 10px;">
+            📋 VER LOG DEBUG
+        </a>
+    </p>
+</body>
+</html>

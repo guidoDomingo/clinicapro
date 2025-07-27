@@ -733,3 +733,778 @@ Archivos OI JSON: []
 2025-07-27 18:42:09 - EXITO COMPLETO: ID 98
 2025-07-27 18:42:09 - FIN DEBUG
 
+2025-07-27 19:02:57 - INICIO DEBUG
+POST: Array
+(
+    [txtdocumento] => 741852
+    [txtficha] => 555555555555
+    [idPersona] => 61
+    [motivoscomunes] => Seleccionar
+    [txtmotivo] => 
+    [equipoMedico] => Cirrus 700
+    [formatoConsulta] => 
+    [id_consulta] => 98
+    [id_persona_file] => 61
+    [id_usuario] => 1
+    [id_consulta_file] => 
+    [id_user] => 9
+    [descripcion-od-textarea] => <p>sdfsdfs</p>
+    [descripcion-oi-textarea] => <p>sdfsdf</p>
+    [consulta-textarea] => <p><strong style="margin: 0px; padding: 0px; color: rgb(0, 0, 0); font-family: &quot;Open Sans&quot;, Arial, sans-serif; text-align: justify;">Lorem Ipsum</strong><span style="color: rgb(0, 0, 0); font-family: &quot;Open Sans&quot;, Arial, sans-serif; text-align: justify;">&nbsp;es simplemente el texto de relleno de las imprentas y archivos de texto. Lorem Ipsum ha sido el texto de relleno estándar de las industrias desde el año 1500, cuando un impresor (N. del T. persona que se dedica a la imprenta) desconocido usó una galería de textos y los mezcló de tal manera que logró hacer un libro de textos especimen. No sólo sobrevivió 500 años, sino que tambien ingresó como texto de relleno en documentos electrónicos, quedando esencialmente igual al original. Fue popularizado en los 60s con la creación de las hojas "Letraset", las cuales contenian pasajes de Lorem Ipsum, y más recientemente con software de autoedición, como por ejemplo Aldus PageMaker, el cual incluye versiones de Lorem Ipsum.</span></p>
+    [txtnota] => sdfsdfdsf
+    [emails_compartir] => [{"value":"sdfdsf@sdfsdf.com"}]
+    [proximaconsulta] => 2025-07-31
+    [whatsapptxt] => 
+    [email] => 
+)
+
+FILES: Array
+(
+    [archivo_oi] => Array
+        (
+            [name] => Array
+                (
+                    [0] => informe general.jpg
+                )
+
+            [full_path] => Array
+                (
+                    [0] => informe general.jpg
+                )
+
+            [type] => Array
+                (
+                    [0] => image/jpeg
+                )
+
+            [tmp_name] => Array
+                (
+                    [0] => C:\Users\Guido\AppData\Local\Temp\phpEBE0.tmp
+                )
+
+            [error] => Array
+                (
+                    [0] => 0
+                )
+
+            [size] => Array
+                (
+                    [0] => 143982
+                )
+
+        )
+
+)
+
+2025-07-27 19:02:57 - Intentando guardar consulta principal
+2025-07-27 19:02:57 - Resultado consulta principal: actualizado
+2025-07-27 19:02:57 - ERROR en consulta principal: actualizado
+2025-07-27 19:02:57 - FIN DEBUG
+
+2025-07-27 19:03:23 - INICIO DEBUG
+POST: Array
+(
+    [txtdocumento] => 741852
+    [txtficha] => 555555555555
+    [idPersona] => 61
+    [motivoscomunes] => Seleccionar
+    [txtmotivo] => 
+    [equipoMedico] => Cirrus 700
+    [formatoConsulta] => 
+    [id_consulta] => 98
+    [id_persona_file] => 61
+    [id_usuario] => 1
+    [id_consulta_file] => 
+    [id_user] => 9
+    [descripcion-od-textarea] => <p>sdfsdfs</p>
+    [descripcion-oi-textarea] => <p>sdfsdf</p>
+    [consulta-textarea] => <p><strong style="margin: 0px; padding: 0px; color: rgb(0, 0, 0); font-family: &quot;Open Sans&quot;, Arial, sans-serif; text-align: justify;">Lorem Ipsum</strong><span style="color: rgb(0, 0, 0); font-family: &quot;Open Sans&quot;, Arial, sans-serif; text-align: justify;">&nbsp;es simplemente el texto de relleno de las imprentas y archivos de texto. Lorem Ipsum ha sido el texto de relleno estándar de las industrias desde el año 1500, cuando un impresor (N. del T. persona que se dedica a la imprenta) desconocido usó una galería de textos y los mezcló de tal manera que logró hacer un libro de textos especimen. No sólo sobrevivió 500 años, sino que tambien ingresó como texto de relleno en documentos electrónicos, quedando esencialmente igual al original. Fue popularizado en los 60s con la creación de las hojas "Letraset", las cuales contenian pasajes de Lorem Ipsum, y más recientemente con software de autoedición, como por ejemplo Aldus PageMaker, el cual incluye versiones de Lorem Ipsum.</span></p>
+    [txtnota] => sdfsdfdsf
+    [emails_compartir] => [{"value":"sdfdsf@sdfsdf.com"}]
+    [proximaconsulta] => 2025-07-31
+    [whatsapptxt] => 
+    [email] => 
+)
+
+FILES: Array
+(
+    [archivo_od] => Array
+        (
+            [name] => Array
+                (
+                    [0] => informe general.jpg
+                )
+
+            [full_path] => Array
+                (
+                    [0] => informe general.jpg
+                )
+
+            [type] => Array
+                (
+                    [0] => image/jpeg
+                )
+
+            [tmp_name] => Array
+                (
+                    [0] => C:\Users\Guido\AppData\Local\Temp\php53B3.tmp
+                )
+
+            [error] => Array
+                (
+                    [0] => 0
+                )
+
+            [size] => Array
+                (
+                    [0] => 143982
+                )
+
+        )
+
+)
+
+2025-07-27 19:03:23 - Intentando guardar consulta principal
+2025-07-27 19:03:23 - Resultado consulta principal: actualizado
+2025-07-27 19:03:23 - ERROR en consulta principal: actualizado
+2025-07-27 19:03:23 - FIN DEBUG
+
+2025-07-27 22:06:16 - INICIO DEBUG
+POST: Array
+(
+    [txtdocumento] => 741852
+    [txtficha] => 555555555555
+    [idPersona] => 61
+    [motivoscomunes] => Seleccionar
+    [txtmotivo] => 
+    [equipoMedico] => Cirrus 700
+    [formatoConsulta] => 
+    [id_consulta] => 98
+    [id_persona_file] => 61
+    [id_usuario] => 1
+    [id_consulta_file] => 
+    [id_user] => 9
+    [descripcion-od-textarea] => <p>sdfsdfs</p>
+    [descripcion-oi-textarea] => <p>sdfsdf</p>
+    [consulta-textarea] => <p><strong style="margin: 0px; padding: 0px; color: rgb(0, 0, 0); font-family: &quot;Open Sans&quot;, Arial, sans-serif; text-align: justify;">Lorem Ipsum</strong><span style="color: rgb(0, 0, 0); font-family: &quot;Open Sans&quot;, Arial, sans-serif; text-align: justify;">&nbsp;es simplemente el texto de relleno de las imprentas y archivos de texto. Lorem Ipsum ha sido el texto de relleno estándar de las industrias desde el año 1500, cuando un impresor (N. del T. persona que se dedica a la imprenta) desconocido usó una galería de textos y los mezcló de tal manera que logró hacer un libro de textos especimen. No sólo sobrevivió 500 años, sino que tambien ingresó como texto de relleno en documentos electrónicos, quedando esencialmente igual al original. Fue popularizado en los 60s con la creación de las hojas "Letraset", las cuales contenian pasajes de Lorem Ipsum, y más recientemente con software de autoedición, como por ejemplo Aldus PageMaker, el cual incluye versiones de Lorem Ipsum.</span></p>
+    [txtnota] => sdfsdfdsf
+    [emails_compartir] => [{"value":"sdfdsf@sdfsdf.com"}]
+    [proximaconsulta] => 2025-07-31
+    [whatsapptxt] => 
+    [email] => 
+)
+
+FILES: Array
+(
+    [archivo_oi] => Array
+        (
+            [name] => Array
+                (
+                    [0] => formulario 3.jpg
+                )
+
+            [full_path] => Array
+                (
+                    [0] => formulario 3.jpg
+                )
+
+            [type] => Array
+                (
+                    [0] => image/jpeg
+                )
+
+            [tmp_name] => Array
+                (
+                    [0] => C:\Users\Guido\AppData\Local\Temp\phpC1C4.tmp
+                )
+
+            [error] => Array
+                (
+                    [0] => 0
+                )
+
+            [size] => Array
+                (
+                    [0] => 149926
+                )
+
+        )
+
+)
+
+2025-07-27 22:06:16 - Intentando guardar consulta principal
+2025-07-27 22:06:16 - Resultado consulta principal: actualizado
+2025-07-27 22:06:16 - ERROR en consulta principal: actualizado
+2025-07-27 22:06:16 - FIN DEBUG
+
+2025-07-27 22:06:34 - INICIO DEBUG
+POST: Array
+(
+    [txtdocumento] => 741852
+    [txtficha] => 555555555555
+    [idPersona] => 61
+    [motivoscomunes] => Seleccionar
+    [txtmotivo] => 
+    [equipoMedico] => Cirrus 700
+    [formatoConsulta] => 
+    [id_consulta] => 98
+    [id_persona_file] => 61
+    [id_usuario] => 1
+    [id_consulta_file] => 
+    [id_user] => 9
+    [descripcion-od-textarea] => <p>sdfsdfs - guido</p>
+    [descripcion-oi-textarea] => <p>sdfsdf</p>
+    [consulta-textarea] => <p><strong style="margin: 0px; padding: 0px; color: rgb(0, 0, 0); font-family: &quot;Open Sans&quot;, Arial, sans-serif; text-align: justify;">Lorem Ipsum</strong><span style="color: rgb(0, 0, 0); font-family: &quot;Open Sans&quot;, Arial, sans-serif; text-align: justify;">&nbsp;es simplemente el texto de relleno de las imprentas y archivos de texto. Lorem Ipsum ha sido el texto de relleno estándar de las industrias desde el año 1500, cuando un impresor (N. del T. persona que se dedica a la imprenta) desconocido usó una galería de textos y los mezcló de tal manera que logró hacer un libro de textos especimen. No sólo sobrevivió 500 años, sino que tambien ingresó como texto de relleno en documentos electrónicos, quedando esencialmente igual al original. Fue popularizado en los 60s con la creación de las hojas "Letraset", las cuales contenian pasajes de Lorem Ipsum, y más recientemente con software de autoedición, como por ejemplo Aldus PageMaker, el cual incluye versiones de Lorem Ipsum.</span></p>
+    [txtnota] => sdfsdfdsf
+    [emails_compartir] => [{"value":"sdfdsf@sdfsdf.com"}]
+    [proximaconsulta] => 2025-07-31
+    [whatsapptxt] => 
+    [email] => 
+)
+
+FILES: Array
+(
+)
+
+2025-07-27 22:06:34 - Intentando guardar consulta principal
+2025-07-27 22:06:34 - Resultado consulta principal: actualizado
+2025-07-27 22:06:34 - ERROR en consulta principal: actualizado
+2025-07-27 22:06:34 - FIN DEBUG
+
+2025-07-27 22:12:33 - INICIO DEBUG
+POST: Array
+(
+    [txtdocumento] => 741852
+    [txtficha] => 555555555555
+    [idPersona] => 61
+    [motivoscomunes] => Seleccionar
+    [txtmotivo] => 
+    [equipoMedico] => Cirrus 700
+    [formatoConsulta] => 
+    [id_consulta] => 98
+    [id_persona_file] => 61
+    [id_usuario] => 1
+    [id_consulta_file] => 
+    [id_user] => 9
+    [descripcion-od-textarea] => <p>sdfsdfs - guido</p>
+    [descripcion-oi-textarea] => <p>sdfsdf</p>
+    [consulta-textarea] => <p><strong style="margin: 0px; padding: 0px; color: rgb(0, 0, 0); font-family: &quot;Open Sans&quot;, Arial, sans-serif; text-align: justify;">Lorem Ipsum</strong><span style="color: rgb(0, 0, 0); font-family: &quot;Open Sans&quot;, Arial, sans-serif; text-align: justify;">&nbsp;es simplemente el texto de relleno de las imprentas y archivos de texto. Lorem Ipsum ha sido el texto de relleno estándar de las industrias desde el año 1500, cuando un impresor (N. del T. persona que se dedica a la imprenta) desconocido usó una galería de textos y los mezcló de tal manera que logró hacer un libro de textos especimen. No sólo sobrevivió 500 años, sino que tambien ingresó como texto de relleno en documentos electrónicos, quedando esencialmente igual al original. Fue popularizado en los 60s con la creación de las hojas "Letraset", las cuales contenian pasajes de Lorem Ipsum, y más recientemente con software de autoedición, como por ejemplo Aldus PageMaker, el cual incluye versiones de Lorem Ipsum.</span></p>
+    [txtnota] => sdfsdfdsf
+    [emails_compartir] => [{"value":"sdfdsf@sdfsdf.com"}]
+    [proximaconsulta] => 2025-07-31
+    [whatsapptxt] => 
+    [email] => 
+)
+
+FILES: Array
+(
+    [archivo_oi] => Array
+        (
+            [name] => Array
+                (
+                    [0] => informe general.jpg
+                )
+
+            [full_path] => Array
+                (
+                    [0] => informe general.jpg
+                )
+
+            [type] => Array
+                (
+                    [0] => image/jpeg
+                )
+
+            [tmp_name] => Array
+                (
+                    [0] => C:\Users\Guido\AppData\Local\Temp\php82AB.tmp
+                )
+
+            [error] => Array
+                (
+                    [0] => 0
+                )
+
+            [size] => Array
+                (
+                    [0] => 143982
+                )
+
+        )
+
+)
+
+2025-07-27 22:12:33 - Intentando guardar consulta principal
+2025-07-27 22:12:33 - Resultado consulta principal: actualizado
+2025-07-27 22:12:33 - Datos específicos extraídos
+Equipo: Cirrus 700
+Descripción OD: 22 chars
+Descripción OI: 13 chars
+2025-07-27 22:12:33 - No hay archivos OD para procesar
+isset: false
+empty: not set
+2025-07-27 22:12:33 - Procesando archivos OI
+Archivos recibidos: Array
+(
+    [name] => Array
+        (
+            [0] => informe general.jpg
+        )
+
+    [full_path] => Array
+        (
+            [0] => informe general.jpg
+        )
+
+    [type] => Array
+        (
+            [0] => image/jpeg
+        )
+
+    [tmp_name] => Array
+        (
+            [0] => C:\Users\Guido\AppData\Local\Temp\php82AB.tmp
+        )
+
+    [error] => Array
+        (
+            [0] => 0
+        )
+
+    [size] => Array
+        (
+            [0] => 143982
+        )
+
+)
+
+2025-07-27 22:12:33 - Procesando archivo OI #0: informe general.jpg, Error: 0
+2025-07-27 22:12:33 - Archivo OI guardado exitosamente: informe general.jpg -> 98_OI_1753654353_0.jpg
+Info archivo: Array
+(
+    [nombre_original] => informe general.jpg
+    [nombre_archivo] => 98_OI_1753654353_0.jpg
+    [ruta] => view/uploads/consultas/informe_imagen/98_OI_1753654353_0.jpg
+    [tamano] => 143982
+    [fecha_subida] => 2025-07-27 22:12:33
+    [ojo] => oi
+)
+
+2025-07-27 22:12:33 - Archivos procesados: OD=0, OI=1
+2025-07-27 22:12:33 - Verificación: existe=true para id_consulta=98
+2025-07-27 22:12:33 - Preparando ACTUALIZACIÓN:
+ID Consulta: 98
+Equipo: Cirrus 700
+Archivos OD JSON: []
+Archivos OI JSON: [{"nombre_original":"informe general.jpg","nombre_archivo":"98_OI_1753654353_0.jpg","ruta":"view\/uploads\/consultas\/informe_imagen\/98_OI_1753654353_0.jpg","tamano":143982,"fecha_subida":"2025-07-27 22:12:33","ojo":"oi"}]
+2025-07-27 22:12:33 - Resultado operación informe: OK (Operación: UPDATE)
+2025-07-27 22:12:33 - EXITO COMPLETO: ID 98 (actualizado)
+2025-07-27 22:12:33 - FIN DEBUG
+
+2025-07-27 22:13:07 - INICIO DEBUG
+POST: Array
+(
+    [txtdocumento] => 741852
+    [txtficha] => 555555555555
+    [idPersona] => 61
+    [motivoscomunes] => Seleccionar
+    [txtmotivo] => 
+    [equipoMedico] => Cirrus 700
+    [formatoConsulta] => 
+    [id_consulta] => 98
+    [id_persona_file] => 61
+    [id_usuario] => 1
+    [id_consulta_file] => 
+    [id_user] => 9
+    [descripcion-od-textarea] => <p>sdfsdfs - guido</p>
+    [descripcion-oi-textarea] => <p>sdfsdf</p>
+    [consulta-textarea] => <p><strong style="margin: 0px; padding: 0px; color: rgb(0, 0, 0); font-family: &quot;Open Sans&quot;, Arial, sans-serif; text-align: justify;">Lorem Ipsum</strong><span style="color: rgb(0, 0, 0); font-family: &quot;Open Sans&quot;, Arial, sans-serif; text-align: justify;">&nbsp;es simplemente el texto de relleno de las imprentas y archivos de texto. Lorem Ipsum ha sido el texto de relleno estándar de las industrias desde el año 1500, cuando un impresor (N. del T. persona que se dedica a la imprenta) desconocido usó una galería de textos y los mezcló de tal manera que logró hacer un libro de textos especimen. No sólo sobrevivió 500 años, sino que tambien ingresó como texto de relleno en documentos electrónicos, quedando esencialmente igual al original. Fue popularizado en los 60s con la creación de las hojas "Letraset", las cuales contenian pasajes de Lorem Ipsum, y más recientemente con software de autoedición, como por ejemplo Aldus PageMaker, el cual incluye versiones de Lorem Ipsum.</span></p>
+    [txtnota] => sdfsdfdsf
+    [emails_compartir] => [{"value":"sdfdsf@sdfsdf.com"}]
+    [proximaconsulta] => 2025-07-31
+    [whatsapptxt] => 
+    [email] => 
+)
+
+FILES: Array
+(
+    [archivo_od] => Array
+        (
+            [name] => Array
+                (
+                    [0] => formulario 2.jpg
+                )
+
+            [full_path] => Array
+                (
+                    [0] => formulario 2.jpg
+                )
+
+            [type] => Array
+                (
+                    [0] => image/jpeg
+                )
+
+            [tmp_name] => Array
+                (
+                    [0] => C:\Users\Guido\AppData\Local\Temp\php75D.tmp
+                )
+
+            [error] => Array
+                (
+                    [0] => 0
+                )
+
+            [size] => Array
+                (
+                    [0] => 162158
+                )
+
+        )
+
+)
+
+2025-07-27 22:13:07 - Intentando guardar consulta principal
+2025-07-27 22:13:07 - Resultado consulta principal: actualizado
+2025-07-27 22:13:07 - Datos específicos extraídos
+Equipo: Cirrus 700
+Descripción OD: 22 chars
+Descripción OI: 13 chars
+2025-07-27 22:13:07 - Procesando archivos OD
+Archivos recibidos: Array
+(
+    [name] => Array
+        (
+            [0] => formulario 2.jpg
+        )
+
+    [full_path] => Array
+        (
+            [0] => formulario 2.jpg
+        )
+
+    [type] => Array
+        (
+            [0] => image/jpeg
+        )
+
+    [tmp_name] => Array
+        (
+            [0] => C:\Users\Guido\AppData\Local\Temp\php75D.tmp
+        )
+
+    [error] => Array
+        (
+            [0] => 0
+        )
+
+    [size] => Array
+        (
+            [0] => 162158
+        )
+
+)
+
+2025-07-27 22:13:07 - Procesando archivo OD #0: formulario 2.jpg, Error: 0
+2025-07-27 22:13:07 - Archivo OD guardado exitosamente: formulario 2.jpg -> 98_OD_1753654387_0.jpg
+Info archivo: Array
+(
+    [nombre_original] => formulario 2.jpg
+    [nombre_archivo] => 98_OD_1753654387_0.jpg
+    [ruta] => view/uploads/consultas/informe_imagen/98_OD_1753654387_0.jpg
+    [tamano] => 162158
+    [fecha_subida] => 2025-07-27 22:13:07
+    [ojo] => od
+)
+
+2025-07-27 22:13:07 - No hay archivos OI para procesar
+isset: false
+empty: not set
+2025-07-27 22:13:07 - Archivos procesados: OD=1, OI=0
+2025-07-27 22:13:07 - Verificación: existe=true para id_consulta=98
+2025-07-27 22:13:07 - Preparando ACTUALIZACIÓN:
+ID Consulta: 98
+Equipo: Cirrus 700
+Archivos OD JSON: [{"nombre_original":"formulario 2.jpg","nombre_archivo":"98_OD_1753654387_0.jpg","ruta":"view\/uploads\/consultas\/informe_imagen\/98_OD_1753654387_0.jpg","tamano":162158,"fecha_subida":"2025-07-27 22:13:07","ojo":"od"}]
+Archivos OI JSON: []
+2025-07-27 22:13:07 - Resultado operación informe: OK (Operación: UPDATE)
+2025-07-27 22:13:07 - EXITO COMPLETO: ID 98 (actualizado)
+2025-07-27 22:13:07 - FIN DEBUG
+
+2025-07-27 22:18:59 - INICIO DEBUG
+POST: Array
+(
+    [txtdocumento] => 741852
+    [txtficha] => 555555555555
+    [idPersona] => 61
+    [motivoscomunes] => Seleccionar
+    [txtmotivo] => 
+    [equipoMedico] => Cirrus 700
+    [formatoConsulta] => 
+    [id_consulta] => 98
+    [id_persona_file] => 61
+    [id_usuario] => 1
+    [id_consulta_file] => 
+    [id_user] => 9
+    [descripcion-od-textarea] => <p>sdfsdfs - guido</p>
+    [descripcion-oi-textarea] => <p>sdfsdf</p>
+    [consulta-textarea] => <p><strong style="margin: 0px; padding: 0px; color: rgb(0, 0, 0); font-family: &quot;Open Sans&quot;, Arial, sans-serif; text-align: justify;">Lorem Ipsum</strong><span style="color: rgb(0, 0, 0); font-family: &quot;Open Sans&quot;, Arial, sans-serif; text-align: justify;">&nbsp;es simplemente el texto de relleno de las imprentas y archivos de texto. Lorem Ipsum ha sido el texto de relleno estándar de las industrias desde el año 1500, cuando un impresor (N. del T. persona que se dedica a la imprenta) desconocido usó una galería de textos y los mezcló de tal manera que logró hacer un libro de textos especimen. No sólo sobrevivió 500 años, sino que tambien ingresó como texto de relleno en documentos electrónicos, quedando esencialmente igual al original. Fue popularizado en los 60s con la creación de las hojas "Letraset", las cuales contenian pasajes de Lorem Ipsum, y más recientemente con software de autoedición, como por ejemplo Aldus PageMaker, el cual incluye versiones de Lorem Ipsum.</span></p>
+    [txtnota] => sdfsdfdsf
+    [emails_compartir] => [{"value":"sdfdsf@sdfsdf.com"}]
+    [proximaconsulta] => 2025-07-31
+    [whatsapptxt] => 
+    [email] => 
+    [archivos_existentes_od] => [{"nombre_original":"formulario 2.jpg","nombre_archivo":"98_OD_1753654387_0.jpg","ruta":"view/uploads/consultas/informe_imagen/98_OD_1753654387_0.jpg","tamano":162158,"fecha_subida":"2025-07-27 22:13:07","ojo":"od"}]
+)
+
+FILES: Array
+(
+    [archivo_oi] => Array
+        (
+            [name] => Array
+                (
+                    [0] => informe general.jpg
+                )
+
+            [full_path] => Array
+                (
+                    [0] => informe general.jpg
+                )
+
+            [type] => Array
+                (
+                    [0] => image/jpeg
+                )
+
+            [tmp_name] => Array
+                (
+                    [0] => C:\Users\Guido\AppData\Local\Temp\php6787.tmp
+                )
+
+            [error] => Array
+                (
+                    [0] => 0
+                )
+
+            [size] => Array
+                (
+                    [0] => 143982
+                )
+
+        )
+
+)
+
+2025-07-27 22:18:59 - Intentando guardar consulta principal
+2025-07-27 22:18:59 - Resultado consulta principal: actualizado
+2025-07-27 22:18:59 - Datos específicos extraídos
+Equipo: Cirrus 700
+Descripción OD: 22 chars
+Descripción OI: 13 chars
+2025-07-27 22:18:59 - No hay archivos OD para procesar
+isset: false
+empty: not set
+2025-07-27 22:18:59 - Procesando archivos OI
+Archivos recibidos: Array
+(
+    [name] => Array
+        (
+            [0] => informe general.jpg
+        )
+
+    [full_path] => Array
+        (
+            [0] => informe general.jpg
+        )
+
+    [type] => Array
+        (
+            [0] => image/jpeg
+        )
+
+    [tmp_name] => Array
+        (
+            [0] => C:\Users\Guido\AppData\Local\Temp\php6787.tmp
+        )
+
+    [error] => Array
+        (
+            [0] => 0
+        )
+
+    [size] => Array
+        (
+            [0] => 143982
+        )
+
+)
+
+2025-07-27 22:18:59 - Procesando archivo OI #0: informe general.jpg, Error: 0
+2025-07-27 22:18:59 - Archivo OI guardado exitosamente: informe general.jpg -> 98_OI_1753654739_0.jpg
+Info archivo: Array
+(
+    [nombre_original] => informe general.jpg
+    [nombre_archivo] => 98_OI_1753654739_0.jpg
+    [ruta] => view/uploads/consultas/informe_imagen/98_OI_1753654739_0.jpg
+    [tamano] => 143982
+    [fecha_subida] => 2025-07-27 22:18:59
+    [ojo] => oi
+)
+
+2025-07-27 22:18:59 - Archivos procesados: OD=0, OI=1
+2025-07-27 22:18:59 - Verificación: existe=true para id_consulta=98
+2025-07-27 22:18:59 - Archivos combinados:
+OD existentes mantenidos: 1
+OD nuevos agregados: 0
+OI existentes mantenidos: 0
+OI nuevos agregados: 1
+Total OD final: 1
+Total OI final: 1
+2025-07-27 22:18:59 - Preparando ACTUALIZACIÓN:
+ID Consulta: 98
+Equipo: Cirrus 700
+Archivos OD JSON: [{"nombre_original":"formulario 2.jpg","nombre_archivo":"98_OD_1753654387_0.jpg","ruta":"view\/uploads\/consultas\/informe_imagen\/98_OD_1753654387_0.jpg","tamano":162158,"fecha_subida":"2025-07-27 22:13:07","ojo":"od"}]
+Archivos OI JSON: [{"nombre_original":"informe general.jpg","nombre_archivo":"98_OI_1753654739_0.jpg","ruta":"view\/uploads\/consultas\/informe_imagen\/98_OI_1753654739_0.jpg","tamano":143982,"fecha_subida":"2025-07-27 22:18:59","ojo":"oi"}]
+2025-07-27 22:18:59 - Resultado operación informe: OK (Operación: UPDATE)
+2025-07-27 22:18:59 - EXITO COMPLETO: ID 98 (actualizado)
+2025-07-27 22:18:59 - FIN DEBUG
+
+2025-07-27 22:19:26 - INICIO DEBUG
+POST: Array
+(
+    [txtdocumento] => 741852
+    [txtficha] => 555555555555
+    [idPersona] => 61
+    [motivoscomunes] => Seleccionar
+    [txtmotivo] => 
+    [equipoMedico] => Cirrus 700
+    [formatoConsulta] => 
+    [id_consulta] => 98
+    [id_persona_file] => 61
+    [id_usuario] => 1
+    [id_consulta_file] => 
+    [id_user] => 9
+    [descripcion-od-textarea] => <p>sdfsdfs - guido</p>
+    [descripcion-oi-textarea] => <p>sdfsdf</p>
+    [consulta-textarea] => <p><strong style="margin: 0px; padding: 0px; color: rgb(0, 0, 0); font-family: &quot;Open Sans&quot;, Arial, sans-serif; text-align: justify;">Lorem Ipsum</strong><span style="color: rgb(0, 0, 0); font-family: &quot;Open Sans&quot;, Arial, sans-serif; text-align: justify;">&nbsp;es simplemente el texto de relleno de las imprentas y archivos de texto. Lorem Ipsum ha sido el texto de relleno estándar de las industrias desde el año 1500, cuando un impresor (N. del T. persona que se dedica a la imprenta) desconocido usó una galería de textos y los mezcló de tal manera que logró hacer un libro de textos especimen. No sólo sobrevivió 500 años, sino que tambien ingresó como texto de relleno en documentos electrónicos, quedando esencialmente igual al original. Fue popularizado en los 60s con la creación de las hojas "Letraset", las cuales contenian pasajes de Lorem Ipsum, y más recientemente con software de autoedición, como por ejemplo Aldus PageMaker, el cual incluye versiones de Lorem Ipsum.</span></p>
+    [txtnota] => sdfsdfdsf
+    [emails_compartir] => [{"value":"sdfdsf@sdfsdf.com"}]
+    [proximaconsulta] => 2025-07-31
+    [whatsapptxt] => 
+    [email] => 
+    [archivos_existentes_od] => [{"nombre_original":"formulario 2.jpg","nombre_archivo":"98_OD_1753654387_0.jpg","ruta":"view/uploads/consultas/informe_imagen/98_OD_1753654387_0.jpg","tamano":162158,"fecha_subida":"2025-07-27 22:13:07","ojo":"od"}]
+    [archivos_existentes_oi] => [{"nombre_original":"informe general.jpg","nombre_archivo":"98_OI_1753654739_0.jpg","ruta":"view/uploads/consultas/informe_imagen/98_OI_1753654739_0.jpg","tamano":143982,"fecha_subida":"2025-07-27 22:18:59","ojo":"oi"}]
+)
+
+FILES: Array
+(
+    [archivo_oi] => Array
+        (
+            [name] => Array
+                (
+                    [0] => Untitled diagram _ Mermaid Chart-2025-07-27-201638.png
+                )
+
+            [full_path] => Array
+                (
+                    [0] => Untitled diagram _ Mermaid Chart-2025-07-27-201638.png
+                )
+
+            [type] => Array
+                (
+                    [0] => image/png
+                )
+
+            [tmp_name] => Array
+                (
+                    [0] => C:\Users\Guido\AppData\Local\Temp\phpD015.tmp
+                )
+
+            [error] => Array
+                (
+                    [0] => 0
+                )
+
+            [size] => Array
+                (
+                    [0] => 398669
+                )
+
+        )
+
+)
+
+2025-07-27 22:19:26 - Intentando guardar consulta principal
+2025-07-27 22:19:26 - Resultado consulta principal: actualizado
+2025-07-27 22:19:26 - Datos específicos extraídos
+Equipo: Cirrus 700
+Descripción OD: 22 chars
+Descripción OI: 13 chars
+2025-07-27 22:19:26 - No hay archivos OD para procesar
+isset: false
+empty: not set
+2025-07-27 22:19:26 - Procesando archivos OI
+Archivos recibidos: Array
+(
+    [name] => Array
+        (
+            [0] => Untitled diagram _ Mermaid Chart-2025-07-27-201638.png
+        )
+
+    [full_path] => Array
+        (
+            [0] => Untitled diagram _ Mermaid Chart-2025-07-27-201638.png
+        )
+
+    [type] => Array
+        (
+            [0] => image/png
+        )
+
+    [tmp_name] => Array
+        (
+            [0] => C:\Users\Guido\AppData\Local\Temp\phpD015.tmp
+        )
+
+    [error] => Array
+        (
+            [0] => 0
+        )
+
+    [size] => Array
+        (
+            [0] => 398669
+        )
+
+)
+
+2025-07-27 22:19:26 - Procesando archivo OI #0: Untitled diagram _ Mermaid Chart-2025-07-27-201638.png, Error: 0
+2025-07-27 22:19:26 - Archivo OI guardado exitosamente: Untitled diagram _ Mermaid Chart-2025-07-27-201638.png -> 98_OI_1753654766_0.png
+Info archivo: Array
+(
+    [nombre_original] => Untitled diagram _ Mermaid Chart-2025-07-27-201638.png
+    [nombre_archivo] => 98_OI_1753654766_0.png
+    [ruta] => view/uploads/consultas/informe_imagen/98_OI_1753654766_0.png
+    [tamano] => 398669
+    [fecha_subida] => 2025-07-27 22:19:26
+    [ojo] => oi
+)
+
+2025-07-27 22:19:26 - Archivos procesados: OD=0, OI=1
+2025-07-27 22:19:26 - Verificación: existe=true para id_consulta=98
+2025-07-27 22:19:26 - Archivos combinados:
+OD existentes mantenidos: 1
+OD nuevos agregados: 0
+OI existentes mantenidos: 1
+OI nuevos agregados: 1
+Total OD final: 1
+Total OI final: 2
+2025-07-27 22:19:26 - Preparando ACTUALIZACIÓN:
+ID Consulta: 98
+Equipo: Cirrus 700
+Archivos OD JSON: [{"nombre_original":"formulario 2.jpg","nombre_archivo":"98_OD_1753654387_0.jpg","ruta":"view\/uploads\/consultas\/informe_imagen\/98_OD_1753654387_0.jpg","tamano":162158,"fecha_subida":"2025-07-27 22:13:07","ojo":"od"}]
+Archivos OI JSON: [{"nombre_original":"informe general.jpg","nombre_archivo":"98_OI_1753654739_0.jpg","ruta":"view\/uploads\/consultas\/informe_imagen\/98_OI_1753654739_0.jpg","tamano":143982,"fecha_subida":"2025-07-27 22:18:59","ojo":"oi"},{"nombre_original":"Untitled diagram _ Mermaid Chart-2025-07-27-201638.png","nombre_archivo":"98_OI_1753654766_0.png","ruta":"view\/uploads\/consultas\/informe_imagen\/98_OI_1753654766_0.png","tamano":398669,"fecha_subida":"2025-07-27 22:19:26","ojo":"oi"}]
+2025-07-27 22:19:26 - Resultado operación informe: OK (Operación: UPDATE)
+2025-07-27 22:19:26 - EXITO COMPLETO: ID 98 (actualizado)
+2025-07-27 22:19:26 - FIN DEBUG
+

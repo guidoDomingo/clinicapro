@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>✅ ACTUALIZACIÓN CORREGIDA - Informe+Imagen</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.6; }
+        .success { color: #28a745; font-weight: bold; }
+        .warning { color: #ffc107; font-weight: bold; }
+        .error { color: #dc3545; font-weight: bold; }
+        .info { color: #17a2b8; font-weight: bold; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 8px; background: #f8f9fa; }
+        .fix { background: #d4edda; border-color: #c3e6cb; padding: 15px; border-radius: 8px; margin: 15px 0; }
+        .test-step { margin: 15px 0; padding: 15px; background: white; border-left: 4px solid #007bff; border-radius: 5px; }
+        .code { background: #f8f9fa; padding: 10px; border-radius: 5px; font-family: monospace; margin: 10px 0; }
+        .btn { display: inline-block; padding: 12px 24px; margin: 5px; text-decoration: none; border-radius: 5px; color: white; font-weight: bold; }
+        .btn-primary { background: #007bff; }
+        .btn-success { background: #28a745; }
+        .btn-warning { background: #ffc107; color: #212529; }
+    </style>
+</head>
+<body>
+    <h1 class="success">✅ PROBLEMA RESUELTO: Actualización de Informe+Imagen</h1>
+    
+    <div class="fix">
+        <h3>🔧 Corrección Aplicada:</h3>
+        <p><strong>Problema identificado:</strong> El sistema trataba "actualizado" como error en lugar de éxito</p>
+        
+        <div class="code">
+            <strong>ANTES:</strong><br>
+            if (is_numeric($resultado)) {<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;$idConsulta = $resultado;<br><br>
+            
+            <strong>DESPUÉS:</strong><br>
+            if (is_numeric($resultado) || $resultado === 'actualizado') {<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;$idConsulta = is_numeric($resultado) ? $resultado : $_POST['id_consulta'];
+        </div>
+        
+        <p class="success">✅ Ahora acepta tanto números (consultas nuevas) como "actualizado" (consultas existentes)</p>
+    </div>
+    
+    <div class="section">
+        <h3 class="info">🧪 Proceso de Prueba Completo:</h3>
+        
+        <div class="test-step">
+            <strong>1. Crear consulta inicial</strong>
+            <ul>
+                <li>Ir al módulo Informe+Imagen</li>
+                <li>Llenar formulario con datos del paciente</li>
+                <li>Subir archivos OD/OI</li>
+                <li>Guardar → <span class="success">Mensaje: "guardado exitosamente"</span></li>
+            </ul>
+        </div>
+        
+        <div class="test-step">
+            <strong>2. Cargar consulta para edición</strong>
+            <ul>
+                <li>En la tabla de consultas, click en "Ver"</li>
+                <li>Click en "Cargar en formulario"</li>
+                <li>Verificar que todos los datos aparecen en el formulario</li>
+                <li class="info">Consola: "ID Consulta establecido para actualización: XX"</li>
+            </ul>
+        </div>
+        
+        <div class="test-step">
+            <strong>3. Modificar y actualizar</strong>
+            <ul>
+                <li>Cambiar algún campo (ej: descripción OD/OI)</li>
+                <li>Opcionalmente agregar/cambiar archivos</li>
+                <li>Click en "Guardar Consulta"</li>
+                <li class="success">Mensaje esperado: "actualizado exitosamente - Informe+imagen actualizado id:XX"</li>
+            </ul>
+        </div>
+        
+        <div class="test-step">
+            <strong>4. Verificar resultado</strong>
+            <ul>
+                <li>El formulario se limpia automáticamente</li>
+                <li>La tabla de consultas se recarga</li>
+                <li class="success">Solo existe UNA consulta para ese paciente</li>
+                <li>Los cambios están guardados correctamente</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h3 class="warning">📋 Mensajes del Sistema:</h3>
+        
+        <h4>✅ Éxito en CREACIÓN:</h4>
+        <div class="code success">"guardado exitosamente - Informe+imagen creado id:XX"</div>
+        
+        <h4>✅ Éxito en ACTUALIZACIÓN:</h4>
+        <div class="code success">"actualizado exitosamente - Informe+imagen actualizado id:XX"</div>
+        
+        <h4>❌ Error (si ocurre):</h4>
+        <div class="code error">"error: [descripción del error]"</div>
+    </div>
+    
+    <div class="section">
+        <h3 class="info">🔍 Debug Information:</h3>
+        
+        <h4>Log Backend (logs/debug_informe_imagen.log):</h4>
+        <ul>
+            <li><span class="code">Resultado consulta principal: actualizado</span></li>
+            <li><span class="code">Verificación: existe=true para id_consulta=XX</span></li>
+            <li><span class="code">Preparando ACTUALIZACIÓN</span></li>
+            <li><span class="code">Resultado operación informe: OK (Operación: UPDATE)</span></li>
+            <li><span class="code">EXITO COMPLETO: ID XX (actualizado)</span></li>
+        </ul>
+        
+        <h4>Consola del Navegador (F12):</h4>
+        <ul>
+            <li><span class="code">ID Consulta establecido para actualización: XX</span></li>
+            <li><span class="code">Campo id_consulta: XX</span></li>
+        </ul>
+    </div>
+    
+    <div class="section">
+        <h3 class="success">🎯 Resultado Final:</h3>
+        <p><strong>El sistema ahora:</strong></p>
+        <ul>
+            <li>✅ Crea nuevas consultas correctamente</li>
+            <li>✅ Actualiza consultas existentes sin crear duplicados</li>
+            <li>✅ Mantiene archivos y metadatos correctamente</li>
+            <li>✅ Muestra mensajes apropiados para cada operación</li>
+            <li>✅ Limpia formulario y recarga datos después de guardar</li>
+        </ul>
+    </div>
+    
+    <p style="text-align: center; margin-top: 30px;">
+        <a href="index.php?ruta=consultas&form_type=informe_imagen" class="btn btn-primary">
+            🚀 PROBAR ACTUALIZACIÓN
+        </a>
+        
+        <a href="logs/debug_informe_imagen.log" class="btn btn-warning">
+            📋 VER LOG DEBUG
+        </a>
+        
+        <a href="test_actualizacion_informe.html" class="btn btn-success">
+            📖 VER DOCUMENTACIÓN COMPLETA
+        </a>
+    </p>
+    
+    <div style="background: #e7f3ff; padding: 15px; border-radius: 8px; margin-top: 20px;">
+        <h4 class="info">🎉 Sistema Completamente Funcional</h4>
+        <p>El módulo de Informe+Imagen ahora tiene funcionalidad CRUD completa con:</p>
+        <ul>
+            <li><strong>CREATE:</strong> Nuevas consultas con archivos</li>
+            <li><strong>READ:</strong> Visualización en tabla con imágenes</li>
+            <li><strong>UPDATE:</strong> Edición de consultas existentes (CORREGIDO)</li>
+            <li><strong>DELETE:</strong> Sistema de archivos integrado</li>
+        </ul>
+    </div>
+</body>
+</html>

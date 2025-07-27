@@ -1997,6 +1997,21 @@ function cargarDatosEstudiosConsulta(consulta, archivos) {
 function cargarDatosInformeImagenConsulta(consulta, archivos) {
     console.log('📋📷 Cargando datos de consulta de informe+imagen:', consulta);
     
+    // *** ESTABLECER ID_CONSULTA PARA ACTUALIZACIONES ***
+    let idConsultaInput = document.getElementById('id_consulta');
+    if (!idConsultaInput) {
+        idConsultaInput = document.createElement('input');
+        idConsultaInput.type = 'hidden';
+        idConsultaInput.id = 'id_consulta';
+        idConsultaInput.name = 'id_consulta';
+        document.getElementById('tblConsulta').appendChild(idConsultaInput);
+        console.log('✅ Campo id_consulta creado');
+    }
+    if (consulta.id_consulta) {
+        idConsultaInput.value = consulta.id_consulta;
+        console.log(`✅ ID Consulta establecido para actualización: ${consulta.id_consulta}`);
+    }
+    
     // Mapear los campos específicos del formulario de informe+imagen
     const camposInformeImagen = {
         'txtmotivo': 'txtmotivo',

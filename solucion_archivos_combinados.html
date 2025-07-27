@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>🔧 Solución: Mantener Archivos Existentes + Nuevos</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.6; }
+        .success { color: #28a745; font-weight: bold; }
+        .warning { color: #ffc107; font-weight: bold; }
+        .error { color: #dc3545; font-weight: bold; }
+        .info { color: #17a2b8; font-weight: bold; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 8px; background: #f8f9fa; }
+        .fix { background: #d4edda; border-color: #c3e6cb; padding: 15px; border-radius: 8px; margin: 15px 0; }
+        .test-step { margin: 15px 0; padding: 15px; background: white; border-left: 4px solid #007bff; border-radius: 5px; }
+        .code { background: #f8f9fa; padding: 10px; border-radius: 5px; font-family: monospace; margin: 10px 0; }
+        .btn { display: inline-block; padding: 12px 24px; margin: 5px; text-decoration: none; border-radius: 5px; color: white; font-weight: bold; }
+        .btn-primary { background: #007bff; }
+        .btn-success { background: #28a745; }
+        .btn-warning { background: #ffc107; color: #212529; }
+    </style>
+</head>
+<body>
+    <h1 class="success">🔧 SOLUCIÓN IMPLEMENTADA: Archivos Existentes + Nuevos</h1>
+    
+    <div class="fix">
+        <h3>📋 Problema Identificado:</h3>
+        <p><strong>Al actualizar una consulta y agregar nuevas imágenes:</strong></p>
+        <ul>
+            <li>❌ Se perdían las imágenes que estaban antes</li>
+            <li>❌ Solo se mostraban las nuevas imágenes agregadas</li>
+            <li>❌ No se combinaban archivos existentes + nuevos</li>
+        </ul>
+    </div>
+    
+    <div class="fix">
+        <h3>✅ Solución Implementada:</h3>
+        <p><strong>Modificación en el backend (guardar-consulta-informe-imagen.php):</strong></p>
+        
+        <div class="code">
+            <strong>LÓGICA MEJORADA:</strong><br>
+            1. Al actualizar: obtener archivos existentes de la BD<br>
+            2. Verificar si se enviaron archivos específicos para mantener<br>
+            3. Si no se especifica: mantener TODOS los existentes si no hay nuevos<br>
+            4. Combinar archivos mantenidos + archivos nuevos<br>
+            5. Actualizar con la lista completa
+        </div>
+        
+        <h4 class="info">🔄 Flujo de Combinación:</h4>
+        <ul>
+            <li><strong>Archivos Existentes:</strong> Se mantienen automáticamente</li>
+            <li><strong>Archivos Nuevos:</strong> Se agregan a los existentes</li>
+            <li><strong>Resultado:</strong> Lista completa = Existentes + Nuevos</li>
+        </ul>
+    </div>
+    
+    <div class="section">
+        <h3 class="info">🧪 Proceso de Prueba:</h3>
+        
+        <div class="test-step">
+            <strong>1. Crear consulta inicial con imágenes</strong>
+            <ul>
+                <li>Crear nueva consulta Informe+Imagen</li>
+                <li>Subir imagen OD: "imagen1.jpg"</li>
+                <li>Subir imagen OI: "imagen2.jpg"</li>
+                <li>Guardar consulta</li>
+                <li class="success">✅ Resultado: 2 imágenes guardadas</li>
+            </ul>
+        </div>
+        
+        <div class="test-step">
+            <strong>2. Cargar consulta para edición</strong>
+            <ul>
+                <li>Click en "Ver" en la consulta creada</li>
+                <li>Click en "Cargar en formulario"</li>
+                <li>Verificar que se muestran las 2 imágenes existentes</li>
+                <li class="info">Consola: Archivos cargados correctamente</li>
+            </ul>
+        </div>
+        
+        <div class="test-step">
+            <strong>3. Agregar nueva imagen</strong>
+            <ul>
+                <li>Sin modificar las imágenes existentes</li>
+                <li>Agregar nueva imagen OD: "imagen3.jpg"</li>
+                <li>Guardar consulta actualizada</li>
+                <li class="success">✅ Resultado esperado: 3 imágenes total</li>
+                <li>imagen1.jpg (existente) + imagen2.jpg (existente) + imagen3.jpg (nueva)</li>
+            </ul>
+        </div>
+        
+        <div class="test-step">
+            <strong>4. Verificar resultado</strong>
+            <ul>
+                <li>Recargar la consulta</li>
+                <li class="success">✅ Debe mostrar TODAS las imágenes:</li>
+                <li>- Imágenes originales (mantenidas)</li>
+                <li>- Imágenes nuevas (agregadas)</li>
+                <li>- Sin pérdida de archivos</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h3 class="warning">📋 Logging Detallado:</h3>
+        
+        <h4>En logs/debug_informe_imagen.log verás:</h4>
+        <div class="code">
+            Verificación: existe=true para id_consulta=XX<br>
+            Archivos combinados:<br>
+            OD existentes mantenidos: 1<br>
+            OD nuevos agregados: 1<br>
+            OI existentes mantenidos: 1<br>
+            OI nuevos agregados: 0<br>
+            Total OD final: 2<br>
+            Total OI final: 1<br>
+            Preparando ACTUALIZACIÓN<br>
+            Resultado operación informe: OK (Operación: UPDATE)
+        </div>
+    </div>
+    
+    <div class="section">
+        <h3 class="info">🎯 Casos de Uso Soportados:</h3>
+        
+        <h4>✅ Caso 1: Agregar imágenes a consulta existente</h4>
+        <ul>
+            <li>Existentes: mantenidas automáticamente</li>
+            <li>Nuevas: agregadas a las existentes</li>
+            <li>Resultado: Todas las imágenes visibles</li>
+        </ul>
+        
+        <h4>✅ Caso 2: Solo modificar texto, sin tocar imágenes</h4>
+        <ul>
+            <li>Existentes: se mantienen intactas</li>
+            <li>Nuevas: ninguna</li>
+            <li>Resultado: Imágenes originales preservadas</li>
+        </ul>
+        
+        <h4>✅ Caso 3: Eliminar imagen específica + agregar nueva</h4>
+        <ul>
+            <li>Usar botón "Quitar" en imagen a eliminar</li>
+            <li>Agregar nueva imagen</li>
+            <li>Resultado: Solo las imágenes deseadas</li>
+        </ul>
+    </div>
+    
+    <div class="section">
+        <h3 class="success">🎉 Beneficios de la Solución:</h3>
+        <ul>
+            <li>✅ <strong>No hay pérdida de archivos</strong> al actualizar</li>
+            <li>✅ <strong>Combinación automática</strong> de existentes + nuevos</li>
+            <li>✅ <strong>Logging detallado</strong> para debugging</li>
+            <li>✅ <strong>Comportamiento intuitivo</strong> para el usuario</li>
+            <li>✅ <strong>Compatibilidad completa</strong> con todas las funciones existentes</li>
+        </ul>
+    </div>
+    
+    <p style="text-align: center; margin-top: 30px;">
+        <a href="index.php?ruta=consultas&form_type=informe_imagen" class="btn btn-primary">
+            🧪 PROBAR COMBINACIÓN DE ARCHIVOS
+        </a>
+        
+        <a href="logs/debug_informe_imagen.log" class="btn btn-warning">
+            📋 VER LOG DEBUG
+        </a>
+    </p>
+    
+    <div style="background: #e7f3ff; padding: 15px; border-radius: 8px; margin-top: 20px;">
+        <h4 class="info">🔧 Comportamiento Actualizado</h4>
+        <p><strong>Al actualizar consulta con nuevas imágenes:</strong></p>
+        <ol>
+            <li>Sistema recupera imágenes existentes de la base de datos</li>
+            <li>Procesa las nuevas imágenes subidas</li>
+            <li>Combina ambas listas automáticamente</li>
+            <li>Actualiza con la lista completa (existentes + nuevas)</li>
+            <li>Usuario ve todas las imágenes sin pérdidas</li>
+        </ol>
+    </div>
+</body>
+</html>

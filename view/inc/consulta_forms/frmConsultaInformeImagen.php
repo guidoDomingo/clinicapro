@@ -340,7 +340,7 @@
         // Agregar campos básicos del formulario
         const campos = [
             'txtdocumento', 'txtficha', 'idPersona', 'motivoscomunes', 'txtmotivo',
-            'equipoMedico', 'formatoConsulta',
+            'equipoMedico', 'formatoConsulta', 'id_consulta',
             'id_persona_file', 'id_usuario', 'id_consulta_file', 'id_user'
         ];
         
@@ -461,40 +461,65 @@
         console.log("archivosOD.length:", archivosOD.length);
         console.log("archivosOI.length:", archivosOI.length);
         
-        // Agregar archivos desde window.uploadedFiles
+        // *** SEPARAR ARCHIVOS EXISTENTES DE ARCHIVOS NUEVOS ***
+        const archivosExistentesOD = [];
+        const archivosNuevosOD = [];
+        const archivosExistentesOI = [];
+        const archivosNuevosOI = [];
+        
+        // Clasificar archivos OD
         if (archivosOD && archivosOD.length > 0) {
-            console.log(`*** AGREGANDO ${archivosOD.length} archivo(s) OD desde uploadedFiles ***`);
             archivosOD.forEach((fileInfo, index) => {
-                // Si hay un objeto File real, usarlo
-                if (fileInfo.file && fileInfo.file instanceof File) {
-                    formData.append('archivo_od[]', fileInfo.file);
-                    console.log(`*** Archivo OD ${index}: ${fileInfo.file.name} (${fileInfo.file.size} bytes) ***`);
-                } else if (fileInfo.nombre) {
-                    // Si solo hay información del archivo (ya subido), crear una referencia
-                    console.log(`*** Archivo OD ${index}: ${fileInfo.nombre} (referencia) ***`);
-                    formData.append('archivo_od_ref[]', fileInfo.nombre);
+                if (fileInfo.archivo_existente) {
+                    archivosExistentesOD.push(fileInfo.archivo_existente);
+                } else if (fileInfo.file && fileInfo.file instanceof File) {
+                    archivosNuevosOD.push(fileInfo.file);
                 }
             });
-        } else {
-            console.log("*** NO HAY ARCHIVOS OD en uploadedFiles ***");
         }
         
-        // Archivos OI
+        // Clasificar archivos OI
         if (archivosOI && archivosOI.length > 0) {
-            console.log(`*** AGREGANDO ${archivosOI.length} archivo(s) OI desde uploadedFiles ***`);
             archivosOI.forEach((fileInfo, index) => {
-                // Si hay un objeto File real, usarlo
-                if (fileInfo.file && fileInfo.file instanceof File) {
-                    formData.append('archivo_oi[]', fileInfo.file);
-                    console.log(`*** Archivo OI ${index}: ${fileInfo.file.name} (${fileInfo.file.size} bytes) ***`);
-                } else if (fileInfo.nombre) {
-                    // Si solo hay información del archivo (ya subido), crear una referencia
-                    console.log(`*** Archivo OI ${index}: ${fileInfo.nombre} (referencia) ***`);
-                    formData.append('archivo_oi_ref[]', fileInfo.nombre);
+                if (fileInfo.archivo_existente) {
+                    archivosExistentesOI.push(fileInfo.archivo_existente);
+                } else if (fileInfo.file && fileInfo.file instanceof File) {
+                    archivosNuevosOI.push(fileInfo.file);
                 }
             });
-        } else {
-            console.log("*** NO HAY ARCHIVOS OI en uploadedFiles ***");
+        }
+        
+        console.log("Archivos existentes OD:", archivosExistentesOD);
+        console.log("Archivos nuevos OD:", archivosNuevosOD);
+        console.log("Archivos existentes OI:", archivosExistentesOI);
+        console.log("Archivos nuevos OI:", archivosNuevosOI);
+        
+        // *** ENVIAR INFORMACIÓN DE ARCHIVOS EXISTENTES ***
+        if (archivosExistentesOD.length > 0) {
+            formData.append('archivos_existentes_od', JSON.stringify(archivosExistentesOD));
+            console.log('Enviando archivos existentes OD:', archivosExistentesOD);
+        }
+        
+        if (archivosExistentesOI.length > 0) {
+            formData.append('archivos_existentes_oi', JSON.stringify(archivosExistentesOI));
+            console.log('Enviando archivos existentes OI:', archivosExistentesOI);
+        }
+        
+        // Agregar archivos NUEVOS desde window.uploadedFiles
+        if (archivosNuevosOD.length > 0) {
+            console.log(`*** AGREGANDO ${archivosNuevosOD.length} archivo(s) NUEVOS OD ***`);
+            archivosNuevosOD.forEach((file, index) => {
+                formData.append('archivo_od[]', file);
+                console.log(`Archivo OD ${index}:`, file.name, `(${file.size} bytes)`);
+            });
+        }
+        
+        if (archivosNuevosOI.length > 0) {
+            console.log(`*** AGREGANDO ${archivosNuevosOI.length} archivo(s) NUEVOS OI ***`);
+            archivosNuevosOI.forEach((file, index) => {
+                formData.append('archivo_oi[]', file);
+                console.log(`Archivo OI ${index}:`, file.name, `(${file.size} bytes)`);
+            });
         }
         
         // Verificar el contenido del FormData
