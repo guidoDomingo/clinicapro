@@ -12834,3 +12834,32 @@ imagen","usuario_id":"9"}
                         AND p.tipo_formulario = :tipo_formulario
                         ORDER BY p.nombre ASC | Tipo: consulta | User ID: 9 | Tipo Formulario: informe_imagen
 [2025-07-27 18:25:14] Preformatos encontrados (user): 2 | Tipo: consulta | User ID: 9 | Tipo Formulario: informe_imagen
+[2025-07-27 18:33:12] REQUEST PREFORMATOS - Operación: getPreformatosConsulta | Parámetros: {"operacion":"getPreformatosConsulta","tipo_formulario":"informe_imagen","usuario_id":"9"}
+[2025-07-27 18:33:12] REQUEST PREFORMATOS - Operación: getMotivosComunes | Parámetros: {"operacion":"getMotivosComunes","tipo_formulario":"informe_imagen"}
+[2025-07-27 18:33:12] REQUEST PREFORMATOS - Operación: getMotivosComunes | Parámetros: {"operacion":"getMotivosComunes","tipo_formulario":"informe_imagen"}
+[2025-07-27 18:33:12] SQL para obtener preformatos (user): SELECT 
+                            p.*
+                        FROM person_system_user psu 
+                        INNER JOIN rh_doctors rd 
+                        ON psu.person_id = rd.person_id 
+                        INNER JOIN preformatos p 
+                        ON p.creado_por = rd.doctor_id 
+                        WHERE psu.system_user_id = :user_id 
+                        AND p.activo = true
+                        AND p.tipo_formulario = :tipo_formulario
+                        ORDER BY p.nombre ASC | Tipo: consulta | User ID: 9 | Tipo Formulario: informe_imagen
+[2025-07-27 18:33:12] Preformatos encontrados (user): 2 | Tipo: consulta | User ID: 9 | Tipo Formulario: informe_imagen
+[2025-07-27 18:34:06] REQUEST PREFORMATOS - Operación: getPreformatosConsulta | Parámetros: {"operacion":"getPreformatosConsulta","tipo_formulario":"informe_imagen","usuario_id":"9"}
+[2025-07-27 18:34:06] REQUEST PREFORMATOS - Operación: getMotivosComunes | Parámetros: {"operacion":"getMotivosComunes","tipo_formulario":"informe_imagen"}
+[2025-07-27 18:34:06] SQL para obtener preformatos (user): SELECT 
+                            p.*
+                        FROM person_system_user psu 
+                        INNER JOIN rh_doctors rd 
+                        ON psu.person_id = rd.person_id 
+                        INNER JOIN preformatos p 
+                        ON p.creado_por = rd.doctor_id 
+                        WHERE psu.system_user_id = :user_id 
+                        AND p.activo = true
+                        AND p.tipo_formulario = :tipo_formulario
+                        ORDER BY p.nombre ASC | Tipo: consulta | User ID: 9 | Tipo Formulario: informe_imagen
+[2025-07-27 18:34:06] Preformatos encontrados (user): 2 | Tipo: consulta | User ID: 9 | Tipo Formulario: informe_imagen

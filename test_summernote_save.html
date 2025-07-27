@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Summernote Save</title>
+</head>
+<body>
+    <h2>🧪 Test de Guardado de Summernote</h2>
+    
+    <p><strong>Problema identificado:</strong> Las descripciones OD/OI no se guardaban en la base de datos</p>
+    
+    <p><strong>Causa:</strong> Summernote requiere extracción explícita del contenido con <code>$(elemento).summernote('code')</code></p>
+    
+    <p><strong>Solución implementada:</strong></p>
+    <ul>
+        <li>✅ Captura explícita del contenido de Summernote antes del envío</li>
+        <li>✅ Fallback a textarea.value si Summernote no está inicializado</li>
+        <li>✅ Logging detallado para debug</li>
+    </ul>
+    
+    <p><strong>Campos corregidos:</strong></p>
+    <ul>
+        <li><code>descripcion-od-textarea</code> - Descripción Ojo Derecho</li>
+        <li><code>descripcion-oi-textarea</code> - Descripción Ojo Izquierdo</li>
+        <li><code>consulta-textarea</code> - Diagnóstico principal</li>
+    </ul>
+    
+    <h3>🎯 Para probar:</h3>
+    <ol>
+        <li>Ve al formulario Informe + Imagen</li>
+        <li>Selecciona un preformato (se debe cargar la descripción)</li>
+        <li>Modifica o agrega contenido en las descripciones OD/OI</li>
+        <li>Guarda la consulta</li>
+        <li>Verifica que al cargar la consulta guardada, las descripciones aparezcan</li>
+    </ol>
+    
+    <p><strong>Debug:</strong> Revisa la consola del navegador para ver los logs de captura de Summernote</p>
+    
+    <p><a href="index.php?ruta=consultas&form_type=informe_imagen" target="_blank">🔗 Ir al formulario para probar</a></p>
+</body>
+</html>

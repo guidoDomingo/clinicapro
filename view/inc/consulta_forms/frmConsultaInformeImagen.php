@@ -340,7 +340,7 @@
         // Agregar campos básicos del formulario
         const campos = [
             'txtdocumento', 'txtficha', 'idPersona', 'motivoscomunes', 'txtmotivo',
-            'equipoMedico', 'formatoConsulta', 'descripcion-od-textarea', 'descripcion-oi-textarea',
+            'equipoMedico', 'formatoConsulta',
             'id_persona_file', 'id_usuario', 'id_consulta_file', 'id_user'
         ];
         
@@ -351,6 +351,51 @@
                 console.log(`Campo ${campo}:`, elemento.value || '');
             }
         });
+        
+        // *** CAPTURAR CONTENIDO DE SUMMERNOTE ***
+        console.log("=== CAPTURANDO CONTENIDO DE SUMMERNOTE ===");
+        
+        // Capturar descripción OD
+        let descripcionOD = '';
+        const odTextarea = document.getElementById('descripcion-od-textarea');
+        if (odTextarea) {
+            if ($(odTextarea).data('summernote')) {
+                descripcionOD = $(odTextarea).summernote('code');
+                console.log('Descripción OD desde Summernote:', descripcionOD);
+            } else {
+                descripcionOD = odTextarea.value || '';
+                console.log('Descripción OD desde textarea:', descripcionOD);
+            }
+            formData.append('descripcion-od-textarea', descripcionOD);
+        }
+        
+        // Capturar descripción OI
+        let descripcionOI = '';
+        const oiTextarea = document.getElementById('descripcion-oi-textarea');
+        if (oiTextarea) {
+            if ($(oiTextarea).data('summernote')) {
+                descripcionOI = $(oiTextarea).summernote('code');
+                console.log('Descripción OI desde Summernote:', descripcionOI);
+            } else {
+                descripcionOI = oiTextarea.value || '';
+                console.log('Descripción OI desde textarea:', descripcionOI);
+            }
+            formData.append('descripcion-oi-textarea', descripcionOI);
+        }
+        
+        // Capturar consulta principal (diagnóstico)
+        let consultaPrincipal = '';
+        const consultaTextarea = document.getElementById('consulta-textarea');
+        if (consultaTextarea) {
+            if ($(consultaTextarea).data('summernote')) {
+                consultaPrincipal = $(consultaTextarea).summernote('code');
+                console.log('Consulta principal desde Summernote:', consultaPrincipal);
+            } else {
+                consultaPrincipal = consultaTextarea.value || '';
+                console.log('Consulta principal desde textarea:', consultaPrincipal);
+            }
+            formData.append('consulta-textarea', consultaPrincipal);
+        }
         
         // Agregar archivos manualmente - CRÍTICO
         console.log("=== VERIFICANDO ARCHIVOS (SISTEMA REAL) ===");
