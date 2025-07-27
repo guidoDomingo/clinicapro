@@ -120,9 +120,10 @@ class TableConsultaEstudios {
             // Preparar los datos
             $equipo_medico = isset($datos['equipo_medico']) ? $datos['equipo_medico'] : '';
             $otro_equipo = isset($datos['otro_equipo']) ? $datos['otro_equipo'] : '';
-            $resultados = isset($datos['resultados-textarea']) ? $datos['resultados-textarea'] : '';
+            // El campo de descripción del formulario se llama 'consulta-textarea'
+            $resultados = isset($datos['consulta-textarea']) ? $datos['consulta-textarea'] : '';
             $emails_compartir = isset($datos['txtEmailShare']) ? $datos['txtEmailShare'] : '';
-            $compartir_activo = isset($datos['compartir_check']) ? 1 : 0;
+            $compartir_activo = isset($datos['gridCheck']) ? 1 : 0; // El checkbox se llama 'gridCheck'
             
             if ($existing) {
                 // Actualizar registro existente
@@ -256,7 +257,10 @@ class TableConsultaEstudios {
  * @return string|int - Resultado del guardado
  */
 function guardarConsultaBaseEstudios($datos) {
-    // Incluir el modelo de consultas si no está incluido
+    // Incluir el controlador y modelo de consultas si no están incluidos
+    if (!class_exists('ControllerConsulta')) {
+        require_once "../controller/consultas.controller.php";
+    }
     if (!class_exists('ModelConsulta')) {
         require_once "../model/consultas.model.php";
     }
@@ -269,8 +273,8 @@ function guardarConsultaBaseEstudios($datos) {
         // Asegurar que el tipo de formulario sea 'estudios'
         $datos['form_type'] = 'estudios';
         
-        // Usar el modelo existente para guardar la consulta base
-        $resultado = ModelConsulta::mdlSetConsulta($datos);
+        // Usar el controlador existente para guardar la consulta base
+        $resultado = ControllerConsulta::ctrSetConsulta($datos);
         
         if (function_exists('debug_detallado')) {
             debug_detallado('GUARDAR_BASE_ESTUDIOS', "Resultado del modelo", [
@@ -292,10 +296,14 @@ function guardarConsultaBaseEstudios($datos) {
 // Procesar la solicitud si viene del formulario de consulta de estudios
 if (isset($_POST["idPersona"]) && isset($_POST["form_type"]) && $_POST["form_type"] === "estudios") {
     
+    // Log detallado de todos los datos recibidos
     if (function_exists('debug_detallado')) {
         debug_detallado('DETECCION_TIPO', "Formulario de estudios detectado correctamente", [
             'form_type' => $_POST["form_type"],
-            'tiene_equipo_medico' => isset($_POST["equipo_medico"])
+            'tiene_equipo_medico' => isset($_POST["equipo_medico"]),
+            'equipo_medico_valor' => $_POST["equipo_medico"] ?? 'no_definido',
+            'consulta_textarea' => isset($_POST["consulta-textarea"]) ? 'definido' : 'no_definido',
+            'todos_los_campos' => array_keys($_POST)
         ], 'info');
     }
     

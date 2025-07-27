@@ -657,13 +657,33 @@ function guardarConsulta() {
     
     console.log('Guardando consulta con usuario ID:', usuarioId);
     
+    // Detectar el tipo de formulario para usar el endpoint correcto
+    const urlParams = new URLSearchParams(window.location.search);
+    const formType = urlParams.get('form_type') || 'general';
+    
+    // Determinar la URL del endpoint según el tipo de formulario
+    let ajaxUrl = 'ajax/guardar-consulta.ajax.php'; // endpoint por defecto
+    
+    if (formType === 'estudios') {
+        ajaxUrl = 'ajax/guardar-consulta-estudios.php';
+        console.log('Formulario de estudios detectado, usando endpoint específico:', ajaxUrl);
+    } else if (formType === 'anteojos') {
+        ajaxUrl = 'ajax/guardar-consulta-anteojos.php';
+        console.log('Formulario de anteojos detectado, usando endpoint específico:', ajaxUrl);
+    } else if (formType === 'informe_imagen') {
+        ajaxUrl = 'ajax/guardar-consulta-informe-imagen.php';
+        console.log('Formulario de informe imagen detectado, usando endpoint específico:', ajaxUrl);
+    }
+    
+    console.log(`Guardando consulta tipo: ${formType} usando URL: ${ajaxUrl}`);
+    
     // Verificar si es una actualización o una nueva consulta
     const idConsulta = document.getElementById('id_consulta') ? document.getElementById('id_consulta').value : '';
     const esActualizacion = idConsulta !== '';
     
     $.ajax({
         type: 'POST',
-        url: 'ajax/guardar-consulta.ajax.php',
+        url: ajaxUrl,
         data: formData,
         dataType: "text",
         processData: false,
