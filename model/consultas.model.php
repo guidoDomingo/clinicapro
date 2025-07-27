@@ -516,6 +516,41 @@ class ModelConsulta {
                     }
                 }
                 
+                // Verificar si existe una entrada en la tabla de informe_imagen para esta consulta
+                if ($consulta['tipo_formulario'] == 'informe_imagen') {
+                    try {
+                        $stmtInformeImagen = Conexion::conectar()->prepare("
+                            SELECT 
+                                equipo_medico,
+                                descripcion_od,
+                                descripcion_oi,
+                                emails_compartir,
+                                compartir_activo
+                            FROM consulta_informe_imagen 
+                            WHERE id_consulta = :id_consulta
+                        ");
+                        $stmtInformeImagen->bindParam(":id_consulta", $idConsulta, PDO::PARAM_INT);
+                        $stmtInformeImagen->execute();
+                        $datosInformeImagen = $stmtInformeImagen->fetch(PDO::FETCH_ASSOC);
+                        
+                        if ($datosInformeImagen) {
+                            // Agregar datos específicos de informe+imagen al resultado
+                            $consulta['equipoMedico'] = $datosInformeImagen['equipo_medico'];
+                            $consulta['descripcion_od'] = $datosInformeImagen['descripcion_od'];
+                            $consulta['descripcion_oi'] = $datosInformeImagen['descripcion_oi'];
+                            $consulta['emails_compartir'] = $datosInformeImagen['emails_compartir'];
+                            $consulta['compartir_activo'] = $datosInformeImagen['compartir_activo'];
+                            $consulta['tiene_datos_informe_imagen'] = true;
+                        } else {
+                            $consulta['tiene_datos_informe_imagen'] = false;
+                        }
+                    } catch (Exception $e) {
+                        // Si hay un error, asumir que no tiene datos de informe+imagen
+                        $consulta['tiene_datos_informe_imagen'] = false;
+                        error_log("Error al verificar datos de informe+imagen: " . $e->getMessage());
+                    }
+                }
+                
                 // Devolver directamente los datos de la consulta para que el frontend pueda procesarlos
                 return json_encode($consulta);
             }

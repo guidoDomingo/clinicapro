@@ -235,11 +235,37 @@ function guardarConsultaBaseInformeImagen($datos) {
 }
 
 // Verificar que sea una solicitud POST con datos de informe+imagen
-if ($_SERVER["REQUEST_METHOD"] == "POST" && 
-    isset($_POST["form_type"]) && 
-    $_POST["form_type"] == "informe_imagen" && 
-    isset($_POST["idPersona"]) && 
-    !empty($_POST["idPersona"])) {
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    
+    // Debug: Mostrar todos los datos recibidos
+    if (function_exists('debug_detallado')) {
+        debug_detallado('DEBUG_POST', "Datos POST recibidos", [
+            'form_type' => $_POST["form_type"] ?? 'no_definido',
+            'formatoConsulta' => $_POST["formatoConsulta"] ?? 'no_definido',
+            'idPersona' => $_POST["idPersona"] ?? 'no_definido',
+            'all_post_keys' => array_keys($_POST)
+        ], 'info');
+    }
+    
+    // Verificar múltiples formas de identificar el formulario de informe+imagen
+    $esInformeImagen = false;
+    
+    // Verificación 1: form_type específico
+    if (isset($_POST["form_type"]) && $_POST["form_type"] == "informe_imagen") {
+        $esInformeImagen = true;
+    }
+    
+    // Verificación 2: formatoConsulta = 30 (ID de informe+imagen)
+    if (isset($_POST["formatoConsulta"]) && $_POST["formatoConsulta"] == "30") {
+        $esInformeImagen = true;
+    }
+    
+    // Verificación 3: Presencia de campos específicos de informe+imagen
+    if (isset($_POST["descripcion-od-textarea"]) || isset($_POST["descripcion-oi-textarea"])) {
+        $esInformeImagen = true;
+    }
+    
+    if ($esInformeImagen && isset($_POST["idPersona"]) && !empty($_POST["idPersona"])) {
     
     if (function_exists('debug_detallado')) {
         debug_detallado('DETECCION_TIPO', "Formulario de informe+imagen detectado", [
@@ -310,11 +336,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" &&
 } else {
     if (function_exists('debug_detallado')) {
         debug_detallado('DETECCION_TIPO', "No es un formulario de informe+imagen o faltan datos", [
+            'es_post' => $_SERVER["REQUEST_METHOD"] == "POST",
             'form_type' => $_POST["form_type"] ?? 'no_definido',
+            'formatoConsulta' => $_POST["formatoConsulta"] ?? 'no_definido',
             'tiene_id_persona' => isset($_POST["idPersona"]),
-            'post_data_keys' => array_keys($_POST)
+            'id_persona_valor' => $_POST["idPersona"] ?? 'no_definido',
+            'tiene_descripcion_od' => isset($_POST["descripcion-od-textarea"]),
+            'tiene_descripcion_oi' => isset($_POST["descripcion-oi-textarea"]),
+            'post_data_keys' => array_keys($_POST ?? [])
         ], 'warning');
     }
-    echo "error: Este endpoint es solo para formularios de informe+imagen";
+    echo "error: Este endpoint es solo para formularios de informe+imagen. form_type=" . ($_POST["form_type"] ?? 'no_definido') . ", formatoConsulta=" . ($_POST["formatoConsulta"] ?? 'no_definido');
+}
+
+} else {
+    echo "error: Método no permitido";
 }
 ?>

@@ -72,66 +72,48 @@
 
     <div class="form-row formfile">
          <div class="form-group col-md-6">
-                <input type="file" name="archivo_od" id="archivo_od" class="inputfile">
-                    <label for="archivo_od" class="btn btn-primary btn-sm label-file">
-                        <i class="bi bi-upload"></i> Seleccionar archivo OD
-                    </label>
-                <table class="table table-sm">
-                    <thead>
-                        <tr>
+            <h5><i class="bi bi-eye"></i> Archivos OD (Ojo Derecho)</h5>
+            <input type="file" name="archivo_od[]" id="archivo_od" class="inputfile" multiple accept="image/*,.pdf">
+            <label for="archivo_od" class="btn btn-primary btn-sm label-file">
+                <i class="bi bi-upload"></i> Seleccionar archivos OD
+            </label>
+            
+            <table class="table table-sm">
+                <thead>
+                    <tr>
                         <th scope="col">#</th>
+                        <th scope="col">Archivo</th>
                         <th scope="col">Ver</th>
                         <th scope="col">Quitar</th> 
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                        <th scope="row">1</th>
-                        <td><i class="bi bi-eye"></i></td>
-                        <td><i class="bi bi-trash"></i></td>
-                        </tr>
-                        <tr>
-                        <th scope="row">2</th>
-                        <td><i class="bi bi-eye"></i></td>
-                        <td><i class="bi bi-trash"></i></td>
-                        </tr>
-                        <tr>
-                        <th scope="row">3</th>
-                        <td ><i class="bi bi-eye"></i></td>
-                        <td><i class="bi bi-trash"></i></td>
-                        </tr>
-                    </tbody>
-                </table> 
-                
-            </div>
-            <div class="form-group col-md-6">
-                <input type="file" name="archivo_oi" id="archivo_oi" class="inputfile">
-                    <label for="archivo_oi" class="btn btn-primary btn-sm label-file">
-                        <i class="bi bi-upload"></i> Seleccionar archivo OI
-                    </label>
-                <table class="table table-sm">
-                    <thead>
-                        <tr>
+                    </tr>
+                </thead>
+                <tbody id="tabla-archivos-od">
+                    <!-- Los archivos se agregarán dinámicamente aquí -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="form-group col-md-6">
+            <h5><i class="bi bi-eye"></i> Archivos OI (Ojo Izquierdo)</h5>
+            <input type="file" name="archivo_oi[]" id="archivo_oi" class="inputfile" multiple accept="image/*,.pdf">
+            <label for="archivo_oi" class="btn btn-primary btn-sm label-file">
+                <i class="bi bi-upload"></i> Seleccionar archivos OI
+            </label>
+            
+            <table class="table table-sm">
+                <thead>
+                    <tr>
                         <th scope="col">#</th>
+                        <th scope="col">Archivo</th>
                         <th scope="col">Ver</th>
                         <th scope="col">Quitar</th> 
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                        <th scope="row">1</th>
-                        <td><i class="bi bi-eye"></i></td>
-                        <td><i class="bi bi-trash"></i></td>
-                        </tr>
-                        <tr>
-                        <th scope="row">2</th>
-                        <td><i class="bi bi-eye"></i></td>
-                        <td><i class="bi bi-trash"></i></td>
-                        </tr>
-                    </tbody>
-                </table> 
-                 
-            </div>
+                    </tr>
+                </thead>
+                <tbody id="tabla-archivos-oi">
+                    <!-- Los archivos se agregarán dinámicamente aquí -->
+                </tbody>
+            </table>
+        </div>
             
         </div>
 
@@ -148,6 +130,33 @@
                     <textarea id="descripcion-oi-textarea" name="descripcion-oi-textarea" class="form-control compose-textarea" style="height: 280px"></textarea>
                 </div>
         </div>
+    </div>
+
+    <!-- Contenedor para mostrar archivos existentes de la consulta -->
+    <div id="filePreviewContainer" class="mt-3" style="display: none;">
+        <h5>📁 Archivos de la consulta</h5>
+        <div id="archivos-existentes"></div>
+    </div>
+
+    <hr>
+
+    <!-- Sección de subida de archivos general -->
+    <div class="form-container">
+        <h2>Subir Archivos Adicionales</h2>
+        <form id="uploadForm" method="post" enctype="multipart/form-data">
+            <input type="hidden" id="id_persona_file" name="id_persona_file">
+            <input type="hidden" id="id_usuario" name="id_usuario" value="1">
+            <input type="hidden" id="id_consulta_file" name="id_consulta_file">
+            
+            <div class="file-upload-container">
+                <div class="file-drop-area" id="dropArea">
+                    <span class="file-message">Examinar... No se han seleccionado archivos</span>
+                    <input type="file" name="files[]" id="files" multiple class="file-input">
+                </div>
+            </div>
+            <div class="error" id="error"></div>
+            <input type="button" id="btnSubirArchivos" value="Subir Archivos" class="btn btn-primary mt-3">
+        </form>
     </div>
         
 
@@ -246,23 +255,9 @@
             console.log('Tagify inicializado para emails');
         }
         
-        // Configurar botón de guardar específico para informe+imagen
-        const btnGuardarConsulta = document.getElementById('btnGuardarConsulta');
-        if (btnGuardarConsulta) {
-            // Eliminar event listeners existentes
-            const nuevoBoton = btnGuardarConsulta.cloneNode(true);
-            btnGuardarConsulta.parentNode.replaceChild(nuevoBoton, btnGuardarConsulta);
-            
-            // Agregar nuevo event listener específico
-            nuevoBoton.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                e.stopImmediatePropagation();
-                guardarConsultaInformeImagen();
-            });
-            
-            console.log('Event listener específico de informe+imagen configurado');
-        }
+        // El JavaScript general de consultas ya maneja el botón de guardar
+        // basándose en el form_type, no necesitamos código específico aquí
+        console.log('Formulario de informe+imagen inicializado, usando handler general');
         
         // Inicializar select2 si está disponible
         if (typeof $.fn.select2 !== 'undefined') {
@@ -453,4 +448,334 @@
             idConsultaFile.value = idConsulta;
         }
     }
+
+    /**
+     * Manejar upload de archivos específicos OD/OI
+     */
+    function setupArchivoHandlers() {
+        // Handler para archivos OD
+        const archivoOdInput = document.getElementById('archivo_od');
+        if (archivoOdInput) {
+            archivoOdInput.addEventListener('change', function(e) {
+                handleArchivoUpload(e, 'od');
+            });
+        }
+
+        // Handler para archivos OI
+        const archivoOiInput = document.getElementById('archivo_oi');
+        if (archivoOiInput) {
+            archivoOiInput.addEventListener('change', function(e) {
+                handleArchivoUpload(e, 'oi');
+            });
+        }
+    }
+
+    /**
+     * Manejar subida de archivo específico
+     */
+    function handleArchivoUpload(event, tipo) {
+        const files = event.target.files;
+        if (files.length === 0) return;
+
+        const container = document.getElementById(`archivos-${tipo}-container`);
+        const list = document.getElementById(`archivos-${tipo}-list`);
+        
+        if (!container || !list) {
+            console.error(`Contenedores para ${tipo} no encontrados`);
+            return;
+        }
+
+        container.style.display = 'block';
+
+        // Procesar cada archivo
+        Array.from(files).forEach((file, index) => {
+            const fileId = `${tipo}_${Date.now()}_${index}`;
+            
+            // Crear elemento de archivo
+            const fileElement = document.createElement('div');
+            fileElement.className = 'list-group-item d-flex justify-content-between align-items-center';
+            fileElement.id = fileId;
+            
+            // Información del archivo
+            const fileInfo = document.createElement('div');
+            fileInfo.innerHTML = `
+                <i class="bi bi-file-earmark"></i>
+                <strong>${file.name}</strong>
+                <small class="text-muted">(${formatFileSize(file.size)})</small>
+            `;
+            
+            // Botones de acción
+            const actionButtons = document.createElement('div');
+            actionButtons.innerHTML = `
+                <button type="button" class="btn btn-sm btn-outline-primary me-1" onclick="previewFile('${fileId}', '${file.name}')">
+                    <i class="bi bi-eye"></i>
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeFile('${fileId}')">
+                    <i class="bi bi-trash"></i>
+                </button>
+            `;
+            
+            fileElement.appendChild(fileInfo);
+            fileElement.appendChild(actionButtons);
+            list.appendChild(fileElement);
+
+            // Guardar referencia del archivo
+            if (!window.uploadedFiles) window.uploadedFiles = {};
+            if (!window.uploadedFiles[tipo]) window.uploadedFiles[tipo] = [];
+            window.uploadedFiles[tipo].push({
+                id: fileId,
+                file: file,
+                name: file.name,
+                size: file.size
+            });
+        });
+
+        // Limpiar input para permitir seleccionar el mismo archivo de nuevo
+        event.target.value = '';
+    }
+
+    /**
+     * Formatear tamaño de archivo
+     */
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    // Función previewFile eliminada - se usa la nueva versión más abajo
+
+    /**
+     * Eliminar archivo
+     */
+    function removeFile(fileId) {
+        Swal.fire({
+            title: '¿Eliminar archivo?',
+            text: 'Esta acción no se puede deshacer',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Eliminar del DOM
+                const fileElement = document.getElementById(fileId);
+                if (fileElement) {
+                    fileElement.remove();
+                }
+                
+                // Eliminar de la lista de archivos
+                if (window.uploadedFiles) {
+                    Object.keys(window.uploadedFiles).forEach(tipo => {
+                        window.uploadedFiles[tipo] = window.uploadedFiles[tipo].filter(f => f.id !== fileId);
+                    });
+                }
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Archivo eliminado',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+            }
+        });
+    }
+
+    // Inicializar handlers cuando el documento esté listo
+    document.addEventListener('DOMContentLoaded', function() {
+        setupArchivoHandlers();
+    });
+
+// Funciones globales para manejo de archivos
+function previewFile(tipo, fileIndex, button) {
+    const fila = button.closest('tr');
+    const file = fila._fileData;
+    const fileName = fila._fileName;
+    
+    console.log('Preview file:', fileName, 'Type:', tipo, 'Index:', fileIndex); // Debug
+    
+    if (!file) {
+        Swal.fire('Error', 'No se pudo encontrar el archivo', 'error');
+        return;
+    }
+    
+    if (file.type.startsWith('image/')) {
+        // Para imágenes, mostrar miniatura
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            Swal.fire({
+                title: fileName,
+                html: `
+                    <div class="text-center">
+                        <img src="${e.target.result}" class="img-fluid" style="max-width: 100%; max-height: 400px; border-radius: 8px;" alt="Vista previa">
+                        <div class="mt-2">
+                            <small class="text-muted">Tamaño: ${formatFileSize(file.size)}</small>
+                        </div>
+                    </div>
+                `,
+                width: 600,
+                showCancelButton: false,
+                confirmButtonText: 'Cerrar',
+                confirmButtonColor: '#3085d6'
+            });
+        };
+        reader.readAsDataURL(file);
+    } else if (file.type === 'application/pdf') {
+        // Para PDFs, mostrar información
+        Swal.fire({
+            title: fileName,
+            html: `
+                <div class="text-center">
+                    <i class="bi bi-file-earmark-pdf text-danger" style="font-size: 4rem;"></i>
+                    <h5 class="mt-3">Archivo PDF</h5>
+                    <p class="text-muted">Tamaño: ${formatFileSize(file.size)}</p>
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i> 
+                        Vista previa no disponible para archivos PDF
+                    </div>
+                </div>
+            `,
+            showCancelButton: false,
+            confirmButtonText: 'Cerrar',
+            confirmButtonColor: '#3085d6'
+        });
+    } else {
+        // Para otros tipos de archivo
+        Swal.fire({
+            title: fileName,
+            html: `
+                <div class="text-center">
+                    <i class="bi bi-file-earmark text-secondary" style="font-size: 4rem;"></i>
+                    <h5 class="mt-3">Archivo</h5>
+                    <p class="text-muted">Tipo: ${file.type || 'Desconocido'}</p>
+                    <p class="text-muted">Tamaño: ${formatFileSize(file.size)}</p>
+                </div>
+            `,
+            showCancelButton: false,
+            confirmButtonText: 'Cerrar',
+            confirmButtonColor: '#3085d6'
+        });
+    }
+}
+
+function removeFile(button) {
+    Swal.fire({
+        title: '¿Quitar archivo?',
+        text: 'Este archivo será removido de la lista',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, quitar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const fila = button.closest('tr');
+            const tbody = fila.parentNode;
+            fila.remove();
+            
+            // Renumerar las filas
+            Array.from(tbody.children).forEach((row, index) => {
+                row.children[0].textContent = index + 1;
+            });
+            
+            Swal.fire({
+                title: 'Archivo removido',
+                icon: 'success',
+                timer: 1500,
+                showConfirmButton: false
+            });
+        }
+    });
+}
+
+function getFileIcon(fileType) {
+    if (fileType.startsWith('image/')) {
+        return 'bi-file-earmark-image text-primary';
+    } else if (fileType === 'application/pdf') {
+        return 'bi-file-earmark-pdf text-danger';
+    } else {
+        return 'bi-file-earmark text-secondary';
+    }
+}
+
+function truncateFileName(fileName, maxLength) {
+    if (fileName.length <= maxLength) {
+        return fileName;
+    }
+    
+    const extension = fileName.split('.').pop();
+    const nameWithoutExt = fileName.substring(0, fileName.lastIndexOf('.'));
+    const truncated = nameWithoutExt.substring(0, maxLength - extension.length - 4) + '...';
+    
+    return truncated + '.' + extension;
+}
+
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+$(document).ready(function() {
+    setupArchivoHandlers();
+});
+
+function setupArchivoHandlers() {
+    // Handler para archivos OD
+    $('#archivo_od').on('change', function(e) {
+        handleArchivoUpload(e.target.files, 'od');
+    });
+    
+    // Handler para archivos OI
+    $('#archivo_oi').on('change', function(e) {
+        handleArchivoUpload(e.target.files, 'oi');
+    });
+}
+
+function handleArchivoUpload(files, tipo) {
+    const tbody = document.getElementById(`tabla-archivos-${tipo}`);
+    
+    Array.from(files).forEach((file, index) => {
+        // Crear fila de la tabla
+        const fila = document.createElement('tr');
+        const numeroFila = tbody.children.length + 1;
+        const fileIndex = numeroFila - 1; // Índice único para el archivo
+        
+        fila.innerHTML = `
+            <td>${numeroFila}</td>
+            <td>
+                <i class="bi ${getFileIcon(file.type)}"></i> 
+                <span title="${file.name}">${truncateFileName(file.name, 20)}</span>
+                <small class="text-muted d-block">${formatFileSize(file.size)}</small>
+            </td>
+            <td>
+                <button type="button" class="btn btn-outline-primary btn-sm" onclick="previewFile('${tipo}', ${numeroFila - 1}, this)">
+                    <i class="bi bi-eye"></i> Ver
+                </button>
+            </td>
+            <td>
+                <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeFile(this)">
+                    <i class="bi bi-trash"></i> Quitar
+                </button>
+            </td>
+        `;
+        
+        // Guardar referencia del archivo en la fila
+        fila._fileData = file;
+        fila._fileName = file.name;
+        fila._fileType = tipo;
+        
+        tbody.appendChild(fila);
+    });
+    
+    // Limpiar el input para permitir seleccionar los mismos archivos de nuevo
+    document.getElementById(`archivo_${tipo}`).value = '';
+}
     </script>

@@ -1577,6 +1577,8 @@ function cargarConsultaEnFormulario(consulta, archivos) {
             cargarDatosAnteojosConsulta(consulta, archivos);
         } else if (formType === 'estudios') {
             cargarDatosEstudiosConsulta(consulta, archivos);
+        } else if (formType === 'informe_imagen') {
+            cargarDatosInformeImagenConsulta(consulta, archivos);
         } else {
             cargarDatosGeneralesConsulta(consulta, archivos);
         }
@@ -1913,6 +1915,141 @@ function cargarDatosEstudiosConsulta(consulta, archivos) {
     finalizarCargaConsulta(consulta, archivos);
     
     console.log('🔬 ✅ Carga de datos de estudios completada');
+}
+
+/**
+ * Función para cargar los datos específicos de una consulta de informe+imagen
+ * @param {Object} consulta - Datos de la consulta
+ * @param {Array} archivos - Archivos asociados a la consulta (opcional)
+ */
+function cargarDatosInformeImagenConsulta(consulta, archivos) {
+    console.log('📋📷 Cargando datos de consulta de informe+imagen:', consulta);
+    
+    // Mapear los campos específicos del formulario de informe+imagen
+    const camposInformeImagen = {
+        'txtmotivo': 'txtmotivo',
+        'diagnostico': 'consulta-textarea', // Campo principal de diagnóstico
+        'observaciones': 'txtnota',
+        'proximaconsulta': 'proximaconsulta', 
+        'whatsapptxt': 'whatsapptxt',
+        'email': 'email',
+        'equipoMedico': 'equipoMedico',
+        'emails_compartir': 'txtEmailShare'
+    };
+    
+    // Cargar campos normales (no textareas con Summernote)
+    const camposNormales = ['txtmotivo', 'proximaconsulta', 'whatsapptxt', 'email', 'equipoMedico', 'emails_compartir'];
+    for (const campo of camposNormales) {
+        if (camposInformeImagen[campo]) {
+            const elemento = document.getElementById(camposInformeImagen[campo]);
+            if (elemento && consulta[campo] !== undefined) {
+                elemento.value = consulta[campo];
+                console.log(`✅ Campo ${campo} cargado:`, consulta[campo]);
+            }
+        }
+    }
+    
+    // Manejar textareas con Summernote específicos para informe+imagen
+    setTimeout(() => {
+        // Para diagnóstico/consulta-textarea (campo principal)
+        if (consulta.diagnostico !== undefined) {
+            const consultaTextarea = document.getElementById('consulta-textarea');
+            if (consultaTextarea) {
+                if ($('#consulta-textarea').data('summernote')) {
+                    $('#consulta-textarea').summernote('code', consulta.diagnostico);
+                    console.log('✅ Diagnóstico cargado en Summernote (informe+imagen)');
+                } else {
+                    consultaTextarea.value = consulta.diagnostico;
+                    console.log('✅ Diagnóstico cargado directamente (informe+imagen)');
+                }
+            }
+        }
+        
+        // Para observaciones/txtnota
+        if (consulta.observaciones !== undefined) {
+            const observacionesElement = document.getElementById('txtnota');
+            if (observacionesElement) {
+                observacionesElement.value = consulta.observaciones;
+                console.log('✅ Observaciones cargadas (informe+imagen)');
+            }
+        }
+        
+        // Para descripción OD
+        if (consulta.descripcion_od !== undefined) {
+            const descripcionOdTextarea = document.getElementById('descripcion-od-textarea');
+            if (descripcionOdTextarea) {
+                if ($('#descripcion-od-textarea').data('summernote')) {
+                    $('#descripcion-od-textarea').summernote('code', consulta.descripcion_od);
+                    console.log('✅ Descripción OD cargada en Summernote (informe+imagen)');
+                } else {
+                    descripcionOdTextarea.value = consulta.descripcion_od;
+                    console.log('✅ Descripción OD cargada directamente (informe+imagen)');
+                }
+            }
+        }
+        
+        // Para descripción OI
+        if (consulta.descripcion_oi !== undefined) {
+            const descripcionOiTextarea = document.getElementById('descripcion-oi-textarea');
+            if (descripcionOiTextarea) {
+                if ($('#descripcion-oi-textarea').data('summernote')) {
+                    $('#descripcion-oi-textarea').summernote('code', consulta.descripcion_oi);
+                    console.log('✅ Descripción OI cargada en Summernote (informe+imagen)');
+                } else {
+                    descripcionOiTextarea.value = consulta.descripcion_oi;
+                    console.log('✅ Descripción OI cargada directamente (informe+imagen)');
+                }
+            }
+        }
+    }, 500);
+    
+    // Manejar selectores específicos para informe+imagen
+    // Motivos comunes
+    const selectMotivosComunes = document.getElementById('motivoscomunes');
+    if (selectMotivosComunes && consulta.motivo) {
+        if (selectMotivosComunes.options.length <= 1) {
+            console.log("📋📷 Cargando motivos comunes para informe+imagen");
+            if (typeof cargarMotivosComunes === 'function') {
+                cargarMotivosComunes('informe_imagen');
+            }
+        }
+        
+        setTimeout(() => {
+            // Buscar y seleccionar el motivo
+            for (let i = 0; i < selectMotivosComunes.options.length; i++) {
+                if (selectMotivosComunes.options[i].value === consulta.motivo) {
+                    selectMotivosComunes.selectedIndex = i;
+                    console.log('✅ Motivo común seleccionado (informe+imagen):', consulta.motivo);
+                    break;
+                }
+            }
+            // Disparar evento change para cualquier lógica adicional
+            selectMotivosComunes.dispatchEvent(new Event('change'));
+        }, 600);
+    }
+    
+    // Manejar configuración de emails (Tagify)
+    if (consulta.emails_compartir) {
+        setTimeout(() => {
+            const emailInput = document.getElementById('txtEmailShare');
+            if (emailInput && window.tagify_emails) {
+                try {
+                    // Dividir emails por coma y crear tags
+                    const emails = consulta.emails_compartir.split(',').map(email => email.trim());
+                    window.tagify_emails.addTags(emails);
+                    console.log('✅ Emails compartir cargados (informe+imagen):', emails);
+                } catch (e) {
+                    console.log('⚠️ Error al cargar emails en Tagify:', e.message);
+                    emailInput.value = consulta.emails_compartir;
+                }
+            }
+        }, 800);
+    }
+    
+    // Finalizar carga con archivos
+    finalizarCargaConsulta(consulta, archivos);
+    
+    console.log('📋📷 ✅ Carga de datos de informe+imagen completada');
 }
 
 /**
