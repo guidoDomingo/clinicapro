@@ -143,7 +143,7 @@
     <hr>
 
     <!-- Sección de subida de archivos general -->
-    <div class="form-container">
+    <!-- <div class="form-container">
         <h2>Subir Archivos Adicionales</h2>
         <form id="uploadForm" method="post" enctype="multipart/form-data">
             <input type="hidden" id="id_persona_file" name="id_persona_file">
@@ -159,7 +159,7 @@
             <div class="error" id="error"></div>
             <input type="button" id="btnSubirArchivos" value="Subir Archivos" class="btn btn-primary mt-3">
         </form>
-    </div>
+    </div> -->
         
 
         <div class="form-group">

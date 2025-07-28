@@ -1715,3 +1715,267 @@ Archivos OI JSON: [{"nombre_original":"Untitled diagram _ Mermaid Chart-2025-07-
 2025-07-28 01:48:14 - EXITO COMPLETO: ID 99 (creado)
 2025-07-28 01:48:14 - FIN DEBUG
 
+2025-07-28 01:56:59 - INICIO DEBUG
+POST: Array
+(
+    [txtdocumento] => 4567890
+    [txtficha] => P004
+    [idPersona] => 23
+    [motivoscomunes] => informeee
+    [txtmotivo] => informeee
+    [equipoMedico] => Cirrus 700
+    [formatoConsulta] => 30
+    [id_persona_file] => 23
+    [id_user] => 9
+    [descripcion-od-textarea] => <p>ffffffffffff</p>
+    [descripcion-oi-textarea] => <p>dddddddddddddd</p>
+    [consulta-textarea] => <p><strong style="margin: 0px; padding: 0px; color: rgb(0, 0, 0); font-family: &quot;Open Sans&quot;, Arial, sans-serif; text-align: justify;">Lorem Ipsum</strong><span style="color: rgb(0, 0, 0); font-family: &quot;Open Sans&quot;, Arial, sans-serif; text-align: justify;">&nbsp;es simplemente el texto de relleno de las imprentas y archivos de texto. Lorem Ipsum ha sido el texto de relleno estándar de las industrias desde el año 1500, cuando un impresor (N. del T. persona que se dedica a la imprenta) desconocido usó una galería de textos y los mezcló de tal manera que logró hacer un libro de textos especimen. No sólo sobrevivió 500 años, sino que tambien ingresó como texto de relleno en documentos electrónicos, quedando esencialmente igual al original. Fue popularizado en los 60s con la creación de las hojas "Letraset", las cuales contenian pasajes de Lorem Ipsum, y más recientemente con software de autoedición, como por ejemplo Aldus PageMaker, el cual incluye versiones de Lorem Ipsum.</span></p>
+    [txtnota] => sdfdsfs
+    [emails_compartir] => [{"value":"sdfsd@sdfds.com"}]
+    [proximaconsulta] => 2025-07-30
+    [whatsapptxt] => 
+    [email] => 
+)
+
+FILES: Array
+(
+    [archivo_od] => Array
+        (
+            [name] => Array
+                (
+                    [0] => Untitled diagram _ Mermaid Chart-2025-07-27-202004.png
+                )
+
+            [full_path] => Array
+                (
+                    [0] => Untitled diagram _ Mermaid Chart-2025-07-27-202004.png
+                )
+
+            [type] => Array
+                (
+                    [0] => image/png
+                )
+
+            [tmp_name] => Array
+                (
+                    [0] => C:\Users\Guido\AppData\Local\Temp\phpFAF9.tmp
+                )
+
+            [error] => Array
+                (
+                    [0] => 0
+                )
+
+            [size] => Array
+                (
+                    [0] => 434713
+                )
+
+        )
+
+    [archivo_oi] => Array
+        (
+            [name] => Array
+                (
+                    [0] => Untitled diagram _ Mermaid Chart-2025-07-27-201638.png
+                )
+
+            [full_path] => Array
+                (
+                    [0] => Untitled diagram _ Mermaid Chart-2025-07-27-201638.png
+                )
+
+            [type] => Array
+                (
+                    [0] => image/png
+                )
+
+            [tmp_name] => Array
+                (
+                    [0] => C:\Users\Guido\AppData\Local\Temp\phpFB0A.tmp
+                )
+
+            [error] => Array
+                (
+                    [0] => 0
+                )
+
+            [size] => Array
+                (
+                    [0] => 398669
+                )
+
+        )
+
+)
+
+2025-07-28 01:56:59 - Intentando guardar consulta principal
+2025-07-28 01:56:59 - Resultado consulta principal: 100
+2025-07-28 01:56:59 - Datos específicos extraídos
+Equipo: Cirrus 700
+Descripción OD: 19 chars
+Descripción OI: 21 chars
+2025-07-28 01:56:59 - Procesando archivos OD
+Archivos recibidos: Array
+(
+    [name] => Array
+        (
+            [0] => Untitled diagram _ Mermaid Chart-2025-07-27-202004.png
+        )
+
+    [full_path] => Array
+        (
+            [0] => Untitled diagram _ Mermaid Chart-2025-07-27-202004.png
+        )
+
+    [type] => Array
+        (
+            [0] => image/png
+        )
+
+    [tmp_name] => Array
+        (
+            [0] => C:\Users\Guido\AppData\Local\Temp\phpFAF9.tmp
+        )
+
+    [error] => Array
+        (
+            [0] => 0
+        )
+
+    [size] => Array
+        (
+            [0] => 434713
+        )
+
+)
+
+2025-07-28 01:56:59 - Procesando archivo OD #0: Untitled diagram _ Mermaid Chart-2025-07-27-202004.png, Error: 0
+2025-07-28 01:56:59 - Archivo OD guardado exitosamente: Untitled diagram _ Mermaid Chart-2025-07-27-202004.png -> 100_OD_1753667819_0.png
+Info archivo: Array
+(
+    [nombre_original] => Untitled diagram _ Mermaid Chart-2025-07-27-202004.png
+    [nombre_archivo] => 100_OD_1753667819_0.png
+    [ruta] => view/uploads/consultas/informe_imagen/100_OD_1753667819_0.png
+    [tamano] => 434713
+    [fecha_subida] => 2025-07-28 01:56:59
+    [ojo] => od
+)
+
+2025-07-28 01:56:59 - Procesando archivos OI
+Archivos recibidos: Array
+(
+    [name] => Array
+        (
+            [0] => Untitled diagram _ Mermaid Chart-2025-07-27-201638.png
+        )
+
+    [full_path] => Array
+        (
+            [0] => Untitled diagram _ Mermaid Chart-2025-07-27-201638.png
+        )
+
+    [type] => Array
+        (
+            [0] => image/png
+        )
+
+    [tmp_name] => Array
+        (
+            [0] => C:\Users\Guido\AppData\Local\Temp\phpFB0A.tmp
+        )
+
+    [error] => Array
+        (
+            [0] => 0
+        )
+
+    [size] => Array
+        (
+            [0] => 398669
+        )
+
+)
+
+2025-07-28 01:56:59 - Procesando archivo OI #0: Untitled diagram _ Mermaid Chart-2025-07-27-201638.png, Error: 0
+2025-07-28 01:56:59 - Archivo OI guardado exitosamente: Untitled diagram _ Mermaid Chart-2025-07-27-201638.png -> 100_OI_1753667819_0.png
+Info archivo: Array
+(
+    [nombre_original] => Untitled diagram _ Mermaid Chart-2025-07-27-201638.png
+    [nombre_archivo] => 100_OI_1753667819_0.png
+    [ruta] => view/uploads/consultas/informe_imagen/100_OI_1753667819_0.png
+    [tamano] => 398669
+    [fecha_subida] => 2025-07-28 01:56:59
+    [ojo] => oi
+)
+
+2025-07-28 01:56:59 - Archivos procesados: OD=1, OI=1
+2025-07-28 01:56:59 - Verificación: existe=false para id_consulta=100
+2025-07-28 01:56:59 - Preparando INSERCIÓN:
+ID Consulta: 100
+Equipo: Cirrus 700
+Archivos OD JSON: [{"nombre_original":"Untitled diagram _ Mermaid Chart-2025-07-27-202004.png","nombre_archivo":"100_OD_1753667819_0.png","ruta":"view\/uploads\/consultas\/informe_imagen\/100_OD_1753667819_0.png","tamano":434713,"fecha_subida":"2025-07-28 01:56:59","ojo":"od"}]
+Archivos OI JSON: [{"nombre_original":"Untitled diagram _ Mermaid Chart-2025-07-27-201638.png","nombre_archivo":"100_OI_1753667819_0.png","ruta":"view\/uploads\/consultas\/informe_imagen\/100_OI_1753667819_0.png","tamano":398669,"fecha_subida":"2025-07-28 01:56:59","ojo":"oi"}]
+2025-07-28 01:56:59 - Resultado operación informe: OK (Operación: INSERT)
+2025-07-28 01:56:59 - EXITO COMPLETO: ID 100 (creado)
+2025-07-28 01:56:59 - FIN DEBUG
+
+2025-07-28 01:57:39 - INICIO DEBUG
+POST: Array
+(
+    [txtdocumento] => 4567890
+    [txtficha] => P004
+    [idPersona] => 23
+    [motivoscomunes] => informeee
+    [txtmotivo] => informeee
+    [equipoMedico] => Cirrus 700
+    [formatoConsulta] => 
+    [id_consulta] => 100
+    [id_persona_file] => 23
+    [id_user] => 9
+    [descripcion-od-textarea] => <p>ffffffffffff</p>
+    [descripcion-oi-textarea] => <p>dddddddddddddd</p>
+    [consulta-textarea] => <p><strong style="margin: 0px; padding: 0px; color: rgb(0, 0, 0); font-family: &quot;Open Sans&quot;, Arial, sans-serif; text-align: justify;">Lorem Ipsum</strong><span style="color: rgb(0, 0, 0); font-family: &quot;Open Sans&quot;, Arial, sans-serif; text-align: justify;">&nbsp;es simplemente el texto de relleno de las imprentas y archivos de texto. Lorem Ipsum ha sido el texto de relleno estándar de las industrias desde el año 1500, cuando un impresor (N. del T. persona que se dedica a la imprenta) desconocido usó una galería de textos y los mezcló de tal manera que logró hacer un libro de textos especimen. No sólo sobrevivió 500 años, sino que tambien ingresó como texto de relleno en documentos electrónicos, quedando esencialmente igual al original. Fue popularizado en los 60s con la creación de las hojas "Letraset", las cuales contenian pasajes de Lorem Ipsum, y más recientemente con software de autoedición, como por ejemplo Aldus PageMaker, el cual incluye versiones de Lorem Ipsum.</span></p>
+    [txtnota] => nota de guido
+    [emails_compartir] => [{"value":"sdfsd@sdfds.com"}]
+    [proximaconsulta] => 2025-07-30
+    [whatsapptxt] => 
+    [email] => 
+    [archivos_existentes_od] => [{"nombre_original":"Untitled diagram _ Mermaid Chart-2025-07-27-202004.png","nombre_archivo":"100_OD_1753667819_0.png","ruta":"view/uploads/consultas/informe_imagen/100_OD_1753667819_0.png","tamano":434713,"fecha_subida":"2025-07-28 01:56:59","ojo":"od"}]
+    [archivos_existentes_oi] => [{"nombre_original":"Untitled diagram _ Mermaid Chart-2025-07-27-201638.png","nombre_archivo":"100_OI_1753667819_0.png","ruta":"view/uploads/consultas/informe_imagen/100_OI_1753667819_0.png","tamano":398669,"fecha_subida":"2025-07-28 01:56:59","ojo":"oi"}]
+)
+
+FILES: Array
+(
+)
+
+2025-07-28 01:57:39 - Intentando guardar consulta principal
+2025-07-28 01:57:39 - Resultado consulta principal: actualizado
+2025-07-28 01:57:39 - Datos específicos extraídos
+Equipo: Cirrus 700
+Descripción OD: 19 chars
+Descripción OI: 21 chars
+2025-07-28 01:57:39 - No hay archivos OD para procesar
+isset: false
+empty: not set
+2025-07-28 01:57:39 - No hay archivos OI para procesar
+isset: false
+empty: not set
+2025-07-28 01:57:39 - Archivos procesados: OD=0, OI=0
+2025-07-28 01:57:39 - Verificación: existe=true para id_consulta=100
+2025-07-28 01:57:39 - Archivos combinados:
+OD existentes mantenidos: 1
+OD nuevos agregados: 0
+OI existentes mantenidos: 1
+OI nuevos agregados: 0
+Total OD final: 1
+Total OI final: 1
+2025-07-28 01:57:39 - Preparando ACTUALIZACIÓN:
+ID Consulta: 100
+Equipo: Cirrus 700
+Archivos OD JSON: [{"nombre_original":"Untitled diagram _ Mermaid Chart-2025-07-27-202004.png","nombre_archivo":"100_OD_1753667819_0.png","ruta":"view\/uploads\/consultas\/informe_imagen\/100_OD_1753667819_0.png","tamano":434713,"fecha_subida":"2025-07-28 01:56:59","ojo":"od"}]
+Archivos OI JSON: [{"nombre_original":"Untitled diagram _ Mermaid Chart-2025-07-27-201638.png","nombre_archivo":"100_OI_1753667819_0.png","ruta":"view\/uploads\/consultas\/informe_imagen\/100_OI_1753667819_0.png","tamano":398669,"fecha_subida":"2025-07-28 01:56:59","ojo":"oi"}]
+2025-07-28 01:57:39 - Resultado operación informe: OK (Operación: UPDATE)
+2025-07-28 01:57:39 - EXITO COMPLETO: ID 100 (actualizado)
+2025-07-28 01:57:39 - FIN DEBUG
+
