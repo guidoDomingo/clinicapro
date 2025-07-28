@@ -2,6 +2,7 @@
 
 require_once "../controller/MotivosController.php";
 require_once "../model/MotivosModel.php";
+require_once "../model/conexion.php";
 
 class AjaxMotivos {
     
@@ -139,6 +140,38 @@ class AjaxMotivos {
             echo json_encode(['error' => 'ID no proporcionado']);
         }
     }
+
+    /*=============================================
+    OBTENER MOTIVOS COMUNES POR TIPO DE FORMULARIO
+    =============================================*/
+    public function ajaxObtenerMotivosPorTipo() {
+        try {
+            $tipoFormulario = isset($_POST['tipo_formulario']) ? $_POST['tipo_formulario'] : 'general';
+            
+            $stmt = Conexion::conectar()->prepare("SELECT id_motivo, nombre, descripcion, fecha_creacion, activo, tipo_formulario FROM motivos_comunes WHERE tipo_formulario = :tipo_formulario AND activo = true ORDER BY nombre");
+            $stmt->bindParam(":tipo_formulario", $tipoFormulario, PDO::PARAM_STR);
+            $stmt->execute();
+            
+            $motivos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Formatear las fechas y asegurar que activo sea entero
+            foreach ($motivos as &$motivo) {
+                if (isset($motivo['fecha_creacion'])) {
+                    $motivo['fecha_creacion'] = date('d/m/Y', strtotime($motivo['fecha_creacion']));
+                }
+                
+                // Asegurar que activo sea un entero para JavaScript
+                if (isset($motivo['activo'])) {
+                    $motivo['activo'] = (int)$motivo['activo'];
+                }
+            }
+            
+            echo json_encode($motivos);
+        } catch (Exception $e) {
+            error_log("Error al obtener motivos por tipo: " . $e->getMessage());
+            echo json_encode([]);
+        }
+    }
 }
 
 // OBJETOS
@@ -160,6 +193,9 @@ if(isset($_POST['accion'])) {
             break;
         case 'eliminar':
             $motivos->ajaxEliminarMotivo();
+            break;
+        case 'listar_por_tipo':
+            $motivos->ajaxObtenerMotivosPorTipo();
             break;
     }
 }

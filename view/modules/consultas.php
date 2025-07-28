@@ -78,11 +78,8 @@
                                             <div class="col-md-6">
                                                 <label for="form_type_selector">Tipo de formulario:</label>
                                                 <select id="form_type_selector" class="form-control" onchange="cambiarFormulario(this.value)">
-                                                    <option value="general" <?php echo ($form_type == 'general') ? 'selected' : ''; ?>>Consulta General</option>
-                                                    <option value="anteojos" <?php echo ($form_type == 'anteojos') ? 'selected' : ''; ?>>Receta para Anteojos</option>
-                                                    <option value="estudios" <?php echo ($form_type == 'estudios') ? 'selected' : ''; ?>>Estudios Médicos</option>
-                                                    <option value="informe_imagen" <?php echo ($form_type == 'informe_imagen') ? 'selected' : ''; ?>>Informe + Imagen</option>
-                                                    <!-- Agrega más opciones aquí cuando crees nuevos formularios -->
+                                                    <option value="" disabled selected>Seleccionar tipo de formulario...</option>
+                                                    <!-- Las opciones se cargarán dinámicamente desde la base de datos -->
                                                 </select>
                                             </div>
                                         </div>
@@ -320,6 +317,7 @@
 <!-- Scripts para la funcionalidad del módulo de consultas -->
 <!-- <script src="view/js/icd11-client.js"></script> -->
 <script src="view/js/preformatos_sin_duplicados.js"></script>
+<script src="view/js/cargar-motivos-comunes.js"></script>
 <script src="view/js/icd11-integration.js"></script>
 <script src="view/js/cargar_datos.js"></script>
 <script src="view/js/consultas.js"></script>

@@ -10,6 +10,9 @@ $(document).ready(function () {
   // Mostrar mensaje para confirmar que el script se está cargando
   console.log("Motivos.js cargado correctamente");
   
+  // No cargar tipos de formularios inmediatamente
+  // Se cargarán cuando se abran los modales
+  
   // Inicializar DataTable
   inicializarTabla();
   
@@ -26,14 +29,37 @@ $(document).ready(function () {
   });
   
   $("#btnAgregarMotivo").on("click", function() {
-    console.log("Abriendo modal para agregar motivo");
+    console.log("=== BOTON AGREGAR MOTIVO CLICKEADO ===");
+    console.log("Elemento modal encontrado:", $('#modalAgregarMotivo').length);
+    
+    // Mostrar el modal
     $('#modalAgregarMotivo').modal('show');
+  });
+  
+  // Agregar evento cuando el modal se muestra completamente
+  $('#modalAgregarMotivo').on('shown.bs.modal', function () {
+    console.log("=== MODAL AGREGAR MOTIVO COMPLETAMENTE MOSTRADO ===");
+    console.log("Función cargarTiposFormularios existe:", typeof cargarTiposFormularios);
+    
+    // Verificar que los elementos select existen
+    console.log("Select tipoFormularioMotivo existe:", $('#tipoFormularioMotivo').length);
+    
+    // Cargar tipos de formularios cuando el modal esté completamente visible
+    console.log("=== EJECUTANDO cargarTiposFormularios ===");
+    cargarTiposFormularios();
+    console.log("=== LLAMADA A cargarTiposFormularios COMPLETADA ===");
   });
   
   // Evento para editar motivo
   $('.tblMotivos tbody').on('click', '.btnEditarMotivo', function () {
     const idMotivo = $(this).attr("data-id");
     cargarDatosMotivo(idMotivo);
+  });
+  
+  // Agregar evento cuando el modal de edición se muestra completamente
+  $('#modalEditarMotivo').on('shown.bs.modal', function () {
+    console.log("=== MODAL EDITAR MOTIVO COMPLETAMENTE MOSTRADO ===");
+    // Los tipos de formularios ya se cargan en cargarDatosMotivo()
   });
   
   // Agregar evento para el botón de guardar en el formulario de edición
@@ -75,7 +101,8 @@ $(document).ready(function () {
 function inicializarTabla() {
   console.log("Iniciando la tabla de motivos");
   console.log("Elemento tabla:", $("#tblMotivos").length > 0 ? "encontrado" : "no encontrado");
-    tablaMotivos = $("#tblMotivos").DataTable({
+  
+  tablaMotivos = $("#tblMotivos").DataTable({
     ajax: {
       url: "ajax/motivos.ajax.php",
       type: "POST",
@@ -201,6 +228,9 @@ function limpiarFiltros() {
  * Carga los datos de un motivo para edición
  */
 function cargarDatosMotivo(id) {
+  // Cargar tipos de formularios primero
+  cargarTiposFormularios();
+  
   $.ajax({
     url: "ajax/motivos.ajax.php",
     method: "POST",
@@ -217,8 +247,10 @@ function cargarDatosMotivo(id) {
         $("#editarMotivo").val(respuesta.nombre);
         $("#editarDescripcionMotivo").val(respuesta.descripcion);
         
-        // Establecer el tipo de formulario
-        $("#editarTipoFormularioMotivo").val(respuesta.tipo_formulario || 'general');
+        // Establecer el tipo de formulario con un pequeño delay
+        setTimeout(function() {
+          $("#editarTipoFormularioMotivo").val(respuesta.tipo_formulario || 'general');
+        }, 100);
         
         // Convertir cualquier tipo de valor a 1 o 0 para el select
         let estadoValor = 0;
@@ -435,4 +467,97 @@ function actualizarMotivo() {
       });
     }
   });
+}
+
+/**
+ * Carga los tipos de formularios disponibles desde la base de datos
+ */
+function cargarTiposFormularios() {
+  console.log("=== INICIANDO CARGA DE TIPOS DE FORMULARIOS ===");
+  
+  // Verificar que los elementos select existen
+  const selectAgregar = $("#tipoFormularioMotivo");
+  const selectEditar = $("#editarTipoFormularioMotivo");
+  
+  console.log("Select agregar encontrado:", selectAgregar.length);
+  console.log("Select editar encontrado:", selectEditar.length);
+  
+  if (selectAgregar.length === 0 || selectEditar.length === 0) {
+    console.warn("Elementos select no encontrados, reintentando en 1 segundo...");
+    setTimeout(cargarTiposFormularios, 1000);
+    return;
+  }
+  
+  $.ajax({
+    url: "ajax/tipos-formularios.php",
+    method: "GET",
+    data: {
+      accion: "obtener_para_select"
+    },
+    dataType: "json",
+    success: function(respuesta) {
+      console.log("=== RESPUESTA RECIBIDA ===");
+      console.log("Tipos de formularios recibidos:", respuesta);
+      
+      if (respuesta && respuesta.success && respuesta.data) {
+        console.log("Número de tipos recibidos:", respuesta.data.length);
+        
+        // Guardar la primera opción y limpiar
+        const optionPlaceholderAgregar = selectAgregar.find('option:first').clone();
+        const optionPlaceholderEditar = selectEditar.find('option:first').clone();
+        
+        console.log("Limpiando selects...");
+        selectAgregar.empty().append(optionPlaceholderAgregar);
+        selectEditar.empty().append(optionPlaceholderEditar);
+        
+        // Agregar las opciones dinámicamente
+        console.log("Agregando opciones...");
+        respuesta.data.forEach(function(tipo, index) {
+          console.log(`Procesando tipo ${index + 1}:`, tipo);
+          const option = `<option value="${tipo.codigo}">${tipo.nombre}</option>`;
+          selectAgregar.append(option);
+          selectEditar.append(option);
+        });
+        
+        console.log("=== CARGA COMPLETADA ===");
+        console.log("Opciones en select agregar:", selectAgregar.find('option').length);
+        console.log("Opciones en select editar:", selectEditar.find('option').length);
+      } else {
+        console.error("Error en la respuesta:", respuesta);
+        cargarTiposFormulariosDefault();
+      }
+    },
+    error: function(xhr, status, error) {
+      console.error("=== ERROR EN AJAX ===");
+      console.error("Error al cargar tipos de formularios:", error);
+      console.log("Status:", status);
+      console.log("Respuesta del servidor:", xhr.responseText);
+      cargarTiposFormulariosDefault();
+    }
+  });
+}
+
+/**
+ * Carga opciones por defecto en caso de error al obtener tipos de formularios
+ */
+function cargarTiposFormulariosDefault() {
+  console.log("Cargando tipos de formularios por defecto...");
+  
+  const opcionesDefault = [
+    { codigo: 'general', nombre: 'General' },
+    { codigo: 'anteojos', nombre: 'Anteojos' },
+    { codigo: 'estudios', nombre: 'Estudios Médicos' },
+    { codigo: 'informe_imagen', nombre: 'Informe + Imagen' }
+  ];
+  
+  const selectAgregar = $("#tipoFormularioMotivo");
+  const selectEditar = $("#editarTipoFormularioMotivo");
+  
+  opcionesDefault.forEach(function(tipo) {
+    const option = `<option value="${tipo.codigo}">${tipo.nombre}</option>`;
+    selectAgregar.append(option);
+    selectEditar.append(option);
+  });
+  
+  console.log("Tipos de formularios por defecto cargados");
 }

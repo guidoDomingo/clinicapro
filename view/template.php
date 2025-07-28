@@ -294,6 +294,8 @@ switch ($ruta) {
     case "consultas":
         echo '<script src="view/js/consultas.js"></script>';
         echo '<script src="view/js/cargar_datos.js"></script>';
+        echo '<script src="view/js/tipos-formularios-dinamicos.js"></script>';
+        echo '<script src="view/js/cargar-motivos-comunes.js"></script>';
         break;
         
     case "preformatos":

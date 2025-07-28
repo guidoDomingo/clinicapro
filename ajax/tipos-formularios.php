@@ -51,7 +51,8 @@ try {
             break;
             
         case 'obtener_para_select':
-            echo $controlador->obtenerParaSelect();
+            $tipos = $controlador->modelo->obtenerTodos(true); // Solo activos
+            echo json_encode(['success' => true, 'data' => $tipos]);
             break;
             
         case 'obtener_por_id':

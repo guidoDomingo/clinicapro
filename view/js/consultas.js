@@ -1764,12 +1764,25 @@ function cargarDatosGeneralesConsulta(consulta, archivos) {
                 }
                 
                 // Si no existe ni como valor ni como texto, agregar nueva opción
+                // PERO SOLO si el sistema dinámico no está activo para este tipo de formulario
                 if (!existeComoTexto) {
-                    const nuevaOpcion = document.createElement('option');
-                    nuevaOpcion.value = consulta.motivo;
-                    nuevaOpcion.text = consulta.motivo;
-                    selectMotivosComunes.add(nuevaOpcion);
-                    selectMotivosComunes.value = consulta.motivo;
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const formType = urlParams.get('form_type') || 'general';
+                    const dataCargadoAttr = `data-cargado-${formType}`;
+                    
+                    // Verificar si el sistema dinámico ya cargó opciones para este tipo
+                    const yaCargadoDinamicamente = selectMotivosComunes.hasAttribute(dataCargadoAttr);
+                    
+                    if (!yaCargadoDinamicamente) {
+                        const nuevaOpcion = document.createElement('option');
+                        nuevaOpcion.value = consulta.motivo;
+                        nuevaOpcion.text = consulta.motivo;
+                        selectMotivosComunes.add(nuevaOpcion);
+                        selectMotivosComunes.value = consulta.motivo;
+                        console.log('✅ Opción agregada manualmente (sistema dinámico inactivo):', consulta.motivo);
+                    } else {
+                        console.log('⚠️ No se agrega opción manualmente - sistema dinámico activo para:', formType);
+                    }
                 }
             }
             

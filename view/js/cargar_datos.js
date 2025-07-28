@@ -24,8 +24,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const formType = urlParams.get('form_type') || 'general';
         console.log('Tipo de formulario detectado en cargar_datos.js:', formType);
         
-        // Cargar los motivos comunes y preformatos según el tipo de formulario
-        cargarMotivos(formType);
+        // Cargar los motivos comunes usando el sistema unificado
+        if (typeof cargarMotivosComunes === 'function') {
+            cargarMotivosComunes(formType);
+        } else {
+            // Fallback al sistema anterior si no está disponible
+            cargarMotivos(formType);
+        }
         
         // Usar el sistema sin duplicados si está disponible
         if (typeof cargarPreformatosSinDuplicados === 'function') {
