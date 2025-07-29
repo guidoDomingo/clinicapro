@@ -721,3 +721,63 @@ Data: {
     "reg_lastname": "isnardi"
 }
 ----------------------------------------
+[2025-07-29 00:20:46] [INFO] [user.controller.php:186] user: angel@angel.com
+Data: angel@angel.com
+----------------------------------------
+[2025-07-29 00:20:46] [INFO] [user.controller.php:187] user: angel123
+Data: angel123
+----------------------------------------
+[2025-07-29 00:20:46] [INFO] [user.controller.php:245] Login attempt for user: angel@angel.com
+Data: {
+    "user_id": 9,
+    "reg_id": 9,
+    "user_email": "angel@angel.com",
+    "user_pass": "$2y$10$SkQZfw11AR9V\/fZt\/eZWkOnwhDFI7CEWX1KGKbNgdYi.j7H0oY.hW",
+    "user_expire": "2025-07-09 07:08:03.380971",
+    "user_first_login": null,
+    "user_last_login": "2025-07-27 19:46:21.604348",
+    "user_is_active": true,
+    "profile_photo": "user_9_1749926118.png",
+    "reg_name": "angel",
+    "reg_lastname": "isnardi"
+}
+----------------------------------------
+[2025-07-29 22:12:36] [INFO] [user.controller.php:186] user: angel@angel123
+Data: angel@angel123
+----------------------------------------
+[2025-07-29 22:12:36] [INFO] [user.controller.php:187] user: angel123
+Data: angel123
+----------------------------------------
+[2025-07-29 22:12:36] [INFO] [user.controller.php:245] Login attempt for user: angel@angel123
+Data: 
+----------------------------------------
+[2025-07-29 22:12:57] [INFO] [user.controller.php:186] user: angel@ange.com
+Data: angel@ange.com
+----------------------------------------
+[2025-07-29 22:12:57] [INFO] [user.controller.php:187] user: angel123
+Data: angel123
+----------------------------------------
+[2025-07-29 22:12:57] [INFO] [user.controller.php:245] Login attempt for user: angel@ange.com
+Data: 
+----------------------------------------
+[2025-07-29 22:13:25] [INFO] [user.controller.php:186] user: angel@angel.com
+Data: angel@angel.com
+----------------------------------------
+[2025-07-29 22:13:25] [INFO] [user.controller.php:187] user: angel123
+Data: angel123
+----------------------------------------
+[2025-07-29 22:13:25] [INFO] [user.controller.php:245] Login attempt for user: angel@angel.com
+Data: {
+    "user_id": 9,
+    "reg_id": 9,
+    "user_email": "angel@angel.com",
+    "user_pass": "$2y$10$SkQZfw11AR9V\/fZt\/eZWkOnwhDFI7CEWX1KGKbNgdYi.j7H0oY.hW",
+    "user_expire": "2025-07-09 07:08:03.380971",
+    "user_first_login": null,
+    "user_last_login": "2025-07-28 20:20:46.592683",
+    "user_is_active": true,
+    "profile_photo": "user_9_1749926118.png",
+    "reg_name": "angel",
+    "reg_lastname": "isnardi"
+}
+----------------------------------------

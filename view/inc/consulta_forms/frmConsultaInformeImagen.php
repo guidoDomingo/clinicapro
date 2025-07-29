@@ -74,7 +74,7 @@
          <div class="form-group col-md-6">
             <h5><i class="bi bi-eye"></i> Archivos OD (Ojo Derecho)</h5>
                                     <input type="file" name="archivo_od[]" id="archivo_od" class="form-control" multiple accept="image/*,.pdf">
-                        <button type="button" class="btn btn-sm btn-info mt-1" onclick="testArchivosOD()">TEST OD</button>
+                        <!-- <button type="button" class="btn btn-sm btn-info mt-1" onclick="testArchivosOD()">TEST OD</button> -->
             <label for="archivo_od" class="btn btn-primary btn-sm label-file">
                 <i class="bi bi-upload"></i> Seleccionar archivos OD
             </label>
@@ -97,7 +97,7 @@
         <div class="form-group col-md-6">
             <h5><i class="bi bi-eye"></i> Archivos OI (Ojo Izquierdo)</h5>
                                     <input type="file" name="archivo_oi[]" id="archivo_oi" class="form-control" multiple accept="image/*,.pdf">
-                        <button type="button" class="btn btn-sm btn-info mt-1" onclick="testArchivosOI()">TEST OI</button>
+                        <!-- <button type="button" class="btn btn-sm btn-info mt-1" onclick="testArchivosOI()">TEST OI</button> -->
             <label for="archivo_oi" class="btn btn-primary btn-sm label-file">
                 <i class="bi bi-upload"></i> Seleccionar archivos OI
             </label>

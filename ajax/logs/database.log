@@ -13629,3 +13629,133 @@ imagen","usuario_id":"9"}
                         AND p.tipo_formulario = :tipo_formulario
                         ORDER BY p.nombre ASC | Tipo: consulta | User ID: 9 | Tipo Formulario: estudios
 [2025-07-28 01:58:07] Preformatos encontrados (user): 1 | Tipo: consulta | User ID: 9 | Tipo Formulario: estudios
+[2025-07-29 00:20:56] REQUEST PREFORMATOS - Operación: getPreformatosReceta | Parámetros: {"operacion":"getPreformatosReceta","tipo_formulario":"general","usuario_id":"9"}
+[2025-07-29 00:20:56] REQUEST PREFORMATOS - Operación: getPreformatosConsulta | Parámetros: {"operacion":"getPreformatosConsulta","tipo_formulario":"general","usuario_id":"9"}
+[2025-07-29 00:20:56] SQL para obtener preformatos (user): SELECT 
+                            p.*
+                        FROM person_system_user psu 
+                        INNER JOIN rh_doctors rd 
+                        ON psu.person_id = rd.person_id 
+                        INNER JOIN preformatos p 
+                        ON p.creado_por = rd.doctor_id 
+                        WHERE psu.system_user_id = :user_id 
+                        AND p.activo = true
+                        AND p.tipo_formulario = :tipo_formulario
+                        ORDER BY p.nombre ASC | Tipo: receta | User ID: 9 | Tipo Formulario: general
+[2025-07-29 00:20:56] SQL para obtener preformatos (user): SELECT 
+                            p.*
+                        FROM person_system_user psu 
+                        INNER JOIN rh_doctors rd 
+                        ON psu.person_id = rd.person_id 
+                        INNER JOIN preformatos p 
+                        ON p.creado_por = rd.doctor_id 
+                        WHERE psu.system_user_id = :user_id 
+                        AND p.activo = true
+                        AND p.tipo_formulario = :tipo_formulario
+                        ORDER BY p.nombre ASC | Tipo: consulta | User ID: 9 | Tipo Formulario: general
+[2025-07-29 00:20:56] Preformatos encontrados (user): 2 | Tipo: receta | User ID: 9 | Tipo Formulario: general
+[2025-07-29 00:20:56] Preformatos encontrados (user): 2 | Tipo: consulta | User ID: 9 | Tipo Formulario: general
+[2025-07-29 00:21:00] REQUEST PREFORMATOS - Operación: getPreformatosReceta | Parámetros: {"operacion":"getPreformatosReceta","tipo_formulario":"anteojos","usuario_id":"9"}
+[2025-07-29 00:21:00] REQUEST PREFORMATOS - Operación: getPreformatosReceta | Parámetros: {"operacion":"getPreformatosReceta","tipo_formulario":"anteojos","usuario_id":"9"}
+[2025-07-29 00:21:00] SQL para obtener preformatos (user): SELECT 
+                            p.*
+                        FROM person_system_user psu 
+                        INNER JOIN rh_doctors rd 
+                        ON psu.person_id = rd.person_id 
+                        INNER JOIN preformatos p 
+                        ON p.creado_por = rd.doctor_id 
+                        WHERE psu.system_user_id = :user_id 
+                        AND p.activo = true
+                        AND p.tipo_formulario = :tipo_formulario
+                        ORDER BY p.nombre ASC | Tipo: receta | User ID: 9 | Tipo Formulario: anteojos
+[2025-07-29 00:21:00] SQL para obtener preformatos (user): SELECT 
+                            p.*
+                        FROM person_system_user psu 
+                        INNER JOIN rh_doctors rd 
+                        ON psu.person_id = rd.person_id 
+                        INNER JOIN preformatos p 
+                        ON p.creado_por = rd.doctor_id 
+                        WHERE psu.system_user_id = :user_id 
+                        AND p.activo = true
+                        AND p.tipo_formulario = :tipo_formulario
+                        ORDER BY p.nombre ASC | Tipo: receta | User ID: 9 | Tipo Formulario: anteojos
+[2025-07-29 00:21:00] Preformatos encontrados (user): 4 | Tipo: receta | User ID: 9 | Tipo Formulario: anteojos
+[2025-07-29 00:21:00] Preformatos encontrados (user): 4 | Tipo: receta | User ID: 9 | Tipo Formulario: anteojos
+[2025-07-29 00:21:08] REQUEST PREFORMATOS - Operación: getPreformatosConsulta | Parámetros: {"operacion":"getPreformatosConsulta","tipo_formulario":"estudios","usuario_id":"9"}
+[2025-07-29 00:21:08] SQL para obtener preformatos (user): SELECT 
+                            p.*
+                        FROM person_system_user psu 
+                        INNER JOIN rh_doctors rd 
+                        ON psu.person_id = rd.person_id 
+                        INNER JOIN preformatos p 
+                        ON p.creado_por = rd.doctor_id 
+                        WHERE psu.system_user_id = :user_id 
+                        AND p.activo = true
+                        AND p.tipo_formulario = :tipo_formulario
+                        ORDER BY p.nombre ASC | Tipo: consulta | User ID: 9 | Tipo Formulario: estudios
+[2025-07-29 00:21:08] Preformatos encontrados (user): 1 | Tipo: consulta | User ID: 9 | Tipo Formulario: estudios
+[2025-07-29 00:21:16] REQUEST PREFORMATOS - Operación: getPreformatosConsulta | Parámetros: {"operacion":"getPreformatosConsulta","tipo_formulario":"informe_imagen","usuario_id":"9"}
+[2025-07-29 00:21:16] SQL para obtener preformatos (user): SELECT 
+                            p.*
+                        FROM person_system_user psu 
+                        INNER JOIN rh_doctors rd 
+                        ON psu.person_id = rd.person_id 
+                        INNER JOIN preformatos p 
+                        ON p.creado_por = rd.doctor_id 
+                        WHERE psu.system_user_id = :user_id 
+                        AND p.activo = true
+                        AND p.tipo_formulario = :tipo_formulario
+                        ORDER BY p.nombre ASC | Tipo: consulta | User ID: 9 | Tipo Formulario: informe_imagen
+[2025-07-29 00:21:16] Preformatos encontrados (user): 2 | Tipo: consulta | User ID: 9 | Tipo Formulario: informe_imagen
+[2025-07-29 00:24:21] REQUEST PREFORMATOS - Operación: getPreformatosConsulta | Parámetros: {"operacion":"getPreformatosConsulta","tipo_formulario":"informe_imagen","usuario_id":"9"}
+[2025-07-29 00:24:21] SQL para obtener preformatos (user): SELECT 
+                            p.*
+                        FROM person_system_user psu 
+                        INNER JOIN rh_doctors rd 
+                        ON psu.person_id = rd.person_id 
+                        INNER JOIN preformatos p 
+                        ON p.creado_por = rd.doctor_id 
+                        WHERE psu.system_user_id = :user_id 
+                        AND p.activo = true
+                        AND p.tipo_formulario = :tipo_formulario
+                        ORDER BY p.nombre ASC | Tipo: consulta | User ID: 9 | Tipo Formulario: informe_imagen
+[2025-07-29 00:24:21] Preformatos encontrados (user): 2 | Tipo: consulta | User ID: 9 | Tipo Formulario: informe_imagen
+[2025-07-29 00:24:54] REQUEST PREFORMATOS - Operación: getPreformatosConsulta | Parámetros: {"operacion":"getPreformatosConsulta","tipo_formulario":"informe_imagen","usuario_id":"9"}
+[2025-07-29 00:24:54] SQL para obtener preformatos (user): SELECT 
+                            p.*
+                        FROM person_system_user psu 
+                        INNER JOIN rh_doctors rd 
+                        ON psu.person_id = rd.person_id 
+                        INNER JOIN preformatos p 
+                        ON p.creado_por = rd.doctor_id 
+                        WHERE psu.system_user_id = :user_id 
+                        AND p.activo = true
+                        AND p.tipo_formulario = :tipo_formulario
+                        ORDER BY p.nombre ASC | Tipo: consulta | User ID: 9 | Tipo Formulario: informe_imagen
+[2025-07-29 00:24:54] Preformatos encontrados (user): 2 | Tipo: consulta | User ID: 9 | Tipo Formulario: informe_imagen
+[2025-07-29 22:13:30] REQUEST PREFORMATOS - Operación: getPreformatosConsulta | Parámetros: {"operacion":"getPreformatosConsulta","tipo_formulario":"general","usuario_id":"9"}
+[2025-07-29 22:13:30] REQUEST PREFORMATOS - Operación: getPreformatosReceta | Parámetros: {"operacion":"getPreformatosReceta","tipo_formulario":"general","usuario_id":"9"}
+[2025-07-29 22:13:30] SQL para obtener preformatos (user): SELECT 
+                            p.*
+                        FROM person_system_user psu 
+                        INNER JOIN rh_doctors rd 
+                        ON psu.person_id = rd.person_id 
+                        INNER JOIN preformatos p 
+                        ON p.creado_por = rd.doctor_id 
+                        WHERE psu.system_user_id = :user_id 
+                        AND p.activo = true
+                        AND p.tipo_formulario = :tipo_formulario
+                        ORDER BY p.nombre ASC | Tipo: receta | User ID: 9 | Tipo Formulario: general
+[2025-07-29 22:13:30] SQL para obtener preformatos (user): SELECT 
+                            p.*
+                        FROM person_system_user psu 
+                        INNER JOIN rh_doctors rd 
+                        ON psu.person_id = rd.person_id 
+                        INNER JOIN preformatos p 
+                        ON p.creado_por = rd.doctor_id 
+                        WHERE psu.system_user_id = :user_id 
+                        AND p.activo = true
+                        AND p.tipo_formulario = :tipo_formulario
+                        ORDER BY p.nombre ASC | Tipo: consulta | User ID: 9 | Tipo Formulario: general
+[2025-07-29 22:13:30] Preformatos encontrados (user): 2 | Tipo: receta | User ID: 9 | Tipo Formulario: general
+[2025-07-29 22:13:30] Preformatos encontrados (user): 2 | Tipo: consulta | User ID: 9 | Tipo Formulario: general
