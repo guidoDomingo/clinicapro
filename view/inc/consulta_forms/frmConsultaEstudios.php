@@ -88,11 +88,25 @@
         <input type="text" class="form-control" id="txtnota" name="txtnota" placeholder="Nota">
     </div>
 
-    <!-- Compartir por email -->
+    <!-- Compartir por email con funcionalidad mejorada -->
     <div class="form-group">
-        <label for="txtEmailShare">Compartir: Ej: email1@email.com,email2@email.com</label>
-        <input type="text" class="form-control" id="txtEmailShare" name="txtEmailShare" 
-               placeholder="Agregar correos...">
+        <label for="txtEmailShare">Compartir por correo electrónico</label>
+        <div class="input-group">
+            <input type="text" class="form-control" id="txtEmailShare" name="txtEmailShare" 
+                   placeholder="Ej: email1@email.com,email2@email.com,email3@email.com">
+            <div class="input-group-append">
+                <button type="button" class="btn btn-info" id="btnValidarEmails" title="Validar emails">
+                    <i class="fas fa-check"></i>
+                </button>
+                <button type="button" class="btn btn-success" id="btnEnviarEmails" title="Enviar por correo" disabled>
+                    <i class="fas fa-paper-plane"></i> Enviar
+                </button>
+            </div>
+        </div>
+        <small class="form-text text-muted">
+            Separe múltiples correos con comas. Ejemplo: doctor@clinica.com, especialista@hospital.com
+        </small>
+        <div id="emailValidationFeedback" class="mt-2"></div>
     </div>
 
     <!-- Información adicional -->
@@ -178,3 +192,39 @@ function toggleFormulario(btn) {
     }
 }
 </script>
+
+<!-- Script específico para envío de emails en estudios -->
+<script src="view/js/envio-emails-estudios.js"></script>
+
+<style>
+/* Estilos específicos para la funcionalidad de emails */
+#emailValidationFeedback .alert {
+    padding: 8px 12px;
+    margin: 0;
+    border-radius: 4px;
+    font-size: 0.875rem;
+}
+
+#btnValidarEmails, #btnEnviarEmails {
+    border-radius: 0;
+}
+
+#btnValidarEmails {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+#btnEnviarEmails {
+    border-top-right-radius: 0.25rem;
+    border-bottom-right-radius: 0.25rem;
+}
+
+#btnEnviarEmails:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.input-group-append .btn + .btn {
+    margin-left: -1px;
+}
+</style>
