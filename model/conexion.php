@@ -2,11 +2,11 @@
 class Conexion{
 
     static public function conectar(){
-        $contrasena = "admin";
-        $usuario = "postgres";
+        $contrasena = "wjstks";
+        $usuario = "acmeuser";
         $nombreBaseDeDatos = "clinica";
-        $rutaServidor = "localhost";
-        $puerto = "5432";        try {
+        $rutaServidor = "181.122.125.143";
+        $puerto = "5454";        try {
             // Check if PostgreSQL extension is available
             if (!extension_loaded('pdo_pgsql')) {
                 // Asegurar que exista el directorio de logs
