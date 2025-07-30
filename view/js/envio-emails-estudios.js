@@ -6,6 +6,11 @@
 // Variables globales para el módulo de email
 let emailsValidados = [];
 let consultaActualId = null;
+let consultaGuardada = false;
+
+// Exportar variables globales para uso desde otros scripts
+window.emailsValidados = emailsValidados;
+window.consultaGuardada = consultaGuardada;
 
 // Inicializar cuando el documento esté listo
 document.addEventListener('DOMContentLoaded', function() {
@@ -75,6 +80,11 @@ function validarEmailsInput() {
     
     // Guardar emails validados
     emailsValidados = [...new Set(emailsValidos)]; // Eliminar duplicados
+    window.emailsValidados = emailsValidados; // Actualizar variable global
+    
+    // Verificar si la consulta ya está guardada
+    const idConsultaActual = document.getElementById('id_consulta_actual');
+    const consultaEstaGuardada = idConsultaActual && idConsultaActual.value;
     
     // Mostrar feedback
     let mensaje = '';
@@ -82,12 +92,18 @@ function validarEmailsInput() {
     
     if (emailsValidos.length > 0 && emailsInvalidos.length === 0) {
         mensaje = `✅ ${emailsValidos.length} email(s) válido(s): ${emailsValidos.join(', ')}`;
-        btnEnviarEmails.disabled = false;
+        if (!consultaEstaGuardada) {
+            mensaje += `<br><small class="text-warning">⚠️ Debe guardar la consulta antes de enviar</small>`;
+        }
+        btnEnviarEmails.disabled = !consultaEstaGuardada;
     } else if (emailsValidos.length > 0 && emailsInvalidos.length > 0) {
         mensaje = `⚠️ ${emailsValidos.length} válido(s), ${emailsInvalidos.length} inválido(s). `;
         mensaje += `Inválidos: ${emailsInvalidos.join(', ')}`;
+        if (!consultaEstaGuardada) {
+            mensaje += `<br><small class="text-warning">⚠️ Debe guardar la consulta antes de enviar</small>`;
+        }
         tipo = 'warning';
-        btnEnviarEmails.disabled = false;
+        btnEnviarEmails.disabled = !consultaEstaGuardada;
     } else {
         mensaje = `❌ Todos los emails son inválidos: ${emailsInvalidos.join(', ')}`;
         tipo = 'danger';
@@ -272,6 +288,29 @@ async function enviarConsultaPorEmail() {
 }
 
 /**
+ * Función para habilitar el botón de enviar emails después de guardar la consulta
+ */
+function habilitarEnvioEmails() {
+    const btnEnviarEmails = document.getElementById('btnEnviarEmails');
+    const idConsultaActual = document.getElementById('id_consulta_actual');
+    
+    if (btnEnviarEmails && idConsultaActual && idConsultaActual.value && emailsValidados.length > 0) {
+        btnEnviarEmails.disabled = false;
+        btnEnviarEmails.title = 'Enviar consulta por correo electrónico';
+        consultaGuardada = true;
+        window.consultaGuardada = true;
+        
+        // Actualizar el feedback para reflejar que ya se puede enviar
+        validarEmailsInput();
+        
+        console.log('✅ Botón de enviar emails habilitado - Consulta guardada');
+        return true;
+    }
+    
+    return false;
+}
+
+/**
  * Función auxiliar para debounce (evitar ejecuciones excesivas)
  */
 function debounce(func, wait) {
@@ -301,5 +340,6 @@ window.testEmailValidation = function(emails) {
 // Exportar funciones para uso global
 window.enviarConsultaPorEmail = enviarConsultaPorEmail;
 window.validarEmailsInput = validarEmailsInput;
+window.habilitarEnvioEmails = habilitarEnvioEmails;
 
 console.log('✅ Módulo de envío de emails para estudios cargado correctamente');

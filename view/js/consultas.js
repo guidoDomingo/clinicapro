@@ -713,11 +713,23 @@ function guardarConsulta() {
                       // Habilitar los botones de descargar PDF y WhatsApp
                     const btnDescargarPDF = document.getElementById('btnDescargarPDF');
                     const btnEnviarWhatsApp = document.getElementById('btnEnviarWhatsApp');
+                    const btnEnviarEmails = document.getElementById('btnEnviarEmails');
+                    
                     if (btnDescargarPDF) {
                         btnDescargarPDF.disabled = false;
                     }
                     if (btnEnviarWhatsApp) {
                         btnEnviarWhatsApp.disabled = false;
+                    }
+                    // Habilitar el botón de enviar emails solo si hay emails válidos
+                    if (btnEnviarEmails && window.emailsValidados && window.emailsValidados.length > 0) {
+                        btnEnviarEmails.disabled = false;
+                        console.log('✅ Botón de enviar emails habilitado después de guardar consulta');
+                    }
+                    
+                    // Llamar a la función específica de habilitación de emails si existe
+                    if (typeof window.habilitarEnvioEmails === 'function') {
+                        window.habilitarEnvioEmails();
                     }
 
                     actualizarTablaConsultas();

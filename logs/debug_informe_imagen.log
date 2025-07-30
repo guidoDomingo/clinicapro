@@ -1979,3 +1979,256 @@ Archivos OI JSON: [{"nombre_original":"Untitled diagram _ Mermaid Chart-2025-07-
 2025-07-28 01:57:39 - EXITO COMPLETO: ID 100 (actualizado)
 2025-07-28 01:57:39 - FIN DEBUG
 
+2025-07-29 23:46:05 - INICIO DEBUG
+POST: Array
+(
+    [txtdocumento] => 5004615
+    [txtficha] => 
+    [idPersona] => 79
+    [motivoscomunes] => informeee
+    [txtmotivo] => informeee
+    [equipoMedico] => Cirrus 700
+    [formatoConsulta] => 30
+    [id_persona_file] => 79
+    [id_user] => 9
+    [descripcion-od-textarea] => <p>xcvcxvxcv</p>
+    [descripcion-oi-textarea] => <p>xcvxcvxcvcxvc</p>
+    [consulta-textarea] => <p><strong style="margin: 0px; padding: 0px; color: rgb(0, 0, 0); font-family: &quot;Open Sans&quot;, Arial, sans-serif; text-align: justify;">Lorem Ipsum</strong><span style="color: rgb(0, 0, 0); font-family: &quot;Open Sans&quot;, Arial, sans-serif; text-align: justify;">&nbsp;es simplemente el texto de relleno de las imprentas y archivos de texto. Lorem Ipsum ha sido el texto de relleno estándar de las industrias desde el año 1500, cuando un impresor (N. del T. persona que se dedica a la imprenta) desconocido usó una galería de textos y los mezcló de tal manera que logró hacer un libro de textos especimen. No sólo sobrevivió 500 años, sino que tambien ingresó como texto de relleno en documentos electrónicos, quedando esencialmente igual al original. Fue popularizado en los 60s con la creación de las hojas "Letraset", las cuales contenian pasajes de Lorem Ipsum, y más recientemente con software de autoedición, como por ejemplo Aldus PageMaker, el cual incluye versiones de Lorem Ipsum.</span></p>
+    [txtnota] => cvbcvbcvbcvb
+    [emails_compartir] => 
+    [proximaconsulta] => 2025-07-31
+    [whatsapptxt] => 
+    [email] => 
+)
+
+FILES: Array
+(
+    [archivo_od] => Array
+        (
+            [name] => Array
+                (
+                    [0] => formulario 3.jpg
+                    [1] => formulario 2.jpg
+                )
+
+            [full_path] => Array
+                (
+                    [0] => formulario 3.jpg
+                    [1] => formulario 2.jpg
+                )
+
+            [type] => Array
+                (
+                    [0] => image/jpeg
+                    [1] => image/jpeg
+                )
+
+            [tmp_name] => Array
+                (
+                    [0] => C:\Users\Guido\AppData\Local\Temp\php2D6D.tmp
+                    [1] => C:\Users\Guido\AppData\Local\Temp\php2D7D.tmp
+                )
+
+            [error] => Array
+                (
+                    [0] => 0
+                    [1] => 0
+                )
+
+            [size] => Array
+                (
+                    [0] => 149926
+                    [1] => 162158
+                )
+
+        )
+
+    [archivo_oi] => Array
+        (
+            [name] => Array
+                (
+                    [0] => Untitled diagram _ Mermaid Chart-2025-07-27-201638.png
+                    [1] => informe general.jpg
+                )
+
+            [full_path] => Array
+                (
+                    [0] => Untitled diagram _ Mermaid Chart-2025-07-27-201638.png
+                    [1] => informe general.jpg
+                )
+
+            [type] => Array
+                (
+                    [0] => image/png
+                    [1] => image/jpeg
+                )
+
+            [tmp_name] => Array
+                (
+                    [0] => C:\Users\Guido\AppData\Local\Temp\php2D7E.tmp
+                    [1] => C:\Users\Guido\AppData\Local\Temp\php2D9F.tmp
+                )
+
+            [error] => Array
+                (
+                    [0] => 0
+                    [1] => 0
+                )
+
+            [size] => Array
+                (
+                    [0] => 398669
+                    [1] => 143982
+                )
+
+        )
+
+)
+
+2025-07-29 23:46:05 - Intentando guardar consulta principal
+2025-07-29 23:46:05 - Resultado consulta principal: 106
+2025-07-29 23:46:05 - Datos específicos extraídos
+Equipo: Cirrus 700
+Descripción OD: 16 chars
+Descripción OI: 20 chars
+2025-07-29 23:46:05 - Procesando archivos OD
+Archivos recibidos: Array
+(
+    [name] => Array
+        (
+            [0] => formulario 3.jpg
+            [1] => formulario 2.jpg
+        )
+
+    [full_path] => Array
+        (
+            [0] => formulario 3.jpg
+            [1] => formulario 2.jpg
+        )
+
+    [type] => Array
+        (
+            [0] => image/jpeg
+            [1] => image/jpeg
+        )
+
+    [tmp_name] => Array
+        (
+            [0] => C:\Users\Guido\AppData\Local\Temp\php2D6D.tmp
+            [1] => C:\Users\Guido\AppData\Local\Temp\php2D7D.tmp
+        )
+
+    [error] => Array
+        (
+            [0] => 0
+            [1] => 0
+        )
+
+    [size] => Array
+        (
+            [0] => 149926
+            [1] => 162158
+        )
+
+)
+
+2025-07-29 23:46:05 - Procesando archivo OD #0: formulario 3.jpg, Error: 0
+2025-07-29 23:46:05 - Archivo OD guardado exitosamente: formulario 3.jpg -> 106_OD_1753832765_0.jpg
+Info archivo: Array
+(
+    [nombre_original] => formulario 3.jpg
+    [nombre_archivo] => 106_OD_1753832765_0.jpg
+    [ruta] => view/uploads/consultas/informe_imagen/106_OD_1753832765_0.jpg
+    [tamano] => 149926
+    [fecha_subida] => 2025-07-29 23:46:05
+    [ojo] => od
+)
+
+2025-07-29 23:46:05 - Procesando archivo OD #1: formulario 2.jpg, Error: 0
+2025-07-29 23:46:05 - Archivo OD guardado exitosamente: formulario 2.jpg -> 106_OD_1753832765_1.jpg
+Info archivo: Array
+(
+    [nombre_original] => formulario 2.jpg
+    [nombre_archivo] => 106_OD_1753832765_1.jpg
+    [ruta] => view/uploads/consultas/informe_imagen/106_OD_1753832765_1.jpg
+    [tamano] => 162158
+    [fecha_subida] => 2025-07-29 23:46:05
+    [ojo] => od
+)
+
+2025-07-29 23:46:05 - Procesando archivos OI
+Archivos recibidos: Array
+(
+    [name] => Array
+        (
+            [0] => Untitled diagram _ Mermaid Chart-2025-07-27-201638.png
+            [1] => informe general.jpg
+        )
+
+    [full_path] => Array
+        (
+            [0] => Untitled diagram _ Mermaid Chart-2025-07-27-201638.png
+            [1] => informe general.jpg
+        )
+
+    [type] => Array
+        (
+            [0] => image/png
+            [1] => image/jpeg
+        )
+
+    [tmp_name] => Array
+        (
+            [0] => C:\Users\Guido\AppData\Local\Temp\php2D7E.tmp
+            [1] => C:\Users\Guido\AppData\Local\Temp\php2D9F.tmp
+        )
+
+    [error] => Array
+        (
+            [0] => 0
+            [1] => 0
+        )
+
+    [size] => Array
+        (
+            [0] => 398669
+            [1] => 143982
+        )
+
+)
+
+2025-07-29 23:46:05 - Procesando archivo OI #0: Untitled diagram _ Mermaid Chart-2025-07-27-201638.png, Error: 0
+2025-07-29 23:46:05 - Archivo OI guardado exitosamente: Untitled diagram _ Mermaid Chart-2025-07-27-201638.png -> 106_OI_1753832765_0.png
+Info archivo: Array
+(
+    [nombre_original] => Untitled diagram _ Mermaid Chart-2025-07-27-201638.png
+    [nombre_archivo] => 106_OI_1753832765_0.png
+    [ruta] => view/uploads/consultas/informe_imagen/106_OI_1753832765_0.png
+    [tamano] => 398669
+    [fecha_subida] => 2025-07-29 23:46:05
+    [ojo] => oi
+)
+
+2025-07-29 23:46:05 - Procesando archivo OI #1: informe general.jpg, Error: 0
+2025-07-29 23:46:05 - Archivo OI guardado exitosamente: informe general.jpg -> 106_OI_1753832765_1.jpg
+Info archivo: Array
+(
+    [nombre_original] => informe general.jpg
+    [nombre_archivo] => 106_OI_1753832765_1.jpg
+    [ruta] => view/uploads/consultas/informe_imagen/106_OI_1753832765_1.jpg
+    [tamano] => 143982
+    [fecha_subida] => 2025-07-29 23:46:05
+    [ojo] => oi
+)
+
+2025-07-29 23:46:05 - Archivos procesados: OD=2, OI=2
+2025-07-29 23:46:05 - Verificación: existe=false para id_consulta=106
+2025-07-29 23:46:05 - Preparando INSERCIÓN:
+ID Consulta: 106
+Equipo: Cirrus 700
+Archivos OD JSON: [{"nombre_original":"formulario 3.jpg","nombre_archivo":"106_OD_1753832765_0.jpg","ruta":"view\/uploads\/consultas\/informe_imagen\/106_OD_1753832765_0.jpg","tamano":149926,"fecha_subida":"2025-07-29 23:46:05","ojo":"od"},{"nombre_original":"formulario 2.jpg","nombre_archivo":"106_OD_1753832765_1.jpg","ruta":"view\/uploads\/consultas\/informe_imagen\/106_OD_1753832765_1.jpg","tamano":162158,"fecha_subida":"2025-07-29 23:46:05","ojo":"od"}]
+Archivos OI JSON: [{"nombre_original":"Untitled diagram _ Mermaid Chart-2025-07-27-201638.png","nombre_archivo":"106_OI_1753832765_0.png","ruta":"view\/uploads\/consultas\/informe_imagen\/106_OI_1753832765_0.png","tamano":398669,"fecha_subida":"2025-07-29 23:46:05","ojo":"oi"},{"nombre_original":"informe general.jpg","nombre_archivo":"106_OI_1753832765_1.jpg","ruta":"view\/uploads\/consultas\/informe_imagen\/106_OI_1753832765_1.jpg","tamano":143982,"fecha_subida":"2025-07-29 23:46:05","ojo":"oi"}]
+2025-07-29 23:46:05 - Resultado operación informe: OK (Operación: INSERT)
+2025-07-29 23:46:05 - EXITO COMPLETO: ID 106 (creado)
+2025-07-29 23:46:05 - FIN DEBUG
+

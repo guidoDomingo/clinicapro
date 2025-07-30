@@ -98,7 +98,7 @@
                 <button type="button" class="btn btn-info" id="btnValidarEmails" title="Validar emails">
                     <i class="fas fa-check"></i>
                 </button>
-                <button type="button" class="btn btn-success" id="btnEnviarEmails" title="Enviar por correo" disabled>
+                <button type="button" class="btn btn-success" id="btnEnviarEmails" title="Debe guardar la consulta antes de enviar" disabled>
                     <i class="fas fa-paper-plane"></i> Enviar
                 </button>
             </div>
@@ -222,9 +222,34 @@ function toggleFormulario(btn) {
 #btnEnviarEmails:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
+}
+
+#btnEnviarEmails:disabled:hover {
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
+    transform: none;
 }
 
 .input-group-append .btn + .btn {
     margin-left: -1px;
+}
+
+/* Tooltip personalizado para botón deshabilitado */
+#btnEnviarEmails[disabled][title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #333;
+    color: white;
+    padding: 5px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 1000;
+    margin-bottom: 5px;
 }
 </style>

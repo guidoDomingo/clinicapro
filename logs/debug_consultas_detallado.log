@@ -15858,3 +15858,59 @@ lta":"55"}
 2025-07-29 23:24:40 [INFO] [GUARDAR_ESTUDIOS] Insertando nuevo registro - {"id_consulta":"103"}
 2025-07-29 23:24:40 [EXITO] [GUARDAR_ESTUDIOS] Inserción exitosa - {"id_consulta_estudios":5,"id_consulta":"103"}
 2025-07-29 23:24:40 [EXITO] [PROCESO] Guardado de estudios exitoso - {"resultado_estudios":5,"id_consulta":"103"}
+2025-07-29 23:30:53 [INFO] [INICIO] Iniciando proceso de guardar datos de estudios - {"POST":{"form_type":"estudios","txtdocumento":"5004615","txtficha":"","idPersona":"79","motivoscomunes":"Control de glaucoma","txtmotivo":"Control de glaucoma","equipo_medico":"cirrus_500c","formatoConsulta":"23","consulta-textarea":"<p>Informe general de estudios medicos</p>","txtnota":"dfdsf","txtEmailShare":"carlos@carlos.com, guido@guido.com","proximaconsulta":"2025-07-30","whatsapptxt":"","email":"","id_user":"9","id_reserva":"0","medico_id":"1","id_consulta_actual":""}}
+2025-07-29 23:30:53 [INFO] [DETECCION_TIPO] Formulario de estudios detectado correctamente - {"form_type":"estudios","tiene_equipo_medico":true,"equipo_medico_valor":"cirrus_500c","consulta_textarea":"definido","todos_los_campos":["form_type","txtdocumento","txtficha","idPersona","motivoscomunes","txtmotivo","equipo_medico","formatoConsulta","consulta-textarea","txtnota","txtEmailShare","proximaconsulta","whatsapptxt","email","id_user","id_reserva","medico_id","id_consulta_actual"]}
+2025-07-29 23:30:53 [INFO] [PROCESO] Modo inserción detectado
+2025-07-29 23:30:53 [INFO] [GUARDAR_BASE_ESTUDIOS] Guardando consulta base para estudios
+2025-07-29 23:30:53 [INFO] [CONTROLLER] Iniciando ctrSetConsulta en el controlador - {"datos_recibidos":["form_type","txtdocumento","txtficha","idPersona","motivoscomunes","txtmotivo","equipo_medico","formatoConsulta","consulta-textarea","txtnota","txtEmailShare","proximaconsulta","whatsapptxt","email","id_user","id_reserva","medico_id","id_consulta_actual"]}
+2025-07-29 23:30:53 [INFO] [CONTROLLER] Llamando al modelo mdlSetConsulta
+2025-07-29 23:30:53 [INFO] [MODELO] Iniciando mdlSetConsulta - {"datos":["form_type","txtdocumento","txtficha","idPersona","motivoscomunes","txtmotivo","equipo_medico","formatoConsulta","consulta-textarea","txtnota","txtEmailShare","proximaconsulta","whatsapptxt","email","id_user","id_reserva","medico_id","id_consulta_actual"],"es_actualizacion":false}
+2025-07-29 23:30:53 [INFO] [MODELO] Intentando obtener conexión a BD
+2025-07-29 23:30:53 [EXITO] [MODELO] Conexión establecida correctamente
+2025-07-29 23:30:53 [INFO] [MODELO] Paciente encontrado para la consulta - {"person_id":79,"nombre":"carlos andres"}
+2025-07-29 23:30:53 [INFO] [MODELO] Verificando campos obligatorios - {"motivoscomunes":"OK","txtmotivo":"OK","id_persona":"OK"}
+2025-07-29 23:30:53 [INFO] [MODELO] Preparando consulta SQL para inserción
+2025-07-29 23:30:53 [INFO] [MODELO] Tipo de formulario detectado - {"tipo_formulario":"estudios","datos_especificos":7}
+2025-07-29 23:30:53 [EXITO] [MODELO] Consulta SQL preparada correctamente
+2025-07-29 23:30:53 [INFO] [MODELO] Comenzando bind de parámetros
+2025-07-29 23:30:53 [DEBUG] [MODELO] Valores para bind de parámetros - {":motivoscomunes":{"valor":"Control de glaucoma","tipo":2},":txtmotivo":{"valor":"Control de glaucoma","tipo":2},":visionod":{"valor":null,"tipo":2},":visionoi":{"valor":null,"tipo":2},":tensionod":{"valor":null,"tipo":2},":tensionoi":{"valor":null,"tipo":2},":consulta_textarea":{"valor":"<p>Informe general de estudios medicos</p>","tipo":2},":receta_textarea":{"valor":null,"tipo":2},":txtnota":{"valor":"dfdsf","tipo":2},":whatsapptxt":{"valor":"","tipo":2},":email":{"valor":"","tipo":2},":id_user":{"valor":"9","tipo":1},":id_reserva":{"valor":"0","tipo":1},":id_persona":{"valor":"79","tipo":1}}
+2025-07-29 23:30:53 [ADVERTENCIA] [MODELO] Campo receta-textarea no encontrado
+2025-07-29 23:30:53 [INFO] [MODELO] Campo proximaconsulta tiene valor - {"valor":"2025-07-30"}
+2025-07-29 23:30:53 [INFO] [MODELO] IDs después de convertir a enteros - {"id_user":9,"id_reserva":0,"id_persona":79}
+2025-07-29 23:30:53 [EXITO] [MODELO] Todos los parámetros bindeados correctamente
+2025-07-29 23:30:53 [INFO] [MODELO] Intentando ejecutar la consulta SQL
+2025-07-29 23:30:53 [EXITO] [MODELO] Consulta ejecutada correctamente - {"id_consulta":"104"}
+2025-07-29 23:30:53 [INFO] [CONTROLLER] Resultado del modelo - {"resultado":"104"}
+2025-07-29 23:30:53 [INFO] [GUARDAR_BASE_ESTUDIOS] Resultado del modelo - {"resultado":"104"}
+2025-07-29 23:30:53 [INFO] [GUARDAR_ESTUDIOS] Guardando datos de estudios para consulta - {"id_consulta":"104","datos":["form_type","txtdocumento","txtficha","idPersona","motivoscomunes","txtmotivo","equipo_medico","formatoConsulta","consulta-textarea","txtnota","txtEmailShare","proximaconsulta","whatsapptxt","email","id_user","id_reserva","medico_id","id_consulta_actual"]}
+2025-07-29 23:30:53 [INFO] [GUARDAR_ESTUDIOS] Insertando nuevo registro - {"id_consulta":"104"}
+2025-07-29 23:30:53 [EXITO] [GUARDAR_ESTUDIOS] Inserción exitosa - {"id_consulta_estudios":6,"id_consulta":"104"}
+2025-07-29 23:30:53 [EXITO] [PROCESO] Guardado de estudios exitoso - {"resultado_estudios":6,"id_consulta":"104"}
+2025-07-29 23:40:36 [INFO] [INICIO] Iniciando proceso de guardar datos de estudios - {"POST":{"form_type":"estudios","txtdocumento":"5004615","txtficha":"","idPersona":"79","motivoscomunes":"Seleccionar","txtmotivo":"","equipo_medico":"","formatoConsulta":"23","consulta-textarea":"<p>Informe general de estudios medicos</p>","txtnota":"sdfdsf","txtEmailShare":"carlos@carlos.com, guido@guido.com","proximaconsulta":"2025-07-31","whatsapptxt":"","email":"","id_user":"9","id_reserva":"0","medico_id":"1","id_consulta_actual":""}}
+2025-07-29 23:40:36 [INFO] [DETECCION_TIPO] Formulario de estudios detectado correctamente - {"form_type":"estudios","tiene_equipo_medico":true,"equipo_medico_valor":"","consulta_textarea":"definido","todos_los_campos":["form_type","txtdocumento","txtficha","idPersona","motivoscomunes","txtmotivo","equipo_medico","formatoConsulta","consulta-textarea","txtnota","txtEmailShare","proximaconsulta","whatsapptxt","email","id_user","id_reserva","medico_id","id_consulta_actual"]}
+2025-07-29 23:40:36 [INFO] [PROCESO] Modo inserción detectado
+2025-07-29 23:40:36 [INFO] [GUARDAR_BASE_ESTUDIOS] Guardando consulta base para estudios
+2025-07-29 23:40:36 [INFO] [CONTROLLER] Iniciando ctrSetConsulta en el controlador - {"datos_recibidos":["form_type","txtdocumento","txtficha","idPersona","motivoscomunes","txtmotivo","equipo_medico","formatoConsulta","consulta-textarea","txtnota","txtEmailShare","proximaconsulta","whatsapptxt","email","id_user","id_reserva","medico_id","id_consulta_actual"]}
+2025-07-29 23:40:36 [INFO] [CONTROLLER] Llamando al modelo mdlSetConsulta
+2025-07-29 23:40:36 [INFO] [MODELO] Iniciando mdlSetConsulta - {"datos":["form_type","txtdocumento","txtficha","idPersona","motivoscomunes","txtmotivo","equipo_medico","formatoConsulta","consulta-textarea","txtnota","txtEmailShare","proximaconsulta","whatsapptxt","email","id_user","id_reserva","medico_id","id_consulta_actual"],"es_actualizacion":false}
+2025-07-29 23:40:36 [INFO] [MODELO] Intentando obtener conexión a BD
+2025-07-29 23:40:36 [EXITO] [MODELO] Conexión establecida correctamente
+2025-07-29 23:40:36 [INFO] [MODELO] Paciente encontrado para la consulta - {"person_id":79,"nombre":"carlos andres"}
+2025-07-29 23:40:36 [INFO] [MODELO] Verificando campos obligatorios - {"motivoscomunes":"OK","txtmotivo":"OK","id_persona":"OK"}
+2025-07-29 23:40:36 [INFO] [MODELO] Preparando consulta SQL para inserción
+2025-07-29 23:40:36 [INFO] [MODELO] Tipo de formulario detectado - {"tipo_formulario":"estudios","datos_especificos":7}
+2025-07-29 23:40:36 [EXITO] [MODELO] Consulta SQL preparada correctamente
+2025-07-29 23:40:36 [INFO] [MODELO] Comenzando bind de parámetros
+2025-07-29 23:40:36 [DEBUG] [MODELO] Valores para bind de parámetros - {":motivoscomunes":{"valor":"Seleccionar","tipo":2},":txtmotivo":{"valor":"","tipo":2},":visionod":{"valor":null,"tipo":2},":visionoi":{"valor":null,"tipo":2},":tensionod":{"valor":null,"tipo":2},":tensionoi":{"valor":null,"tipo":2},":consulta_textarea":{"valor":"<p>Informe general de estudios medicos</p>","tipo":2},":receta_textarea":{"valor":null,"tipo":2},":txtnota":{"valor":"sdfdsf","tipo":2},":whatsapptxt":{"valor":"","tipo":2},":email":{"valor":"","tipo":2},":id_user":{"valor":"9","tipo":1},":id_reserva":{"valor":"0","tipo":1},":id_persona":{"valor":"79","tipo":1}}
+2025-07-29 23:40:36 [ADVERTENCIA] [MODELO] Campo receta-textarea no encontrado
+2025-07-29 23:40:36 [INFO] [MODELO] Campo proximaconsulta tiene valor - {"valor":"2025-07-31"}
+2025-07-29 23:40:36 [INFO] [MODELO] IDs después de convertir a enteros - {"id_user":9,"id_reserva":0,"id_persona":79}
+2025-07-29 23:40:36 [EXITO] [MODELO] Todos los parámetros bindeados correctamente
+2025-07-29 23:40:36 [INFO] [MODELO] Intentando ejecutar la consulta SQL
+2025-07-29 23:40:36 [EXITO] [MODELO] Consulta ejecutada correctamente - {"id_consulta":"105"}
+2025-07-29 23:40:36 [INFO] [CONTROLLER] Resultado del modelo - {"resultado":"105"}
+2025-07-29 23:40:36 [INFO] [GUARDAR_BASE_ESTUDIOS] Resultado del modelo - {"resultado":"105"}
+2025-07-29 23:40:36 [INFO] [GUARDAR_ESTUDIOS] Guardando datos de estudios para consulta - {"id_consulta":"105","datos":["form_type","txtdocumento","txtficha","idPersona","motivoscomunes","txtmotivo","equipo_medico","formatoConsulta","consulta-textarea","txtnota","txtEmailShare","proximaconsulta","whatsapptxt","email","id_user","id_reserva","medico_id","id_consulta_actual"]}
+2025-07-29 23:40:36 [INFO] [GUARDAR_ESTUDIOS] Insertando nuevo registro - {"id_consulta":"105"}
+2025-07-29 23:40:36 [EXITO] [GUARDAR_ESTUDIOS] Inserción exitosa - {"id_consulta_estudios":7,"id_consulta":"105"}
+2025-07-29 23:40:36 [EXITO] [PROCESO] Guardado de estudios exitoso - {"resultado_estudios":7,"id_consulta":"105"}
