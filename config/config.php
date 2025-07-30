@@ -11,11 +11,11 @@ require_once __DIR__ . '/../vendor/autoload.php';
 // Database configuration
 $dbConfig = [
     'driver' => 'pgsql',
-    'host' => 'localhost',
-    'port' => '5432',
+    'host' => '181.122.125.143',
+    'port' => '5454',
     'database' => 'clinica',
-    'username' => 'postgres',
-    'password' => 'admin'
+    'username' => 'acmeuser',
+    'password' => 'wjstks'
 ];
 
 // Initialize the database connection
