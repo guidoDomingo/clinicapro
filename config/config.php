@@ -9,14 +9,6 @@
 // require_once __DIR__ . '/../vendor/autoload.php';
 
 // // Database configuration
-// $dbConfig = [
-//     'driver' => 'pgsql',
-//     'host' => '181.122.125.143',
-//     'port' => '5454',
-//     'database' => 'clinica',
-//     'username' => 'acmeuser',
-//     'password' => 'wjstks'
-// ];
 ///////////////////
 require_once __DIR__ . '/../vendor/autoload.php';
 
