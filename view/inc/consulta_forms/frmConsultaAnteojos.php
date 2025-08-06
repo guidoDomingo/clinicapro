@@ -1,6 +1,11 @@
 <!-- Incluir CSS para la carga de archivos -->
 <link rel="stylesheet" href="view/css/fileupload.css">
 
+<?php
+// Incluir modelo para formularios dinámicos
+require_once "model/formularios_dinamicos.model.php";
+?>
+
 <form id="tblConsulta" method="post" enctype="multipart/form-data">
     <!-- Campo oculto para identificar que es un formulario de anteojos -->
     <input type="hidden" id="form_type" name="form_type" value="anteojos">
@@ -59,77 +64,11 @@
         <div class="form-row">
             <div class="form-group col-md-3">
                 <label for="od_esf">Esfera (ESF)</label>
-                <select class="form-control select2bs4" name="od_esf" id="od_esf" style="width: 100%;">
-                    <option value="">Seleccionar</option>
-                    <option value="0.00">0.00</option>
-                    <option value="+0.25">+0.25</option>
-                    <option value="+0.50">+0.50</option>
-                    <option value="+0.75">+0.75</option>
-                    <option value="+1.00">+1.00</option>
-                    <option value="+1.25">+1.25</option>
-                    <option value="+1.50">+1.50</option>
-                    <option value="+1.75">+1.75</option>
-                    <option value="+2.00">+2.00</option>
-                    <option value="+2.25">+2.25</option>
-                    <option value="+2.50">+2.50</option>
-                    <option value="+2.75">+2.75</option>
-                    <option value="+3.00">+3.00</option>
-                    <option value="+4.00">+4.00</option>
-                    <option value="+5.00">+5.00</option>
-                    <option value="+6.00">+6.00</option>
-                    <option value="+7.00">+7.00</option>
-                    <option value="+8.00">+8.00</option>
-                    <option value="-0.25">-0.25</option>
-                    <option value="-0.50">-0.50</option>
-                    <option value="-0.75">-0.75</option>
-                    <option value="-1.00">-1.00</option>
-                    <option value="-1.25">-1.25</option>
-                    <option value="-1.50">-1.50</option>
-                    <option value="-1.75">-1.75</option>
-                    <option value="-2.00">-2.00</option>
-                    <option value="-2.25">-2.25</option>
-                    <option value="-2.50">-2.50</option>
-                    <option value="-2.75">-2.75</option>
-                    <option value="-3.00">-3.00</option>
-                    <option value="-4.00">-4.00</option>
-                    <option value="-5.00">-5.00</option>
-                    <option value="-6.00">-6.00</option>
-                    <option value="-7.00">-7.00</option>
-                    <option value="-8.00">-8.00</option>
-                </select>
+                <?php echo FormulariosDinamicos::generarSelectReferencial('valores_esfera', 'od_esf', 'od_esf'); ?>
             </div>
             <div class="form-group col-md-3">
                 <label for="od_cil">Cilindro (CIL)</label>
-                <select class="form-control select2bs4" name="od_cil" id="od_cil" style="width: 100%;">
-                    <option value="">Seleccionar</option>
-                    <option value="0.00">0.00</option>
-                    <option value="-0.25">-0.25</option>
-                    <option value="-0.50">-0.50</option>
-                    <option value="-0.75">-0.75</option>
-                    <option value="-1.00">-1.00</option>
-                    <option value="-1.25">-1.25</option>
-                    <option value="-1.50">-1.50</option>
-                    <option value="-1.75">-1.75</option>
-                    <option value="-2.00">-2.00</option>
-                    <option value="-2.25">-2.25</option>
-                    <option value="-2.50">-2.50</option>
-                    <option value="-2.75">-2.75</option>
-                    <option value="-3.00">-3.00</option>
-                    <option value="-4.00">-4.00</option>
-                    <option value="-5.00">-5.00</option>
-                    <option value="+0.25">+0.25</option>
-                    <option value="+0.50">+0.50</option>
-                    <option value="+0.75">+0.75</option>
-                    <option value="+1.00">+1.00</option>
-                    <option value="+1.25">+1.25</option>
-                    <option value="+1.50">+1.50</option>
-                    <option value="+1.75">+1.75</option>
-                    <option value="+2.00">+2.00</option>
-                    <option value="+2.25">+2.25</option>
-                    <option value="+2.50">+2.50</option>
-                    <option value="+2.75">+2.75</option>
-                    <option value="+3.00">+3.00</option>
-                </select>
+                <?php echo FormulariosDinamicos::generarSelectReferencial('valores_cilindro', 'od_cil', 'od_cil'); ?>
             </div>
             <div class="form-group col-md-3">
                 <label for="ejeod">Eje</label>
@@ -141,24 +80,7 @@
             </div>
             <div class="form-group col-md-3">
                 <label for="od_adicion">Adición</label>
-                <select class="form-control select2bs4" name="od_adicion" id="od_adicion" style="width: 100%;">
-                    <option value="">Seleccionar</option>
-                    <option value="0.00">0.00</option>
-                    <option value="+0.25">+0.25</option>
-                    <option value="+0.50">+0.50</option>
-                    <option value="+0.75">+0.75</option>
-                    <option value="+1.00">+1.00</option>
-                    <option value="+1.25">+1.25</option>
-                    <option value="+1.50">+1.50</option>
-                    <option value="+1.75">+1.75</option>
-                    <option value="+2.00">+2.00</option>
-                    <option value="+2.25">+2.25</option>
-                    <option value="+2.50">+2.50</option>
-                    <option value="+2.75">+2.75</option>
-                    <option value="+3.00">+3.00</option>
-                    <option value="+3.25">+3.25</option>
-                    <option value="+3.50">+3.50</option>
-                </select>
+                <?php echo FormulariosDinamicos::generarSelectReferencial('valores_adicion', 'od_adicion', 'od_adicion'); ?>
             </div>
             <div class="form-group col-md-3">
                 <label for="altura_od">Altura</label>
@@ -174,77 +96,11 @@
         <div class="form-row">
             <div class="form-group col-md-3">
                 <label for="oi_esf">Esfera (ESF)</label>
-                <select class="form-control select2bs4" name="oi_esf" id="oi_esf" style="width: 100%;">
-                    <option value="">Seleccionar</option>
-                    <option value="0.00">0.00</option>
-                    <option value="+0.25">+0.25</option>
-                    <option value="+0.50">+0.50</option>
-                    <option value="+0.75">+0.75</option>
-                    <option value="+1.00">+1.00</option>
-                    <option value="+1.25">+1.25</option>
-                    <option value="+1.50">+1.50</option>
-                    <option value="+1.75">+1.75</option>
-                    <option value="+2.00">+2.00</option>
-                    <option value="+2.25">+2.25</option>
-                    <option value="+2.50">+2.50</option>
-                    <option value="+2.75">+2.75</option>
-                    <option value="+3.00">+3.00</option>
-                    <option value="+4.00">+4.00</option>
-                    <option value="+5.00">+5.00</option>
-                    <option value="+6.00">+6.00</option>
-                    <option value="+7.00">+7.00</option>
-                    <option value="+8.00">+8.00</option>
-                    <option value="-0.25">-0.25</option>
-                    <option value="-0.50">-0.50</option>
-                    <option value="-0.75">-0.75</option>
-                    <option value="-1.00">-1.00</option>
-                    <option value="-1.25">-1.25</option>
-                    <option value="-1.50">-1.50</option>
-                    <option value="-1.75">-1.75</option>
-                    <option value="-2.00">-2.00</option>
-                    <option value="-2.25">-2.25</option>
-                    <option value="-2.50">-2.50</option>
-                    <option value="-2.75">-2.75</option>
-                    <option value="-3.00">-3.00</option>
-                    <option value="-4.00">-4.00</option>
-                    <option value="-5.00">-5.00</option>
-                    <option value="-6.00">-6.00</option>
-                    <option value="-7.00">-7.00</option>
-                    <option value="-8.00">-8.00</option>
-                </select>
+                <?php echo FormulariosDinamicos::generarSelectReferencial('valores_esfera', 'oi_esf', 'oi_esf'); ?>
             </div>
             <div class="form-group col-md-3">
                 <label for="oi_cil">Cilindro (CIL)</label>
-                <select class="form-control select2bs4" name="oi_cil" id="oi_cil" style="width: 100%;">
-                    <option value="">Seleccionar</option>
-                    <option value="0.00">0.00</option>
-                    <option value="-0.25">-0.25</option>
-                    <option value="-0.50">-0.50</option>
-                    <option value="-0.75">-0.75</option>
-                    <option value="-1.00">-1.00</option>
-                    <option value="-1.25">-1.25</option>
-                    <option value="-1.50">-1.50</option>
-                    <option value="-1.75">-1.75</option>
-                    <option value="-2.00">-2.00</option>
-                    <option value="-2.25">-2.25</option>
-                    <option value="-2.50">-2.50</option>
-                    <option value="-2.75">-2.75</option>
-                    <option value="-3.00">-3.00</option>
-                    <option value="-4.00">-4.00</option>
-                    <option value="-5.00">-5.00</option>
-                    <option value="+0.25">+0.25</option>
-                    <option value="+0.50">+0.50</option>
-                    <option value="+0.75">+0.75</option>
-                    <option value="+1.00">+1.00</option>
-                    <option value="+1.25">+1.25</option>
-                    <option value="+1.50">+1.50</option>
-                    <option value="+1.75">+1.75</option>
-                    <option value="+2.00">+2.00</option>
-                    <option value="+2.25">+2.25</option>
-                    <option value="+2.50">+2.50</option>
-                    <option value="+2.75">+2.75</option>
-                    <option value="+3.00">+3.00</option>
-                </select>
+                <?php echo FormulariosDinamicos::generarSelectReferencial('valores_cilindro', 'oi_cil', 'oi_cil'); ?>
             </div>
             <div class="form-group col-md-3">
                 <label for="ejeoi">Eje</label>
@@ -256,24 +112,7 @@
             </div>
             <div class="form-group col-md-3">
                 <label for="oi_adicion">Adición</label>
-                <select class="form-control select2bs4" name="oi_adicion" id="oi_adicion" style="width: 100%;">
-                    <option value="">Seleccionar</option>
-                    <option value="0.00">0.00</option>
-                    <option value="+0.25">+0.25</option>
-                    <option value="+0.50">+0.50</option>
-                    <option value="+0.75">+0.75</option>
-                    <option value="+1.00">+1.00</option>
-                    <option value="+1.25">+1.25</option>
-                    <option value="+1.50">+1.50</option>
-                    <option value="+1.75">+1.75</option>
-                    <option value="+2.00">+2.00</option>
-                    <option value="+2.25">+2.25</option>
-                    <option value="+2.50">+2.50</option>
-                    <option value="+2.75">+2.75</option>
-                    <option value="+3.00">+3.00</option>
-                    <option value="+3.25">+3.25</option>
-                    <option value="+3.50">+3.50</option>
-                </select>
+                <?php echo FormulariosDinamicos::generarSelectReferencial('valores_adicion', 'oi_adicion', 'oi_adicion'); ?>
             </div>
             <div class="form-group col-md-3">
                 <label for="altura_oi">Altura</label>

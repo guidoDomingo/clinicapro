@@ -42,6 +42,7 @@ include "controller/register.controller.php";
 include "controller/permisos.controller.php";
 include "controller/TipoFormulariosController.php";
 include "controller/preformatos.controller.php";
+include "controller/referenciales.controller.php";
 
 //MODEL
 include "model/register.model.php";
@@ -51,5 +52,6 @@ require_once "model/personas.model.php";
 require_once "model/permisos.model.php";
 require_once "model/TipoFormularios.php";
 require_once "model/preformatos.model.php";
+require_once "model/referenciales.model.php";
 $template = new ControllerTemplate();
 $template -> ctrTemplate();

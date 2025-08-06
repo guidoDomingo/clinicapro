@@ -137,17 +137,66 @@
                                 <p>Gestión de Turnos</p>
                             </a>
                         </li>
-                        <li style="padding-left: 20px;" class="nav-item">
-                            <a href="index.php?ruta=tipos-formularios" class="nav-link">
-                                <i class="nav-icon fas fa-file-alt"></i>
-                                <p>Tipos de Formularios</p>
+                        <!-- Submenu para Formularios Dinámicos -->
+                        <li style="padding-left: 20px;" class="nav-item has-treeview">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-cogs"></i>
+                                <p>
+                                    Formularios Dinámicos
+                                    <i class="fas fa-angle-left right"></i>
+                                </p>
                             </a>
+                            <ul class="nav nav-treeview">
+                                <li style="padding-left: 40px;" class="nav-item">
+                                    <a href="index.php?ruta=tipos-formularios" class="nav-link">
+                                        <i class="nav-icon fas fa-file-alt"></i>
+                                        <p>Tipos de Formularios</p>
+                                    </a>
+                                </li>
+                                <li style="padding-left: 40px;" class="nav-item">
+                                    <a href="index.php?ruta=campos-formularios" class="nav-link">
+                                        <i class="nav-icon fas fa-puzzle-piece"></i>
+                                        <p>Campos de Formularios</p>
+                                    </a>
+                                </li>
+                                <li style="padding-left: 40px;" class="nav-item">
+                                    <a href="index.php?ruta=tipos-campos" class="nav-link">
+                                        <i class="nav-icon fas fa-code"></i>
+                                        <p>Tipos de Campos</p>
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
-                        <li class="nav-item" style="padding-left: 20px;">
-                            <a href="index.php?ruta=referencial2" class="nav-link">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>Referencial 2</p>
+                        
+                        <!-- Submenu para Referenciales -->
+                        <li style="padding-left: 20px;" class="nav-item has-treeview">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-database"></i>
+                                <p>
+                                    Referenciales Dinámicos
+                                    <i class="fas fa-angle-left right"></i>
+                                </p>
                             </a>
+                            <ul class="nav nav-treeview">
+                                <li style="padding-left: 40px;" class="nav-item">
+                                    <a href="index.php?ruta=referenciales" class="nav-link">
+                                        <i class="nav-icon fas fa-list-ul"></i>
+                                        <p>Gestión de Referenciales</p>
+                                    </a>
+                                </li>
+                                <li style="padding-left: 40px;" class="nav-item">
+                                    <a href="index.php?ruta=valores-referenciales" class="nav-link">
+                                        <i class="nav-icon fas fa-tags"></i>
+                                        <p>Valores de Referenciales</p>
+                                    </a>
+                                </li>
+                                <li style="padding-left: 40px;" class="nav-item">
+                                    <a href="index.php?ruta=configuraciones-formularios" class="nav-link">
+                                        <i class="nav-icon fas fa-sliders-h"></i>
+                                        <p>Configuraciones</p>
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
                         <li class="nav-item" style="padding-left: 20px;">
                             <a href="index.php?ruta=referencial3" class="nav-link">

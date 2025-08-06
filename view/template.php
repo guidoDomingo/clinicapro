@@ -149,7 +149,7 @@ if (isset($_SESSION["iniciarSesion"]) && $_SESSION["iniciarSesion"] == "ok") {
     
     // Manejo de páginas con inicio de sesión      
     if(isset($_GET["ruta"])){
-        if ($_GET["ruta"] == "home" || $_GET["ruta"] == "logout"|| $_GET["ruta"] == "consultas" || $_GET["ruta"] == "personas" || $_GET["ruta"] == "roles" || $_GET["ruta"] == "perfil" || $_GET["ruta"] == "rhpersonas" || $_GET["ruta"] == "preformatos" || $_GET["ruta"] == "agendas" || $_GET["ruta"] == "servicios" || $_GET["ruta"] == "rs_servicios" || $_GET["ruta"] == "citas" || $_GET["ruta"] == "citas" || $_GET["ruta"] == "profesiones" || $_GET["ruta"] == "especialidades" || $_GET["ruta"] == "motivos" || $_GET["ruta"] == "empresas" || $_GET["ruta"] == "tipos_proveedores" || $_GET["ruta"] == "proveedores" || $_GET["ruta"] == "salas" || $_GET["ruta"] == "turnos" || $_GET["ruta"] == "tipos-formularios")  {
+        if ($_GET["ruta"] == "home" || $_GET["ruta"] == "logout"|| $_GET["ruta"] == "consultas" || $_GET["ruta"] == "personas" || $_GET["ruta"] == "roles" || $_GET["ruta"] == "perfil" || $_GET["ruta"] == "rhpersonas" || $_GET["ruta"] == "preformatos" || $_GET["ruta"] == "agendas" || $_GET["ruta"] == "servicios" || $_GET["ruta"] == "rs_servicios" || $_GET["ruta"] == "citas" || $_GET["ruta"] == "citas" || $_GET["ruta"] == "profesiones" || $_GET["ruta"] == "especialidades" || $_GET["ruta"] == "motivos" || $_GET["ruta"] == "empresas" || $_GET["ruta"] == "tipos_proveedores" || $_GET["ruta"] == "proveedores" || $_GET["ruta"] == "salas" || $_GET["ruta"] == "turnos" || $_GET["ruta"] == "tipos-formularios" || $_GET["ruta"] == "campos-formularios" || $_GET["ruta"] == "tipos-campos" || $_GET["ruta"] == "referenciales" || $_GET["ruta"] == "valores-referenciales" || $_GET["ruta"] == "configuraciones-formularios")  {
             
             // Verificar permisos para acceder a ciertas rutas
             $requierePermiso = false;
@@ -210,6 +210,26 @@ if (isset($_SESSION["iniciarSesion"]) && $_SESSION["iniciarSesion"] == "ok") {
                     $requierePermiso = true;
                     $permisoRequerido = 'administrar_tipos_formularios';
                     break;
+                case "campos-formularios":
+                    $requierePermiso = true;
+                    $permisoRequerido = 'administrar_campos_formularios';
+                    break;
+                case "tipos-campos":
+                    $requierePermiso = true;
+                    $permisoRequerido = 'administrar_tipos_campos';
+                    break;
+                case "referenciales":
+                    $requierePermiso = true;
+                    $permisoRequerido = 'administrar_referenciales';
+                    break;
+                case "valores-referenciales":
+                    $requierePermiso = true;
+                    $permisoRequerido = 'administrar_valores_referenciales';
+                    break;
+                case "configuraciones-formularios":
+                    $requierePermiso = true;
+                    $permisoRequerido = 'administrar_configuraciones_formularios';
+                    break;
             }
             
             // Verificar si la ruta requiere un permiso específico
@@ -230,10 +250,32 @@ if (isset($_SESSION["iniciarSesion"]) && $_SESSION["iniciarSesion"] == "ok") {
                     include "view/modules/home.php";
                 } else {
                     // Admin puede acceder sin verificar permisos específicos
-                    include "view/modules/".$_GET["ruta"].".php";
+                    // Verificar si es una ruta de referenciales
+                    $rutasReferenciales = [
+                        'tipos-formularios', 'campos-formularios', 'tipos-campos', 
+                        'referenciales', 'valores-referenciales', 'configuraciones-formularios'
+                    ];
+                    
+                    if (in_array($_GET["ruta"], $rutasReferenciales)) {
+                        // Incluir el controlador de referenciales
+                        ControllerReferenciales::ctrMostrarReferenciales();
+                    } else {
+                        include "view/modules/".$_GET["ruta"].".php";
+                    }
                 }
             } else {
-                include "view/modules/".$_GET["ruta"].".php";
+                // Verificar si es una ruta de referenciales
+                $rutasReferenciales = [
+                    'tipos-formularios', 'campos-formularios', 'tipos-campos', 
+                    'referenciales', 'valores-referenciales', 'configuraciones-formularios'
+                ];
+                
+                if (in_array($_GET["ruta"], $rutasReferenciales)) {
+                    // Incluir el controlador de referenciales
+                    ControllerReferenciales::ctrMostrarReferenciales();
+                } else {
+                    include "view/modules/".$_GET["ruta"].".php";
+                }
             }
         } else {
             include "view/modules/404.php";

@@ -456,10 +456,15 @@ function aplicarPreformato(tipo, idPreformato) {
 
 /**
  * Inicializa los selectores para esferas, cilindros y adiciones en el formulario de anteojos
+ * 🚫 FUNCIÓN DESACTIVADA - Los valores ahora se cargan desde la base de datos vía FormulariosDinamicos
  */
 function inicializarSelectoresAnteojos() {
-    console.log('Inicializando selectores para anteojos');
+    console.log('🚫 inicializarSelectoresAnteojos() DESACTIVADA');
+    console.log('✅ Los valores de esfera ahora se cargan desde la base de datos vía FormulariosDinamicos');
+    console.log('📋 Si necesitas modificar los valores, hazlo en la tabla "referencial_valores"');
     
+    // 🚫 CÓDIGO DESACTIVADO - YA NO SE GENERAN VALORES AUTOMÁTICAMENTE
+    /*
     // Arrays para valores de esferas
     const esferasPositivas = [];
     const esferasNegativas = [];
@@ -506,11 +511,18 @@ function inicializarSelectoresAnteojos() {
     llenarSelector('oi_esf', ['Neutro', ...esferasPositivas.reverse(), ...esferasNegativas]);
     llenarSelector('oi_cil', ['Neutro', ...cilindros]);
     llenarSelector('oi_adicion', ['Neutro', ...adiciones]);
+    */
 
-    // Inicializar Select2 para todos los selectores
-    $('.select2bs4').select2({
-        theme: 'bootstrap4'
-    });
+    // ✅ SOLO INICIALIZAR Select2 para mantener funcionalidad
+    console.log('✅ Inicializando Select2 para selectores existentes...');
+    if (typeof $.fn.select2 !== 'undefined') {
+        $('.select2bs4').select2({
+            theme: 'bootstrap4'
+        });
+        console.log('✅ Select2 inicializado correctamente');
+    } else {
+        console.warn('⚠️ Select2 no está disponible');
+    }
 }
 
 /**

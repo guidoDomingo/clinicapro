@@ -4,10 +4,10 @@
  * Ejecutar una sola vez para crear la estructura de la base de datos
  */
 
-require_once "config/connection.php";
+require_once "model/conexion.php";
 
 try {
-    $pdo = Connection::conectar();
+    $pdo = Conexion::conectar();
     
     // SQL para crear la tabla tipos_formularios
     $sql = "CREATE TABLE IF NOT EXISTS tipos_formularios (
