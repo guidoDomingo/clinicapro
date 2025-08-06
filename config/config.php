@@ -6,17 +6,39 @@
  */
 
 // Require composer autoloader
+// require_once __DIR__ . '/../vendor/autoload.php';
+
+// // Database configuration
+// $dbConfig = [
+//     'driver' => 'pgsql',
+//     'host' => '181.122.125.143',
+//     'port' => '5454',
+//     'database' => 'clinica',
+//     'username' => 'acmeuser',
+//     'password' => 'wjstks'
+// ];
+///////////////////
 require_once __DIR__ . '/../vendor/autoload.php';
 
-// Database configuration
+use Dotenv\Dotenv;
+
+// Cargar las variables del archivo .env
+$dotenv = Dotenv::createImmutable(dirname(__DIR__));
+$dotenv->load();
+
+// Database configuration desde .env
 $dbConfig = [
-    'driver' => 'pgsql',
-    'host' => '181.122.125.143',
-    'port' => '5454',
-    'database' => 'clinica',
-    'username' => 'acmeuser',
-    'password' => 'wjstks'
+    'driver'   => $_ENV['DB_DRIVER'] ?? 'pgsql',
+    'host'     => $_ENV['DB_HOST'] ?? 'localhost',
+    'port'     => $_ENV['DB_PORT'] ?? '5432',
+    'database' => $_ENV['DB_DATABASE'] ?? 'default_db',
+    'username' => $_ENV['DB_USERNAME'] ?? 'default_user',
+    'password' => $_ENV['DB_PASSWORD'] ?? ''
 ];
+
+
+
+
 
 // Initialize the database connection
 \Api\Core\Database::init($dbConfig);

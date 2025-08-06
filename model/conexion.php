@@ -1,12 +1,24 @@
 <?php 
+require_once __DIR__ . '/../vendor/autoload.php';
+use Dotenv\Dotenv;
+
+$dotenv = Dotenv::createImmutable(dirname(__DIR__));
+$dotenv->load();
+
 class Conexion{
 
     static public function conectar(){
-        $contrasena = "wjstks";
-        $usuario = "acmeuser";
-        $nombreBaseDeDatos = "clinica";
-        $rutaServidor = "181.122.125.143";
-        $puerto = "5454";        try {
+        // Cargar .env una sola vez
+        if (!isset($GLOBALS['_dotenv_loaded'])) {
+            $dotenv = Dotenv::createImmutable(__DIR__ . '/../');
+            $dotenv->load();
+            $GLOBALS['_dotenv_loaded'] = true;
+        }
+        $contrasena = $_ENV['DB_PASSWORD'] ?? '';
+        $usuario = $_ENV['DB_USERNAME'] ?? '';
+        $nombreBaseDeDatos = $_ENV['DB_DATABASE'] ?? '';
+        $rutaServidor = $_ENV['DB_HOST'] ?? '';
+        $puerto = $_ENV['DB_PORT'] ?? '';        try {
             // Check if PostgreSQL extension is available
             if (!extension_loaded('pdo_pgsql')) {
                 // Asegurar que exista el directorio de logs
