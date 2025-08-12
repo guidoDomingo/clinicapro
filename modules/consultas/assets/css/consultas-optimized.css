@@ -1,0 +1,383 @@
+/**
+ * Estilos Optimizados para el Módulo de Consultas
+ * Versión: 2.1.0
+ * Arquitectura: Escalable y Mantenible
+ */
+
+/* ====================================
+   VARIABLES CSS GLOBALES - MODO CLARO
+   ==================================== */
+:root {
+    /* Paleta de colores principal */
+    --consultas-primary: #007bff;
+    --consultas-secondary: #6c757d;
+    --consultas-success: #28a745;
+    --consultas-info: #17a2b8;
+    --consultas-warning: #ffc107;
+    --consultas-danger: #dc3545;
+    --consultas-light: #f8f9fa;
+    --consultas-dark: #343a40;
+    
+    /* Colores de fondo - MODO CLARO FORZADO */
+    --consultas-bg-primary: #ffffff;
+    --consultas-bg-secondary: #f8f9fa;
+    --consultas-bg-tertiary: #e9ecef;
+    
+    /* Colores de texto - MODO CLARO */
+    --consultas-text-primary: #212529;
+    --consultas-text-secondary: #6c757d;
+    --consultas-text-muted: #868e96;
+    
+    /* Bordes y sombras */
+    --consultas-border-color: #dee2e6;
+    --consultas-border-radius: 0.375rem;
+    --consultas-box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    --consultas-box-shadow-lg: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    
+    /* Espaciado consistente */
+    --consultas-spacing-xs: 0.25rem;
+    --consultas-spacing-sm: 0.5rem;
+    --consultas-spacing-md: 1rem;
+    --consultas-spacing-lg: 1.5rem;
+    --consultas-spacing-xl: 2rem;
+    
+    /* Transiciones suaves */
+    --consultas-transition: all 0.2s ease-in-out;
+    --consultas-transition-fast: all 0.1s ease-in-out;
+}
+
+/* ====================================
+   CONTENEDOR PRINCIPAL DEL MÓDULO
+   ==================================== */
+.consultas-module {
+    background-color: var(--consultas-bg-primary) !important;
+    color: var(--consultas-text-primary) !important;
+    min-height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* ====================================
+   NAVEGACIÓN Y HEADER
+   ==================================== */
+.consultas-navbar {
+    background: linear-gradient(135deg, var(--consultas-primary), #0056b3) !important;
+    border-bottom: 2px solid var(--consultas-border-color);
+    box-shadow: var(--consultas-box-shadow);
+}
+
+.consultas-navbar .navbar-brand {
+    color: white !important;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.consultas-navbar .nav-link {
+    color: rgba(255, 255, 255, 0.9) !important;
+    transition: var(--consultas-transition);
+    border-radius: var(--consultas-border-radius);
+    margin: 0 0.25rem;
+    padding: 0.5rem 0.75rem !important;
+}
+
+.consultas-navbar .nav-link:hover {
+    color: white !important;
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-1px);
+}
+
+/* ====================================
+   CONTENEDOR PRINCIPAL DE CONSULTAS
+   ==================================== */
+.consultas-contenedor {
+    background: var(--consultas-bg-primary);
+    border-radius: var(--consultas-border-radius);
+    box-shadow: var(--consultas-box-shadow);
+    padding: var(--consultas-spacing-lg);
+    margin: var(--consultas-spacing-md) 0;
+    border: 1px solid var(--consultas-border-color);
+}
+
+/* ====================================
+   SELECTOR DE TIPO DE CONSULTA
+   ==================================== */
+.consultas-tipo-selector {
+    margin-bottom: var(--consultas-spacing-xl);
+    padding: var(--consultas-spacing-md);
+    background: var(--consultas-bg-secondary);
+    border-radius: var(--consultas-border-radius);
+    border: 1px solid var(--consultas-border-color);
+}
+
+.consultas-tipo-selector h5 {
+    color: var(--consultas-text-primary);
+    font-weight: 600;
+    margin-bottom: var(--consultas-spacing-md);
+}
+
+.consultas-tipo-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--consultas-spacing-sm);
+    justify-content: center;
+}
+
+.consultas-tipo-tab {
+    background: var(--consultas-bg-primary);
+    border: 2px solid var(--consultas-border-color);
+    color: var(--consultas-text-primary);
+    padding: var(--consultas-spacing-sm) var(--consultas-spacing-md);
+    border-radius: var(--consultas-border-radius);
+    cursor: pointer;
+    transition: var(--consultas-transition);
+    font-weight: 500;
+    min-width: 120px;
+    text-align: center;
+}
+
+.consultas-tipo-tab:hover {
+    background: var(--consultas-bg-tertiary);
+    border-color: var(--consultas-primary);
+    transform: translateY(-2px);
+    box-shadow: var(--consultas-box-shadow);
+}
+
+.consultas-tipo-tab.active {
+    background: var(--consultas-primary);
+    color: white;
+    border-color: var(--consultas-primary);
+    box-shadow: var(--consultas-box-shadow-lg);
+}
+
+.consultas-tipo-tab i {
+    margin-right: var(--consultas-spacing-xs);
+}
+
+/* ====================================
+   FORMULARIOS EMBEBIDOS
+   ==================================== */
+.consultas-formularios-container {
+    position: relative;
+    min-height: 500px;
+}
+
+.formulario-especifico {
+    background: var(--consultas-bg-primary);
+    border-radius: var(--consultas-border-radius);
+    padding: var(--consultas-spacing-md);
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { 
+        opacity: 0; 
+        transform: translateY(10px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+/* ====================================
+   CAMPOS DE FORMULARIO OPTIMIZADOS
+   ==================================== */
+.form-control {
+    background-color: var(--consultas-bg-primary) !important;
+    color: var(--consultas-text-primary) !important;
+    border: 1px solid var(--consultas-border-color) !important;
+    border-radius: var(--consultas-border-radius) !important;
+    transition: var(--consultas-transition) !important;
+}
+
+.form-control:focus {
+    background-color: var(--consultas-bg-primary) !important;
+    color: var(--consultas-text-primary) !important;
+    border-color: var(--consultas-primary) !important;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
+}
+
+.form-control::placeholder {
+    color: var(--consultas-text-muted) !important;
+}
+
+/* ====================================
+   BOTONES OPTIMIZADOS
+   ==================================== */
+.btn {
+    border-radius: var(--consultas-border-radius) !important;
+    font-weight: 500 !important;
+    transition: var(--consultas-transition) !important;
+    box-shadow: var(--consultas-box-shadow) !important;
+}
+
+.btn:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: var(--consultas-box-shadow-lg) !important;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--consultas-primary), #0056b3) !important;
+    border-color: var(--consultas-primary) !important;
+}
+
+.btn-success {
+    background: linear-gradient(135deg, var(--consultas-success), #1e7e34) !important;
+    border-color: var(--consultas-success) !important;
+}
+
+.btn-warning {
+    background: linear-gradient(135deg, var(--consultas-warning), #e0a800) !important;
+    border-color: var(--consultas-warning) !important;
+    color: var(--consultas-text-primary) !important;
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, var(--consultas-danger), #c82333) !important;
+    border-color: var(--consultas-danger) !important;
+}
+
+/* ====================================
+   ELEMENTOS OCULTOS UTILIDADES
+   ==================================== */
+.consultas-hidden {
+    display: none !important;
+}
+
+.consultas-loading {
+    opacity: 0.7;
+    pointer-events: none;
+    position: relative;
+}
+
+.consultas-loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--consultas-bg-primary);
+    opacity: 0.8;
+    z-index: 1000;
+}
+
+/* ====================================
+   ALERTAS PERSONALIZADAS
+   ==================================== */
+.alert {
+    border: none !important;
+    border-radius: var(--consultas-border-radius) !important;
+    box-shadow: var(--consultas-box-shadow) !important;
+}
+
+.alert-info {
+    background: linear-gradient(135deg, #d1ecf1, #bee5eb) !important;
+    color: #0c5460 !important;
+}
+
+.alert-success {
+    background: linear-gradient(135deg, #d4edda, #c3e6cb) !important;
+    color: #155724 !important;
+}
+
+.alert-warning {
+    background: linear-gradient(135deg, #fff3cd, #ffeaa7) !important;
+    color: #856404 !important;
+}
+
+.alert-danger {
+    background: linear-gradient(135deg, #f8d7da, #f5c6cb) !important;
+    color: #721c24 !important;
+}
+
+/* ====================================
+   FOOTER DEL MÓDULO
+   ==================================== */
+.consultas-footer {
+    background: var(--consultas-bg-secondary) !important;
+    border-top: 1px solid var(--consultas-border-color);
+    color: var(--consultas-text-secondary) !important;
+    margin-top: var(--consultas-spacing-xl);
+}
+
+/* ====================================
+   RESPONSIVIDAD MEJORADA
+   ==================================== */
+@media (max-width: 768px) {
+    .consultas-tipo-tabs {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .consultas-tipo-tab {
+        min-width: auto;
+        margin-bottom: var(--consultas-spacing-xs);
+    }
+    
+    .consultas-contenedor {
+        padding: var(--consultas-spacing-md);
+        margin: var(--consultas-spacing-sm) 0;
+    }
+    
+    .consultas-navbar .navbar-nav {
+        margin-top: var(--consultas-spacing-sm);
+    }
+}
+
+@media (max-width: 576px) {
+    .consultas-tipo-selector {
+        padding: var(--consultas-spacing-sm);
+    }
+    
+    .form-row .form-group {
+        margin-bottom: var(--consultas-spacing-sm);
+    }
+}
+
+/* ====================================
+   MODO OSCURO - COMPLETAMENTE DESHABILITADO
+   ==================================== */
+@media (prefers-color-scheme: dark) {
+    /* Forzar modo claro incluso si el sistema prefiere oscuro */
+    .consultas-module,
+    .consultas-module * {
+        background-color: var(--consultas-bg-primary) !important;
+        color: var(--consultas-text-primary) !important;
+    }
+}
+
+/* Override para cualquier intento de modo oscuro */
+.dark,
+.dark-mode,
+[data-theme="dark"] {
+    background-color: var(--consultas-bg-primary) !important;
+    color: var(--consultas-text-primary) !important;
+}
+
+/* ====================================
+   OPTIMIZACIONES DE RENDIMIENTO
+   ==================================== */
+* {
+    box-sizing: border-box;
+}
+
+.consultas-module * {
+    will-change: auto;
+}
+
+.consultas-tipo-tab,
+.btn {
+    will-change: transform, box-shadow;
+}
+
+/* ====================================
+   UTILIDADES ADICIONALES
+   ==================================== */
+.text-consultas-primary { color: var(--consultas-primary) !important; }
+.text-consultas-secondary { color: var(--consultas-secondary) !important; }
+.bg-consultas-primary { background-color: var(--consultas-primary) !important; }
+.bg-consultas-secondary { background-color: var(--consultas-bg-secondary) !important; }
+.border-consultas { border-color: var(--consultas-border-color) !important; }
+.rounded-consultas { border-radius: var(--consultas-border-radius) !important; }
+.shadow-consultas { box-shadow: var(--consultas-box-shadow) !important; }
+.shadow-consultas-lg { box-shadow: var(--consultas-box-shadow-lg) !important; }

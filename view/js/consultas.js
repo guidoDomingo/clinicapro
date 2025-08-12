@@ -1291,6 +1291,196 @@ function verDetalleConsulta(idConsulta) {
 }
 
 /**
+ * Función para editar una consulta existente
+ * @param {number} idConsulta - ID de la consulta a editar
+ * @param {number} idPersona - ID de la persona (opcional, para validación)
+ */
+function editarConsulta(idConsulta, idPersona) {
+    // Crear objeto FormData para enviar los datos
+    const formData = new FormData();
+    formData.append('id_consulta', idConsulta);
+    formData.append('operacion', 'detalleConsulta');
+    
+    // Mostrar indicador de carga
+    Swal.fire({
+        title: 'Cargando consulta...',
+        text: 'Preparando los datos para edición',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showConfirmButton: false,
+        onOpen: function() {
+            Swal.showLoading();
+        }
+    });
+    
+    // Realizar petición AJAX para obtener el detalle de la consulta
+    $.ajax({
+        type: 'POST',
+        url: 'ajax/consultas.ajax.php',
+        data: formData,
+        dataType: "json",
+        processData: false,
+        contentType: false,
+        success: function(response) {
+            if (response) {
+                console.log('Datos de consulta para editar:', response);
+                
+                // Obtener los archivos asociados a esta consulta
+                obtenerArchivosConsulta(response.id_consulta, function(archivos) {
+                    // Cerrar el indicador de carga
+                    Swal.close();
+                    
+                    // Cargar los datos en el formulario
+                    cargarConsultaEnFormulario(response, archivos);
+                    
+                    // Mostrar mensaje de confirmación
+                    Swal.fire({
+                        position: "top-end",
+                        icon: "info",
+                        title: "Consulta cargada para edición",
+                        text: "Los datos se han cargado en el formulario. Puedes modificar y guardar los cambios.",
+                        showConfirmButton: false,
+                        timer: 3000
+                    });
+                    
+                    // Opcional: Scroll al formulario si está fuera de vista
+                    setTimeout(() => {
+                        const formulario = document.querySelector('#frmConsulta, .formulario-consulta, .consulta-form');
+                        if (formulario) {
+                            formulario.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                    }, 500);
+                });
+            } else {
+                Swal.close();
+                Swal.fire({
+                    position: "center",
+                    icon: "error",
+                    title: "No se encontró la consulta",
+                    text: "La consulta solicitada no existe o no se puede cargar para edición.",
+                    showConfirmButton: false,
+                    timer: 2000
+                });
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error("Error al obtener consulta para editar:", error);
+            Swal.close();
+            Swal.fire({
+                position: "center",
+                icon: "error",
+                title: "Error al cargar consulta",
+                text: "No se pudo cargar la consulta para edición. Inténtalo nuevamente.",
+                showConfirmButton: false,
+                timer: 2000
+            });
+        }
+    });
+}
+
+/**
+ * Función para eliminar una consulta existente
+ * @param {number} idConsulta - ID de la consulta a eliminar
+ * @param {string} paciente - Nombre del paciente (para mostrar en la confirmación)
+ */
+function eliminarConsulta(idConsulta, paciente) {
+    // Mostrar confirmación antes de eliminar
+    Swal.fire({
+        title: '¿Estás seguro?',
+        html: `¿Deseas eliminar la consulta del paciente:<br><strong>${paciente}</strong>?<br><br><small class="text-warning">Esta acción no se puede deshacer</small>`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: '<i class="fas fa-trash"></i> Sí, eliminar',
+        cancelButtonText: '<i class="fas fa-times"></i> Cancelar',
+        reverseButtons: true,
+        focusCancel: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Mostrar indicador de carga
+            Swal.fire({
+                title: 'Eliminando consulta...',
+                text: 'Por favor espera mientras se procesa la eliminación',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                showConfirmButton: false,
+                onOpen: function() {
+                    Swal.showLoading();
+                }
+            });
+            
+            // Crear objeto FormData para enviar los datos
+            const formData = new FormData();
+            formData.append('id_consulta', idConsulta);
+            formData.append('operacion', 'eliminarConsulta');
+            
+            // Realizar petición AJAX para eliminar la consulta
+            $.ajax({
+                type: 'POST',
+                url: 'ajax/consultas.ajax.php',
+                data: formData,
+                dataType: "json",
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    console.log('Respuesta de eliminación:', response);
+                    
+                    if (response && (response.status === 'success' || response.eliminado === true || response === true)) {
+                        // Éxito - consulta eliminada
+                        Swal.fire({
+                            position: "center",
+                            icon: "success",
+                            title: "Consulta eliminada",
+                            text: `La consulta del paciente ${paciente} ha sido eliminada correctamente.`,
+                            showConfirmButton: false,
+                            timer: 2500
+                        });
+                        
+                        // Recargar la tabla de consultas para reflejar los cambios
+                        if (window.tablaConsultasInstance) {
+                            console.log('Recargando tabla de consultas...');
+                            window.tablaConsultasInstance.ajax.reload(null, false);
+                        } else {
+                            // Si no hay instancia de DataTable, recargar la página como fallback
+                            setTimeout(() => {
+                                location.reload();
+                            }, 1000);
+                        }
+                        
+                    } else {
+                        // Error en la eliminación
+                        const mensaje = response.message || response.error || 'No se pudo eliminar la consulta';
+                        Swal.fire({
+                            position: "center",
+                            icon: "error",
+                            title: "Error al eliminar",
+                            text: mensaje,
+                            showConfirmButton: true
+                        });
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error en AJAX al eliminar consulta:", error);
+                    console.error("Respuesta del servidor:", xhr.responseText);
+                    
+                    Swal.fire({
+                        position: "center",
+                        icon: "error",
+                        title: "Error de conexión",
+                        text: "No se pudo conectar con el servidor para eliminar la consulta. Inténtalo nuevamente.",
+                        showConfirmButton: true
+                    });
+                }
+            });
+        } else {
+            // El usuario canceló
+            console.log('Eliminación cancelada por el usuario');
+        }
+    });
+}
+
+/**
  * Función auxiliar para obtener el color del badge según el tipo de formulario
  */
 function getBadgeColor(tipoFormulario) {
@@ -3341,6 +3531,14 @@ function inicializarTablaConsultas(idPaciente) {
                                             <button class="btn btn-info btn-sm ver-consulta" data-id="${row.id_consulta}" data-idpersona="${row.id_persona || ''}">
                                                 <i class="fas fa-eye"></i> Ver
                                             </button>
+
+                                            <button class="btn btn-warning btn-sm editar-consulta" data-id="${row.id_consulta}" data-idpersona="${row.id_persona || ''}" title="Editar Consulta">
+                                                <i class="fas fa-edit"></i> Editar
+                                            </button>
+
+                                            <button class="btn btn-danger btn-sm eliminar-consulta" data-id="${row.id_consulta}" data-paciente="${row.nombre || ''} ${row.apellido || ''}" title="Eliminar Consulta">
+                                                <i class="fas fa-trash"></i> Eliminar
+                                            </button>
                                 
                                             <button type="button" class="ml-2 btn btn-success btn-sm enviar-whatsapp" data-id="${row.id_consulta}" data-idpersona="${row.id_persona || ''}">
                                                 <i class="fab fa-whatsapp"></i>
@@ -3396,6 +3594,22 @@ function inicializarTablaConsultas(idPaciente) {
                         const idPersona = $(this).data('idpersona');
                         console.log('Ver consulta:', idConsulta, 'de persona:', idPersona);
                         verDetalleConsulta(idConsulta);
+                    });
+
+                    // Agregar evento para editar consulta
+                    $('#tabla-consultas tbody').on('click', 'button.editar-consulta', function() {
+                        const idConsulta = $(this).data('id');
+                        const idPersona = $(this).data('idpersona');
+                        console.log('Editar consulta:', idConsulta, 'de persona:', idPersona);
+                        editarConsulta(idConsulta, idPersona);
+                    });
+
+                    // Agregar evento para eliminar consulta
+                    $('#tabla-consultas tbody').on('click', 'button.eliminar-consulta', function() {
+                        const idConsulta = $(this).data('id');
+                        const paciente = $(this).data('paciente');
+                        console.log('Eliminar consulta:', idConsulta, 'del paciente:', paciente);
+                        eliminarConsulta(idConsulta, paciente);
                     });
                     
                 } catch (dtError) {

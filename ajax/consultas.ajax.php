@@ -35,6 +35,91 @@ class ConsultaAjax {
             'message' => 'No se encontró el paciente asociado a esta consulta'
         ]);
     }
+
+    public function ajaxEliminarConsulta($idConsulta) {
+        try {
+            // Obtener conexión
+            require_once "../model/conexion.php";
+            $db = Conexion::conectar();
+            
+            if (!$db) {
+                echo json_encode([
+                    'status' => 'error',
+                    'message' => 'Error de conexión a la base de datos'
+                ]);
+                return;
+            }
+            
+            // Comenzar transacción
+            $db->beginTransaction();
+            
+            try {
+                // Verificar que la consulta existe
+                $stmt_check = $db->prepare("SELECT id_consulta FROM consultas WHERE id_consulta = :id_consulta");
+                $stmt_check->bindParam(":id_consulta", $idConsulta, PDO::PARAM_INT);
+                $stmt_check->execute();
+                
+                if ($stmt_check->rowCount() === 0) {
+                    $db->rollBack();
+                    echo json_encode([
+                        'status' => 'error',
+                        'message' => 'La consulta no existe o ya fue eliminada'
+                    ]);
+                    return;
+                }
+                
+                // Eliminar datos específicos de anteojos si existen
+                try {
+                    $stmt_anteojos = $db->prepare("DELETE FROM consulta_anteojos WHERE id_consulta = :id_consulta");
+                    $stmt_anteojos->bindParam(":id_consulta", $idConsulta, PDO::PARAM_INT);
+                    $stmt_anteojos->execute();
+                } catch (Exception $e) {
+                    // Tabla puede no existir, continuar
+                }
+                
+                // Eliminar datos específicos de informe imagen si existen
+                try {
+                    $stmt_informe = $db->prepare("DELETE FROM consulta_informe_imagen WHERE id_consulta = :id_consulta");
+                    $stmt_informe->bindParam(":id_consulta", $idConsulta, PDO::PARAM_INT);
+                    $stmt_informe->execute();
+                } catch (Exception $e) {
+                    // Tabla puede no existir, continuar
+                }
+                
+                // Eliminar la consulta principal
+                $stmt_consulta = $db->prepare("DELETE FROM consultas WHERE id_consulta = :id_consulta");
+                $stmt_consulta->bindParam(":id_consulta", $idConsulta, PDO::PARAM_INT);
+                $stmt_consulta->execute();
+                
+                if ($stmt_consulta->rowCount() > 0) {
+                    // Confirmar transacción
+                    $db->commit();
+                    
+                    echo json_encode([
+                        'status' => 'success',
+                        'message' => 'Consulta eliminada correctamente',
+                        'eliminado' => true
+                    ]);
+                } else {
+                    $db->rollBack();
+                    echo json_encode([
+                        'status' => 'error',
+                        'message' => 'No se pudo eliminar la consulta'
+                    ]);
+                }
+                
+            } catch (Exception $e) {
+                $db->rollBack();
+                throw $e;
+            }
+            
+        } catch (Exception $e) {
+            echo json_encode([
+                'status' => 'error',
+                'message' => 'Error interno: ' . $e->getMessage()
+            ]);
+        }
+    }
     
     public function ajaxGetHistorialConsultas($idPersona) {
         $response = ModelConsulta::mdlGetConsultaPersona($idPersona);
@@ -125,4 +210,9 @@ if (isset($_POST["id_persona"]) && isset($_POST["operacion"]) && $_POST["operaci
 if (isset($_POST["id_consulta"]) && isset($_POST["operacion"]) && $_POST["operacion"] === "obtenerPacientePorConsulta") {
     $consultaPaciente = new ConsultaAjax();
     $consultaPaciente->ajaxObtenerPacientePorConsulta($_POST["id_consulta"]);
+}
+// Procesar eliminaci�n de consulta
+if (isset($_POST["id_consulta"]) && isset($_POST["operacion"]) && $_POST["operacion"] === "eliminarConsulta") {
+    $eliminarConsulta = new ConsultaAjax();
+    $eliminarConsulta->ajaxEliminarConsulta($_POST["id_consulta"]);
 }
