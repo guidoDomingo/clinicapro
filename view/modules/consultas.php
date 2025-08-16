@@ -14,17 +14,354 @@
     
     <!-- Incluir CSS para la carga de archivos -->
     <link rel="stylesheet" href="view/css/fileupload.css">
+    
+    <!-- CSS moderno para el módulo de consultas -->
+    <style>
+        /* === ESTILOS MODERNOS PARA CONSULTAS === */
+        
+        /* Protección del sidebar AdminLTE */
+        .main-sidebar, 
+        .main-sidebar .sidebar,
+        .sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link,
+        .sidebar-light .nav-sidebar > .nav-item > .nav-link {
+            background-color: inherit !important;
+        }
+        
+        /* Solo aplicar el gradiente al content-wrapper, no al sidebar */
+        .wrapper > .content-wrapper {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        /* Header moderno */
+        .content-header h1 {
+            color: #2c3e50;
+            font-weight: 600;
+            font-size: 2rem;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .content-header h1 i {
+            color: #3498db;
+            margin-right: 12px;
+        }
+        
+        .content-header p.text-muted {
+            font-size: 1.1rem;
+            color: #7f8c8d !important;
+            margin-top: 8px;
+        }
+        
+        /* Breadcrumb mejorado */
+        .breadcrumb {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 25px;
+            padding: 8px 20px;
+        }
+        
+        .breadcrumb-item a {
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .breadcrumb-item a:hover {
+            color: white;
+        }
+        
+        .breadcrumb-item.active {
+            color: white;
+            font-weight: 500;
+        }
+        
+        /* Navigation pills modernos */
+        .nav-pills {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+        
+        .nav-pills .nav-link {
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            color: #6c757d;
+            margin: 0 2px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-pills .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.5s;
+        }
+        
+        .nav-pills .nav-link:hover {
+            background-color: #e3f2fd;
+            color: #1976d2;
+            transform: translateY(-2px);
+        }
+        
+        .nav-pills .nav-link:hover::before {
+            left: 100%;
+        }
+        
+        .nav-pills .nav-link.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .nav-pills .nav-link i {
+            margin-right: 8px;
+        }
+        
+        /* Cards modernos */
+        .card {
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            border-radius: 16px 16px 0 0 !important;
+        }
+        
+        /* Form controls modernos */
+        .form-control {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background-color: #ffffff;
+        }
+        
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.15);
+            background-color: #ffffff;
+            transform: translateY(-1px);
+        }
+        
+        .form-control::placeholder {
+            color: #adb5bd;
+        }
+        
+        /* Botones modernos */
+        .btn {
+            border-radius: 10px;
+            font-weight: 500;
+            padding: 10px 20px;
+            transition: all 0.3s ease;
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255,255,255,0.3);
+            border-radius: 50%;
+            transition: width 0.6s, height 0.6s, top 0.6s, left 0.6s;
+        }
+        
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+            top: -150px;
+            left: -150px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #48CAE4 0%, #023047 100%);
+        }
+        
+        .btn-info {
+            background: linear-gradient(135deg, #74C0FC 0%, #1971C2 100%);
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #FFD43B 0%, #FAB005 100%);
+        }
+        
+        /* Alerts modernos */
+        .alert {
+            border: none;
+            border-radius: 12px;
+            border-left: 4px solid;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .alert-primary {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border-left-color: #667eea;
+            color: #4c63d2;
+        }
+        
+        .alert-success {
+            background: linear-gradient(135deg, rgba(72, 202, 228, 0.1) 0%, rgba(2, 48, 71, 0.1) 100%);
+            border-left-color: #48CAE4;
+            color: #0f4c75;
+        }
+        
+        /* Container principal - Ajustado para no interferir con sidebar */
+        body.sidebar-mini .content-wrapper {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        /* Solo aplicar el fondo al área de contenido */
+        .wrapper .content-wrapper {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        }
+        
+        .content-wrapper::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.05)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        /* FORZAR el sidebar a mantener sus estilos originales */
+        .main-sidebar {
+            background-color: #ffffff !important;
+            border-right: 1px solid #dee2e6 !important;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1) !important;
+            z-index: 1050 !important;
+        }
+        
+        .main-sidebar .sidebar {
+            background-color: #ffffff !important;
+        }
+        
+        .main-sidebar .nav-sidebar .nav-item .nav-link {
+            color: #495057 !important;
+            background-color: transparent !important;
+        }
+        
+        .main-sidebar .nav-sidebar .nav-item .nav-link:hover {
+            background-color: #f8f9fa !important;
+            color: #495057 !important;
+        }
+        
+        .main-sidebar .nav-sidebar .nav-item .nav-link.active {
+            background-color: #007bff !important;
+            color: #ffffff !important;
+        }
+        
+        /* Restaurar estilos de texto del sidebar */
+        .main-sidebar .brand-text,
+        .main-sidebar .nav-link p,
+        .main-sidebar .nav-header {
+            color: #495057 !important;
+        }
+        
+        /* Ajustar el contenido para que esté por encima del background */
+        .content-header,
+        .content {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .container-fluid {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px 20px 0 0;
+            margin-top: 20px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Animaciones suaves */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .card {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+        
+        .card:nth-child(2) { animation-delay: 0.1s; }
+        .card:nth-child(3) { animation-delay: 0.2s; }
+        
+        /* Responsivo */
+        @media (max-width: 768px) {
+            .content-header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .nav-pills {
+                flex-direction: column;
+            }
+            
+            .nav-pills .nav-link {
+                margin-bottom: 5px;
+                margin-right: 0;
+                text-align: center;
+            }
+            
+            .container-fluid {
+                padding: 20px 15px;
+                margin-top: 10px;
+            }
+        }
+    </style>
     <!-- Content Header (Page header) -->
     <section class="content-header">
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1>Administración de consultas</h1>
+                    <h1><i class="fas fa-stethoscope"></i> Administración de consultas</h1>
+                    <p class="text-muted">Sistema integral de gestión médica</p>
                 </div>
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="#">Home</a></li>
-                        <li class="breadcrumb-item active">User Profile</li>
+                        <li class="breadcrumb-item"><a href="index.php?ruta=home"><i class="fas fa-home"></i> Inicio</a></li>
+                        <li class="breadcrumb-item active"><i class="fas fa-stethoscope"></i> Consultas</li>
                     </ol>
                 </div>
             </div>
@@ -44,13 +381,25 @@
                     <div class="card">
                         <div class="card-header p-2">
                             <ul class="nav nav-pills">
-                                <li class="nav-item"><a class="nav-link active" href="#activity"
-                                        data-toggle="tab">Registro</a></li>
-                                <li class="nav-item"><a class="nav-link" href="#timeline" data-toggle="tab">Timeline</a>
+                                <li class="nav-item">
+                                    <a class="nav-link active" href="#activity" data-toggle="tab">
+                                        <i class="fas fa-plus-circle"></i> Nueva Consulta
+                                    </a>
                                 </li>
-                                <li class="nav-item"><a class="nav-link" href="#icd" data-toggle="tab">ICD</a>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#timeline" data-toggle="tab">
+                                        <i class="fas fa-history"></i> Historial
+                                    </a>
                                 </li>
-                                <li class="nav-item"><a class="nav-link" href="#remedios" data-toggle="tab">Buscar Remedio</a>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#icd" data-toggle="tab">
+                                        <i class="fas fa-code-branch"></i> Códigos ICD
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#remedios" data-toggle="tab">
+                                        <i class="fas fa-pills"></i> Medicamentos
+                                    </a>
                                 </li>
                             </ul>
                         </div><!-- /.card-header -->

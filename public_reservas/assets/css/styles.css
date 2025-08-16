@@ -108,7 +108,7 @@ body {
     border: 1px solid #dee2e6;
     border-radius: 0.35rem;
     padding: 0.5rem 1rem;
-    height: calc(1.5em + 1rem + 2px);
+    height: calc(1.5em + 1rem + 10px);
 }
 
 .form-control:focus {
