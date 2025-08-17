@@ -221,6 +221,9 @@ class ConsultasManager {
             if (!confirmed) return;
         }
         
+        // Guardar estado anterior
+        const oldType = this.state.currentFormType;
+        
         try {
             // Mostrar loading
             this.setLoading(true, 'Cambiando formulario...');
@@ -229,7 +232,6 @@ class ConsultasManager {
             this.hideCurrentForm();
             
             // Actualizar estado
-            const oldType = this.state.currentFormType;
             this.state.currentFormType = newType;
             
             // Cargar componente si no existe
@@ -325,6 +327,24 @@ class ConsultasManager {
             form.style.display = 'none';
             form.classList.remove('active');
         });
+    }
+    
+    /**
+     * Actualizar título del formulario
+     */
+    updateTitle(formType) {
+        const title = this.formTypes[formType]?.title || 'Formulario';
+        
+        // Actualizar título en el header si existe
+        const titleElement = document.querySelector('.form-title, .formulario-title, h2');
+        if (titleElement) {
+            titleElement.textContent = title;
+        }
+        
+        // Actualizar título de la página
+        if (document.title.includes('Consultas')) {
+            document.title = `${title} - Consultas Médicas`;
+        }
     }
     
     /**

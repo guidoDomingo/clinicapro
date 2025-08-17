@@ -496,6 +496,22 @@ class AnteojosForm extends BaseFormComponent {
         }
     }
     
+    async loadPreformatos() {
+        // Cargar preformatos específicos para anteojos
+        try {
+            const response = await this.manager.apiCall('ajax/preformatos.ajax.php', {
+                operacion: 'getPreformatosReceta',
+                tipo_formulario: 'anteojos'
+            });
+            
+            if (response.status === 'success' && response.data) {
+                this.populateSelect('formatoReceta', response.data, 'id_preformato', 'nombre');
+            }
+        } catch (error) {
+            console.error('Error cargando preformatos anteojos:', error);
+        }
+    }
+
     // Reutilizar métodos de GeneralForm adaptándolos
     async loadMotivosComunes() {
         try {
