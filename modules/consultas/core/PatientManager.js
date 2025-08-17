@@ -435,7 +435,10 @@ class PatientManager {
             // Cargar información adicional
             await this.loadPatientAdditionalInfo(patient.id_persona);
             
-            // Cargar historial de consultas
+            // Cargar resumen de consultas
+            await this.loadPatientSummary(patient.id_persona);
+            
+            // Cargar historial completo y timeline
             await this.loadPatientConsultas(patient.id_persona);
             
             this.consultasManager.notifications.success(`Paciente seleccionado: ${patient.nombres} ${patient.apellidos}`);
@@ -561,24 +564,197 @@ class PatientManager {
     }
     
     /**
+     * Cargar resumen de consultas del paciente
+     */
+    async loadPatientSummary(patientId) {
+        try {
+            const response = await this.consultasManager.apiCall('ajax/consultas.ajax.php', {
+                operacion: 'resumenConsulta',
+                id_persona: patientId
+            });
+
+            if (response) {
+                // Actualizar información de consultas
+                const cantidadConsultas = response.cantidad_consultas || '0';
+                const ultimaConsulta = response.maxima_fecha_registro || 'Sin consultas';
+                
+                // Mostrar la información en la interfaz
+                const txtCantConsulta = document.getElementById('txtCantConsulta');
+                if (txtCantConsulta) {
+                    txtCantConsulta.textContent = cantidadConsultas;
+                }
+                
+                const txtUltConsulta = document.getElementById('txtUltConsulta');
+                if (txtUltConsulta) {
+                    txtUltConsulta.textContent = ultimaConsulta;
+                    
+                    // Si hay consultas, hacer que el elemento sea clickeable
+                    if (parseInt(cantidadConsultas) > 0) {
+                        txtUltConsulta.classList.add('consulta-link');
+                        txtUltConsulta.style.cursor = 'pointer';
+                        txtUltConsulta.style.color = '#007bff';
+                        txtUltConsulta.title = 'Click para ver historial completo';
+                        
+                        // Eliminar eventos previos
+                        txtUltConsulta.removeEventListener('click', this._showHistoryHandler);
+                        
+                        // Agregar evento de clic
+                        this._showHistoryHandler = () => this.showPatientHistory();
+                        txtUltConsulta.addEventListener('click', this._showHistoryHandler);
+                    } else {
+                        txtUltConsulta.classList.remove('consulta-link');
+                        txtUltConsulta.style.cursor = 'default';
+                        txtUltConsulta.style.color = '';
+                        txtUltConsulta.title = '';
+                    }
+                }
+            }
+            
+        } catch (error) {
+            console.error('Error cargando resumen de consultas:', error);
+        }
+    }
+
+    /**
      * Cargar historial de consultas del paciente
      */
     async loadPatientConsultas(patientId) {
         try {
-            // Actualizar tabla de consultas con filtro por paciente
-            if (window.tablaConsultasInstance) {
-                window.tablaConsultasInstance.ajax.reload();
-            } else {
-                // TODO: Implementar ConsultasTable
-                console.log('📋 ConsultasTable pendiente de implementación para paciente:', patientId);
-                // Inicializar tabla con filtro - COMENTADO hasta implementar ConsultasTable
-                // this.consultasManager.state.components.consultasTable = 
-                //     new ConsultasTable(this.consultasManager, patientId);
-                // await this.consultasManager.state.components.consultasTable.init();
-            }
+            // Cargar tabla de consultas
+            await this.loadConsultasTable(patientId);
+            
+            // Cargar timeline
+            await this.loadPatientTimeline(patientId);
             
         } catch (error) {
             console.error('Error cargando consultas del paciente:', error);
+        }
+    }
+    
+    /**
+     * Cargar tabla de consultas en el panel de historial
+     */
+    async loadConsultasTable(patientId) {
+        try {
+            const tableContainer = document.querySelector('#tabla-consultas tbody');
+            if (!tableContainer) return;
+            
+            // Mostrar loading
+            tableContainer.innerHTML = '<tr><td colspan="4" class="text-center"><i class="fas fa-spinner fa-spin"></i> Cargando consultas...</td></tr>';
+            
+            const response = await this.consultasManager.apiCall('ajax/consultas.ajax.php', {
+                operacion: 'historialConsultas',
+                id_persona: patientId
+            });
+            
+            if (response && response.length > 0) {
+                let html = '';
+                response.forEach(consulta => {
+                    const fecha = new Date(consulta.fecha_registro);
+                    html += `
+                        <tr>
+                            <td>${fecha.toLocaleDateString('es-ES')} ${fecha.toLocaleTimeString('es-ES')}</td>
+                            <td>${consulta.nombres || ''} ${consulta.apellidos || ''}</td>
+                            <td>
+                                <span class="badge badge-info">${consulta.tipo_formulario || 'General'}</span>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-primary load-consulta" data-id="${consulta.id_consulta}">
+                                    <i class="fas fa-edit"></i> Editar
+                                </button>
+                                <button class="btn btn-sm btn-info view-consulta" data-id="${consulta.id_consulta}">
+                                    <i class="fas fa-eye"></i> Ver
+                                </button>
+                                <a href="generar_pdf_consulta.php?id=${consulta.id_consulta}" 
+                                   target="_blank" class="btn btn-sm btn-secondary">
+                                    <i class="fas fa-file-pdf"></i> PDF
+                                </a>
+                            </td>
+                        </tr>
+                    `;
+                });
+                tableContainer.innerHTML = html;
+                
+                // Configurar eventos
+                this.setupConsultasTableEvents();
+                
+            } else {
+                tableContainer.innerHTML = '<tr><td colspan="4" class="text-center text-muted">No hay consultas registradas</td></tr>';
+            }
+            
+        } catch (error) {
+            console.error('Error cargando tabla de consultas:', error);
+            const tableContainer = document.querySelector('#tabla-consultas tbody');
+            if (tableContainer) {
+                tableContainer.innerHTML = '<tr><td colspan="4" class="text-center text-danger">Error al cargar consultas</td></tr>';
+            }
+        }
+    }
+    
+    /**
+     * Cargar timeline del paciente
+     */
+    async loadPatientTimeline(patientId) {
+        try {
+            const timelineContainer = document.getElementById('timeline');
+            if (!timelineContainer) return;
+            
+            // Mostrar loading
+            timelineContainer.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin fa-3x"></i><p>Cargando timeline...</p></div>';
+            
+            const response = await this.consultasManager.apiCall('ajax/consultas.ajax.php', {
+                operacion: 'historialConsultas',
+                id_persona: patientId
+            });
+            
+            if (response && response.length > 0) {
+                this.displayPatientHistory(response);
+            } else {
+                timelineContainer.innerHTML = '<div class="alert alert-info text-center"><i class="fas fa-info-circle"></i> No hay consultas registradas para este paciente</div>';
+            }
+            
+        } catch (error) {
+            console.error('Error cargando timeline:', error);
+            const timelineContainer = document.getElementById('timeline');
+            if (timelineContainer) {
+                timelineContainer.innerHTML = '<div class="alert alert-danger">Error al cargar timeline de consultas</div>';
+            }
+        }
+    }
+
+    /**
+     * Configurar eventos de la tabla de consultas
+     */
+    setupConsultasTableEvents() {
+        // Botones de cargar consulta
+        document.querySelectorAll('.load-consulta').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const consultaId = e.target.closest('button').dataset.id;
+                await this.loadConsultaForEditing(consultaId);
+            });
+        });
+        
+        // Botones de ver detalle
+        document.querySelectorAll('.view-consulta').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const consultaId = e.target.closest('button').dataset.id;
+                await this.showConsultaDetail(consultaId);
+            });
+        });
+    }
+    
+    /**
+     * Cargar consulta para edición
+     */
+    async loadConsultaForEditing(consultaId) {
+        try {
+            this.consultasManager.notifications.info('Cargando consulta para edición...');
+            // TODO: Implementar carga de consulta para edición
+            console.log('🔄 Cargando consulta para edición:', consultaId);
+            
+        } catch (error) {
+            console.error('Error cargando consulta para edición:', error);
+            this.consultasManager.notifications.error('Error al cargar consulta');
         }
     }
     
@@ -617,9 +793,11 @@ class PatientManager {
         
         consultas.forEach(consulta => {
             const fecha = new Date(consulta.fecha_registro);
+            const fechaFormateada = fecha.toLocaleDateString('es-ES');
+            
             timelineHTML += `
                 <div class="time-label">
-                    <span class="bg-primary">${fecha.toLocaleDateString('es-ES')}</span>
+                    <span class="bg-primary">${fechaFormateada}</span>
                 </div>
                 <div>
                     <i class="fas fa-stethoscope bg-info"></i>
@@ -628,21 +806,16 @@ class PatientManager {
                             <i class="far fa-clock"></i> ${fecha.toLocaleTimeString('es-ES')}
                         </span>
                         <h3 class="timeline-header">
-                            <a href="#">Consulta ${consulta.tipo_formulario || 'general'}</a>
+                            <a href="#">Consulta médica</a>
                         </h3>
                         <div class="timeline-body">
+                            <strong>Doctor/a:</strong> ${consulta.nombre_doctor || ''} ${consulta.apellido_doctor || ''} - ${consulta.documento_doctor || 'No especificado'}<br>
                             <strong>Motivo:</strong> ${consulta.txtmotivo || 'No especificado'}<br>
-                            <strong>Diagnóstico:</strong> ${this.truncateText(consulta.diagnostico || 'No especificado', 100)}
+                            <strong>Diagnóstico:</strong> ${consulta.consulta_textarea || consulta.diagnostico || 'No especificado'}
                         </div>
                         <div class="timeline-footer">
-                            <button class="btn btn-primary btn-sm load-consulta" 
-                                    data-id="${consulta.id_consulta}">
-                                <i class="fas fa-edit"></i> Editar
-                            </button>
-                            <button class="btn btn-info btn-sm view-consulta" 
-                                    data-id="${consulta.id_consulta}">
-                                <i class="fas fa-eye"></i> Ver Detalle
-                            </button>
+                            <button class="btn btn-info btn-sm ver-detalle-consulta" data-id="${consulta.id_consulta}">Ver detalles</button>
+                            <a href="generar_pdf_consulta.php?id=${consulta.id_consulta}" target="_blank" class="btn btn-primary btn-sm">Descargar PDF</a>
                         </div>
                     </div>
                 </div>
@@ -652,13 +825,17 @@ class PatientManager {
         timelineHTML += '</div>';
         timelineContainer.innerHTML = timelineHTML;
         
-        // Configurar eventos
+        // Configurar eventos del timeline
         this.setupTimelineEvents();
         
-        // Activar pestaña de timeline
-        const timelineTab = document.querySelector('a[href="#timeline"]');
-        if (timelineTab) {
-            timelineTab.click();
+        // Activar pestaña de timeline si no está activa
+        const timelineTab = document.querySelector('#timeline-tab');
+        if (timelineTab && !timelineTab.classList.contains('active')) {
+            // Solo activar automáticamente si no hay otra pestaña activa
+            const activeTab = document.querySelector('.nav-link.active');
+            if (!activeTab || activeTab.getAttribute('href') === '#historial-panel') {
+                timelineTab.click();
+            }
         }
     }
     
@@ -684,6 +861,83 @@ class PatientManager {
     }
     
     /**
+     * Configurar eventos del timeline
+     */
+    setupTimelineEvents() {
+        // Botones de ver detalle
+        document.querySelectorAll('.ver-detalle-consulta').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const consultaId = e.target.closest('button').dataset.id;
+                await this.showConsultaDetail(consultaId);
+            });
+        });
+        
+        // Enlaces de PDF ya funcionan por defecto (target="_blank")
+    }
+    
+    /**
+     * Mostrar detalle de consulta
+     */
+    async showConsultaDetail(consultaId) {
+        try {
+            const response = await this.consultasManager.apiCall('ajax/consultas.ajax.php', {
+                operacion: 'obtenerConsulta',
+                id_consulta: consultaId
+            });
+            
+            if (response) {
+                this.displayConsultaModal(response);
+            }
+            
+        } catch (error) {
+            console.error('Error mostrando detalle de consulta:', error);
+            this.consultasManager.notifications.error('Error al cargar detalle de consulta');
+        }
+    }
+    
+    /**
+     * Mostrar modal con detalle de consulta
+     */
+    displayConsultaModal(consulta) {
+        const modalHtml = `
+            <div class="consulta-detail">
+                <h5>Consulta del ${new Date(consulta.fecha_registro).toLocaleDateString('es-ES')}</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <strong>Paciente:</strong> ${consulta.nombres || ''} ${consulta.apellidos || ''}<br>
+                        <strong>Documento:</strong> ${consulta.documento || 'No especificado'}<br>
+                        <strong>Ficha:</strong> ${consulta.nro_ficha || 'No especificado'}
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Doctor:</strong> ${consulta.nombre_doctor || ''} ${consulta.apellido_doctor || ''}<br>
+                        <strong>Fecha:</strong> ${new Date(consulta.fecha_registro).toLocaleString('es-ES')}
+                    </div>
+                </div>
+                <hr>
+                <div class="consulta-content">
+                    <h6>Motivo de consulta:</h6>
+                    <p class="border p-2">${consulta.txtmotivo || 'No especificado'}</p>
+                    
+                    <h6>Diagnóstico:</h6>
+                    <p class="border p-2">${consulta.consulta_textarea || consulta.diagnostico || 'No especificado'}</p>
+                </div>
+            </div>
+        `;
+        
+        this.consultasManager.showModal('Detalle de Consulta', modalHtml, () => {
+            // Acciones del modal si es necesario
+        });
+    }
+
+    /**
+     * Método utilitario para truncar texto
+     */
+    truncateText(text, maxLength = 100) {
+        if (!text) return 'No especificado';
+        return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+    }
+
+    /**
      * Limpiar búsqueda y formulario
      */
     clearSearch() {
@@ -695,6 +949,29 @@ class PatientManager {
             }
         });
         
+        // Limpiar resumen de consultas
+        const txtCantConsulta = document.getElementById('txtCantConsulta');
+        const txtUltConsulta = document.getElementById('txtUltConsulta');
+        
+        if (txtCantConsulta) txtCantConsulta.textContent = '0';
+        if (txtUltConsulta) {
+            txtUltConsulta.textContent = 'Sin consultas';
+            txtUltConsulta.classList.remove('consulta-link');
+            txtUltConsulta.style.cursor = 'default';
+            txtUltConsulta.style.color = '';
+            txtUltConsulta.title = '';
+            
+            if (this._showHistoryHandler) {
+                txtUltConsulta.removeEventListener('click', this._showHistoryHandler);
+            }
+        }
+        
+        // Limpiar tabla de consultas
+        const tableContainer = document.querySelector('#tabla-consultas tbody');
+        if (tableContainer) {
+            tableContainer.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Seleccione un paciente para ver su historial</td></tr>';
+        }
+        
         // Limpiar panel de información
         this.clearPatientPanel();
         
@@ -704,7 +981,7 @@ class PatientManager {
         // Limpiar timeline
         const timelineContainer = document.getElementById('timeline');
         if (timelineContainer) {
-            timelineContainer.innerHTML = '<div class="alert alert-info">Seleccione un paciente para ver su historial.</div>';
+            timelineContainer.innerHTML = '<div class="alert alert-info text-center"><i class="fas fa-info-circle"></i> Seleccione un paciente para ver su timeline de consultas</div>';
         }
         
         // Disparar evento
