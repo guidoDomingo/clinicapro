@@ -1,4 +1,12 @@
 <?php
+// Configuración para respuestas AJAX limpias
+ini_set('display_errors', 0);
+error_reporting(E_ERROR | E_PARSE);
+
+// Iniciar buffer de salida y configurar headers para JSON limpio
+ob_start();
+header('Content-Type: application/json; charset=utf-8');
+
 require_once "../controller/consultas.controller.php";
 require_once "../model/consultas.model.php";
 
@@ -133,8 +141,36 @@ class ConsultaAjax {
     }
     
     public function ajaxGetDetalleConsulta($idConsulta) {
-        $response = ModelConsulta::mdlGetDetalleConsulta($idConsulta);
-        echo $response; // El modelo ya devuelve un JSON formateado
+        // Log para debugging
+        error_log("AJAX DEBUG: ajaxGetDetalleConsulta llamado con ID: " . $idConsulta);
+        
+        try {
+            // Limpiar buffer de salida antes de enviar respuesta
+            ob_clean();
+            
+            $response = ModelConsulta::mdlGetDetalleConsulta($idConsulta);
+            
+            // Verificar si $response ya es un string JSON o un array
+            if (is_string($response)) {
+                // Si es string, asumir que ya es JSON y enviarlo
+                error_log("AJAX DEBUG: Respuesta es string: " . substr($response, 0, 200));
+                echo $response;
+            } else {
+                // Si es array, convertir a JSON
+                error_log("AJAX DEBUG: Respuesta es array, convirtiendo a JSON");
+                echo json_encode($response);
+            }
+        } catch (Exception $e) {
+            error_log("AJAX ERROR: " . $e->getMessage());
+            ob_clean(); // Limpiar cualquier salida previa
+            echo json_encode([
+                'error' => true,
+                'message' => 'Error al obtener detalle de consulta: ' . $e->getMessage()
+            ]);
+        }
+        
+        // Finalizar y enviar buffer
+        ob_end_flush();
     }
     
     public function ajaxGetAllConsultas($tipoFormulario = null) {
@@ -188,8 +224,10 @@ if (isset($_POST["id_persona"]) && isset($_POST["operacion"]) && $_POST["operaci
 
 // Procesar detalle de consulta
 if (isset($_POST["id_consulta"]) && isset($_POST["operacion"]) && $_POST["operacion"] === "detalleConsulta") {
+    error_log("AJAX DEBUG: Procesando detalleConsulta para ID: " . $_POST["id_consulta"]);
     $detalleConsulta = new ConsultaAjax();
     $detalleConsulta->ajaxGetDetalleConsulta($_POST["id_consulta"]);
+    exit; // Agregar exit para evitar output adicional
 }
 
 // Procesar lista de todas las consultas

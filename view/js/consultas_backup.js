@@ -3,37 +3,23 @@
  * Implementa la búsqueda de pacientes por documento o ficha y autocompletado de formularios
  */
 
-// Variables de control global para evitar duplicación de modales - Declaración segura
-if (typeof window.modalConsultaCargado === 'undefined') {
-    window.modalConsultaCargado = false;
-}
-if (typeof window.urlParametrosProcesados === 'undefined') {
-    window.urlParametrosProcesados = false;
-}
-if (typeof window.modalEnProceso === 'undefined') {
-    window.modalEnProceso = false;
-}
+// Variables de control global para evitar duplicación de modales
+let modalConsultaCargado = false;
+let urlParametrosProcesados = false;
+let modalEnProceso = false;
 // Variable para bloquear TODAS las operaciones de modal después de la primera
-if (typeof window.sistemaInicializado === 'undefined') {
-    window.sistemaInicializado = false;
-}
+let sistemaInicializado = false;
 // Contador para detectar múltiples inicializaciones
-if (typeof window.contadorInicializaciones === 'undefined') {
-    window.contadorInicializaciones = 0;
-}
+let contadorInicializaciones = 0;
 // Timestamp para evitar ejecuciones concurrentes
-if (typeof window.ultimaEjecucionModal === 'undefined') {
-    window.ultimaEjecucionModal = 0;
-}
+let ultimaEjecucionModal = 0;
 // Variable para recordar qué paciente ya fue procesado (usa sessionStorage para persistencia)
-if (typeof window.pacienteYaProcesado === 'undefined') {
-    window.pacienteYaProcesado = sessionStorage.getItem('paciente_procesado') || null;
-}
+let pacienteYaProcesado = sessionStorage.getItem('paciente_procesado') || null;
 
 // Cuando el documento esté listo
 document.addEventListener('DOMContentLoaded', function() {
-    window.contadorInicializaciones++;
-    console.log(`🚀 DOMContentLoaded ejecutado - Inicialización #${window.contadorInicializaciones}`);
+    contadorInicializaciones++;
+    console.log(`🚀 DOMContentLoaded ejecutado - Inicialización #${contadorInicializaciones}`);
     
     // Verificar si es un cambio de formulario con el mismo paciente
     const urlParams = new URLSearchParams(window.location.search);
@@ -41,15 +27,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const skipModal = urlParams.get('skip_modal');
     
     let esCambioFormulario = false;
-    if (pacienteIdActual && window.pacienteYaProcesado === pacienteIdActual) {
+    if (pacienteIdActual && pacienteYaProcesado === pacienteIdActual) {
         console.log(`🔄 CAMBIO DE FORMULARIO DETECTADO - Mismo paciente ID: ${pacienteIdActual}`);
         console.log('✅ Se cargarán datos del paciente, pero sin modales duplicados');
         
         // Marcar como cambio de formulario para evitar modales, pero permitir carga de datos
         esCambioFormulario = true;
-        window.modalConsultaCargado = true;
-        window.modalEnProceso = true;
-        window.urlParametrosProcesados = false; // Permitir que se procesen los parámetros para cargar datos
+        modalConsultaCargado = true;
+        modalEnProceso = true;
+        urlParametrosProcesados = false; // Permitir que se procesen los parámetros para cargar datos
     }
     
     // LIMPIAR CUALQUIER MODAL PREVIO AL INICIAR - SOLO SI NO HAY skip_modal
@@ -64,13 +50,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Si ya se inicializó el sistema y no es cambio de formulario, evitar duplicar
-    if (window.sistemaInicializado && !esCambioFormulario) {
+    if (sistemaInicializado && !esCambioFormulario) {
         console.log('⚠️ Sistema ya inicializado, omitiendo inicialización duplicada');
         return;
     }
     
     if (!esCambioFormulario) {
-        window.sistemaInicializado = true;
+        sistemaInicializado = true;
     }
     // Obtener referencias a los elementos del DOM
     const btnBuscarPersona = document.getElementById('btnBuscarPersona');
@@ -545,24 +531,15 @@ function obtenerResumenConsulta(idPersona) {
                 const cantidadConsultas = response.cantidad_consultas || '0';
                 const ultimaConsulta = response.maxima_fecha_registro || 'Sin consultas';
                 
-                // Mostrar la información en la interfaz (con validación)
-                const txtCantConsulta = document.getElementById('txtCantConsulta');
-                if (txtCantConsulta) {
-                    txtCantConsulta.textContent = cantidadConsultas;
-                } else {
-                    console.log('⚠️ Campo txtCantConsulta no encontrado');
-                }
+                // Mostrar la información en la interfaz
+                document.getElementById('txtCantConsulta').textContent = cantidadConsultas;
                 
                 // Convertir el elemento de última consulta en un enlace clickeable
                 const ultConsultaElement = document.getElementById('txtUltConsulta');
-                if (ultConsultaElement) {
-                    ultConsultaElement.textContent = ultimaConsulta;
-                } else {
-                    console.log('⚠️ Campo txtUltConsulta no encontrado');
-                }
+                ultConsultaElement.textContent = ultimaConsulta;
                 
                 // Si hay consultas, hacer que el elemento sea clickeable
-                if (cantidadConsultas > 0 && ultConsultaElement) {
+                if (cantidadConsultas > 0) {
                     // Agregar clase para indicar que es clickeable
                     ultConsultaElement.classList.add('consulta-link');
                     
@@ -573,31 +550,21 @@ function obtenerResumenConsulta(idPersona) {
                     ultConsultaElement.addEventListener('click', function() {
                         mostrarHistorialConsultas(idPersona);
                     });
-                } else if (ultConsultaElement) {
+                } else {
                     // Si no hay consultas, quitar la clase y el evento
                     ultConsultaElement.classList.remove('consulta-link');
                 }
             } else {
-                const cantElement = document.getElementById('txtCantConsulta');
-                const ultElement = document.getElementById('txtUltConsulta');
-                
-                if (cantElement) cantElement.textContent = '0';
-                if (ultElement) {
-                    ultElement.textContent = 'Sin consultas';
-                    ultElement.classList.remove('consulta-link');
-                }
+                document.getElementById('txtCantConsulta').textContent = '0';
+                document.getElementById('txtUltConsulta').textContent = 'Sin consultas';
+                document.getElementById('txtUltConsulta').classList.remove('consulta-link');
             }
         },
         error: function(xhr, status, error) {
             console.error("Error al obtener resumen de consulta:", error);
-            const cantElement = document.getElementById('txtCantConsulta');
-            const ultElement = document.getElementById('txtUltConsulta');
-            
-            if (cantElement) cantElement.textContent = '0';
-            if (ultElement) {
-                ultElement.textContent = 'Sin consultas';
-                ultElement.classList.remove('consulta-link');
-            }
+            document.getElementById('txtCantConsulta').textContent = '0';
+            document.getElementById('txtUltConsulta').textContent = 'Sin consultas';
+            document.getElementById('txtUltConsulta').classList.remove('consulta-link');
         }
     });
 }
@@ -620,14 +587,10 @@ function obtenerCuota(idPersona) {
         contentType: false,
         success: function(response) {
             const cuotaValorElement = document.getElementById('cuota-valor');
-            if (cuotaValorElement) {
-                if (response && response.cuota) {
-                    cuotaValorElement.textContent = response.cuota;
-                } else {
-                    cuotaValorElement.textContent = '0';
-                }
+            if (response && response.cuota) {
+                cuotaValorElement.textContent = response.cuota;
             } else {
-                console.log('⚠️ Campo cuota-valor no encontrado');
+                cuotaValorElement.textContent = '0';
             }
         },
         error: function(xhr, status, error) {
@@ -641,11 +604,11 @@ function obtenerCuota(idPersona) {
  */
 function limpiarFormularioPersona() {
     // Resetear variables de control del modal
-    window.modalConsultaCargado = false;
-    window.urlParametrosProcesados = false;
-    window.modalEnProceso = false;
-    window.ultimaEjecucionModal = 0;
-    window.pacienteYaProcesado = null;
+    modalConsultaCargado = false;
+    urlParametrosProcesados = false;
+    modalEnProceso = false;
+    ultimaEjecucionModal = 0;
+    pacienteYaProcesado = null;
     sessionStorage.removeItem('paciente_procesado');
     
     // Limpiar campos de búsqueda
@@ -1425,10 +1388,10 @@ function editarConsulta(idConsulta, idPersona) {
                 console.log('📝 Llamando a cargarConsultaEnFormularioSimplificado...');
                 cargarConsultaEnFormularioSimplificado(response);
                 
-                // Mostrar mensaje de éxito después de un delay - con protección DOM
+                // Mostrar mensaje de éxito después de un delay
                 setTimeout(() => {
                     try {
-                        if (typeof Swal !== 'undefined' && document.body && document.body.contains(document.documentElement)) {
+                        if (typeof Swal !== 'undefined') {
                             Swal.fire({
                                 position: "top-end",
                                 icon: "info",
@@ -1438,17 +1401,17 @@ function editarConsulta(idConsulta, idPersona) {
                                 timer: 2000
                             });
                         } else {
-                            console.log('✅ Consulta cargada para edición (DOM no estable para SweetAlert)');
+                            console.log('✅ Consulta cargada para edición');
                         }
                     } catch (error) {
-                        console.log('✅ Consulta cargada para edición (error en notificación SweetAlert)');
+                        console.log('✅ Consulta cargada para edición (error en notificación)');
                     }
                 }, 500);
                 
             } else {
                 console.error('❌ Respuesta inválida del servidor:', response);
                 try {
-                    if (typeof Swal !== 'undefined' && document.body && document.body.contains(document.documentElement)) {
+                    if (typeof Swal !== 'undefined') {
                         Swal.close();
                         Swal.fire({
                             icon: "error",
@@ -1885,8 +1848,8 @@ function cargarConsultaEnFormulario(consulta, archivos) {
     console.log('🔄 Cargando consulta en formulario (AJAX):', consulta);
     
     // BLOQUEO INMEDIATO: Marcar que ya hay una consulta siendo cargada
-    window.modalConsultaCargado = true;
-    window.modalEnProceso = true;
+    modalConsultaCargado = true;
+    modalEnProceso = true;
     
     // Limpiar el formulario primero
     limpiarFormularioConsulta();
@@ -1894,21 +1857,13 @@ function cargarConsultaEnFormulario(consulta, archivos) {
     // Crear un campo oculto para el ID de la consulta si no existe
     let idConsultaInput = document.getElementById('id_consulta');
     if (!idConsultaInput) {
-        const tblConsulta = document.getElementById('tblConsulta');
-        if (tblConsulta) {
-            idConsultaInput = document.createElement('input');
-            idConsultaInput.type = 'hidden';
-            idConsultaInput.id = 'id_consulta';
-            idConsultaInput.name = 'id_consulta';
-            tblConsulta.appendChild(idConsultaInput);
-        } else {
-            console.log('⚠️ No se encontró tblConsulta para crear campo oculto');
-            return;
-        }
+        idConsultaInput = document.createElement('input');
+        idConsultaInput.type = 'hidden';
+        idConsultaInput.id = 'id_consulta';
+        idConsultaInput.name = 'id_consulta';
+        document.getElementById('tblConsulta').appendChild(idConsultaInput);
     }
-    if (idConsultaInput) {
-        idConsultaInput.value = consulta.id_consulta;
-    }
+    idConsultaInput.value = consulta.id_consulta;
     
     // Detectar el tipo de formulario de la consulta
     const tipoFormularioConsulta = consulta.tipo_formulario || consulta.form_type || 'general';
@@ -2609,7 +2564,7 @@ function cargarArchivosEnTabla(archivos, tipo) {
     
     const tbody = document.getElementById(`tabla-archivos-${tipo}`);
     if (!tbody) {
-        console.log(`⚠️ Tabla tabla-archivos-${tipo} no encontrada - esperando carga del formulario`);
+        console.error(`Tabla tabla-archivos-${tipo} no encontrada`);
         return;
     }
     
@@ -3525,80 +3480,21 @@ function inicializarTablaConsultas(idPaciente) {
     // Si ya existe una instancia global, la destruimos para reinicializarla con los nuevos datos
     if (window.tablaConsultasInstance) {
         console.log('Destruyendo instancia existente de tablaConsultas');
-        try {
-            // Verificar que la tabla sigue existiendo en el DOM antes de destruir
-            const tablaExistente = document.getElementById('tabla-consultas');
-            if (tablaExistente && window.tablaConsultasInstance.table) {
-                // Verificar que la instancia de DataTable es válida
-                if ($.fn.DataTable.isDataTable('#tabla-consultas')) {
-                    console.log('✅ Tabla válida, procediendo con destrucción segura');
-                    window.tablaConsultasInstance.destroy(false); // false = mantener el DOM
-                } else {
-                    console.log('⚠️ DataTable no válido, solo limpiando referencia');
-                }
-            } else {
-                console.log('⚠️ Elemento tabla no encontrado, solo limpiando referencia');
-            }
-            window.tablaConsultasInstance = null;
-        } catch (error) {
-            console.log('⚠️ Error destruyendo DataTable, limpiando referencia:', error);
-            window.tablaConsultasInstance = null;
-        }
-    }
-
-    // Sistema de protección contra cambios DOM durante inicialización
-    let domMutationObserver = null;
-    let domIsChanging = false;
-    
-    // Configurar observador de mutaciones si no existe
-    if (!window.datatablesDOMObserver) {
-        window.datatablesDOMObserver = new MutationObserver(function(mutations) {
-            domIsChanging = true;
-            console.log('🔄 Cambios DOM detectados, pausando operaciones DataTables temporalmente');
-            
-            // Resetear el flag después de un breve delay
-            setTimeout(() => {
-                domIsChanging = false;
-                console.log('✅ DOM estabilizado, operaciones DataTables pueden continuar');
-            }, 200);
-        });
-        
-        // Observar cambios en el contenedor principal
-        const contenedorPrincipal = document.body;
-        if (contenedorPrincipal) {
-            window.datatablesDOMObserver.observe(contenedorPrincipal, {
-                childList: true,
-                subtree: true,
-                attributes: false
-            });
-            console.log('👁️ Observador DOM configurado para DataTables');
-        }
+        window.tablaConsultasInstance.destroy();
+        window.tablaConsultasInstance = null;
     }
 
     // Verificar si estamos en la página correcta que contiene la tabla
     // Esperar a que el DOM esté completamente cargado
     $(document).ready(function() {
-        // Verificar si el elemento existe en el DOM y está completamente renderizado
+        // Verificar si el elemento existe en el DOM
         const tablaElement = document.getElementById('tabla-consultas');
         if (!tablaElement) {
             console.log('No se encontró el elemento tabla-consultas en el DOM');
             return null;
         }
         
-        // Verificación adicional: asegurarse de que el elemento está visible y tiene contenido
-        if (!tablaElement.offsetParent && tablaElement.style.display === 'none') {
-            console.log('⚠️ Elemento tabla-consultas existe pero no está visible');
-            return null;
-        }
-        
-        // Verificar si el formulario padre existe (indicador de que el DOM está estable)
-        const formularioPadre = document.getElementById('tblConsulta');
-        if (!formularioPadre) {
-            console.log('⚠️ Formulario padre no encontrado, DOM posiblemente inestable');
-            return null;
-        }
-        
-        console.log('✅ Elemento tabla-consultas encontrado y DOM estable');
+        console.log('Elemento tabla-consultas encontrado en el DOM');
         
         try {            
             // Verificar si la tabla ya está inicializada como DataTable
@@ -3685,27 +3581,8 @@ function inicializarTablaConsultas(idPaciente) {
                     $('#tabla-consultas').DataTable().destroy();
                 }
                 
-                // Verificar estabilidad del DOM antes de inicializar
-                if (domIsChanging) {
-                    console.log('🚫 DOM en cambio detectado, posponiendo inicialización DataTables');
-                    setTimeout(() => {
-                        if (!domIsChanging) {
-                            console.log('🔄 Reintentando inicialización después de estabilización DOM');
-                            initializeDataTableWithData(idPaciente);
-                        }
-                    }, 300);
-                    return null;
-                }
-                
-                const tablaVerificacion = document.getElementById('tabla-consultas');
-                if (!tablaVerificacion || !tablaVerificacion.offsetParent) {
-                    console.log('🚫 DOM inestable detectado, cancelando inicialización de DataTables');
-                    return null;
-                }
-                
                 // Guardar la instancia de DataTable en una variable global para referencia futura
                 try {
-                    console.log('🚀 Iniciando DataTable con DOM estable verificado');
                     window.tablaConsultasInstance = $('#tabla-consultas').DataTable({
                         // No reinicializar si ya existe (prevenir advertencia)
                         retrieve: false,
@@ -3900,55 +3777,14 @@ function inicializarTablaConsultas(idPaciente) {
                     });
                     
                 } catch (dtError) {
-                    console.error('❌ Error al inicializar DataTable:', dtError);
-                    
-                    // Verificar si el error es por DOM corruption
-                    if (dtError.message && dtError.message.includes('contains')) {
-                        console.log('🚫 Error detectado: DOM corruption durante inicialización de DataTables');
-                        console.log('💡 Intentando recuperación: Limpiando referencias y reintentando en el próximo ciclo');
-                        
-                        // Limpiar cualquier referencia corrupta
-                        window.tablaConsultasInstance = null;
-                        
-                        // Verificar si la tabla aún existe
-                        const tablaExistente = document.getElementById('tabla-consultas');
-                        if (tablaExistente) {
-                            console.log('📋 Tabla existe, programando reinicio en próximo tick');
-                            setTimeout(() => {
-                                console.log('🔄 Reintentando inicialización después de DOM corruption');
-                                try {
-                                    // Verificar nuevamente que la tabla existe antes de reintentar
-                                    const tablaRecheck = document.getElementById('tabla-consultas');
-                                    if (tablaRecheck && tablaRecheck.offsetParent !== null) {
-                                        initializeDataTableWithData(idPaciente);
-                                    } else {
-                                        console.log('🚫 Tabla ya no disponible para reinicialización');
-                                    }
-                                } catch (retryError) {
-                                    console.error('❌ Error en reintento de inicialización:', retryError);
-                                }
-                            }, 100);
-                        } else {
-                            console.log('🚫 Tabla no existe, cancelando inicialización de DataTables');
-                        }
-                        
-                        return null; // Salir sin devolver instancia
-                    }
+                    console.error('Error al inicializar DataTable:', dtError);
                 }
             }
             
             return window.tablaConsultasInstance;
             
         } catch (error) {
-            console.error('❌ Error general en inicializarTablaConsultas:', error);
-            
-            // Si hay error general, asegurar limpieza de estado
-            try {
-                window.tablaConsultasInstance = null;
-            } catch (cleanupError) {
-                console.error('Error limpiando estado:', cleanupError);
-            }
-            
+            console.error('Error general en inicializarTablaConsultas:', error);
             return null;
         }
     });
@@ -3958,43 +3794,15 @@ function inicializarTablaConsultas(idPaciente) {
 }
 
 /**
- * Función específica para cargar datos de paciente por ID (sin modal)
- * @param {number} idPersona - ID de la persona
+ * Función para buscar una persona por su ID
+ * @param {number} idPersona - ID de la persona a buscar
+ * @param {function} callback - Función de callback que recibe los datos de la persona
  */
-function cargarDatosPacientePorId(idPersona, skipModal = false) {
-    console.log('🔍 === CARGANDO DATOS DE PACIENTE ===');
-    console.log('ID recibido:', idPersona, 'Tipo:', typeof idPersona, 'Skip Modal:', skipModal);
-    
-    if (!idPersona) {
-        console.error('❌ ID de paciente inválido:', idPersona);
-        return;
-    }
-    
-    // Mostrar mensaje de carga solo si no se debe omitir
-    if (!skipModal) {
-        try {
-            if (typeof Swal !== 'undefined') {
-                Swal.fire({
-                    title: 'Cargando paciente...',
-                    text: 'Obteniendo datos del paciente',
-                    allowOutsideClick: false,
-                    showConfirmButton: false,
-                    didOpen: () => Swal.showLoading()
-                });
-            }
-        } catch (e) {
-            console.log('⚠️ Error mostrando loading, continuando...', e);
-        }
-    } else {
-        console.log('🚫 Skip modal activo, omitiendo mensaje de carga de paciente');
-    }
-    
+function buscarPersonaPorId(idPersona, callback) {
     // Crear objeto FormData para enviar los datos
     const formData = new FormData();
     formData.append('idPersona', idPersona);
     formData.append('operacion', 'getPersonById');
-    
-    console.log('📡 Enviando petición AJAX para paciente...');
     
     // Realizar petición AJAX
     $.ajax({
@@ -4004,205 +3812,20 @@ function cargarDatosPacientePorId(idPersona, skipModal = false) {
         dataType: "json",
         processData: false,
         contentType: false,
-        beforeSend: function() {
-            console.log('📤 AJAX - beforeSend para paciente');
-        },
         success: function(response) {
-            console.log('📋 === RESPUESTA PACIENTE RECIBIDA ===');
-            console.log('Respuesta completa:', response);
-            
-            // Cerrar loading
-            try {
-                if (typeof Swal !== 'undefined') {
-                    Swal.close();
-                }
-            } catch (e) {
-                console.log('⚠️ Error cerrando loading');
-            }
-            
-            if (response && response.status === 'success' && response.persona) {
-                const persona = response.persona;
-                console.log('✅ Datos de persona válidos:', persona);
-                
-                // Función helper para encontrar elementos con debugging
-                const encontrarElemento = (id, descripcion) => {
-                    const elemento = document.getElementById(id);
-                    if (elemento) {
-                        console.log(`✅ Campo ${descripcion} encontrado:`, elemento);
-                        return elemento;
-                    } else {
-                        console.log(`⚠️ Campo ${descripcion} no encontrado. Buscando alternativas...`);
-                        // Buscar por querySelector también
-                        const alternativo = document.querySelector(`#${id}, [name="${id}"]`);
-                        if (alternativo) {
-                            console.log(`✅ Campo ${descripcion} encontrado con querySelector:`, alternativo);
-                            return alternativo;
-                        } else {
-                            console.log(`❌ Campo ${descripcion} definitivamente no encontrado`);
-                            // Mostrar todos los elementos con IDs similares para debugging
-                            const similares = document.querySelectorAll(`[id*="${id}"], [name*="${id}"]`);
-                            if (similares.length > 0) {
-                                console.log(`🔍 Elementos similares encontrados:`, similares);
-                            }
-                            return null;
-                        }
-                    }
-                };
-                
-                // Completar campos básicos del paciente con verificación mejorada
-                console.log('📝 Completando campos del formulario...');
-                console.log('🔍 DOM actual:', document.forms.length, 'formularios encontrados');
-                console.log('🔍 Elementos form encontrados:', document.querySelectorAll('form').length);
-                console.log('🔍 Elementos input encontrados:', document.querySelectorAll('input').length);
-                
-                // Si no hay formularios, esperar a que se carguen
-                if (document.forms.length === 0 || document.querySelectorAll('input').length === 0) {
-                    console.log('⏳ DOM no completamente cargado, esperando...');
-                    setTimeout(() => {
-                        console.log('🔄 Reintentando completar campos después de espera...');
-                        completarCamposFormulario(persona);
-                    }, 500);
-                    return;
-                }
-                
-                completarCamposFormulario(persona);
+            if (response.status === 'success') {
+                // Llamar al callback con los datos de la persona
+                callback(response.persona);
+            } else {
+                console.error("Error al buscar persona por ID:", response.message);
+                callback(null);
             }
         },
         error: function(xhr, status, error) {
-            console.error("❌ AJAX - error ejecutado (paciente):", {
-                status: status,
-                error: error,
-                response: xhr.responseText,
-                readyState: xhr.readyState,
-                statusCode: xhr.status
-            });
-            
-            try {
-                if (typeof Swal !== 'undefined' && document.body && document.body.contains(document.documentElement)) {
-                    Swal.close();
-                    Swal.fire({
-                        icon: "error",
-                        title: "Error de conexión",
-                        text: "No se pudo conectar con el servidor: " + error,
-                        showConfirmButton: true
-                    });
-                } else {
-                    alert('Error de conexión: No se pudo conectar con el servidor - ' + error);
-                }
-            } catch (e) {
-                alert('Error de conexión: No se pudo conectar con el servidor - ' + error);
-            }
-        },
-        complete: function() {
-            console.log('🏁 Petición AJAX de paciente completada');
+            console.error("Error en la petición AJAX:", error);
+            callback(null);
         }
     });
-}
-
-/**
- * Función auxiliar para completar los campos del formulario con datos del paciente
- * @param {Object} persona - Datos de la persona
- */
-function completarCamposFormulario(persona) {
-    console.log('📝 === COMPLETANDO CAMPOS DEL FORMULARIO ===');
-    
-    // Buscar campos con debugging mejorado
-    const todosLosInputs = document.querySelectorAll('input');
-    console.log('📋 Listado de todos los inputs encontrados:');
-    todosLosInputs.forEach((input, index) => {
-        console.log(`  ${index + 1}. ID: "${input.id}", Name: "${input.name}", Type: "${input.type}"`);
-    });
-    
-    // Función helper para encontrar elementos con debugging
-    const encontrarElemento = (id, descripcion) => {
-        const elemento = document.getElementById(id);
-        if (elemento) {
-            console.log(`✅ Campo ${descripcion} encontrado:`, elemento);
-            return elemento;
-        } else {
-            console.log(`⚠️ Campo ${descripcion} no encontrado. Buscando alternativas...`);
-            // Buscar por querySelector también
-            const alternativo = document.querySelector(`#${id}, [name="${id}"]`);
-            if (alternativo) {
-                console.log(`✅ Campo ${descripcion} encontrado con querySelector:`, alternativo);
-                return alternativo;
-            } else {
-                console.log(`❌ Campo ${descripcion} definitivamente no encontrado`);
-                return null;
-            }
-        }
-    };
-    
-    const campoNombre = document.getElementById('paciente') || document.querySelector('[name="paciente"]');
-    if (campoNombre) {
-        const nombreCompleto = (persona.nombres || '') + ' ' + (persona.apellidos || '');
-        campoNombre.value = nombreCompleto;
-        console.log('✅ Campo nombre completado:', nombreCompleto);
-    } else {
-        console.log('❌ Campo paciente NO encontrado - verificando alternativas...');
-        const alternativoNombre = document.querySelector('[placeholder*="paciente"], [placeholder*="nombre"]');
-        if (alternativoNombre) {
-            console.log('✅ Campo alternativo para nombre encontrado:', alternativoNombre);
-            const nombreCompleto = (persona.nombres || '') + ' ' + (persona.apellidos || '');
-            alternativoNombre.value = nombreCompleto;
-        }
-    }
-    
-    const campoDocumento = document.getElementById('txtdocumento') || document.querySelector('[name="txtdocumento"]');
-    if (campoDocumento) {
-        campoDocumento.value = persona.documento || '';
-        console.log('✅ Campo documento completado:', persona.documento);
-    } else {
-        console.log('❌ Campo txtdocumento NO encontrado');
-    }
-    
-    const campoFicha = document.getElementById('txtficha') || document.querySelector('[name="txtficha"]');
-    if (campoFicha) {
-        campoFicha.value = persona.nro_ficha || '';
-        console.log('✅ Campo ficha completado:', persona.nro_ficha);
-    } else {
-        console.log('❌ Campo txtficha NO encontrado');
-    }
-    
-    const campoIdPersona = document.getElementById('idPersona') || document.querySelector('[name="idPersona"]');
-    if (campoIdPersona) {
-        campoIdPersona.value = persona.id_persona;
-        console.log('✅ Campo idPersona completado:', persona.id_persona);
-    } else {
-        console.log('❌ Campo idPersona NO encontrado');
-    }
-    
-    // Actualizar información en el panel lateral
-    console.log('📊 Actualizando panel lateral...');
-    
-    const profileUsername = encontrarElemento('profile-username', 'profile username');
-    if (profileUsername) {
-        const nombreCompleto = (persona.nombres || '') + ' ' + (persona.apellidos || '');
-        profileUsername.textContent = nombreCompleto;
-        console.log('✅ Profile username actualizado:', nombreCompleto);
-    }
-    
-    const profileCI = encontrarElemento('profile-ci', 'profile CI');
-    if (profileCI) {
-        profileCI.textContent = 'CI: ' + (persona.documento || '');
-        console.log('✅ Profile CI actualizado:', persona.documento);
-    }
-    
-    // Establecer el ID de persona para la subida de archivos
-    const idPersonaFile = encontrarElemento('id_persona_file', 'ID persona file');
-    if (idPersonaFile) {
-        idPersonaFile.value = persona.id_persona;
-        console.log('✅ ID persona file establecido:', persona.id_persona);
-    } else {
-        console.log('⚠️ Campo id_persona_file no encontrado');
-    }
-    
-    // Obtener información adicional del paciente
-    console.log('📈 Obteniendo información adicional...');
-    obtenerResumenConsulta(persona.id_persona);
-    obtenerCuota(persona.id_persona);
-    
-    console.log('🎉 === DATOS DEL PACIENTE CARGADOS COMPLETAMENTE ===');
 }
 
 /**
@@ -4994,7 +4617,7 @@ function enviarPDFPorWhatsApp() {
  * si se viene desde el módulo de reservas
  */
 function procesarParametrosURL() {
-    console.log(`🔍 procesarParametrosURL() llamada - Contador: ${window.contadorInicializaciones}`);
+    console.log(`🔍 procesarParametrosURL() llamada - Contador: ${contadorInicializaciones}`);
     
     const urlParams = new URLSearchParams(window.location.search);
     const pacienteId = urlParams.get('paciente_id');
@@ -5008,18 +4631,18 @@ function procesarParametrosURL() {
     const lastFormType = sessionStorage.getItem('last_form_type');
     const isFormTypeChange = currentFormType !== lastFormType;
     
-    if (pacienteId && window.pacienteYaProcesado === pacienteId && !isFormTypeChange) {
+    if (pacienteId && pacienteYaProcesado === pacienteId && !isFormTypeChange) {
         console.log(`🚫 PACIENTE YA PROCESADO - ID ${pacienteId} ya fue cargado en el mismo contexto`);
         return;
     }
     
-    if (isFormTypeChange && pacienteId === window.pacienteYaProcesado) {
+    if (isFormTypeChange && pacienteId === pacienteYaProcesado) {
         console.log(`🔄 CAMBIO DE TIPO DE FORMULARIO DETECTADO: ${lastFormType} → ${currentFormType}`);
         console.log('✅ Recargando datos del paciente para el nuevo formulario');
         // Limpiar bloqueos para permitir carga de datos
-        window.urlParametrosProcesados = false;
-        window.modalConsultaCargado = false;
-        window.modalEnProceso = false;
+        urlParametrosProcesados = false;
+        modalConsultaCargado = false;
+        modalEnProceso = false;
     }
     
     // Guardar el tipo de formulario actual
@@ -5032,26 +4655,26 @@ function procesarParametrosURL() {
     if (idConsulta) {
         console.log('📋 ID de consulta directo detectado, forzando procesamiento:', idConsulta);
         // Limpiar bloqueos para permitir procesamiento directo de consulta
-        window.urlParametrosProcesados = false;
-        window.modalConsultaCargado = false;
-        window.modalEnProceso = false;
-    } else if (window.urlParametrosProcesados || window.modalConsultaCargado || window.modalEnProceso) {
+        urlParametrosProcesados = false;
+        modalConsultaCargado = false;
+        modalEnProceso = false;
+    } else if (urlParametrosProcesados || modalConsultaCargado || modalEnProceso) {
         console.log('🛑 BLOQUEADO - Ya procesado/en proceso:', {
-            urlParametrosProcesados: window.urlParametrosProcesados,
-            modalConsultaCargado: window.modalConsultaCargado,
-            modalEnProceso: window.modalEnProceso,
-            pacienteYaProcesado: window.pacienteYaProcesado
+            urlParametrosProcesados,
+            modalConsultaCargado,
+            modalEnProceso,
+            pacienteYaProcesado
         });
         return;
     }
     
     // Marcar INMEDIATAMENTE para bloquear otras llamadas
-    window.urlParametrosProcesados = true;
-    window.modalEnProceso = true;
+    urlParametrosProcesados = true;
+    modalEnProceso = true;
     
     // Marcar el paciente como procesado y guardarlo en sessionStorage
     if (pacienteId) {
-        window.pacienteYaProcesado = pacienteId;
+        pacienteYaProcesado = pacienteId;
         sessionStorage.setItem('paciente_procesado', pacienteId);
         console.log(`💾 Paciente ${pacienteId} guardado en sessionStorage`);
     }
@@ -5063,12 +4686,12 @@ function procesarParametrosURL() {
     console.log('- Reserva ID:', reservaId);
     console.log('- Consulta ID:', idConsulta);
     console.log('- Skip Modal:', skipModal);
-    console.log('- Paciente ya procesado:', window.pacienteYaProcesado);
+    console.log('- Paciente ya procesado:', pacienteYaProcesado);
     
     // Si hay un ID de consulta directa, cargarla sin mostrar modal
     if (idConsulta) {
         console.log('📋 ID de consulta directo detectado, cargando consulta:', idConsulta);
-        window.modalConsultaCargado = true; // Bloquear modal
+        modalConsultaCargado = true; // Bloquear modal
         
         // Mostrar mensaje de carga SOLO si no hay skip_modal
         if (skipModal !== '1') {
@@ -5099,25 +4722,18 @@ function procesarParametrosURL() {
         
         // Cargar la consulta directamente
         setTimeout(() => {
-            console.log('🔄 INICIANDO CARGA - Consulta:', idConsulta, 'Paciente:', pacienteId);
-            
-            // Primero cargar la consulta
-            console.log('📋 Paso 1: Cargando consulta con ID:', idConsulta);
             obtenerYCargarConsulta(idConsulta);
             
             // Si también hay paciente_id, cargar los datos del paciente después de la consulta
             if (pacienteId) {
-                console.log('� Paso 2: Programando carga de paciente con ID:', pacienteId);
+                console.log('🔄 También hay paciente_id, cargando datos del paciente después de la consulta...');
                 setTimeout(() => {
-                    console.log('👤 Ejecutando carga de paciente...');
-                    cargarDatosPacientePorId(pacienteId);
-                    console.log('📊 Inicializando tabla de consultas...');
+                    buscarPersonaPorId(pacienteId);
                     inicializarTablaConsultas(pacienteId);
-                }, 2000); // Aumentar tiempo de espera
-            } else {
-                console.log('⚠️ No hay paciente_id disponible para cargar');
+                    mostrarHistorialConsultas(pacienteId);
+                }, 1000); // Dar tiempo a que se cargue la consulta primero
             }
-        }, 1000); // Aumentar tiempo inicial
+        }, 500);
         return;
     }
     
@@ -5126,7 +4742,7 @@ function procesarParametrosURL() {
         console.log('✓ ID de paciente detectado, iniciando carga automática...');
         
         // MARCADO TRIPLE para evitar cualquier duplicación
-        window.modalConsultaCargado = true;
+        modalConsultaCargado = true;
         
         // Mostrar mensaje de información al usuario SOLO si no hay skip_modal
         if (skipModal !== '1') {
@@ -5815,63 +5431,6 @@ function procesarRespuestaConsulta(response) {
         }
         console.log('✅ Paso 4: Respuesta válida');
         
-        // NUEVO PASO 4.5: Verificar tipo de formulario
-        if (response.tipo_formulario) {
-            const urlParams = new URLSearchParams(window.location.search);
-            const currentFormType = urlParams.get('form_type') || 'general';
-            
-            // Si el tipo de formulario en la URL es diferente del tipo de la consulta, redirigir
-            if (currentFormType !== response.tipo_formulario) {
-                console.log(`🔀 Tipo de formulario diferente. Actual: ${currentFormType}, Requerido: ${response.tipo_formulario}`);
-                
-                // Cerrar loading antes de redirigir
-                try {
-                    if (typeof Swal !== 'undefined') {
-                        Swal.close();
-                    }
-                } catch (e) {
-                    console.warn('⚠️ Error cerrando loading:', e);
-                }
-                
-                // Construir la nueva URL con el tipo de formulario correcto
-                let newUrl = `index.php?ruta=consultas&form_type=${response.tipo_formulario}&id_consulta=${response.id_consulta}&skip_modal=1`;
-                
-                // Agregar paciente_id desde la respuesta o desde los parámetros URL actuales
-                const pacienteId = response.id_persona || urlParams.get('paciente_id');
-                if (pacienteId) {
-                    newUrl += `&paciente_id=${pacienteId}`;
-                }
-                
-                console.log('🔀 Redirigiendo a URL completa:', newUrl);
-                console.log('👤 Paciente ID preservado:', pacienteId);
-                
-                // Mostrar mensaje y redirigir
-                try {
-                    if (typeof Swal !== 'undefined') {
-                        Swal.fire({
-                            position: "center",
-                            icon: "info",
-                            title: "Cambiando tipo de formulario",
-                            text: `Esta consulta requiere el formulario de tipo ${getTipoFormularioDisplay(response.tipo_formulario)}`,
-                            showConfirmButton: false,
-                            timer: 1500,
-                            didClose: () => {
-                                window.location.href = newUrl;
-                            }
-                        });
-                    } else {
-                        console.log('🔀 Redirigiendo directamente a:', newUrl);
-                        window.location.href = newUrl;
-                    }
-                } catch (e) {
-                    console.log('⚠️ Error al mostrar mensaje de redirección:', e.message);
-                    console.log('🔀 Redirigiendo directamente a:', newUrl);
-                    window.location.href = newUrl;
-                }
-                return; // Salir de la función aquí
-            }
-        }
-        
         // Paso 5: Cerrar loading
         try {
             if (typeof Swal !== 'undefined') {
@@ -6282,10 +5841,6 @@ function establecerTipoFormulario(tipoFormulario) {
         console.warn('⚠️ Error estableciendo tipo de formulario:', error);
     }
 }
-
-// Función auxiliar para cargar datos básicos de la consulta
-function cargarDatosBasicosProtegida(consultaData) {
-    console.log('📝 Cargando datos básicos (versión protegida)...', consultaData);
     
     try {
         // Campos básicos principales
@@ -6628,577 +6183,6 @@ function actualizarContadoresArchivos(consultaData) {
     if (contadorOI && consultaData.archivos_oi) {
         contadorOI.textContent = consultaData.archivos_oi.length || 0;
     }
-}
-
-// SISTEMA DE ESCUCHA DE CAMBIOS EN URL - CARGA AUTOMÁTICA
-(function() {
-    'use strict';
-    
-    // === FUNCIONES DE DEBUG PARA DIAGNÓSTICO ===
-    window.verificarDOM = function() {
-        console.log('🔍 === VERIFICACIÓN DE ELEMENTOS DOM ===');
-        const elementos = [
-            'tblConsulta',
-            'paciente', 
-            'txtdocumento',
-            'txtficha', 
-            'idPersona',
-            'consulta-textarea',
-            'txtmotivo',
-            'txtnota',
-            'proximaconsulta',
-            'whatsapptxt',
-            'email'
-        ];
-        
-        elementos.forEach(id => {
-            const elemento = document.getElementById(id);
-            console.log(`${elemento ? '✅' : '❌'} ${id}: ${elemento ? 'encontrado' : 'no encontrado'}`);
-        });
-    };
-    
-    window.debugCargarDatos = function() {
-        console.log('🚀 === FORZANDO CARGA DE DATOS DE URL ===');
-        const url = new URL(window.location.href);
-        const params = {
-            idConsulta: url.searchParams.get('id_consulta'),
-            pacienteId: url.searchParams.get('paciente_id'), 
-            formType: url.searchParams.get('form_type'),
-            skipModal: url.searchParams.get('skip_modal')
-        };
-        console.log('Parámetros encontrados:', params);
-        
-        if (params.idConsulta && params.pacienteId) {
-            console.log('🔧 Iniciando carga manual...');
-            if (typeof procesarCargaSegunParametros !== 'undefined') {
-                procesarCargaSegunParametros(params.idConsulta, params.pacienteId, params.formType, params.skipModal);
-            } else {
-                console.log('❌ Función procesarCargaSegunParametros no disponible');
-            }
-        } else {
-            console.log('❌ Faltan parámetros necesarios');
-        }
-    };
-    
-    window.forzarVerificacionFormulario = function() {
-        const url = new URL(window.location.href);
-        const formType = url.searchParams.get('form_type') || 'general';
-        console.log('🔍 === VERIFICACIÓN MANUAL DE FORMULARIO ===');
-        return verificarFormularioDisponible(formType);
-    };
-    
-    console.log('🔄 Inicializando sistema de escucha de URL...');
-    
-    let urlAnterior = window.location.href;
-    let procesandoParametros = false;
-    let ultimaEjecucionId = null; // Rastreo de ejecuciones únicas
-    
-    // Marcar página como completamente cargada después de un breve delay
-    setTimeout(() => {
-        window.paginaCompletamenteCargada = true;
-        console.log('✅ Página marcada como completamente cargada');
-    }, 2000);
-    
-    /**
-     * Función para procesar parámetros URL automáticamente
-     */
-    function procesarParametrosURLAutomatico() {
-        // Verificación doble de estado ocupado
-        if (procesandoParametros || window.cargandoParametros) {
-            console.log('⏸️ Ya hay procesamiento en curso, saltando...');
-            return;
-        }
-        
-        procesandoParametros = true;
-        console.log('🔍 === PROCESANDO PARÁMETROS URL AUTOMÁTICO ===');
-        
-        const urlParams = new URLSearchParams(window.location.search);
-        const ruta = urlParams.get('ruta');
-        const formType = urlParams.get('form_type');
-        const idConsulta = urlParams.get('id_consulta');
-        const pacienteId = urlParams.get('paciente_id');
-        const skipModal = urlParams.get('skip_modal');
-        
-        console.log('📋 Parámetros detectados:', {
-            ruta: ruta,
-            formType: formType,
-            idConsulta: idConsulta,
-            pacienteId: pacienteId,
-            skipModal: skipModal
-        });
-        
-        // Solo procesar si estamos en consultas
-        if (ruta !== 'consultas') {
-            console.log('⏭️ No estamos en consultas, saltando procesamiento');
-            procesandoParametros = false;
-            return;
-        }
-        
-        // VERIFICACIÓN CRÍTICA: Evitar procesamiento durante transiciones de formulario
-        const formTypeActualEnDOM = document.getElementById('form_type_selector') ? 
-                                   document.getElementById('form_type_selector').value : null;
-        
-        if (formType && formTypeActualEnDOM && formType !== formTypeActualEnDOM) {
-            console.log('🚫 TRANSICIÓN DE FORMULARIO EN PROGRESO:');
-            console.log(`   URL solicita: ${formType}`);
-            console.log(`   DOM contiene: ${formTypeActualEnDOM}`);
-            console.log('   ↳ Cancelando procesamiento hasta que la página se recargue completamente');
-            procesandoParametros = false;
-            return;
-        }
-        
-        // Verificar que la página esté completamente cargada
-        if (!window.paginaCompletamenteCargada) {
-            console.log('⏳ Página aún no completamente cargada, esperando...');
-            procesandoParametros = false;
-            setTimeout(() => {
-                if (!procesandoParametros) {
-                    procesarParametrosURLAutomatico();
-                }
-            }, 1500);
-            return;
-        }
-        
-        // Dar tiempo para que el DOM esté listo
-        setTimeout(() => {
-            try {
-                // Verificar una vez más antes de procesar
-                if (window.cargandoParametros) {
-                    console.log('⏸️ Procesamiento ya en curso por otro hilo, cancelando...');
-                    procesandoParametros = false;
-                    return;
-                }
-                procesarCargaSegunParametros(idConsulta, pacienteId, formType, skipModal);
-            } catch (error) {
-                console.error('❌ Error procesando parámetros:', error);
-            } finally {
-                procesandoParametros = false;
-            }
-        }, 1000);
-    }
-    
-    /**
-     * Función para procesar la carga según los parámetros encontrados
-     */
-    function procesarCargaSegunParametros(idConsulta, pacienteId, formType, skipModal) {
-        console.log('⚡ === DECIDIENDO QUE CARGAR ===');
-        console.log('Parámetros recibidos:', { idConsulta, pacienteId, formType, skipModal });
-        
-        // Crear ID único para esta ejecución
-        const ejecucionId = Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-        console.log('🆔 Ejecutión ID:', ejecucionId);
-        
-        // Evitar múltiples ejecuciones simultáneas
-        if (window.cargandoParametros) {
-            console.log('⏸️ Ya hay una carga en proceso, omitiendo...');
-            return;
-        }
-        
-        window.cargandoParametros = true;
-        ultimaEjecucionId = ejecucionId; // Marcar como la ejecución actual
-        
-        // FAILSAFE: Liberar automáticamente después de 10 segundos para evitar deadlocks
-        setTimeout(() => {
-            if (window.cargandoParametros) {
-                console.log('🚨 FAILSAFE: Liberando flag cargandoParametros después de 10s para evitar deadlock');
-                window.cargandoParametros = false;
-            }
-        }, 10000);
-        
-        // Función para verificar si esta ejecución sigue siendo válida
-        const esEjecucionValida = () => {
-            if (ultimaEjecucionId !== ejecucionId) {
-                console.log('🚫 Ejecución cancelada - nueva ejecución iniciada:', {
-                    actual: ejecucionId,
-                    nueva: ultimaEjecucionId
-                });
-                return false;
-            }
-            return true;
-        };
-        
-        // Función helper para liberar flag de forma segura
-        const liberarFlagSeguro = (mensaje) => {
-            if (window.cargandoParametros) {
-                window.cargandoParametros = false;
-                console.log('✅ ' + mensaje + ' para ejecución:', ejecucionId);
-            }
-        };
-        
-        // Verificar que el formulario específico esté disponible antes de proceder
-        if (!verificarFormularioDisponible(formType || 'general')) {
-            console.log('⏳ Formulario no disponible aún, reintentando en 1000ms...');
-            liberarFlagSeguro('Formulario no disponible');
-            setTimeout(() => procesarCargaSegunParametros(idConsulta, pacienteId, formType, skipModal), 1000);
-            return;
-        }
-        
-        // VERIFICACIÓN CRÍTICA: Comparar tipo de formulario solicitado con el tipo actual en DOM
-        const formTypeActualEnDOM = document.getElementById('form_type_selector') ? 
-                                   document.getElementById('form_type_selector').value : null;
-        
-        if (formType && formTypeActualEnDOM && formType !== formTypeActualEnDOM) {
-            console.log('🚫 CONFLICTO DE TIPOS DE FORMULARIO DETECTADO:');
-            console.log(`   Solicitado en URL: ${formType}`);
-            console.log(`   Actual en DOM: ${formTypeActualEnDOM}`);
-            console.log('   ↳ Esperando recarga de página para nuevo formulario...');
-            
-            // Liberar inmediatamente y no proceder
-            liberarFlagSeguro('Conflicto de tipo de formulario');
-            return;
-        }
-        
-        // CASO 1: Hay ID de consulta (modo edición)
-        if (idConsulta && idConsulta !== 'null' && idConsulta !== '') {
-            console.log('📝 MODO EDICIÓN DETECTADO');
-            console.log(`🔧 Cargando consulta ID: ${idConsulta} con paciente ID: ${pacienteId}`);
-            
-            // Primero cargar la consulta
-            setTimeout(() => {
-                if (!esEjecucionValida()) return;
-                console.log('📋 Paso 1: Cargando datos de consulta...');
-                cargarConsultaParaEdicion(idConsulta);
-            }, 500);
-            
-            // Luego cargar el paciente si hay ID (con más delay para evitar conflictos)
-            if (pacienteId && pacienteId !== 'null' && pacienteId !== '') {
-                setTimeout(() => {
-                    if (!esEjecucionValida()) return;
-                    console.log('👤 Paso 2: Cargando datos de paciente...');
-                    cargarDatosPacientePorId(pacienteId, skipModal === '1');
-                }, 2000); // Aumenté el delay
-                
-                // Finalmente cargar tabla de consultas
-                setTimeout(() => {
-                    if (!esEjecucionValida()) {
-                        liberarFlagSeguro('Carga cancelada por nueva ejecución');
-                        return;
-                    }
-                    console.log('📊 Paso 3: Inicializando tabla de consultas...');
-                    inicializarTablaConsultas(pacienteId);
-                    
-                    // Liberar flag al finalizar
-                    liberarFlagSeguro('Carga completa finalizada');
-                }, 3000); // Aumenté el delay
-            } else {
-                setTimeout(() => {
-                    liberarFlagSeguro('Carga de consulta finalizada');
-                }, 2500);
-            }
-        }
-        // CASO 2: Solo hay ID de paciente (cargar paciente nuevo)
-        else if (pacienteId && pacienteId !== 'null' && pacienteId !== '') {
-            console.log('👤 MODO PACIENTE NUEVO DETECTADO');
-            console.log(`🔧 Cargando solo paciente ID: ${pacienteId}`);
-            
-            setTimeout(() => {
-                if (!esEjecucionValida()) return;
-                console.log('👤 Cargando datos de paciente...');
-                cargarDatosPacientePorId(pacienteId, skipModal === '1');
-                
-                setTimeout(() => {
-                    if (!esEjecucionValida()) {
-                        liberarFlagSeguro('Carga cancelada por nueva ejecución');
-                        return;
-                    }
-                    console.log('📊 Inicializando tabla de consultas...');
-                    inicializarTablaConsultas(pacienteId);
-                    
-                    // Liberar flag al finalizar
-                    liberarFlagSeguro('Carga de paciente finalizada');
-                }, 1000);
-            }, 500);
-        }
-        // CASO 3: No hay parámetros específicos
-        else {
-            console.log('🆕 MODO CONSULTA NUEVA - No hay parámetros de carga');
-            // Liberar inmediatamente si no hay nada que cargar
-            liberarFlagSeguro('Sin parámetros de carga');
-        }
-        
-        console.log('✅ Procesamiento de parámetros completado');
-    }
-    
-    /**
-     * Verificar si el formulario específico está disponible en el DOM
-     */
-    function verificarFormularioDisponible(formType) {
-        const elementosPorTipo = {
-            'general': ['tblConsulta', 'paciente', 'txtdocumento'],
-            'anteojos': ['tblConsulta', 'paciente', 'txtdocumento'],
-            'estudios': ['tblConsulta', 'paciente', 'txtdocumento'],
-            'informe_imagen': ['tblConsulta', 'paciente', 'txtdocumento', 'tabla-archivos-od', 'tabla-archivos-oi']
-        };
-        
-        const elementos = elementosPorTipo[formType] || elementosPorTipo['general'];
-        let elementosEncontrados = 0;
-        let elementosRequeridos = elementos.length;
-        
-        console.log(`🔍 === VERIFICACIÓN DETALLADA DE FORMULARIO ${formType.toUpperCase()} ===`);
-        console.log(`📋 Total de formularios en la página: ${document.forms.length}`);
-        console.log(`📋 Elemento tblConsulta existe: ${document.getElementById('tblConsulta') ? 'SÍ' : 'NO'}`);
-        
-        for (const id of elementos) {
-            const elemento = document.getElementById(id);
-            if (elemento) {
-                console.log(`✅ ${id}: encontrado (${elemento.tagName})`);
-                elementosEncontrados++;
-            } else {
-                console.log(`❌ ${id}: no encontrado`);
-            }
-        }
-        
-        // Verificación adicional de elementos críticos para informe_imagen
-        if (formType === 'informe_imagen') {
-            const elementosAdicionales = ['motivoscomunes', 'txtmotivo', 'consulta-textarea'];
-            console.log('🔍 Verificación adicional de elementos específicos:');
-            for (const id of elementosAdicionales) {
-                const elemento = document.getElementById(id);
-                console.log(`${elemento ? '✅' : '❌'} ${id}: ${elemento ? 'encontrado' : 'no encontrado'}`);
-            }
-        }
-        
-        const disponible = elementosEncontrados === elementosRequeridos;
-        console.log(`📊 Resultado: ${elementosEncontrados}/${elementosRequeridos} elementos encontrados`);
-        
-        if (disponible) {
-            console.log(`🎉 ✅ Formulario ${formType} COMPLETAMENTE DISPONIBLE`);
-        } else {
-            console.log(`⏳ ❌ Formulario ${formType} NO ESTÁ LISTO (falta ${elementosRequeridos - elementosEncontrados} elementos)`);
-        }
-        
-        return disponible;
-    }
-    
-    /**
-     * Función específica para cargar consulta en modo edición
-     */
-    function cargarConsultaParaEdicion(idConsulta) {
-        console.log('📝 === CARGANDO CONSULTA PARA EDICIÓN ===');
-        console.log('ID Consulta:', idConsulta);
-        
-        // Usar la función existente obtenerYCargarConsulta
-        if (typeof obtenerYCargarConsulta === 'function') {
-            obtenerYCargarConsulta(idConsulta);
-        } else {
-            console.error('❌ Función obtenerYCargarConsulta no encontrada');
-            // Fallback a editarConsultaProtegida si existe
-            if (typeof editarConsultaProtegida === 'function') {
-                editarConsultaProtegida(idConsulta);
-            }
-        }
-    }
-    
-    /**
-     * Monitoreo de cambios en la URL
-     */
-    function monitorearCambiosURL() {
-        const urlActual = window.location.href;
-        
-        // Evitar múltiples procesamientos simultáneos
-        if (window.cargandoParametros || procesandoParametros) {
-            // Solo mostrar mensaje cada 5 segundos para evitar spam
-            const ahora = Date.now();
-            if (!window.ultimoMensajeSistemaOcupado || (ahora - window.ultimoMensajeSistemaOcupado) > 5000) {
-                console.log('⏸️ Sistema ocupado, saltando monitoreo URL... (cargandoParametros:', 
-                           window.cargandoParametros, ', procesandoParametros:', procesandoParametros, ')');
-                window.ultimoMensajeSistemaOcupado = ahora;
-            }
-            return;
-        }
-        
-        if (urlActual !== urlAnterior) {
-            console.log('🔄 Cambio de URL detectado:');
-            console.log('  Anterior:', urlAnterior);
-            console.log('  Nueva:', urlActual);
-            
-            urlAnterior = urlActual;
-            
-            // Procesar nueva URL después de un pequeño delay
-            setTimeout(procesarParametrosURLAutomatico, 200);
-        }
-    }
-    
-    /**
-     * Inicializar sistema de monitoreo
-     */
-    function inicializarMonitoreoURL() {
-        console.log('🚀 Iniciando monitoreo de URL...');
-        
-        // Procesar URL inicial al cargar la página
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => {
-                setTimeout(procesarParametrosURLAutomatico, 500);
-            });
-        } else {
-            setTimeout(procesarParametrosURLAutomatico, 500);
-        }
-        
-        // Monitorear cambios cada 1000ms (reducido la frecuencia)
-        setInterval(monitorearCambiosURL, 1000);
-        
-        // También escuchar eventos de popstate (back/forward del navegador)
-        window.addEventListener('popstate', function(event) {
-            console.log('🔙 Evento popstate detectado');
-            // Verificar si ya hay procesamiento en curso
-            if (!window.cargandoParametros && !procesandoParametros) {
-                setTimeout(procesarParametrosURLAutomatico, 300);
-            } else {
-                console.log('⏸️ Sistema ocupado, ignorando popstate...');
-            }
-        });
-        
-        // Escuchar cambios en hash también (por si acaso)
-        window.addEventListener('hashchange', function(event) {
-            console.log('🔗 Cambio de hash detectado');
-            // Verificar si ya hay procesamiento en curso
-            if (!window.cargandoParametros && !procesandoParametros) {
-                setTimeout(procesarParametrosURLAutomatico, 300);
-            } else {
-                console.log('⏸️ Sistema ocupado, ignorando hashchange...');
-            }
-        });
-        
-        console.log('✅ Sistema de monitoreo de URL inicializado');
-    }
-    
-    // Inicializar inmediatamente
-    inicializarMonitoreoURL();
-    
-})();
-
-// FUNCIÓN DE DEBUG MANUAL - Ejecuta en consola del navegador
-function debugCargarDatos() {
-    console.log('🔧 === FUNCIÓN DE DEBUG MANUAL ===');
-    
-    // Probar carga de paciente
-    console.log('🧪 Probando carga de paciente ID 45...');
-    cargarDatosPacientePorId(45);
-    
-    // Probar carga de consulta después de 3 segundos
-    setTimeout(() => {
-        console.log('🧪 Probando carga de consulta ID 107...');
-        obtenerYCargarConsulta(107);
-    }, 3000);
-}
-
-// FUNCIÓN PARA FORZAR PROCESAMIENTO DE URL ACTUAL
-function forzarProcesarURL() {
-    console.log('⚡ === FORZANDO PROCESAMIENTO DE URL ACTUAL ===');
-    
-    const urlParams = new URLSearchParams(window.location.search);
-    const idConsulta = urlParams.get('id_consulta');
-    const pacienteId = urlParams.get('paciente_id');
-    const formType = urlParams.get('form_type');
-    const skipModal = urlParams.get('skip_modal');
-    
-    console.log('📋 Parámetros en URL actual:', {
-        idConsulta: idConsulta,
-        pacienteId: pacienteId,
-        formType: formType,
-        skipModal: skipModal
-    });
-    
-    // CASO: Hay consulta para editar
-    if (idConsulta && idConsulta !== 'null') {
-        console.log('📝 EDITANDO - Cargando consulta:', idConsulta);
-        
-        // Cargar consulta
-        setTimeout(() => {
-            console.log('🔄 Cargando consulta...');
-            if (typeof obtenerYCargarConsulta === 'function') {
-                obtenerYCargarConsulta(idConsulta);
-            } else if (typeof editarConsultaProtegida === 'function') {
-                editarConsultaProtegida(idConsulta, pacienteId);
-            }
-        }, 500);
-        
-        // Cargar paciente si existe
-        if (pacienteId && pacienteId !== 'null') {
-            setTimeout(() => {
-                console.log('🔄 Cargando paciente...');
-                cargarDatosPacientePorId(pacienteId);
-            }, 1500);
-            
-            setTimeout(() => {
-                console.log('🔄 Cargando tabla...');
-                inicializarTablaConsultas(pacienteId);
-            }, 2500);
-        }
-    }
-    // CASO: Solo hay paciente
-    else if (pacienteId && pacienteId !== 'null') {
-        console.log('👤 NUEVO PACIENTE - Cargando paciente:', pacienteId);
-        
-        setTimeout(() => {
-            cargarDatosPacientePorId(pacienteId);
-        }, 500);
-        
-        setTimeout(() => {
-            inicializarTablaConsultas(pacienteId);
-        }, 1500);
-    }
-    else {
-        console.log('🆕 No hay parámetros para cargar');
-    }
-}
-
-// FUNCIÓN PARA VERIFICAR ELEMENTOS DEL DOM
-function verificarDOM() {
-    console.log('🔍 === VERIFICACIÓN DEL DOM ===');
-    
-    const elementos = [
-        'paciente', 'txtdocumento', 'txtficha', 'idPersona',
-        'profile-username', 'profile-ci', 'id_persona_file'
-    ];
-    
-    elementos.forEach(id => {
-        const elemento = document.getElementById(id);
-        if (elemento) {
-            console.log(`✅ Elemento "${id}" encontrado:`, elemento);
-        } else {
-            console.log(`❌ Elemento "${id}" NO encontrado`);
-        }
-    });
-    
-    // Verificar formularios específicos
-    const formularios = [
-        '#formulario-informe_imagen', 
-        '.formulario-informe_imagen', 
-        '#informe_imagen-form',
-        '#tblConsulta'
-    ];
-    
-    formularios.forEach(selector => {
-        const elemento = document.querySelector(selector);
-        if (elemento) {
-            console.log(`✅ Formulario "${selector}" encontrado:`, elemento);
-        } else {
-            console.log(`❌ Formulario "${selector}" NO encontrado`);
-        }
-    });
-}
-
-// FUNCIÓN PARA PROBAR AJAX DIRECTO
-function probarAjaxPaciente() {
-    console.log('🧪 === PRUEBA AJAX DIRECTA ===');
-    
-    $.ajax({
-        type: 'POST',
-        url: 'ajax/persona.ajax.php',
-        data: {
-            idPersona: 45,
-            operacion: 'getPersonById'
-        },
-        dataType: 'json',
-        success: function(response) {
-            console.log('✅ AJAX exitoso:', response);
-        },
-        error: function(xhr, status, error) {
-            console.error('❌ AJAX error:', error);
-            console.error('Response:', xhr.responseText);
-        }
-    });
 }
 
 

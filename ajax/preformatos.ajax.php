@@ -1,4 +1,12 @@
 <?php
+// Configuración para respuestas AJAX limpias
+ini_set('display_errors', 0);
+error_reporting(E_ERROR | E_PARSE);
+
+// Iniciar buffer de salida y configurar headers para JSON limpio
+ob_start();
+header('Content-Type: application/json; charset=utf-8');
+
 require_once __DIR__ . "/../controller/preformatos.controller.php";
 require_once __DIR__ . "/../model/conexion.php";
 
@@ -361,13 +369,23 @@ if (isset($_POST['operacion'])) {
     // Guardar información de diagnóstico
     error_log("Operación solicitada: " . $_POST['operacion']);
     
-    // Log request parameters
-    file_put_contents('logs/database.log', 
-        date('[Y-m-d H:i:s] ') . 
-        "REQUEST PREFORMATOS - Operación: " . $_POST['operacion'] . 
-        " | Parámetros: " . json_encode($_POST) . 
-        PHP_EOL, 
-        FILE_APPEND);
+    // Log request parameters de manera segura
+    try {
+        $logDir = dirname(__FILE__) . '/../logs';
+        if (!is_dir($logDir)) {
+            mkdir($logDir, 0755, true);
+        }
+        $logFile = $logDir . '/database.log';
+        file_put_contents($logFile, 
+            date('[Y-m-d H:i:s] ') . 
+            "REQUEST PREFORMATOS - Operación: " . $_POST['operacion'] . 
+            " | Parámetros: " . json_encode($_POST) . 
+            PHP_EOL, 
+            FILE_APPEND | LOCK_EX);
+    } catch (Exception $e) {
+        // Si falla el logging, continuar sin mostrar error
+        error_log("Error en logging preformatos: " . $e->getMessage());
+    }
     
     switch ($_POST['operacion']) {
         case 'getMotivosComunes':

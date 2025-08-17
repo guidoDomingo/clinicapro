@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Protección DataTables DOM</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test de Protección DataTables DOM</h1>
+    
+    <div id="test-results">
+        <div class="test-section info">
+            <h3>Estado del Sistema</h3>
+            <p>Iniciando pruebas de protección DOM para DataTables...</p>
+        </div>
+    </div>
+
+    <div id="test-table-container">
+        <table id="test-table" class="display">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Fecha</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>1</td><td>Prueba 1</td><td>2025-08-17</td><td>Activo</td></tr>
+                <tr><td>2</td><td>Prueba 2</td><td>2025-08-17</td><td>Inactivo</td></tr>
+                <tr><td>3</td><td>Prueba 3</td><td>2025-08-17</td><td>Activo</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="test-section">
+        <h3>Controles de Prueba</h3>
+        <button onclick="testDOMStability()">🔄 Test Estabilidad DOM</button>
+        <button onclick="testDataTableDestroy()">💥 Test Destrucción DataTable</button>
+        <button onclick="testDOMCorruption()">🚫 Test Corrupción DOM</button>
+        <button onclick="resetTest()">♻️ Reset Test</button>
+    </div>
+
+    <script>
+        let testTable = null;
+        let testResults = [];
+
+        // Simular el código de protección de consultas.js
+        let domIsChanging = false;
+        let domMutationObserver = null;
+
+        function logResult(message, type = 'info') {
+            testResults.push({message, type, timestamp: new Date().toISOString()});
+            updateResultsDisplay();
+        }
+
+        function updateResultsDisplay() {
+            const container = document.getElementById('test-results');
+            container.innerHTML = '<div class="test-section info"><h3>Resultados de Pruebas</h3></div>';
+            
+            testResults.forEach(result => {
+                const div = document.createElement('div');
+                div.className = `test-section ${result.type}`;
+                div.innerHTML = `<strong>${result.timestamp.substr(11, 8)}</strong>: ${result.message}`;
+                container.appendChild(div);
+            });
+        }
+
+        function initializeTestTable() {
+            try {
+                if ($.fn.DataTable.isDataTable('#test-table')) {
+                    $('#test-table').DataTable().destroy();
+                }
+                
+                testTable = $('#test-table').DataTable({
+                    pageLength: 5,
+                    ordering: true,
+                    searching: true
+                });
+                
+                logResult('✅ DataTable inicializada correctamente', 'success');
+                return true;
+            } catch (error) {
+                logResult('❌ Error inicializando DataTable: ' + error.message, 'error');
+                return false;
+            }
+        }
+
+        function testDOMStability() {
+            logResult('🔍 Iniciando test de estabilidad DOM...', 'info');
+            
+            // Simular verificación de estabilidad
+            const tableElement = document.getElementById('test-table');
+            if (!tableElement) {
+                logResult('❌ Elemento tabla no encontrado', 'error');
+                return;
+            }
+            
+            if (!tableElement.offsetParent) {
+                logResult('⚠️ Elemento tabla no visible', 'error');
+                return;
+            }
+            
+            logResult('✅ DOM estable - tabla visible y accesible', 'success');
+            
+            // Inicializar DataTable si no existe
+            if (!testTable) {
+                initializeTestTable();
+            }
+        }
+
+        function testDataTableDestroy() {
+            logResult('💥 Iniciando test de destrucción segura...', 'info');
+            
+            if (!testTable) {
+                logResult('⚠️ No hay DataTable para destruir', 'error');
+                return;
+            }
+            
+            try {
+                // Verificar que la tabla existe en DOM
+                const tableExists = document.getElementById('test-table');
+                if (tableExists && $.fn.DataTable.isDataTable('#test-table')) {
+                    testTable.destroy(false); // false = mantener DOM
+                    testTable = null;
+                    logResult('✅ DataTable destruida correctamente', 'success');
+                } else {
+                    logResult('⚠️ DataTable no válida, solo limpiando referencia', 'error');
+                    testTable = null;
+                }
+            } catch (error) {
+                logResult('❌ Error destruyendo DataTable: ' + error.message, 'error');
+                testTable = null;
+            }
+        }
+
+        function testDOMCorruption() {
+            logResult('🚫 Simulando corrupción DOM...', 'info');
+            
+            // Simular cambio DOM que causa problemas
+            const container = document.getElementById('test-table-container');
+            if (container) {
+                // Temporarily hide container to simulate DOM corruption
+                container.style.display = 'none';
+                
+                setTimeout(() => {
+                    // Try to initialize DataTable on hidden element
+                    try {
+                        if (testTable) {
+                            testTable.destroy();
+                            testTable = null;
+                        }
+                        
+                        testTable = $('#test-table').DataTable();
+                        logResult('⚠️ DataTable inicializada en elemento oculto (no debería pasar)', 'error');
+                    } catch (error) {
+                        if (error.message.includes('contains')) {
+                            logResult('✅ Error de corrupción DOM detectado correctamente: ' + error.message.substring(0, 50) + '...', 'success');
+                        } else {
+                            logResult('❌ Error inesperado: ' + error.message, 'error');
+                        }
+                    }
+                    
+                    // Restore visibility
+                    container.style.display = 'block';
+                    logResult('🔄 Elemento restaurado, intentando recuperación...', 'info');
+                    
+                    setTimeout(() => {
+                        if (initializeTestTable()) {
+                            logResult('✅ Recuperación exitosa después de corrupción DOM', 'success');
+                        }
+                    }, 100);
+                    
+                }, 100);
+            }
+        }
+
+        function resetTest() {
+            testResults = [];
+            if (testTable) {
+                try {
+                    testTable.destroy();
+                } catch (e) {
+                    // Ignore errors during cleanup
+                }
+                testTable = null;
+            }
+            
+            document.getElementById('test-table-container').style.display = 'block';
+            updateResultsDisplay();
+            logResult('♻️ Test reiniciado', 'info');
+        }
+
+        // Initialize on page load
+        $(document).ready(function() {
+            logResult('🚀 Sistema de pruebas cargado', 'success');
+            initializeTestTable();
+        });
+    </script>
+</body>
+</html>
