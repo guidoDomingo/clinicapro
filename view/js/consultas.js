@@ -4105,13 +4105,18 @@ function cargarDatosPacientePorId(idPersona, skipModal = false) {
  */
 function completarCamposFormulario(persona) {
     console.log('📝 === COMPLETANDO CAMPOS DEL FORMULARIO ===');
+    console.log('📋 Datos de persona recibidos:', persona);
+    console.log('🔍 Campos específicos:', {
+        nombre: persona.nombre,
+        apellido: persona.apellido,
+        documento: persona.documento,
+        ficha: persona.ficha,
+        id_persona: persona.id_persona
+    });
     
     // Buscar campos con debugging mejorado
     const todosLosInputs = document.querySelectorAll('input');
-    console.log('📋 Listado de todos los inputs encontrados:');
-    todosLosInputs.forEach((input, index) => {
-        console.log(`  ${index + 1}. ID: "${input.id}", Name: "${input.name}", Type: "${input.type}"`);
-    });
+    console.log('📋 Total de inputs encontrados:', todosLosInputs.length);
     
     // Función helper para encontrar elementos con debugging
     const encontrarElemento = (id, descripcion) => {
@@ -4133,19 +4138,16 @@ function completarCamposFormulario(persona) {
         }
     };
     
-    const campoNombre = document.getElementById('paciente') || document.querySelector('[name="paciente"]');
+    const campoNombre = document.getElementById('paciente') || document.querySelector('[name="paciente"]') || document.querySelector('#nombre, #nombres, [name="nombre"], [name="nombres"], [placeholder*="nombre"], [placeholder*="paciente"]');
     if (campoNombre) {
-        const nombreCompleto = (persona.nombres || '') + ' ' + (persona.apellidos || '');
-        campoNombre.value = nombreCompleto;
-        console.log('✅ Campo nombre completado:', nombreCompleto);
+        const nombreCompleto = (persona.nombre || '') + ' ' + (persona.apellido || '');
+        campoNombre.value = nombreCompleto.trim();
+        console.log('✅ Campo nombre completado:', nombreCompleto.trim(), 'en elemento:', campoNombre.id || campoNombre.name || 'sin ID/name');
     } else {
-        console.log('❌ Campo paciente NO encontrado - verificando alternativas...');
-        const alternativoNombre = document.querySelector('[placeholder*="paciente"], [placeholder*="nombre"]');
-        if (alternativoNombre) {
-            console.log('✅ Campo alternativo para nombre encontrado:', alternativoNombre);
-            const nombreCompleto = (persona.nombres || '') + ' ' + (persona.apellidos || '');
-            alternativoNombre.value = nombreCompleto;
-        }
+        console.log('❌ Campo nombre NO encontrado en ninguna búsqueda');
+        // Lista todos los inputs tipo text para debugging
+        const inputsText = document.querySelectorAll('input[type="text"]');
+        console.log('🔍 Inputs tipo text disponibles para nombre:', Array.from(inputsText).map(i => ({id: i.id, name: i.name, placeholder: i.placeholder})));
     }
     
     const campoDocumento = document.getElementById('txtdocumento') || document.querySelector('[name="txtdocumento"]');
@@ -4156,12 +4158,20 @@ function completarCamposFormulario(persona) {
         console.log('❌ Campo txtdocumento NO encontrado');
     }
     
-    const campoFicha = document.getElementById('txtficha') || document.querySelector('[name="txtficha"]');
+    const campoFicha = document.getElementById('txtficha') || document.querySelector('[name="txtficha"]') || document.querySelector('#ficha, [name="ficha"], [placeholder*="ficha"]');
     if (campoFicha) {
-        campoFicha.value = persona.nro_ficha || '';
-        console.log('✅ Campo ficha completado:', persona.nro_ficha);
+        campoFicha.value = persona.ficha || '';
+        console.log('✅ Campo ficha completado:', persona.ficha, 'en elemento:', campoFicha.id || campoFicha.name || 'sin ID/name');
     } else {
-        console.log('❌ Campo txtficha NO encontrado');
+        console.log('❌ Campo ficha NO encontrado en ninguna búsqueda');
+        // Lista todos los inputs para ficha
+        const todosInputs = document.querySelectorAll('input');
+        const inputsConFicha = Array.from(todosInputs).filter(i => 
+            i.id.toLowerCase().includes('ficha') || 
+            i.name.toLowerCase().includes('ficha') || 
+            (i.placeholder && i.placeholder.toLowerCase().includes('ficha'))
+        );
+        console.log('🔍 Inputs relacionados con ficha:', inputsConFicha.map(i => ({id: i.id, name: i.name, placeholder: i.placeholder})));
     }
     
     const campoIdPersona = document.getElementById('idPersona') || document.querySelector('[name="idPersona"]');
@@ -4177,9 +4187,9 @@ function completarCamposFormulario(persona) {
     
     const profileUsername = encontrarElemento('profile-username', 'profile username');
     if (profileUsername) {
-        const nombreCompleto = (persona.nombres || '') + ' ' + (persona.apellidos || '');
-        profileUsername.textContent = nombreCompleto;
-        console.log('✅ Profile username actualizado:', nombreCompleto);
+        const nombreCompleto = (persona.nombre || '') + ' ' + (persona.apellido || '');
+        profileUsername.textContent = nombreCompleto.trim();
+        console.log('✅ Profile username actualizado:', nombreCompleto.trim());
     }
     
     const profileCI = encontrarElemento('profile-ci', 'profile CI');
