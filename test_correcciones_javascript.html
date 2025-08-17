@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Correcciones JavaScript - Consultas</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            background: #f8f9fa; 
+        }
+        .test-result { 
+            padding: 15px; 
+            margin: 10px 0; 
+            border-radius: 8px; 
+            border-left: 4px solid; 
+        }
+        .success { 
+            background: #d4edda; 
+            border-left-color: #28a745; 
+            color: #155724; 
+        }
+        .error { 
+            background: #f8d7da; 
+            border-left-color: #dc3545; 
+            color: #721c24; 
+        }
+        .warning { 
+            background: #fff3cd; 
+            border-left-color: #ffc107; 
+            color: #856404; 
+        }
+        .info { 
+            background: #d1ecf1; 
+            border-left-color: #17a2b8; 
+            color: #0c5460; 
+        }
+        pre { 
+            background: #343a40; 
+            color: #fff; 
+            padding: 15px; 
+            border-radius: 5px; 
+            overflow-x: auto; 
+            font-size: 14px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-warning { background: #ffc107; color: black; }
+        .btn-danger { background: #dc3545; color: white; }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 Test Correcciones Específicas</h1>
+    <p><strong>Verificación de los errores detectados y sus soluciones</strong></p>
+    
+    <div class="test-section">
+        <h2>📦 1. Verificación de Componentes de Formulario</h2>
+        <button class="btn-primary" onclick="testFormComponents()">🧪 Test Componentes</button>
+        <div id="form-components-results"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>🌐 2. Verificación de Endpoints API</h2>
+        <button class="btn-primary" onclick="testAPIEndpoints()">🔗 Test APIs</button>
+        <div id="api-results"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>🚀 3. Test de Inicialización Completa</h2>
+        <button class="btn-success" onclick="testFullInitialization()">⚡ Inicializar Sistema</button>
+        <div id="initialization-results"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>📋 Console en Vivo</h2>
+        <button class="btn-warning" onclick="clearLiveConsole()">🧹 Limpiar</button>
+        <pre id="live-console"></pre>
+    </div>
+    
+    <!-- Cargar componentes JavaScript -->
+    <script src="/clinica/view/plugins/jquery/jquery.min.js"></script>
+    <script src="/clinica/modules/consultas/core/FormComponents.js"></script>
+    <script src="/clinica/modules/consultas/core/PatientManager.js"></script>
+    <script src="/clinica/modules/consultas/core/ConsultasManager.js"></script>
+    <script src="/clinica/modules/consultas/core/AppInitializer.js"></script>
+    
+    <script>
+        // Interceptar console para mostrar en vivo
+        const originalConsole = {
+            log: console.log,
+            error: console.error,
+            warn: console.warn
+        };
+        
+        function addToLiveConsole(message, type = 'log') {
+            const console_element = document.getElementById('live-console');
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = {
+                log: '#17a2b8',
+                error: '#dc3545', 
+                warn: '#ffc107'
+            };
+            
+            console_element.innerHTML += `<span style="color: ${colors[type] || '#17a2b8'}">[${timestamp}] ${type.toUpperCase()}: ${message}</span>\n`;
+            console_element.scrollTop = console_element.scrollHeight;
+        }
+        
+        console.log = function(...args) {
+            originalConsole.log.apply(console, args);
+            addToLiveConsole(args.join(' '), 'log');
+        };
+        
+        console.error = function(...args) {
+            originalConsole.error.apply(console, args);
+            addToLiveConsole(args.join(' '), 'error');
+        };
+        
+        console.warn = function(...args) {
+            originalConsole.warn.apply(console, args);
+            addToLiveConsole(args.join(' '), 'warn');
+        };
+        
+        function showTestResult(containerId, message, type, icon = '') {
+            const container = document.getElementById(containerId);
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.innerHTML = `${icon} ${message}`;
+            container.appendChild(div);
+        }
+        
+        // Test 1: Componentes de Formulario
+        function testFormComponents() {
+            console.log('🧪 Iniciando test de componentes de formulario...');
+            const container = document.getElementById('form-components-results');
+            container.innerHTML = '';
+            
+            const components = [
+                'GeneralFormComponent',
+                'AnteojosFormComponent', 
+                'EstudiosFormComponent',
+                'InformeImagenFormComponent'
+            ];
+            
+            components.forEach(componentName => {
+                if (window[componentName]) {
+                    showTestResult('form-components-results', 
+                        `<strong>${componentName}</strong> está definido correctamente`, 
+                        'success', '✅');
+                    console.log(`✅ ${componentName} OK`);
+                    
+                    // Test de instanciación
+                    try {
+                        const instance = new window[componentName]();
+                        showTestResult('form-components-results', 
+                            `<strong>${componentName}</strong> se puede instanciar`, 
+                            'success', '🏗️');
+                    } catch (error) {
+                        showTestResult('form-components-results', 
+                            `<strong>${componentName}</strong> error en instanciación: ${error.message}`, 
+                            'error', '❌');
+                    }
+                } else {
+                    showTestResult('form-components-results', 
+                        `<strong>${componentName}</strong> NO está definido`, 
+                        'error', '❌');
+                    console.error(`❌ ${componentName} faltante`);
+                }
+            });
+        }
+        
+        // Test 2: Endpoints API
+        async function testAPIEndpoints() {
+            console.log('🌐 Iniciando test de endpoints API...');
+            const container = document.getElementById('api-results');
+            container.innerHTML = '<div class="loading"></div> Probando endpoints...';
+            
+            const endpoints = [
+                { action: 'verify_session', desc: 'Verificar Sesión' },
+                { action: 'getMotivosComunes', desc: 'Motivos Comunes' },
+                { action: 'getPreformatos', desc: 'Preformatos' },
+                { action: 'getFormConfig', desc: 'Configuración Formularios' }
+            ];
+            
+            container.innerHTML = '';
+            
+            for (const endpoint of endpoints) {
+                try {
+                    console.log(`🔍 Probando endpoint: ${endpoint.action}`);
+                    const response = await fetch(`modules/consultas/api/consultas-api.php?action=${endpoint.action}`);
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        showTestResult('api-results', 
+                            `<strong>${endpoint.desc}</strong> - Endpoint responde OK (Status: ${response.status})`, 
+                            'success', '✅');
+                        console.log(`✅ ${endpoint.action} OK:`, data);
+                    } else {
+                        showTestResult('api-results', 
+                            `<strong>${endpoint.desc}</strong> - Error HTTP ${response.status}`, 
+                            'warning', '⚠️');
+                        console.warn(`⚠️ ${endpoint.action} HTTP ${response.status}`);
+                    }
+                } catch (error) {
+                    showTestResult('api-results', 
+                        `<strong>${endpoint.desc}</strong> - Error: ${error.message}`, 
+                        'error', '❌');
+                    console.error(`❌ ${endpoint.action} error:`, error);
+                }
+            }
+        }
+        
+        // Test 3: Inicialización Completa
+        async function testFullInitialization() {
+            console.log('⚡ Iniciando test de inicialización completa...');
+            const container = document.getElementById('initialization-results');
+            container.innerHTML = '<div class="loading"></div> Inicializando sistema completo...';
+            
+            try {
+                // Test ConsultasManager
+                const consultasManager = ConsultasManager.getInstance();
+                await consultasManager.init();
+                
+                showTestResult('initialization-results', 
+                    '<strong>ConsultasManager</strong> inicializado correctamente', 
+                    'success', '✅');
+                console.log('✅ ConsultasManager inicializado');
+                
+                // Test PatientManager  
+                const patientManager = PatientManager.getInstance();
+                
+                showTestResult('initialization-results', 
+                    '<strong>PatientManager</strong> inicializado correctamente', 
+                    'success', '✅');
+                console.log('✅ PatientManager inicializado');
+                
+                // Test AppInitializer
+                await AppInitializer.init();
+                
+                showTestResult('initialization-results', 
+                    '<strong>Sistema completo</strong> inicializado sin errores', 
+                    'success', '🎉');
+                console.log('🎉 Sistema completo OK');
+                
+            } catch (error) {
+                showTestResult('initialization-results', 
+                    `<strong>Error en inicialización:</strong> ${error.message}`, 
+                    'error', '❌');
+                console.error('❌ Error en inicialización completa:', error);
+            }
+        }
+        
+        function clearLiveConsole() {
+            document.getElementById('live-console').innerHTML = '';
+        }
+        
+        // Auto-ejecutar test básico al cargar
+        window.addEventListener('load', () => {
+            console.log('🚀 Test de correcciones iniciado');
+            setTimeout(() => {
+                testFormComponents();
+            }, 500);
+        });
+    </script>
+</body>
+</html>

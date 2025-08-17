@@ -37,6 +37,14 @@
                         <p>Consultas</p>
                     </a>
                 </li>
+                <li class="nav-item <?php echo mostrar_si_tiene_permiso('ver_consultas'); ?>">
+                    <a href="index.php?ruta=consultas-new" class="nav-link">
+                        <i class="nav-icon fas fa-stethoscope" style="color: #28a745;"></i>
+                        <p>Consultas v2.0 
+                            <span class="badge badge-success badge-xs">NEW</span>
+                        </p>
+                    </a>
+                </li>
                 <li class="nav-item <?php echo mostrar_si_tiene_permiso('ver_agenda'); ?>">
                     <a href="index.php?ruta=citas" class="nav-link">
                         <i class="nav-icon fas fa-calendar-alt"></i>

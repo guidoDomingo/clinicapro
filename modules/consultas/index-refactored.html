@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultas Médicas - Sistema Refactorizado</title>
+    
+    <!-- CSS Framework -->
+    <link rel="stylesheet" href="../../../view/dist/css/adminlte.css">
+    <link rel="stylesheet" href="../../../view/plugins/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="../../../view/plugins/select2/css/select2.min.css">
+    <link rel="stylesheet" href="../../../view/plugins/summernote/summernote-bs4.min.css">
+    <link rel="stylesheet" href="../../../view/plugins/sweetalert2/sweetalert2.min.css">
+    
+    <!-- CSS Específico del Módulo -->
+    <link rel="stylesheet" href="assets/css/consultas-enhanced.css">
+    
+    <style>
+        /* CSS inline crítico para evitar FOUC */
+        .consultas-app {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            font-family: 'Source Sans Pro', sans-serif;
+        }
+        
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .app-header {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 20px 30px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .app-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 0;
+        }
+        
+        .app-title i {
+            font-size: 32px;
+            color: #667eea;
+        }
+        
+        .app-title h1 {
+            margin: 0;
+            font-size: 28px;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+        
+        .app-version {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .main-content {
+            display: grid;
+            gap: 25px;
+        }
+        
+        /* Loading inicial */
+        .initial-loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 60vh;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .loading-spinner-large {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="consultas-app">
+    
+    <!-- Contenedor Principal -->
+    <div class="app-container">
+        
+        <!-- Header de la Aplicación -->
+        <header class="app-header">
+            <div class="app-title">
+                <i class="fas fa-stethoscope"></i>
+                <h1>Consultas Médicas</h1>
+            </div>
+            <div class="app-version">v2.0.0</div>
+        </header>
+        
+        <!-- Loading Inicial -->
+        <div id="initial-loading" class="initial-loading">
+            <div class="loading-spinner-large"></div>
+            <p>Inicializando sistema de consultas...</p>
+        </div>
+        
+        <!-- Contenido Principal (oculto inicialmente) -->
+        <main id="main-content" class="main-content" style="display: none;">
+            
+            <!-- Selector de Tipo de Formulario -->
+            <section class="form-type-selector">
+                <div class="form-type-tabs" id="form-type-tabs">
+                    <!-- Se cargarán dinámicamente -->
+                </div>
+            </section>
+            
+            <!-- Panel de Información del Paciente -->
+            <section class="patient-info-panel">
+                <div class="patient-search">
+                    <div class="form-group">
+                        <label for="txtdocumento">Documento</label>
+                        <input type="text" id="txtdocumento" class="form-control" placeholder="Número de documento">
+                    </div>
+                    <div class="form-group">
+                        <label for="txtficha">Ficha</label>
+                        <input type="text" id="txtficha" class="form-control" placeholder="Número de ficha">
+                    </div>
+                    <div class="form-group">
+                        <label for="paciente">Nombre</label>
+                        <input type="text" id="paciente" class="form-control" placeholder="Nombre del paciente">
+                    </div>
+                    <button id="btnBuscarPersona" class="btn-enhanced btn-primary">
+                        <i class="fas fa-search"></i> Buscar
+                    </button>
+                    <button id="btnLimpiarPersona" class="btn-enhanced btn-warning">
+                        <i class="fas fa-eraser"></i> Limpiar
+                    </button>
+                </div>
+                
+                <div class="patient-info-display" id="patient-info-display">
+                    <div class="patient-details">
+                        <h5 id="profile-username">Seleccione un paciente</h5>
+                        <p id="profile-ci">Para comenzar una consulta</p>
+                    </div>
+                    <div class="patient-stats">
+                        <div class="patient-stat">
+                            <div class="value" id="txtCantConsulta">0</div>
+                            <div class="label">Consultas</div>
+                        </div>
+                        <div class="patient-stat">
+                            <div class="value" id="cuota-valor">0</div>
+                            <div class="label">Cuota MB</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Campos ocultos para compatibilidad -->
+                <input type="hidden" id="idPersona">
+                <input type="hidden" id="id_persona_file">
+            </section>
+            
+            <!-- Navegación de Pestañas -->
+            <div class="nav-pills-enhanced">
+                <ul class="nav nav-pills" id="main-tabs" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="consulta-tab" data-toggle="tab" href="#consulta-panel" role="tab">
+                            <i class="fas fa-notes-medical"></i> Nueva Consulta
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="historial-tab" data-toggle="tab" href="#historial-panel" role="tab">
+                            <i class="fas fa-history"></i> Historial
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="timeline-tab" data-toggle="tab" href="#timeline-panel" role="tab">
+                            <i class="fas fa-timeline"></i> Timeline
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="archivos-tab" data-toggle="tab" href="#archivos-panel" role="tab">
+                            <i class="fas fa-file-medical"></i> Archivos
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Contenido de las Pestañas -->
+            <div class="tab-content" id="main-tab-content">
+                
+                <!-- Panel de Nueva Consulta -->
+                <div class="tab-pane fade show active" id="consulta-panel" role="tabpanel">
+                    
+                    <!-- Formulario General -->
+                    <div id="formulario-general" class="formulario-especifico active">
+                        <div class="form-section">
+                            <div class="form-section-header">
+                                <i class="fas fa-notes-medical"></i>
+                                <h4>Consulta General</h4>
+                            </div>
+                            
+                            <form id="form-general">
+                                <div class="form-row-enhanced">
+                                    <div class="form-group-enhanced">
+                                        <label for="txtmotivo">Motivo de Consulta</label>
+                                        <input type="text" id="txtmotivo" class="form-control" placeholder="Describe el motivo de la consulta">
+                                    </div>
+                                    <div class="form-group-enhanced">
+                                        <label for="motivoscomunes">Motivos Comunes</label>
+                                        <select id="motivoscomunes" class="form-control">
+                                            <option value="Seleccionar">Seleccionar motivo común...</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-row-enhanced">
+                                    <div class="form-group-enhanced">
+                                        <label for="visionod">Visión OD</label>
+                                        <input type="text" id="visionod" class="form-control" placeholder="Visión ojo derecho">
+                                    </div>
+                                    <div class="form-group-enhanced">
+                                        <label for="visionoi">Visión OI</label>
+                                        <input type="text" id="visionoi" class="form-control" placeholder="Visión ojo izquierdo">
+                                    </div>
+                                    <div class="form-group-enhanced">
+                                        <label for="tensionod">Tensión OD</label>
+                                        <input type="text" id="tensionod" class="form-control" placeholder="Tensión ojo derecho">
+                                    </div>
+                                    <div class="form-group-enhanced">
+                                        <label for="tensionoi">Tensión OI</label>
+                                        <input type="text" id="tensionoi" class="form-control" placeholder="Tensión ojo izquierdo">
+                                    </div>
+                                </div>
+                                
+                                <div class="form-row-enhanced">
+                                    <div class="form-group-enhanced">
+                                        <label for="formatoConsulta">Preformato de Consulta</label>
+                                        <select id="formatoConsulta" class="form-control">
+                                            <option value="Seleccionar">Seleccionar preformato...</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group-enhanced">
+                                    <label for="consulta-textarea">Diagnóstico</label>
+                                    <textarea id="consulta-textarea" class="form-control" rows="6" placeholder="Escriba el diagnóstico..."></textarea>
+                                </div>
+                                
+                                <div class="form-row-enhanced">
+                                    <div class="form-group-enhanced">
+                                        <label for="formatoreceta">Preformato de Receta</label>
+                                        <select id="formatoreceta" class="form-control">
+                                            <option value="Seleccionar">Seleccionar preformato...</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group-enhanced">
+                                    <label for="receta-textarea">Receta</label>
+                                    <textarea id="receta-textarea" class="form-control" rows="6" placeholder="Escriba la receta..."></textarea>
+                                </div>
+                                
+                                <div class="form-row-enhanced">
+                                    <div class="form-group-enhanced">
+                                        <label for="proximaconsulta">Próxima Consulta</label>
+                                        <input type="date" id="proximaconsulta" class="form-control">
+                                    </div>
+                                    <div class="form-group-enhanced">
+                                        <label for="whatsapptxt">WhatsApp</label>
+                                        <input type="text" id="whatsapptxt" class="form-control" placeholder="Número de WhatsApp">
+                                    </div>
+                                    <div class="form-group-enhanced">
+                                        <label for="email">Email</label>
+                                        <input type="email" id="email" class="form-control" placeholder="Email del paciente">
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <!-- Formulario Anteojos -->
+                    <div id="formulario-anteojos" class="formulario-especifico" style="display: none;">
+                        <div class="form-section">
+                            <div class="form-section-header">
+                                <i class="fas fa-glasses"></i>
+                                <h4>Prescripción de Anteojos</h4>
+                            </div>
+                            <p class="text-info">Formulario especializado para prescripción de anteojos y lentes correctivos.</p>
+                            <!-- Contenido específico de anteojos se cargará aquí -->
+                        </div>
+                    </div>
+                    
+                    <!-- Formulario Estudios -->
+                    <div id="formulario-estudios" class="formulario-especifico" style="display: none;">
+                        <div class="form-section">
+                            <div class="form-section-header">
+                                <i class="fas fa-x-ray"></i>
+                                <h4>Estudios Médicos</h4>
+                            </div>
+                            <p class="text-info">Formulario para solicitud y gestión de estudios médicos.</p>
+                            <!-- Contenido específico de estudios se cargará aquí -->
+                        </div>
+                    </div>
+                    
+                    <!-- Formulario Informe + Imagen -->
+                    <div id="formulario-informe_imagen" class="formulario-especifico" style="display: none;">
+                        <div class="form-section">
+                            <div class="form-section-header">
+                                <i class="fas fa-images"></i>
+                                <h4>Informe de Imagen</h4>
+                            </div>
+                            <p class="text-info">Formulario para informes de diagnóstico por imágenes con archivos adjuntos.</p>
+                            <!-- Contenido específico de informe+imagen se cargará aquí -->
+                        </div>
+                    </div>
+                    
+                    <!-- Botones de Acción -->
+                    <div class="form-actions" style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #f0f0f0;">
+                        <button id="btnGuardarConsulta" class="btn-enhanced btn-success" type="button">
+                            <i class="fas fa-save"></i> Guardar Consulta
+                        </button>
+                        <button id="btnLimpiarFormulario" class="btn-enhanced btn-warning" type="button">
+                            <i class="fas fa-broom"></i> Limpiar Formulario
+                        </button>
+                        <button id="btnDescargarPDF" class="btn-enhanced btn-info" type="button" disabled>
+                            <i class="fas fa-file-pdf"></i> Descargar PDF
+                        </button>
+                        <button id="btnEnviarWhatsApp" class="btn-enhanced btn-success" type="button" disabled>
+                            <i class="fab fa-whatsapp"></i> Enviar WhatsApp
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Panel de Historial -->
+                <div class="tab-pane fade" id="historial-panel" role="tabpanel">
+                    <div class="consultas-table-container">
+                        <div class="consultas-table-header">
+                            <h4><i class="fas fa-list"></i> Historial de Consultas</h4>
+                            <button class="btn-enhanced btn-info" id="btnRefreshTable">
+                                <i class="fas fa-sync"></i> Actualizar
+                            </button>
+                        </div>
+                        <div class="table-responsive-enhanced">
+                            <table id="tabla-consultas" class="table table-enhanced table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Paciente</th>
+                                        <th>Tipo</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Se llena dinámicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Panel de Timeline -->
+                <div class="tab-pane fade" id="timeline-panel" role="tabpanel">
+                    <div id="timeline" class="timeline-enhanced">
+                        <div class="alert alert-info text-center">
+                            <i class="fas fa-info-circle"></i>
+                            Seleccione un paciente para ver su timeline de consultas
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Panel de Archivos -->
+                <div class="tab-pane fade" id="archivos-panel" role="tabpanel">
+                    <div class="form-section">
+                        <div class="form-section-header">
+                            <i class="fas fa-file-medical"></i>
+                            <h4>Gestión de Archivos</h4>
+                        </div>
+                        
+                        <!-- Zona de drop para archivos -->
+                        <div id="dropArea" class="drop-area">
+                            <div class="drop-area-content">
+                                <i class="fas fa-cloud-upload-alt fa-3x"></i>
+                                <h5>Arrastra archivos aquí o haz clic para seleccionar</h5>
+                                <p>Formatos soportados: PDF, JPG, PNG, DOCX</p>
+                                <input type="file" id="files" multiple accept=".pdf,.jpg,.jpeg,.png,.docx,.doc">
+                                <button type="button" class="btn-enhanced btn-primary" onclick="document.getElementById('files').click()">
+                                    <i class="fas fa-folder-open"></i> Seleccionar Archivos
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Preview de archivos -->
+                        <div id="filePreviewContainer" class="file-preview-container">
+                            <!-- Se llena dinámicamente -->
+                        </div>
+                        
+                        <!-- Botón de subir -->
+                        <div class="file-actions">
+                            <button id="btnSubirArchivos" class="btn-enhanced btn-success" type="button">
+                                <i class="fas fa-upload"></i> Subir Archivos
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </main>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="../../../view/plugins/jquery/jquery.min.js"></script>
+    <script src="../../../view/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="../../../view/plugins/select2/js/select2.full.min.js"></script>
+    <script src="../../../view/plugins/summernote/summernote-bs4.min.js"></script>
+    <script src="../../../view/plugins/summernote/lang/summernote-es-ES.min.js"></script>
+    <script src="../../../view/plugins/sweetalert2/sweetalert2.all.min.js"></script>
+    <script src="../../../view/plugins/datatables/jquery.dataTables.min.js"></script>
+    <script src="../../../view/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+    
+    <!-- Scripts del Sistema Refactorizado -->
+    <script src="core/ConsultasManager.js"></script>
+    <script src="core/FormComponents.js"></script>
+    <script src="core/PatientManager.js"></script>
+    
+    <script>
+        // Configuración global
+        window.APP_CONFIG = {
+            baseUrl: '../../../',
+            version: '2.0.0',
+            debug: true,
+            userId: '<?php echo $_SESSION["user_id"] ?? 1; ?>'
+        };
+        
+        // Inicialización de la aplicación
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('🚀 Inicializando aplicación de consultas refactorizada...');
+            
+            try {
+                // Configurar ID de usuario en el body
+                document.body.setAttribute('data-user-id', window.APP_CONFIG.userId);
+                
+                // Inicializar el sistema principal
+                window.consultasApp = ConsultasManager.getInstance();
+                
+                // Ocultar loading inicial y mostrar contenido
+                setTimeout(() => {
+                    document.getElementById('initial-loading').style.display = 'none';
+                    document.getElementById('main-content').style.display = 'block';
+                    document.getElementById('main-content').classList.add('fade-in');
+                }, 1500);
+                
+            } catch (error) {
+                console.error('❌ Error inicializando aplicación:', error);
+                
+                // Mostrar error al usuario
+                document.getElementById('initial-loading').innerHTML = `
+                    <div class="alert alert-danger" role="alert">
+                        <h4 class="alert-heading">Error de Inicialización</h4>
+                        <p>Ha ocurrido un error al cargar la aplicación.</p>
+                        <hr>
+                        <p class="mb-0">Por favor, recarga la página o contacta al administrador.</p>
+                    </div>
+                    <button class="btn btn-primary mt-3" onclick="location.reload()">
+                        <i class="fas fa-redo"></i> Recargar Página
+                    </button>
+                `;
+            }
+        });
+        
+        // Funciones globales para compatibilidad
+        window.cambiarFormulario = function(formType) {
+            if (window.consultasApp) {
+                window.consultasApp.changeFormType(formType);
+            }
+        };
+        
+        // Debug tools (solo en desarrollo)
+        if (window.APP_CONFIG.debug) {
+            window.debugConsultas = {
+                manager: () => window.consultasApp,
+                state: () => window.consultasApp?.state,
+                reload: () => location.reload(),
+                clearStorage: () => {
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    console.log('Storage cleared');
+                }
+            };
+            
+            console.log('🔧 Debug tools available at window.debugConsultas');
+        }
+    </script>
+    
+    <style>
+        /* Estilos para el drop area */
+        .drop-area {
+            border: 2px dashed #ccc;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        
+        .drop-area:hover,
+        .drop-area.highlight {
+            border-color: var(--primary-color);
+            background: rgba(102, 126, 234, 0.05);
+        }
+        
+        .drop-area-content i {
+            color: #ccc;
+            margin-bottom: 20px;
+        }
+        
+        .drop-area:hover .drop-area-content i {
+            color: var(--primary-color);
+        }
+        
+        .drop-area input[type="file"] {
+            display: none;
+        }
+        
+        .file-preview-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .file-preview {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            background: white;
+        }
+        
+        .file-preview img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        
+        .file-actions {
+            text-align: center;
+            padding-top: 20px;
+        }
+    </style>
+</body>
+</html>

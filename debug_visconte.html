@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>🔍 Debug Inmediato - Búsqueda "visconte"</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .debug-container { background: white; padding: 20px; border-radius: 8px; margin: 10px 0; }
+        .log { background: #000; color: #0f0; padding: 10px; font-family: monospace; margin: 10px 0; }
+        .test-result { margin: 10px 0; padding: 10px; border-left: 4px solid #007bff; }
+        .success { border-color: #28a745; background: #d4edda; }
+        .error { border-color: #dc3545; background: #f8d7da; }
+        .warning { border-color: #ffc107; background: #fff3cd; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Debug Inmediato: Búsqueda "visconte"</h1>
+    
+    <div class="debug-container">
+        <h3>1. Test de Endpoint Directo</h3>
+        <button onclick="testEndpoint()" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            🚀 Probar ajax/persona.ajax.php con "visconte"
+        </button>
+        <div id="endpoint-result"></div>
+    </div>
+    
+    <div class="debug-container">
+        <h3>2. Verificación de Base de Datos</h3>
+        <button onclick="checkDatabase()" style="padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            🗄️ Buscar "visconte" en BD
+        </button>
+        <div id="database-result"></div>
+    </div>
+    
+    <div class="debug-container">
+        <h3>3. Test de JavaScript en Tiempo Real</h3>
+        <input type="text" id="testInput" placeholder="Escriba 'visconte' aquí" style="padding: 10px; width: 300px; border: 1px solid #ddd; border-radius: 4px;">
+        <div id="js-result"></div>
+    </div>
+    
+    <div class="log" id="debugLog">
+        === LOG DE DEBUG ===<br>
+        Sistema inicializado...
+    </div>
+
+    <script>
+        function log(message) {
+            const logDiv = document.getElementById('debugLog');
+            const time = new Date().toLocaleTimeString();
+            logDiv.innerHTML += `<br>[${time}] ${message}`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+        
+        // Test 1: Endpoint directo
+        async function testEndpoint() {
+            log('🔍 Probando endpoint con "visconte"...');
+            
+            try {
+                const response = await fetch('ajax/persona.ajax.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: 'accion=buscar_por_nombre&termino=visconte'
+                });
+                
+                log(`📡 Respuesta HTTP: ${response.status} ${response.statusText}`);
+                
+                const text = await response.text();
+                log(`📝 Respuesta raw: "${text}"`);
+                
+                try {
+                    const json = JSON.parse(text);
+                    log(`📋 JSON parseado: ${JSON.stringify(json, null, 2)}`);
+                    
+                    document.getElementById('endpoint-result').innerHTML = `
+                        <div class="test-result success">
+                            <strong>✅ Endpoint OK!</strong><br>
+                            Resultados: ${Array.isArray(json) ? json.length : 'No es array'}<br>
+                            <pre>${JSON.stringify(json, null, 2)}</pre>
+                        </div>
+                    `;
+                } catch (parseError) {
+                    log(`❌ Error parseando JSON: ${parseError.message}`);
+                    document.getElementById('endpoint-result').innerHTML = `
+                        <div class="test-result error">
+                            <strong>❌ Error de JSON!</strong><br>
+                            Respuesta raw: <pre>${text}</pre>
+                        </div>
+                    `;
+                }
+                
+            } catch (error) {
+                log(`❌ Error en fetch: ${error.message}`);
+                document.getElementById('endpoint-result').innerHTML = `
+                    <div class="test-result error">
+                        <strong>❌ Error de Red!</strong><br>
+                        ${error.message}
+                    </div>
+                `;
+            }
+        }
+        
+        // Test 2: Base de datos
+        async function checkDatabase() {
+            log('🗄️ Verificando base de datos...');
+            
+            try {
+                const response = await fetch('diagnose_patients.php');
+                const text = await response.text();
+                
+                if (text.includes('visconte') || text.includes('Visconte')) {
+                    log('✅ Encontrado "visconte" en diagnóstico de BD');
+                    document.getElementById('database-result').innerHTML = `
+                        <div class="test-result success">
+                            <strong>✅ BD OK!</strong> Se encontraron datos con "visconte"
+                        </div>
+                    `;
+                } else if (text.includes('tabla') || text.includes('personas') || text.includes('rh_person')) {
+                    log('⚠️ BD conectada pero sin "visconte"');
+                    document.getElementById('database-result').innerHTML = `
+                        <div class="test-result warning">
+                            <strong>⚠️ BD Conectada</strong> pero no hay pacientes con "visconte"<br>
+                            <small>Esto es normal - puede que no exista ese paciente</small>
+                        </div>
+                    `;
+                } else {
+                    log('❌ Error en diagnóstico de BD');
+                    document.getElementById('database-result').innerHTML = `
+                        <div class="test-result error">
+                            <strong>❌ Error de BD!</strong><br>
+                            <details><summary>Ver respuesta</summary><pre>${text.substring(0, 500)}...</pre></details>
+                        </div>
+                    `;
+                }
+                
+            } catch (error) {
+                log(`❌ Error verificando BD: ${error.message}`);
+            }
+        }
+        
+        // Test 3: JavaScript en tiempo real
+        document.getElementById('testInput').addEventListener('input', function(e) {
+            const value = e.target.value;
+            log(`📝 Input detectado: "${value}"`);
+            
+            if (value.length >= 3) {
+                log(`🎯 Activando búsqueda (${value.length} caracteres)`);
+                
+                // Simular la búsqueda
+                setTimeout(() => {
+                    testRealTimeSearch(value);
+                }, 300);
+            }
+        });
+        
+        async function testRealTimeSearch(term) {
+            log(`🔍 Ejecutando búsqueda en tiempo real para: "${term}"`);
+            
+            try {
+                const response = await fetch('ajax/persona.ajax.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `accion=buscar_por_nombre&termino=${encodeURIComponent(term)}`
+                });
+                
+                const result = await response.json();
+                
+                if (Array.isArray(result) && result.length > 0) {
+                    log(`✅ Encontrados ${result.length} resultados para "${term}"`);
+                    
+                    document.getElementById('js-result').innerHTML = `
+                        <div class="test-result success">
+                            <strong>✅ Búsqueda Exitosa!</strong><br>
+                            Encontrados: ${result.length} pacientes<br>
+                            <ul>
+                                ${result.map(p => `<li><strong>${p.nombres} ${p.apellidos}</strong> - CI: ${p.documento || 'N/A'}</li>`).join('')}
+                            </ul>
+                        </div>
+                    `;
+                } else {
+                    log(`⚠️ Sin resultados para "${term}"`);
+                    document.getElementById('js-result').innerHTML = `
+                        <div class="test-result warning">
+                            <strong>⚠️ Sin Resultados</strong><br>
+                            No se encontraron pacientes con "${term}"
+                        </div>
+                    `;
+                }
+                
+            } catch (error) {
+                log(`❌ Error en búsqueda tiempo real: ${error.message}`);
+                document.getElementById('js-result').innerHTML = `
+                    <div class="test-result error">
+                        <strong>❌ Error en Búsqueda!</strong><br>
+                        ${error.message}
+                    </div>
+                `;
+            }
+        }
+        
+        log('🚀 Debug listo! Usa los botones para hacer tests');
+    </script>
+</body>
+</html>

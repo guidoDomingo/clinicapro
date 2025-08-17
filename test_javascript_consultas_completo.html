@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Funcionamiento JavaScript - Consultas</title>
+    
+    <!-- AdminLTE CSS -->
+    <link rel="stylesheet" href="/clinica/view/dist/css/adminlte.min.css">
+    <link rel="stylesheet" href="/clinica/view/plugins/fontawesome-free/css/all.min.css">
+    
+    <!-- CSS del módulo refactorizado -->
+    <link rel="stylesheet" href="/clinica/modules/consultas/css/consultas-enhanced.css">
+    
+    <style>
+        body { padding: 20px; background: #f4f4f4; }
+        .test-section { 
+            background: white; 
+            padding: 20px; 
+            margin: 15px 0; 
+            border-radius: 10px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+        }
+        .test-result { 
+            padding: 10px; 
+            margin: 5px 0; 
+            border-radius: 5px; 
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .warning { background: #fff3cd; color: #856404; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        pre { 
+            background: #2d3748; 
+            color: #e2e8f0; 
+            padding: 15px; 
+            border-radius: 5px; 
+            font-size: 12px;
+            overflow-x: auto; 
+        }
+        button { 
+            padding: 8px 16px; 
+            margin: 5px; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer;
+            background: #007bff;
+            color: white;
+        }
+        button:hover { background: #0056b3; }
+        #console-output {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test Funcional - Sistema de Consultas JavaScript</h1>
+    <p><strong>Pruebas en tiempo real del sistema refactorizado</strong></p>
+    
+    <div class="test-section">
+        <h3>📦 1. Carga de Componentes</h3>
+        <div id="component-tests"></div>
+        <button onclick="testComponentLoading()">🔄 Re-verificar Componentes</button>
+    </div>
+    
+    <div class="test-section">
+        <h3>🏗️ 2. Inicialización de Objetos</h3>
+        <div id="initialization-tests"></div>
+        <button onclick="testInitialization()">🚀 Test Inicialización</button>
+    </div>
+    
+    <div class="test-section">
+        <h3>🔗 3. Conectividad API</h3>
+        <div id="api-tests"></div>
+        <button onclick="testAPIConnectivity()">🌐 Test API</button>
+    </div>
+    
+    <div class="test-section">
+        <h3>📋 4. Funcionalidades Principales</h3>
+        <div id="functionality-tests"></div>
+        <button onclick="testFunctionality()">⚡ Test Funciones</button>
+    </div>
+    
+    <div class="test-section">
+        <h3>📊 Console Output</h3>
+        <pre id="console-output"></pre>
+        <button onclick="clearConsole()">🧹 Limpiar Console</button>
+    </div>
+    
+    <!-- jQuery y AdminLTE -->
+    <script src="/clinica/view/plugins/jquery/jquery.min.js"></script>
+    <script src="/clinica/view/dist/js/adminlte.min.js"></script>
+    
+    <!-- Componentes del sistema refactorizado -->
+    <script src="/clinica/modules/consultas/core/FormComponents.js"></script>
+    <script src="/clinica/modules/consultas/core/PatientManager.js"></script>
+    <script src="/clinica/modules/consultas/core/ConsultasManager.js"></script>
+    <script src="/clinica/modules/consultas/core/AppInitializer.js"></script>
+    
+    <script>
+        // Interceptar console.log para mostrar en la página
+        const originalConsoleLog = console.log;
+        const originalConsoleError = console.error;
+        const originalConsoleWarn = console.warn;
+        
+        function addToConsoleOutput(message, type = 'log') {
+            const output = document.getElementById('console-output');
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? '#ff6b6b' : type === 'warn' ? '#ffa726' : '#4fc3f7';
+            output.innerHTML += `<span style="color: ${color}">[${timestamp}] ${type.toUpperCase()}: ${message}</span>\n`;
+            output.scrollTop = output.scrollHeight;
+        }
+        
+        console.log = function(...args) {
+            originalConsoleLog.apply(console, args);
+            addToConsoleOutput(args.join(' '), 'log');
+        };
+        
+        console.error = function(...args) {
+            originalConsoleError.apply(console, args);
+            addToConsoleOutput(args.join(' '), 'error');
+        };
+        
+        console.warn = function(...args) {
+            originalConsoleWarn.apply(console, args);
+            addToConsoleOutput(args.join(' '), 'warn');
+        };
+        
+        // Función para mostrar resultados de test
+        function showResult(containerId, message, type) {
+            const container = document.getElementById(containerId);
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.innerHTML = message;
+            container.appendChild(div);
+        }
+        
+        // Test 1: Verificar carga de componentes
+        function testComponentLoading() {
+            console.log('🔍 Iniciando test de carga de componentes...');
+            const container = document.getElementById('component-tests');
+            container.innerHTML = ''; // Limpiar resultados anteriores
+            
+            const components = [
+                { name: 'FormComponents', obj: window.FormComponents },
+                { name: 'PatientManager', obj: window.PatientManager },
+                { name: 'ConsultasManager', obj: window.ConsultasManager },
+                { name: 'AppInitializer', obj: window.AppInitializer },
+                { name: 'jQuery', obj: window.$ },
+                { name: 'NotificationSystem', obj: window.NotificationSystem }
+            ];
+            
+            components.forEach(component => {
+                if (component.obj !== undefined) {
+                    showResult('component-tests', `✅ <strong>${component.name}</strong> cargado correctamente`, 'success');
+                    console.log(`✅ ${component.name} disponible`);
+                } else {
+                    showResult('component-tests', `❌ <strong>${component.name}</strong> NO encontrado`, 'error');
+                    console.error(`❌ ${component.name} NO disponible`);
+                }
+            });
+        }
+        
+        // Test 2: Inicialización de objetos
+        function testInitialization() {
+            console.log('🚀 Iniciando test de inicialización...');
+            const container = document.getElementById('initialization-tests');
+            container.innerHTML = '';
+            
+            try {
+                // Test PatientManager singleton
+                if (window.PatientManager && typeof PatientManager.getInstance === 'function') {
+                    const patientManager = PatientManager.getInstance();
+                    showResult('initialization-tests', '✅ <strong>PatientManager.getInstance()</strong> funciona', 'success');
+                    console.log('✅ PatientManager singleton OK');
+                } else {
+                    showResult('initialization-tests', '❌ <strong>PatientManager.getInstance()</strong> falla', 'error');
+                    console.error('❌ PatientManager singleton falla');
+                }
+                
+                // Test ConsultasManager singleton
+                if (window.ConsultasManager && typeof ConsultasManager.getInstance === 'function') {
+                    const consultasManager = ConsultasManager.getInstance();
+                    showResult('initialization-tests', '✅ <strong>ConsultasManager.getInstance()</strong> funciona', 'success');
+                    console.log('✅ ConsultasManager singleton OK');
+                    
+                    // Test método initializeBaseComponents
+                    if (typeof consultasManager.initializeBaseComponents === 'function') {
+                        showResult('initialization-tests', '✅ <strong>initializeBaseComponents()</strong> disponible', 'success');
+                        console.log('✅ initializeBaseComponents disponible');
+                    } else {
+                        showResult('initialization-tests', '❌ <strong>initializeBaseComponents()</strong> NO disponible', 'error');
+                        console.error('❌ initializeBaseComponents NO disponible');
+                    }
+                } else {
+                    showResult('initialization-tests', '❌ <strong>ConsultasManager.getInstance()</strong> falla', 'error');
+                    console.error('❌ ConsultasManager singleton falla');
+                }
+                
+                // Test AppInitializer
+                if (window.AppInitializer && typeof AppInitializer.init === 'function') {
+                    showResult('initialization-tests', '✅ <strong>AppInitializer.init()</strong> disponible', 'success');
+                    console.log('✅ AppInitializer OK');
+                } else {
+                    showResult('initialization-tests', '❌ <strong>AppInitializer.init()</strong> NO disponible', 'error');
+                    console.error('❌ AppInitializer NO disponible');
+                }
+                
+            } catch (error) {
+                showResult('initialization-tests', `❌ <strong>Error en inicialización:</strong> ${error.message}`, 'error');
+                console.error('❌ Error en test de inicialización:', error);
+            }
+        }
+        
+        // Test 3: Conectividad API
+        async function testAPIConnectivity() {
+            console.log('🌐 Iniciando test de conectividad API...');
+            const container = document.getElementById('api-tests');
+            container.innerHTML = '';
+            
+            const endpoints = [
+                { action: 'verify_session', desc: 'Verificar sesión' },
+                { action: 'getFormConfig', desc: 'Obtener configuración de formularios' },
+                { action: 'getMotivosComunes', desc: 'Obtener motivos comunes' },
+                { action: 'getPreformatos', desc: 'Obtener preformatos' }
+            ];
+            
+            for (const endpoint of endpoints) {
+                try {
+                    const response = await fetch(`/clinica/modules/consultas/api/consultas-api.php?action=${endpoint.action}`);
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        showResult('api-tests', `✅ <strong>${endpoint.desc}</strong> - API responde OK`, 'success');
+                        console.log(`✅ API ${endpoint.action} OK:`, data);
+                    } else {
+                        showResult('api-tests', `⚠️ <strong>${endpoint.desc}</strong> - API responde con error: ${data.message}`, 'warning');
+                        console.warn(`⚠️ API ${endpoint.action} warning:`, data);
+                    }
+                } catch (error) {
+                    showResult('api-tests', `❌ <strong>${endpoint.desc}</strong> - Error: ${error.message}`, 'error');
+                    console.error(`❌ API ${endpoint.action} error:`, error);
+                }
+            }
+        }
+        
+        // Test 4: Funcionalidades principales
+        function testFunctionality() {
+            console.log('⚡ Iniciando test de funcionalidades...');
+            const container = document.getElementById('functionality-tests');
+            container.innerHTML = '';
+            
+            try {
+                // Test inicialización completa
+                if (window.AppInitializer) {
+                    AppInitializer.init().then(() => {
+                        showResult('functionality-tests', '✅ <strong>Inicialización completa</strong> exitosa', 'success');
+                        console.log('✅ Inicialización completa OK');
+                    }).catch(error => {
+                        showResult('functionality-tests', `❌ <strong>Inicialización completa</strong> falló: ${error.message}`, 'error');
+                        console.error('❌ Inicialización completa falló:', error);
+                    });
+                } else {
+                    showResult('functionality-tests', '❌ <strong>AppInitializer</strong> no disponible', 'error');
+                }
+                
+                // Test eventos DOM
+                document.dispatchEvent(new CustomEvent('test:event', { detail: { test: true } }));
+                showResult('functionality-tests', '✅ <strong>Sistema de eventos DOM</strong> funciona', 'success');
+                console.log('✅ Sistema de eventos OK');
+                
+            } catch (error) {
+                showResult('functionality-tests', `❌ <strong>Error en test de funcionalidades:</strong> ${error.message}`, 'error');
+                console.error('❌ Error en test de funcionalidades:', error);
+            }
+        }
+        
+        // Limpiar console
+        function clearConsole() {
+            document.getElementById('console-output').innerHTML = '';
+        }
+        
+        // Ejecutar tests iniciales al cargar la página
+        window.addEventListener('load', () => {
+            console.log('🎯 Página de test cargada - Iniciando verificaciones automáticas...');
+            
+            setTimeout(() => {
+                testComponentLoading();
+            }, 500);
+            
+            setTimeout(() => {
+                testInitialization();
+            }, 1000);
+            
+            setTimeout(() => {
+                testAPIConnectivity();
+            }, 1500);
+        });
+    </script>
+</body>
+</html>

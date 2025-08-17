@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>🔧 Test Final - Búsqueda Corregida</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .patient-search-container { position: relative; }
+        .patient-search-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            z-index: 1050;
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .patient-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #f1f3f4;
+            transition: background-color 0.15s ease-in-out;
+        }
+        .patient-item:hover { background-color: #f8f9fa; }
+        .debug-panel {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 0.9em;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 class="text-center mb-4">🔧 Test Final - Búsqueda de Pacientes</h1>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5>🔍 Prueba de Búsqueda en Vivo</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group patient-search-container">
+                            <label for="testSearch">Buscar Paciente:</label>
+                            <input type="text" id="testSearch" class="form-control" placeholder="Escriba 'visconte' o cualquier nombre..." autocomplete="off">
+                            <small class="form-text text-muted">Escriba al menos 3 caracteres para activar la búsqueda</small>
+                        </div>
+                        
+                        <div id="selectedPatient" class="alert alert-success" style="display: none;">
+                            <strong>✅ Paciente Seleccionado:</strong>
+                            <div id="patientInfo"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card mt-3">
+                    <div class="card-header bg-info text-white">
+                        <h6>📊 Estado de la Búsqueda</h6>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            <li><span id="endpointStatus" class="badge badge-secondary">Sin probar</span> Endpoint de búsqueda</li>
+                            <li><span id="jsStatus" class="badge badge-secondary">Sin probar</span> JavaScript funcionando</li>
+                            <li><span id="dropdownStatus" class="badge badge-secondary">Sin probar</span> Dropdown mostrado</li>
+                            <li><span id="selectionStatus" class="badge badge-secondary">Sin probar</span> Selección de paciente</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-warning text-dark">
+                        <h6>📝 Log de Depuración</h6>
+                    </div>
+                    <div class="card-body p-0">
+                        <div id="debugLog" class="debug-panel"></div>
+                    </div>
+                </div>
+                
+                <div class="mt-3">
+                    <button id="testEndpoint" class="btn btn-outline-primary btn-sm">🧪 Probar Endpoint</button>
+                    <button id="clearLog" class="btn btn-outline-secondary btn-sm">🗑️ Limpiar Log</button>
+                    <button id="refreshPage" class="btn btn-outline-success btn-sm">🔄 Ir al Módulo Real</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const debugLog = document.getElementById('debugLog');
+        let searchTimeout;
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = {
+                'success': '#28a745',
+                'error': '#dc3545',
+                'warning': '#ffc107',
+                'info': '#17a2b8'
+            };
+            
+            debugLog.innerHTML += `<div style="color: ${colors[type] || '#333'}; margin: 2px 0;">[${timestamp}] ${message}</div>`;
+            debugLog.scrollTop = debugLog.scrollHeight;
+        }
+        
+        function updateStatus(statusId, status) {
+            const element = document.getElementById(statusId);
+            const statusMap = {
+                'success': { class: 'badge-success', text: '✅ OK' },
+                'error': { class: 'badge-danger', text: '❌ Error' },
+                'warning': { class: 'badge-warning', text: '⚠️ Advertencia' },
+                'testing': { class: 'badge-primary', text: '🔄 Probando...' }
+            };
+            
+            const config = statusMap[status] || { class: 'badge-secondary', text: 'Sin probar' };
+            element.className = `badge ${config.class}`;
+            element.textContent = config.text;
+        }
+        
+        // Test del endpoint directo
+        document.getElementById('testEndpoint').addEventListener('click', async function() {
+            log('🧪 Probando endpoint ajax/persona.ajax.php...', 'info');
+            updateStatus('endpointStatus', 'testing');
+            
+            try {
+                const response = await fetch('ajax/persona.ajax.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: 'accion=buscar_por_nombre&termino=vis'
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                const text = await response.text();
+                log(`📡 Respuesta raw: ${text.substring(0, 200)}...`, 'info');
+                
+                const result = JSON.parse(text);
+                
+                if (Array.isArray(result)) {
+                    log(`✅ Endpoint OK: ${result.length} resultados`, 'success');
+                    updateStatus('endpointStatus', 'success');
+                } else {
+                    log(`⚠️ Endpoint responde pero sin resultados array`, 'warning');
+                    updateStatus('endpointStatus', 'warning');
+                }
+                
+            } catch (error) {
+                log(`❌ Error en endpoint: ${error.message}`, 'error');
+                updateStatus('endpointStatus', 'error');
+            }
+        });
+        
+        // Búsqueda en tiempo real
+        const searchInput = document.getElementById('testSearch');
+        searchInput.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.trim();
+            log(`📝 Input: "${searchTerm}" (${searchTerm.length} chars)`, 'info');
+            
+            clearTimeout(searchTimeout);
+            hideDropdown();
+            
+            if (searchTerm.length >= 3) {
+                updateStatus('jsStatus', 'testing');
+                searchTimeout = setTimeout(() => {
+                    log(`🔍 Iniciando búsqueda para: "${searchTerm}"`, 'info');
+                    performSearch(searchTerm);
+                }, 300);
+            } else {
+                updateStatus('jsStatus', 'success');
+            }
+        });
+        
+        async function performSearch(searchTerm) {
+            try {
+                log(`📡 Enviando petición AJAX...`, 'info');
+                
+                const response = await fetch('ajax/persona.ajax.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `accion=buscar_por_nombre&termino=${encodeURIComponent(searchTerm)}`
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                const results = await response.json();
+                log(`📋 Resultados recibidos: ${JSON.stringify(results).substring(0, 100)}...`, 'info');
+                
+                if (Array.isArray(results) && results.length > 0) {
+                    log(`✅ ${results.length} pacientes encontrados`, 'success');
+                    updateStatus('jsStatus', 'success');
+                    showDropdown(results);
+                } else {
+                    log(`ℹ️ Sin resultados para "${searchTerm}"`, 'info');
+                    updateStatus('jsStatus', 'success');
+                    updateStatus('dropdownStatus', 'warning');
+                }
+                
+            } catch (error) {
+                log(`❌ Error en búsqueda: ${error.message}`, 'error');
+                updateStatus('jsStatus', 'error');
+            }
+        }
+        
+        function showDropdown(results) {
+            updateStatus('dropdownStatus', 'testing');
+            
+            const container = searchInput.parentNode;
+            let dropdown = document.getElementById('searchDropdown');
+            
+            if (!dropdown) {
+                dropdown = document.createElement('div');
+                dropdown.id = 'searchDropdown';
+                dropdown.className = 'patient-search-dropdown';
+                container.appendChild(dropdown);
+            }
+            
+            let html = '<ul class="dropdown-menu show" style="position: static; display: block; width: 100%;">';
+            
+            results.forEach(patient => {
+                html += `
+                    <li class="patient-item" data-patient='${JSON.stringify(patient)}'>
+                        <div>
+                            <strong>${patient.nombres} ${patient.apellidos}</strong>
+                            <div style="font-size: 0.85em; color: #666;">
+                                ${patient.documento ? 'CI: ' + patient.documento : 'Sin CI'} 
+                                ${patient.nro_ficha ? '| Ficha: ' + patient.nro_ficha : ''}
+                            </div>
+                        </div>
+                    </li>
+                `;
+            });
+            
+            html += '</ul>';
+            dropdown.innerHTML = html;
+            
+            // Configurar eventos de click
+            dropdown.querySelectorAll('.patient-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const patientData = JSON.parse(this.dataset.patient);
+                    selectPatient(patientData);
+                });
+            });
+            
+            log(`🎨 Dropdown mostrado con ${results.length} opciones`, 'success');
+            updateStatus('dropdownStatus', 'success');
+        }
+        
+        function hideDropdown() {
+            const dropdown = document.getElementById('searchDropdown');
+            if (dropdown) {
+                dropdown.remove();
+            }
+        }
+        
+        function selectPatient(patient) {
+            log(`👤 Paciente seleccionado: ${patient.nombres} ${patient.apellidos}`, 'success');
+            
+            searchInput.value = `${patient.nombres} ${patient.apellidos}`;
+            document.getElementById('patientInfo').innerHTML = `
+                <strong>${patient.nombres} ${patient.apellidos}</strong><br>
+                <small>CI: ${patient.documento || 'No registrado'} | Ficha: ${patient.nro_ficha || 'No registrada'}</small>
+            `;
+            document.getElementById('selectedPatient').style.display = 'block';
+            
+            updateStatus('selectionStatus', 'success');
+            hideDropdown();
+        }
+        
+        // Click fuera del dropdown
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.patient-search-container')) {
+                hideDropdown();
+            }
+        });
+        
+        // Botones adicionales
+        document.getElementById('clearLog').addEventListener('click', function() {
+            debugLog.innerHTML = '';
+            log('🗑️ Log limpiado', 'info');
+        });
+        
+        document.getElementById('refreshPage').addEventListener('click', function() {
+            window.open('view/modules/consultas-new.php', '_blank');
+        });
+        
+        // Inicialización
+        log('🚀 Sistema de test inicializado', 'success');
+        log('👆 Escriba "visconte" en el campo de búsqueda para probar', 'info');
+        
+        // Auto-test del endpoint al cargar
+        setTimeout(() => {
+            document.getElementById('testEndpoint').click();
+        }, 1000);
+    </script>
+</body>
+</html>

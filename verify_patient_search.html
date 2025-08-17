@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✅ Verificación Final - Búsqueda de Pacientes</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        .test-card { border-left: 4px solid #28a745; }
+        .test-result { margin-top: 10px; }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+        .warning { color: #ffc107; }
+        .log-container { 
+            background: #f8f9fa; 
+            border: 1px solid #dee2e6; 
+            border-radius: 4px; 
+            padding: 15px; 
+            max-height: 300px; 
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="text-center mb-4">
+                    <i class="fas fa-check-circle text-success"></i>
+                    Verificación Final del Sistema de Búsqueda
+                </h1>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card test-card">
+                    <div class="card-header bg-primary text-white">
+                        <h5><i class="fas fa-search"></i> Test de Funcionalidad Completa</h5>
+                    </div>
+                    <div class="card-body">
+                        <ol>
+                            <li><strong>Endpoint Test:</strong> <span id="endpoint-status" class="badge badge-secondary">Pendiente</span></li>
+                            <li><strong>Database Connection:</strong> <span id="db-status" class="badge badge-secondary">Pendiente</span></li>
+                            <li><strong>Patient Data:</strong> <span id="data-status" class="badge badge-secondary">Pendiente</span></li>
+                            <li><strong>AutoComplete Response:</strong> <span id="autocomplete-status" class="badge badge-secondary">Pendiente</span></li>
+                        </ol>
+                        
+                        <button id="runTests" class="btn btn-success btn-block mt-3">
+                            <i class="fas fa-play"></i> Ejecutar Verificación Completa
+                        </button>
+                        
+                        <div class="test-result mt-3" style="display: none;">
+                            <h6>🔍 Resultados de la Verificación:</h6>
+                            <div id="results-container"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h6><i class="fas fa-list"></i> Log de Actividad</h6>
+                    </div>
+                    <div class="card-body p-2">
+                        <div id="activity-log" class="log-container"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-warning text-dark">
+                        <h6><i class="fas fa-exclamation-triangle"></i> Guía de Implementación</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>📁 Archivos Principales:</h6>
+                                <ul class="list-unstyled">
+                                    <li><code>modules/consultas/core/PatientManager.js</code></li>
+                                    <li><code>modules/consultas/assets/css/consultas-enhanced.css</code></li>
+                                    <li><code>view/modules/consultas-new.php</code></li>
+                                    <li><code>ajax/persona.ajax.php</code></li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>⚙️ Endpoints Utilizados:</h6>
+                                <ul class="list-unstyled">
+                                    <li><code>POST ajax/persona.ajax.php</code></li>
+                                    <li><code>accion=buscar_por_nombre&termino=xxx</code></li>
+                                    <li><code>operacion=buscarparam</code></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    
+    <script>
+        let testResults = {};
+        
+        function log(message, type = 'info') {
+            const logContainer = document.getElementById('activity-log');
+            const timestamp = new Date().toLocaleTimeString();
+            const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : type === 'warning' ? '⚠️' : 'ℹ️';
+            logContainer.innerHTML += `<div class="${type}">[${timestamp}] ${icon} ${message}</div>`;
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+        
+        function updateStatus(testId, status) {
+            const element = document.getElementById(testId);
+            element.className = `badge badge-${status === 'success' ? 'success' : status === 'error' ? 'danger' : 'warning'}`;
+            element.textContent = status === 'success' ? 'OK' : status === 'error' ? 'Error' : 'Advertencia';
+        }
+        
+        async function testEndpoint() {
+            try {
+                log('Probando endpoint de personas...');
+                const response = await fetch('ajax/persona.ajax.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: 'accion=buscar_por_nombre&termino=test'
+                });
+                
+                if (response.ok) {
+                    const text = await response.text();
+                    const result = JSON.parse(text);
+                    updateStatus('endpoint-status', 'success');
+                    log('✅ Endpoint respondió correctamente');
+                    testResults.endpoint = { status: 'success', data: result };
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                updateStatus('endpoint-status', 'error');
+                log(`❌ Error en endpoint: ${error.message}`, 'error');
+                testResults.endpoint = { status: 'error', error: error.message };
+            }
+        }
+        
+        async function testDatabase() {
+            try {
+                log('Verificando conexión a base de datos...');
+                const response = await fetch('diagnose_patients.php');
+                if (response.ok) {
+                    updateStatus('db-status', 'success');
+                    log('✅ Base de datos accesible');
+                    testResults.database = { status: 'success' };
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                updateStatus('db-status', 'error');
+                log(`❌ Error de base de datos: ${error.message}`, 'error');
+                testResults.database = { status: 'error', error: error.message };
+            }
+        }
+        
+        async function testPatientData() {
+            try {
+                log('Buscando datos de pacientes...');
+                const response = await fetch('ajax/persona.ajax.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: 'accion=buscar_por_nombre&termino=a'
+                });
+                
+                const result = await response.json();
+                if (Array.isArray(result) && result.length > 0) {
+                    updateStatus('data-status', 'success');
+                    log(`✅ Encontrados ${result.length} pacientes en la base de datos`);
+                    testResults.patientData = { status: 'success', count: result.length };
+                } else {
+                    updateStatus('data-status', 'warning');
+                    log('⚠️ No se encontraron pacientes o respuesta vacía', 'warning');
+                    testResults.patientData = { status: 'warning', count: 0 };
+                }
+            } catch (error) {
+                updateStatus('data-status', 'error');
+                log(`❌ Error buscando pacientes: ${error.message}`, 'error');
+                testResults.patientData = { status: 'error', error: error.message };
+            }
+        }
+        
+        async function testAutoComplete() {
+            try {
+                log('Verificando autocompletado...');
+                const response = await fetch('ajax/persona.ajax.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: 'accion=buscar_por_nombre&termino=vis'
+                });
+                
+                const result = await response.json();
+                updateStatus('autocomplete-status', 'success');
+                log('✅ Autocompletado funcionando correctamente');
+                testResults.autocomplete = { status: 'success', results: result };
+            } catch (error) {
+                updateStatus('autocomplete-status', 'error');
+                log(`❌ Error en autocompletado: ${error.message}`, 'error');
+                testResults.autocomplete = { status: 'error', error: error.message };
+            }
+        }
+        
+        async function showResults() {
+            const container = document.getElementById('results-container');
+            
+            let html = '<div class="mt-3">';
+            
+            // Resumen general
+            const totalTests = Object.keys(testResults).length;
+            const successfulTests = Object.values(testResults).filter(t => t.status === 'success').length;
+            const warningTests = Object.values(testResults).filter(t => t.status === 'warning').length;
+            const errorTests = Object.values(testResults).filter(t => t.status === 'error').length;
+            
+            if (successfulTests === totalTests) {
+                html += '<div class="alert alert-success"><strong>🎉 ¡Perfecto!</strong> Todos los tests pasaron correctamente.</div>';
+            } else if (errorTests > 0) {
+                html += '<div class="alert alert-danger"><strong>⚠️ Atención:</strong> Algunos tests fallaron. Revisar logs.</div>';
+            } else {
+                html += '<div class="alert alert-warning"><strong>⚠️ Precaución:</strong> Algunos tests tienen advertencias.</div>';
+            }
+            
+            // Detalles
+            html += '<h6>Detalles de los Tests:</h6><ul>';
+            
+            Object.entries(testResults).forEach(([testName, result]) => {
+                const icon = result.status === 'success' ? '✅' : result.status === 'error' ? '❌' : '⚠️';
+                html += `<li>${icon} <strong>${testName}:</strong> ${result.status}`;
+                if (result.error) html += ` - ${result.error}`;
+                if (result.count !== undefined) html += ` (${result.count} registros)`;
+                html += '</li>';
+            });
+            
+            html += '</ul></div>';
+            
+            container.innerHTML = html;
+            document.querySelector('.test-result').style.display = 'block';
+        }
+        
+        document.getElementById('runTests').addEventListener('click', async function() {
+            this.disabled = true;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Ejecutando tests...';
+            
+            log('🚀 Iniciando verificación completa del sistema...');
+            
+            await testEndpoint();
+            await testDatabase();
+            await testPatientData();
+            await testAutoComplete();
+            
+            await showResults();
+            
+            this.disabled = false;
+            this.innerHTML = '<i class="fas fa-check"></i> Verificación Completada';
+            
+            log('🏁 Verificación completa finalizada');
+        });
+        
+        log('Sistema de verificación inicializado');
+        log('👆 Haz click en "Ejecutar Verificación Completa" para comenzar');
+    </script>
+</body>
+</html>

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test de Búsqueda de Pacientes</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .patient-search-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            z-index: 1050;
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .patient-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #f1f3f4;
+        }
+        .patient-item:hover {
+            background-color: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>Test de Búsqueda de Pacientes</h2>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <h4>Test JavaScript</h4>
+                <div class="form-group patient-search-container" style="position: relative;">
+                    <label for="testPatientSearch">Buscar Paciente</label>
+                    <input type="text" id="testPatientSearch" class="form-control" placeholder="Escriba al menos 3 caracteres...">
+                </div>
+                <div id="selected-patient" class="alert alert-info" style="display: none;">
+                    <strong>Paciente seleccionado:</strong> <span id="patient-info"></span>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <h4>Test Directo del Endpoint</h4>
+                <div class="form-group">
+                    <label for="testTerm">Término de búsqueda</label>
+                    <input type="text" id="testTerm" class="form-control" value="vis">
+                </div>
+                <button id="testEndpoint" class="btn btn-primary">Probar Endpoint</button>
+                <div id="endpoint-result" class="mt-3"></div>
+            </div>
+        </div>
+        
+        <div class="row mt-4">
+            <div class="col-12">
+                <h4>Log de Depuración</h4>
+                <div id="debug-log" class="border p-3" style="background-color: #f8f9fa; max-height: 300px; overflow-y: auto;">
+                    <small>Los logs aparecerán aquí...</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    
+    <script>
+        // Función para agregar logs
+        function addLog(message) {
+            const debugLog = document.getElementById('debug-log');
+            const time = new Date().toLocaleTimeString();
+            debugLog.innerHTML += `<div>[${time}] ${message}</div>`;
+            debugLog.scrollTop = debugLog.scrollHeight;
+        }
+        
+        // Test del endpoint directo
+        document.getElementById('testEndpoint').addEventListener('click', async function() {
+            const term = document.getElementById('testTerm').value;
+            addLog(`Probando endpoint con término: "${term}"`);
+            
+            try {
+                const response = await fetch('ajax/persona.ajax.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `accion=buscar_por_nombre&termino=${encodeURIComponent(term)}`
+                });
+                
+                addLog(`Respuesta HTTP status: ${response.status}`);
+                
+                const text = await response.text();
+                addLog(`Respuesta raw: ${text}`);
+                
+                const result = JSON.parse(text);
+                addLog(`JSON parseado: ${JSON.stringify(result, null, 2)}`);
+                
+                document.getElementById('endpoint-result').innerHTML = 
+                    `<pre>${JSON.stringify(result, null, 2)}</pre>`;
+                    
+            } catch (error) {
+                addLog(`Error: ${error.message}`);
+                document.getElementById('endpoint-result').innerHTML = 
+                    `<div class="alert alert-danger">Error: ${error.message}</div>`;
+            }
+        });
+        
+        // Test de autocompletado
+        let searchTimeout;
+        const searchInput = document.getElementById('testPatientSearch');
+        
+        searchInput.addEventListener('input', function(e) {
+            clearTimeout(searchTimeout);
+            const searchTerm = e.target.value.trim();
+            
+            addLog(`Input detectado: "${searchTerm}"`);
+            
+            if (searchTerm.length >= 3) {
+                searchTimeout = setTimeout(() => {
+                    addLog(`Iniciando búsqueda para: "${searchTerm}"`);
+                    performSearch(searchTerm);
+                }, 300);
+            } else {
+                hideResults();
+            }
+        });
+        
+        async function performSearch(searchTerm) {
+            try {
+                addLog(`Enviando petición AJAX para: "${searchTerm}"`);
+                
+                const response = await fetch('ajax/persona.ajax.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `accion=buscar_por_nombre&termino=${encodeURIComponent(searchTerm)}`
+                });
+                
+                addLog(`Respuesta recibida, status: ${response.status}`);
+                
+                const results = await response.json();
+                addLog(`Resultados: ${JSON.stringify(results)}`);
+                
+                if (results && results.length > 0) {
+                    displayResults(results);
+                } else {
+                    addLog('No se encontraron resultados');
+                    hideResults();
+                }
+                
+            } catch (error) {
+                addLog(`Error en búsqueda: ${error.message}`);
+                hideResults();
+            }
+        }
+        
+        function displayResults(results) {
+            addLog(`Mostrando ${results.length} resultados`);
+            
+            const container = searchInput.parentNode;
+            
+            // Crear o actualizar dropdown
+            let dropdown = document.getElementById('search-dropdown');
+            if (!dropdown) {
+                dropdown = document.createElement('div');
+                dropdown.id = 'search-dropdown';
+                dropdown.className = 'patient-search-dropdown';
+                container.appendChild(dropdown);
+            }
+            
+            let html = '<ul class="dropdown-menu show" style="position: static; display: block; width: 100%;">';
+            
+            results.forEach(patient => {
+                html += `
+                    <li class="patient-item" data-patient='${JSON.stringify(patient)}'>
+                        <div>
+                            <strong>${patient.nombres} ${patient.apellidos}</strong>
+                            <div style="font-size: 0.85em; color: #666;">
+                                ${patient.documento ? 'CI: ' + patient.documento : ''} 
+                                ${patient.nro_ficha ? '| Ficha: ' + patient.nro_ficha : ''}
+                            </div>
+                        </div>
+                    </li>
+                `;
+            });
+            
+            html += '</ul>';
+            dropdown.innerHTML = html;
+            
+            // Configurar eventos
+            dropdown.querySelectorAll('.patient-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const patientData = JSON.parse(this.dataset.patient);
+                    selectPatient(patientData);
+                });
+            });
+        }
+        
+        function selectPatient(patient) {
+            addLog(`Paciente seleccionado: ${patient.nombres} ${patient.apellidos}`);
+            
+            searchInput.value = `${patient.nombres} ${patient.apellidos}`;
+            document.getElementById('patient-info').textContent = 
+                `${patient.nombres} ${patient.apellidos} (CI: ${patient.documento || 'Sin CI'})`;
+            document.getElementById('selected-patient').style.display = 'block';
+            
+            hideResults();
+        }
+        
+        function hideResults() {
+            const dropdown = document.getElementById('search-dropdown');
+            if (dropdown) {
+                dropdown.remove();
+            }
+        }
+        
+        // Ocultar dropdown al hacer click fuera
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.patient-search-container')) {
+                hideResults();
+            }
+        });
+        
+        addLog('Test iniciado correctamente');
+    </script>
+</body>
+</html>
