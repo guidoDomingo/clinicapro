@@ -648,13 +648,17 @@ class PatientManager {
             });
             
             if (response && response.length > 0) {
+                console.log('📋 Respuesta del historial:', response[0]); // Debug para ver los campos
                 let html = '';
                 response.forEach(consulta => {
                     const fecha = new Date(consulta.fecha_registro);
+                    // Determinar nombre del paciente desde los campos disponibles
+                    const nombrePaciente = this.getPatientName(consulta);
+                    
                     html += `
                         <tr>
                             <td>${fecha.toLocaleDateString('es-ES')} ${fecha.toLocaleTimeString('es-ES')}</td>
-                            <td>${consulta.nombres || ''} ${consulta.apellidos || ''}</td>
+                            <td>${nombrePaciente}</td>
                             <td>
                                 <span class="badge badge-info">${consulta.tipo_formulario || 'General'}</span>
                             </td>
@@ -794,6 +798,7 @@ class PatientManager {
         consultas.forEach(consulta => {
             const fecha = new Date(consulta.fecha_registro);
             const fechaFormateada = fecha.toLocaleDateString('es-ES');
+            const nombreDoctor = this.getDoctorName(consulta);
             
             timelineHTML += `
                 <div class="time-label">
@@ -809,7 +814,7 @@ class PatientManager {
                             <a href="#">Consulta médica</a>
                         </h3>
                         <div class="timeline-body">
-                            <strong>Doctor/a:</strong> ${consulta.nombre_doctor || ''} ${consulta.apellido_doctor || ''} - ${consulta.documento_doctor || 'No especificado'}<br>
+                            <strong>Doctor/a:</strong> ${nombreDoctor}<br>
                             <strong>Motivo:</strong> ${consulta.txtmotivo || 'No especificado'}<br>
                             <strong>Diagnóstico:</strong> ${consulta.consulta_textarea || consulta.diagnostico || 'No especificado'}
                         </div>
@@ -899,17 +904,20 @@ class PatientManager {
      * Mostrar modal con detalle de consulta
      */
     displayConsultaModal(consulta) {
+        const nombrePaciente = this.getPatientName(consulta);
+        const nombreDoctor = this.getDoctorName(consulta);
+        
         const modalHtml = `
             <div class="consulta-detail">
                 <h5>Consulta del ${new Date(consulta.fecha_registro).toLocaleDateString('es-ES')}</h5>
                 <div class="row">
                     <div class="col-md-6">
-                        <strong>Paciente:</strong> ${consulta.nombres || ''} ${consulta.apellidos || ''}<br>
-                        <strong>Documento:</strong> ${consulta.documento || 'No especificado'}<br>
-                        <strong>Ficha:</strong> ${consulta.nro_ficha || 'No especificado'}
+                        <strong>Paciente:</strong> ${nombrePaciente}<br>
+                        <strong>Documento:</strong> ${consulta.documento || consulta.document_number || 'No especificado'}<br>
+                        <strong>Ficha:</strong> ${consulta.nro_ficha || consulta.record_number || 'No especificado'}
                     </div>
                     <div class="col-md-6">
-                        <strong>Doctor:</strong> ${consulta.nombre_doctor || ''} ${consulta.apellido_doctor || ''}<br>
+                        <strong>Doctor:</strong> ${nombreDoctor}<br>
                         <strong>Fecha:</strong> ${new Date(consulta.fecha_registro).toLocaleString('es-ES')}
                     </div>
                 </div>
@@ -927,6 +935,60 @@ class PatientManager {
         this.consultasManager.showModal('Detalle de Consulta', modalHtml, () => {
             // Acciones del modal si es necesario
         });
+    }
+
+    /**
+     * Obtener nombre del doctor desde diferentes formatos de datos
+     */
+    getDoctorName(consulta) {
+        let nombre = '';
+        let apellidos = '';
+        
+        // Intentar diferentes combinaciones de campos para doctor
+        if (consulta.nombre_doctor || consulta.apellido_doctor) {
+            nombre = consulta.nombre_doctor || '';
+            apellidos = consulta.apellido_doctor || '';
+        } else if (consulta.doctor_nombre || consulta.doctor_apellido) {
+            nombre = consulta.doctor_nombre || '';
+            apellidos = consulta.doctor_apellido || '';
+        }
+        
+        const nombreCompleto = `${nombre} ${apellidos}`.trim();
+        return nombreCompleto || 'Doctor no especificado';
+    }
+
+    /**
+     * Obtener nombre del paciente desde diferentes formatos de datos
+     */
+    getPatientName(consulta) {
+        // Intentar diferentes combinaciones de campos
+        let nombre = '';
+        let apellidos = '';
+        
+        // Opción 1: nombres y apellidos
+        if (consulta.nombres || consulta.apellidos) {
+            nombre = consulta.nombres || '';
+            apellidos = consulta.apellidos || '';
+        }
+        // Opción 2: first_name y last_name
+        else if (consulta.first_name || consulta.last_name) {
+            nombre = consulta.first_name || '';
+            apellidos = consulta.last_name || '';
+        }
+        // Opción 3: nombre y apellido (singular)
+        else if (consulta.nombre || consulta.apellido) {
+            nombre = consulta.nombre || '';
+            apellidos = consulta.apellido || '';
+        }
+        // Opción 4: usar el paciente actual si está disponible
+        else if (this.consultasManager.state.currentPatient) {
+            const patient = this.consultasManager.state.currentPatient;
+            nombre = patient.nombres || patient.first_name || patient.nombre || '';
+            apellidos = patient.apellidos || patient.last_name || patient.apellido || '';
+        }
+        
+        const nombreCompleto = `${nombre} ${apellidos}`.trim();
+        return nombreCompleto || 'Paciente no especificado';
     }
 
     /**
