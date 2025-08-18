@@ -140,6 +140,12 @@ $userName = $_SESSION['username'] ?? 'Usuario';
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        
+        /* Ocultar secciones duplicadas de pacientes en formularios */
+        .formulario-especifico .form-row.fx,
+        .formulario-especifico #fx {
+            display: none !important;
+        }
     </style>
 </head>
 <body class="consultas-app">
@@ -366,12 +372,32 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                             </div>
                             
                             <?php 
-                            // Incluir el formulario real de anteojos
-                            if (file_exists("view/inc/consulta_forms/frmConsultaAnteojos.php")) {
-                                include "view/inc/consulta_forms/frmConsultaAnteojos.php";
-                            } else {
-                                echo '<div class="alert alert-danger">Error: No se encontró el formulario de anteojos</div>';
+                            // Función para filtrar la sección de pacientes de los formularios
+                            function includeFormularioSinPacientes($archivo) {
+                                if (file_exists($archivo)) {
+                                    ob_start();
+                                    include $archivo;
+                                    $contenido = ob_get_clean();
+                                    
+                                    // Patrón más específico para remover la sección de pacientes completa
+                                    // Busca desde <div class="form-row fx" hasta </div> incluyendo el input hidden idPersona
+                                    $patron = '/<div class="form-row fx"[^>]*>.*?<input type="hidden" id="idPersona"[^>]*>\s*<\/div>/s';
+                                    $contenido = preg_replace($patron, '', $contenido);
+                                    
+                                    // También remover divs de información de paciente si existen
+                                    $contenido = preg_replace('/<div[^>]*class="[^"]*patient-info[^"]*"[^>]*>.*?<\/div>/s', '', $contenido);
+                                    
+                                    // Limpiar espacios en blanco extras
+                                    $contenido = preg_replace('/\n\s*\n/', "\n", $contenido);
+                                    
+                                    echo $contenido;
+                                } else {
+                                    echo '<div class="alert alert-danger">Error: No se encontró el formulario</div>';
+                                }
                             }
+                            
+                            // Incluir el formulario filtrado
+                            includeFormularioSinPacientes("view/inc/consulta_forms/frmConsultaAnteojos.php");
                             ?>
                         </div>
                     </div>
@@ -385,12 +411,8 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                             </div>
                             
                             <?php 
-                            // Incluir el formulario real de estudios
-                            if (file_exists("view/inc/consulta_forms/frmConsultaEstudios.php")) {
-                                include "view/inc/consulta_forms/frmConsultaEstudios.php";
-                            } else {
-                                echo '<div class="alert alert-danger">Error: No se encontró el formulario de estudios</div>';
-                            }
+                            // Incluir el formulario filtrado
+                            includeFormularioSinPacientes("view/inc/consulta_forms/frmConsultaEstudios.php");
                             ?>
                         </div>
                     </div>
@@ -404,12 +426,8 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                             </div>
                             
                             <?php 
-                            // Incluir el formulario real de informe + imagen
-                            if (file_exists("view/inc/consulta_forms/frmConsultaInformeImagen.php")) {
-                                include "view/inc/consulta_forms/frmConsultaInformeImagen.php";
-                            } else {
-                                echo '<div class="alert alert-danger">Error: No se encontró el formulario de informe + imagen</div>';
-                            }
+                            // Incluir el formulario filtrado
+                            includeFormularioSinPacientes("view/inc/consulta_forms/frmConsultaInformeImagen.php");
                             ?>
                         </div>
                     </div>
