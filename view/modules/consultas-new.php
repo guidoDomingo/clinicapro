@@ -1,6 +1,12 @@
 <?php
 /**
- * MÓDULO DE CONSULTAS REFACTORIZADO
+ * MÓDULO DE CONSULTAS REFAC    <!-- CSS específico del módulo (se carga después de AdminLTE) -->
+    <link rel="stylesheet" href="./modules/consultas/assets/css/consultas-enhanced.css">
+    <!-- CSS específico para formularios -->
+    <link rel="stylesheet" href="./view/css/fileupload.css">
+    <!-- Select2 -->
+    <link rel="stylesheet" href="./plugins/select2/css/select2.min.css">
+    <link rel="stylesheet" href="./plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">RIZADO
  * 
  * Este archivo es el punto de entrada para el nuevo sistema de consultas
  * sin recargas de página. Incluye toda la estructura HTML y enlaces a
@@ -358,12 +364,15 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                                 <i class="fas fa-glasses"></i>
                                 <h4>Prescripción de Anteojos</h4>
                             </div>
-                            <div class="alert alert-info">
-                                <i class="fas fa-info-circle"></i>
-                                Formulario especializado para prescripción de anteojos y lentes correctivos.
-                                <br><small>Funcionalidad específica se cargará automáticamente.</small>
-                            </div>
-                            <!-- Contenido específico de anteojos se cargará aquí -->
+                            
+                            <?php 
+                            // Incluir el formulario real de anteojos
+                            if (file_exists("view/inc/consulta_forms/frmConsultaAnteojos.php")) {
+                                include "view/inc/consulta_forms/frmConsultaAnteojos.php";
+                            } else {
+                                echo '<div class="alert alert-danger">Error: No se encontró el formulario de anteojos</div>';
+                            }
+                            ?>
                         </div>
                     </div>
                     
@@ -374,12 +383,15 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                                 <i class="fas fa-x-ray"></i>
                                 <h4>Estudios Médicos</h4>
                             </div>
-                            <div class="alert alert-info">
-                                <i class="fas fa-info-circle"></i>
-                                Formulario para solicitud y gestión de estudios médicos.
-                                <br><small>Funcionalidad específica se cargará automáticamente.</small>
-                            </div>
-                            <!-- Contenido específico de estudios se cargará aquí -->
+                            
+                            <?php 
+                            // Incluir el formulario real de estudios
+                            if (file_exists("view/inc/consulta_forms/frmConsultaEstudios.php")) {
+                                include "view/inc/consulta_forms/frmConsultaEstudios.php";
+                            } else {
+                                echo '<div class="alert alert-danger">Error: No se encontró el formulario de estudios</div>';
+                            }
+                            ?>
                         </div>
                     </div>
                     
@@ -390,12 +402,15 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                                 <i class="fas fa-images"></i>
                                 <h4>Informe de Imagen</h4>
                             </div>
-                            <div class="alert alert-info">
-                                <i class="fas fa-info-circle"></i>
-                                Formulario para informes de diagnóstico por imágenes con archivos adjuntos.
-                                <br><small>Funcionalidad específica se cargará automáticamente.</small>
-                            </div>
-                            <!-- Contenido específico de informe+imagen se cargará aquí -->
+                            
+                            <?php 
+                            // Incluir el formulario real de informe + imagen
+                            if (file_exists("view/inc/consulta_forms/frmConsultaInformeImagen.php")) {
+                                include "view/inc/consulta_forms/frmConsultaInformeImagen.php";
+                            } else {
+                                echo '<div class="alert alert-danger">Error: No se encontró el formulario de informe + imagen</div>';
+                            }
+                            ?>
                         </div>
                     </div>
                     
@@ -492,12 +507,67 @@ $userName = $_SESSION['username'] ?? 'Usuario';
         </main>
     </div>
     
+    <!-- Select2 (solo si no está ya cargado) -->
+    <script>
+        // Verificar si Select2 ya está cargado
+        if (typeof jQuery !== 'undefined' && !jQuery.fn.select2) {
+            const select2Script = document.createElement('script');
+            select2Script.src = './plugins/select2/js/select2.full.min.js';
+            select2Script.onload = () => console.log('✅ Select2 cargado dinámicamente');
+            document.head.appendChild(select2Script);
+        } else if (jQuery && jQuery.fn.select2) {
+            console.log('✅ Select2 ya estaba disponible');
+        }
+    </script>
+    
     <!-- Scripts del Sistema Refactorizado -->
     <!-- IMPORTANTE: Cargar en este orden específico -->
-    <script src="modules/consultas/core/ConsultasManager.js"></script>
-    <script src="modules/consultas/core/FormComponents.js"></script>
-    <script src="modules/consultas/core/PatientManager.js"></script>
-    <script src="modules/consultas/core/AppInitializer.js"></script>
+    <script>
+        // Detectar la ruta base correcta
+        const basePath = window.location.pathname.includes('index.php') ? './' : '';
+        console.log('🔍 Base path detectado:', basePath);
+    </script>
+    <script>
+        // Cargar scripts dinámicamente con la ruta correcta
+        const scriptsToLoad = [
+            './modules/consultas/core/ConsultasManager.js',
+            './modules/consultas/core/FormComponents.js', 
+            './modules/consultas/core/PatientManager.js',
+            './modules/consultas/core/AppInitializer.js'
+        ];
+        
+        const loadScript = (src) => {
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = src;
+                script.onload = () => {
+                    console.log('✅ Script cargado:', src);
+                    resolve();
+                };
+                script.onerror = () => {
+                    console.error('❌ Error cargando script:', src);
+                    reject(new Error(`Failed to load ${src}`));
+                };
+                document.head.appendChild(script);
+            });
+        };
+        
+        // Cargar scripts en orden
+        (async () => {
+            try {
+                for (const script of scriptsToLoad) {
+                    await loadScript(script);
+                }
+                console.log('🎉 Todos los scripts cargados correctamente');
+                
+                // Notificar que los scripts están listos
+                window.dispatchEvent(new CustomEvent('scriptsLoaded'));
+                
+            } catch (error) {
+                console.error('❌ Error cargando scripts:', error);
+            }
+        })();
+    </script>
     
     <script>
         // Configuración global del sistema
@@ -519,8 +589,11 @@ $userName = $_SESSION['username'] ?? 'Usuario';
         };
         
         // Auto-inicialización cuando el DOM esté listo
-        document.addEventListener('DOMContentLoaded', async function() {
+        const initializeWhenReady = async () => {
             console.log('🚀 Iniciando sistema de consultas refactorizado v2.0.0');
+            
+            // Marcar que estamos haciendo inicialización manual
+            window._manualInitialization = true;
             
             try {
                 // Mostrar info de usuario en consola (solo debug)
@@ -528,8 +601,29 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                     console.log('👤 Usuario:', window.APP_CONFIG.userName, '(ID:', window.APP_CONFIG.userId + ')');
                 }
                 
-                // Nota: AppInitializer se ejecuta automáticamente
-                // No necesitamos hacer nada más aquí
+                // Esperar a que AppInitializer esté disponible
+                if (typeof AppInitializer === 'undefined') {
+                    console.log('⏳ Esperando a que AppInitializer se cargue...');
+                    await new Promise((resolve) => {
+                        const checkInterval = setInterval(() => {
+                            if (typeof AppInitializer !== 'undefined') {
+                                clearInterval(checkInterval);
+                                resolve();
+                            }
+                        }, 100);
+                    });
+                }
+                
+                console.log('✅ AppInitializer disponible, iniciando...');
+                
+                // Crear e inicializar el sistema (solo si no existe ya)
+                if (!window.appInitializer) {
+                    const initializer = new AppInitializer();
+                    await initializer.initialize();
+                    window.appInitializer = initializer;
+                }
+                
+                console.log('🎉 Sistema inicializado correctamente');
                 
                 // Ocultar loading y mostrar contenido después de la inicialización
                 setTimeout(() => {
@@ -541,30 +635,52 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                         content.style.display = 'block';
                         content.classList.add('fade-in');
                     }
-                }, 2000); // 2 segundos para mostrar el loading
+                }, 500);
                 
             } catch (error) {
                 console.error('❌ Error durante inicialización:', error);
                 
                 // Mostrar error al usuario
-                document.getElementById('initial-loading').innerHTML = `
-                    <div class="alert alert-danger text-center" role="alert" style="max-width: 600px;">
-                        <h4 class="alert-heading"><i class="fas fa-exclamation-triangle"></i> Error de Inicialización</h4>
-                        <p>No se pudo cargar correctamente el sistema de consultas.</p>
-                        <hr>
-                        <p class="mb-0"><strong>Detalle:</strong> ${error.message}</p>
-                        <div class="mt-3">
-                            <button class="btn btn-primary" onclick="location.reload()">
-                                <i class="fas fa-redo"></i> Reintentar
-                            </button>
-                            <a href="index.php?ruta=home" class="btn btn-secondary ml-2">
-                                <i class="fas fa-home"></i> Ir al Inicio
-                            </a>
+                const loadingEl = document.getElementById('initial-loading');
+                if (loadingEl) {
+                    loadingEl.innerHTML = `
+                        <div class="alert alert-danger text-center" role="alert" style="max-width: 600px;">
+                            <h4 class="alert-heading"><i class="fas fa-exclamation-triangle"></i> Error de Inicialización</h4>
+                            <p>No se pudo cargar correctamente el sistema de consultas.</p>
+                            <hr>
+                            <p class="mb-0"><strong>Detalle:</strong> ${error.message}</p>
+                            <div class="mt-3">
+                                <button class="btn btn-primary" onclick="location.reload()">
+                                    <i class="fas fa-redo"></i> Reintentar
+                                </button>
+                                <a href="index.php?ruta=home" class="btn btn-secondary ml-2">
+                                    <i class="fas fa-home"></i> Ir al Inicio
+                                </a>
+                            </div>
                         </div>
-                    </div>
-                `;
+                    `;
+                }
             }
-        });
+        };
+        
+        // Inicializar cuando el DOM esté listo y los scripts cargados
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                // Esperar a que los scripts se carguen
+                if (window.AppInitializer) {
+                    initializeWhenReady();
+                } else {
+                    window.addEventListener('scriptsLoaded', initializeWhenReady);
+                }
+            });
+        } else {
+            // DOM ya cargado
+            if (window.AppInitializer) {
+                initializeWhenReady();
+            } else {
+                window.addEventListener('scriptsLoaded', initializeWhenReady);
+            }
+        }
         
         // Función global para compatibilidad (llamada desde tabs de tipo formulario)
         window.cambiarFormulario = function(formType) {

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Consultas New - Cambio de Formularios</title>
+    
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="plugins/bootstrap/css/bootstrap.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
+    <!-- AdminLTE -->
+    <link rel="stylesheet" href="dist/css/adminlte.min.css">
+    
+    <style>
+        .debug-panel {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .form-type-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .form-type-tab {
+            padding: 10px 20px;
+            border: 1px solid #ddd;
+            background: #f8f9fa;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .form-type-tab.active {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        .formulario-especifico {
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 5px;
+            background: white;
+            margin: 10px 0;
+        }
+        .formulario-especifico[style*="display: none"] {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container-fluid p-4">
+    <h1>🔍 Test Sistema Consultas New</h1>
+    
+    <div class="debug-panel">
+        <h4>Estado del Sistema:</h4>
+        <p><strong>AppInitializer:</strong> <span id="status-initializer">❌ No cargado</span></p>
+        <p><strong>ConsultasManager:</strong> <span id="status-manager">❌ No cargado</span></p>
+        <p><strong>Función cambiarFormulario:</strong> <span id="status-function">❌ No disponible</span></p>
+    </div>
+    
+    <!-- Tabs de Formularios (simulando estructura de consultas-new.php) -->
+    <div class="form-type-tabs" id="form-type-tabs">
+        <button class="form-type-tab active" data-form-type="general">
+            <i class="fas fa-notes-medical"></i>
+            <span>General</span>
+        </button>
+        <button class="form-type-tab" data-form-type="anteojos">
+            <i class="fas fa-glasses"></i>
+            <span>Anteojos</span>
+        </button>
+        <button class="form-type-tab" data-form-type="estudios">
+            <i class="fas fa-x-ray"></i>
+            <span>Estudios</span>
+        </button>
+        <button class="form-type-tab" data-form-type="informe_imagen">
+            <i class="fas fa-images"></i>
+            <span>Informe + Imagen</span>
+        </button>
+    </div>
+    
+    <!-- Contenedores de Formularios -->
+    <div id="formulario-general" class="formulario-especifico active">
+        <h3>📋 Formulario General</h3>
+        <div class="alert alert-success">
+            <i class="fas fa-check"></i> Este es el formulario general - ACTIVO
+        </div>
+        <p>Contenido del formulario general...</p>
+    </div>
+    
+    <div id="formulario-anteojos" class="formulario-especifico" style="display: none;">
+        <h3>👓 Formulario Anteojos</h3>
+        <div class="alert alert-info">
+            <i class="fas fa-glasses"></i> Este es el formulario de anteojos
+        </div>
+        <p>Contenido del formulario de anteojos...</p>
+    </div>
+    
+    <div id="formulario-estudios" class="formulario-especifico" style="display: none;">
+        <h3>🔬 Formulario Estudios</h3>
+        <div class="alert alert-warning">
+            <i class="fas fa-x-ray"></i> Este es el formulario de estudios
+        </div>
+        <p>Contenido del formulario de estudios...</p>
+    </div>
+    
+    <div id="formulario-informe_imagen" class="formulario-especifico" style="display: none;">
+        <h3>🖼️ Formulario Informe + Imagen</h3>
+        <div class="alert alert-primary">
+            <i class="fas fa-images"></i> Este es el formulario de informe + imagen
+        </div>
+        <p>Contenido del formulario de informe + imagen...</p>
+    </div>
+    
+    <!-- Botones de Test -->
+    <div class="debug-panel">
+        <h4>Pruebas Manuales:</h4>
+        <button class="btn btn-primary" onclick="testCambiarFormulario('general')">Test General</button>
+        <button class="btn btn-secondary" onclick="testCambiarFormulario('anteojos')">Test Anteojos</button>
+        <button class="btn btn-info" onclick="testCambiarFormulario('estudios')">Test Estudios</button>
+        <button class="btn btn-warning" onclick="testCambiarFormulario('informe_imagen')">Test Informe+Imagen</button>
+        <button class="btn btn-success" onclick="updateStatus()">Actualizar Estado</button>
+    </div>
+    
+    <div id="log-container" class="debug-panel">
+        <h4>Log de Eventos:</h4>
+        <div id="log-content" style="height: 200px; overflow-y: auto; background: #000; color: #0f0; padding: 10px; font-family: monospace;"></div>
+    </div>
+</div>
+
+<!-- jQuery -->
+<script src="plugins/jquery/jquery.min.js"></script>
+<!-- Bootstrap 4 -->
+<script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+<!-- Scripts del Sistema -->
+<script src="modules/consultas/core/ConsultasManager.js"></script>
+<script src="modules/consultas/core/FormComponents.js"></script>
+<script src="modules/consultas/core/PatientManager.js"></script>
+<script src="modules/consultas/core/AppInitializer.js"></script>
+
+<script>
+// Configuración global del sistema (simulando consultas-new.php)
+window.APP_CONFIG = {
+    baseUrl: '',
+    version: '2.0.0',
+    debug: true,
+    userId: '1',
+    userName: 'Test User',
+    timestamp: Math.floor(Date.now() / 1000),
+    endpoints: {
+        buscarPaciente: 'ajax/personas.php',
+        guardarConsulta: 'ajax/consultas.php',
+        motivos: 'ajax/consultas.php?action=get_motivos_comunes',
+        preformatos: 'ajax/consultas.php?action=get_preformatos',
+        historial: 'ajax/consultas.php?action=get_historial'
+    }
+};
+
+// Función para logging
+function addLog(message) {
+    const logContent = document.getElementById('log-content');
+    const timestamp = new Date().toLocaleTimeString();
+    logContent.innerHTML += `[${timestamp}] ${message}\n`;
+    logContent.scrollTop = logContent.scrollHeight;
+}
+
+// Función de test
+function testCambiarFormulario(formType) {
+    addLog(`🔄 Intentando cambiar a formulario: ${formType}`);
+    
+    if (window.cambiarFormulario) {
+        try {
+            window.cambiarFormulario(formType);
+            addLog(`✅ Función cambiarFormulario ejecutada para: ${formType}`);
+        } catch (error) {
+            addLog(`❌ Error ejecutando cambiarFormulario: ${error.message}`);
+        }
+    } else {
+        addLog(`❌ Función cambiarFormulario no disponible`);
+    }
+}
+
+// Función para actualizar estado
+function updateStatus() {
+    // AppInitializer
+    const initializerStatus = window.appInitializer ? '✅ Cargado' : '❌ No cargado';
+    document.getElementById('status-initializer').textContent = initializerStatus;
+    
+    // ConsultasManager
+    let managerStatus = '❌ No cargado';
+    if (window.appInitializer && window.appInitializer.isReady()) {
+        const manager = window.appInitializer.getComponent('consultas');
+        managerStatus = manager ? '✅ Cargado' : '❌ No disponible';
+    }
+    document.getElementById('status-manager').textContent = managerStatus;
+    
+    // Función cambiarFormulario
+    const functionStatus = window.cambiarFormulario ? '✅ Disponible' : '❌ No disponible';
+    document.getElementById('status-function').textContent = functionStatus;
+    
+    addLog(`📊 Estado actualizado - Init: ${initializerStatus}, Manager: ${managerStatus}, Function: ${functionStatus}`);
+}
+
+// Función global para compatibilidad (copiada de consultas-new.php)
+window.cambiarFormulario = function(formType) {
+    addLog(`🔄 window.cambiarFormulario llamada con: ${formType}`);
+    
+    if (window.appInitializer && window.appInitializer.isReady()) {
+        const consultasManager = window.appInitializer.getComponent('consultas');
+        if (consultasManager) {
+            consultasManager.changeFormType(formType);
+            addLog(`✅ ConsultasManager.changeFormType ejecutado para: ${formType}`);
+        } else {
+            addLog(`⚠️ ConsultasManager no está disponible`);
+        }
+    } else {
+        addLog(`⚠️ Sistema no está listo para cambiar formulario`);
+        // Intentar después de 1 segundo
+        setTimeout(() => {
+            addLog(`🔄 Reintentando cambio de formulario para: ${formType}`);
+            window.cambiarFormulario(formType);
+        }, 1000);
+    }
+};
+
+// Inicialización
+document.addEventListener('DOMContentLoaded', function() {
+    addLog('🚀 DOM Content Loaded');
+    updateStatus();
+    
+    // Verificar estado cada 2 segundos
+    setInterval(updateStatus, 2000);
+    
+    // Log inicial
+    addLog('📋 Test de Sistema Consultas New iniciado');
+    addLog('🎯 Objetivo: Verificar funcionamiento del cambio de formularios');
+});
+
+// Monitor de eventos globales
+document.addEventListener('formTypeChanged', function(e) {
+    addLog(`📢 Evento formTypeChanged detectado: ${e.detail.oldType} → ${e.detail.newType}`);
+});
+
+window.addEventListener('load', function() {
+    addLog('🌐 Window Load completado');
+    setTimeout(() => {
+        updateStatus();
+        addLog('🔍 Test inicial de tabs...');
+    }, 1000);
+});
+</script>
+
+</body>
+</html>

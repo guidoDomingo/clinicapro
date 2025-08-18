@@ -213,6 +213,12 @@ class ConsultasManager {
             throw new Error(`Tipo de formulario inválido: ${newType}`);
         }
         
+        // Prevenir cambios duplicados
+        if (this.state.currentFormType === newType) {
+            console.log(`🔄 Formulario ${newType} ya está activo`);
+            return;
+        }
+        
         console.log(`🔄 Cambiando formulario: ${this.state.currentFormType} → ${newType}`);
         
         // Verificar cambios pendientes
@@ -248,8 +254,16 @@ class ConsultasManager {
             // Guardar preferencia
             localStorage.setItem('consultas_last_form_type', newType);
             
-            // Notificar cambio
-            this.notifications.success(`Formulario cambiado a ${this.formTypes[newType].title}`);
+            // Notificar cambio (solo una vez)
+            if (!this._notificationSent || this._notificationSent !== newType) {
+                this.notifications.success(`Formulario cambiado a ${this.formTypes[newType].title}`);
+                this._notificationSent = newType;
+                
+                // Limpiar flag después de un tiempo
+                setTimeout(() => {
+                    this._notificationSent = null;
+                }, 1000);
+            }
             
             // Disparar evento
             document.dispatchEvent(new CustomEvent('formTypeChanged', {

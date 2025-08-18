@@ -168,6 +168,9 @@ class AppInitializer {
     }
 
     setupUserInterface() {
+        // Configurar eventos de tabs de tipo de formulario
+        this.setupFormTypeTabs();
+        
         // Configurar tooltips
         if (jQuery && jQuery.fn.tooltip) {
             jQuery('[data-toggle="tooltip"]').tooltip();
@@ -202,6 +205,55 @@ class AppInitializer {
         this.applyEntranceAnimations();
         
         console.log('✅ Interfaz de usuario configurada');
+    }
+
+    setupFormTypeTabs() {
+        const formTypeTabs = document.querySelectorAll('.form-type-tab[data-form-type]');
+        
+        // Limpiar listeners existentes para evitar duplicados
+        formTypeTabs.forEach(tab => {
+            // Clonar el elemento para eliminar todos los listeners
+            const newTab = tab.cloneNode(true);
+            tab.parentNode.replaceChild(newTab, tab);
+        });
+        
+        // Re-obtener los tabs después del clonado
+        const cleanTabs = document.querySelectorAll('.form-type-tab[data-form-type]');
+        
+        cleanTabs.forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                e.preventDefault();
+                const formType = tab.dataset.formType;
+                
+                console.log(`🔄 Tab clickeado: ${formType}`);
+                
+                // Actualizar estado visual de los tabs
+                this.updateTabVisualState(formType);
+                
+                if (window.cambiarFormulario) {
+                    window.cambiarFormulario(formType);
+                } else {
+                    console.error('❌ Función cambiarFormulario no está disponible');
+                }
+            });
+        });
+        
+        console.log(`✅ Configurados ${cleanTabs.length} tabs de tipo de formulario`);
+    }
+
+    updateTabVisualState(activeFormType) {
+        // Remover clase active de todos los tabs
+        document.querySelectorAll('.form-type-tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        
+        // Agregar clase active al tab seleccionado
+        const activeTab = document.querySelector(`[data-form-type="${activeFormType}"]`);
+        if (activeTab) {
+            activeTab.classList.add('active');
+        }
+        
+        console.log(`🎨 Estado visual actualizado para: ${activeFormType}`);
     }
 
     // ================================
@@ -551,22 +603,27 @@ window.AppInitializer = AppInitializer;
 // Auto-inicialización cuando el DOM esté listo
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', async () => {
-        const initializer = new AppInitializer();
-        try {
-            await initializer.initialize();
-            window.appInitializer = initializer;
-        } catch (error) {
-            console.error('❌ Fallo crítico en la inicialización:', error);
+        // Solo auto-inicializar si no hay una inicialización manual pendiente
+        if (!window.appInitializer && !window._manualInitialization) {
+            const initializer = new AppInitializer();
+            try {
+                await initializer.initialize();
+                window.appInitializer = initializer;
+            } catch (error) {
+                console.error('❌ Fallo crítico en la inicialización automática:', error);
+            }
         }
     });
 } else {
-    // DOM ya está cargado
-    const initializer = new AppInitializer();
-    initializer.initialize().then(() => {
-        window.appInitializer = initializer;
-    }).catch(error => {
-        console.error('❌ Fallo crítico en la inicialización:', error);
-    });
+    // DOM ya está cargado - solo inicializar si no existe ya una instancia
+    if (!window.appInitializer && !window._manualInitialization) {
+        const initializer = new AppInitializer();
+        initializer.initialize().then(() => {
+            window.appInitializer = initializer;
+        }).catch(error => {
+            console.error('❌ Fallo crítico en la inicialización automática:', error);
+        });
+    }
 }
 
 // ================================
