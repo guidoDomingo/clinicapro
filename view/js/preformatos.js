@@ -724,19 +724,42 @@ function cargarTiposFormulariosPreformatos(callback) {
                 // Limpiar selector manteniendo la opción default
                 selectTipoFormulario.innerHTML = '<option value="">Seleccione un tipo de formulario</option>';
                 
-                // Agregar opciones de tipos de formularios
-                response.data.forEach(function(tipo, index) {
-                    console.log(`Agregando tipo ${index + 1}:`, tipo);
+                // Agregar tipos estándar del sistema
+                const tiposEstandar = [
+                    { codigo: 'general', nombre: 'General' },
+                    { codigo: 'anteojos', nombre: 'Anteojos' },
+                    { codigo: 'estudios', nombre: 'Estudios' },
+                    { codigo: 'informe_imagen', nombre: 'Informe de Imagen' }
+                ];
+                
+                // Agregar tipos estándar primero
+                tiposEstandar.forEach(function(tipo, index) {
+                    console.log(`Agregando tipo estándar ${index + 1}:`, tipo);
                     const option = document.createElement('option');
-                    option.value = tipo.codigo; // Usar código en lugar de ID
+                    option.value = tipo.codigo;
                     option.textContent = tipo.nombre;
-                    if (tipo.descripcion) {
-                        option.title = tipo.descripcion;
-                    }
                     selectTipoFormulario.appendChild(option);
                 });
                 
-                console.log(`✅ Se cargaron ${response.data.length} tipos de formularios exitosamente`);
+                // Agregar tipos adicionales de la respuesta si los hay
+                if (response.data && response.data.length > 0) {
+                    response.data.forEach(function(tipo, index) {
+                        // Solo agregar si no está en los tipos estándar
+                        const yaExiste = tiposEstandar.some(estandar => estandar.codigo === tipo.codigo);
+                        if (!yaExiste) {
+                            console.log(`Agregando tipo adicional ${index + 1}:`, tipo);
+                            const option = document.createElement('option');
+                            option.value = tipo.codigo;
+                            option.textContent = tipo.nombre;
+                            if (tipo.descripcion) {
+                                option.title = tipo.descripcion;
+                            }
+                            selectTipoFormulario.appendChild(option);
+                        }
+                    });
+                }
+                
+                console.log(`✅ Se cargaron los tipos de formularios exitosamente`);
                 
                 // Ejecutar callback si se proporcionó
                 if (typeof callback === 'function') {
@@ -744,7 +767,8 @@ function cargarTiposFormulariosPreformatos(callback) {
                 }
             } else {
                 console.error('❌ Error en respuesta:', response.message || 'Datos inválidos');
-                selectTipoFormulario.innerHTML = '<option value="">Error al cargar tipos</option>';
+                console.log('Cargando tipos estándar como fallback...');
+                cargarTiposEstandar(selectTipoFormulario);
             }
         },
         error: function(xhr, status, error) {
@@ -753,9 +777,39 @@ function cargarTiposFormulariosPreformatos(callback) {
             console.error("Error:", error);
             console.error("Response Text:", xhr.responseText);
             console.error("Status Code:", xhr.status);
-            selectTipoFormulario.innerHTML = '<option value="">Error al cargar tipos</option>';
+            console.log('Error en AJAX, cargando tipos estándar...');
+            cargarTiposEstandar(selectTipoFormulario);
         }
     });
+}
+
+/**
+ * Carga los tipos de formulario estándar como fallback
+ * @param {HTMLElement} selectElement Elemento select donde cargar las opciones
+ */
+function cargarTiposEstandar(selectElement) {
+    if (!selectElement) return;
+    
+    // Limpiar selector
+    selectElement.innerHTML = '<option value="">Seleccione un tipo de formulario</option>';
+    
+    // Tipos estándar del sistema
+    const tiposEstandar = [
+        { codigo: 'general', nombre: 'General' },
+        { codigo: 'anteojos', nombre: 'Anteojos' },
+        { codigo: 'estudios', nombre: 'Estudios' },
+        { codigo: 'informe_imagen', nombre: 'Informe de Imagen' }
+    ];
+    
+    // Agregar tipos estándar
+    tiposEstandar.forEach(function(tipo) {
+        const option = document.createElement('option');
+        option.value = tipo.codigo;
+        option.textContent = tipo.nombre;
+        selectElement.appendChild(option);
+    });
+    
+    console.log('✅ Tipos estándar cargados como fallback');
 }
 
 /**

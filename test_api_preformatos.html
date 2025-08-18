@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba API Preformatos con Filtros</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-container { border: 1px solid #ddd; margin: 10px 0; padding: 15px; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        button { padding: 10px 15px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+        .loading { color: #666; font-style: italic; }
+        .result-table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+        .result-table th, .result-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        .result-table th { background-color: #f8f9fa; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Prueba API - Filtrado de Preformatos</h1>
+    <p>Esta página prueba la nueva funcionalidad de filtrado por <strong>tipo_formulario</strong> y <strong>tipo</strong> en la API.</p>
+    
+    <div id="tests">
+        <!-- Los tests se generarán dinámicamente -->
+    </div>
+    
+    <script>
+        const API_URL = 'modules/consultas/api/consultas-api.php';
+        
+        // Configuración de pruebas
+        const tests = [
+            {
+                name: 'General - Consultas',
+                params: { action: 'getPreformatos', tipo_formulario: 'general', tipo: 'consulta' },
+                expected: ['PRUEBAAAA']
+            },
+            {
+                name: 'General - Recetas',
+                params: { action: 'getPreformatos', tipo_formulario: 'general', tipo: 'receta' },
+                expected: ['receta']
+            },
+            {
+                name: 'Anteojos - Recetas',
+                params: { action: 'getPreformatos', tipo_formulario: 'anteojos', tipo: 'receta' },
+                expected: ['receta de anteojos', 'prueba 2', 'prueba 3', 'PRUEBAA 4']
+            },
+            {
+                name: 'Estudios - Orden Estudios',
+                params: { action: 'getPreformatos', tipo_formulario: 'estudios', tipo: 'orden_estudios' },
+                expected: ['orden de estudios', 'informes generales']
+            },
+            {
+                name: 'Informe Imagen - Recetas',
+                params: { action: 'getPreformatos', tipo_formulario: 'informe_imagen', tipo: 'receta' },
+                expected: ['informeees imagen']
+            },
+            {
+                name: 'Informe Imagen - Orden Estudios',
+                params: { action: 'getPreformatos', tipo_formulario: 'informe_imagen', tipo: 'orden_estudios' },
+                expected: ['informa + imagen 1.2', 'informes + imagnes']
+            },
+            {
+                name: 'Informe Imagen - Orden Cirugías',
+                params: { action: 'getPreformatos', tipo_formulario: 'informe_imagen', tipo: 'orden_cirugias' },
+                expected: ['pruebaaaa imagen']
+            },
+            {
+                name: 'Sin filtro de tipo (todos)',
+                params: { action: 'getPreformatos', tipo_formulario: 'general' },
+                expected: ['PRUEBAAAA', 'receta'] // Debería devolver todos los del formulario general
+            }
+        ];
+        
+        // Función para hacer llamadas a la API
+        async function apiCall(params) {
+            const formData = new FormData();
+            Object.keys(params).forEach(key => {
+                formData.append(key, params[key]);
+            });
+            
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                body: formData
+            });
+            
+            return await response.json();
+        }
+        
+        // Función para ejecutar una prueba
+        async function runTest(test, index) {
+            const container = document.getElementById(`test-${index}`);
+            const resultDiv = container.querySelector('.result');
+            
+            try {
+                resultDiv.innerHTML = '<div class="loading">🔄 Ejecutando prueba...</div>';
+                
+                const result = await apiCall(test.params);
+                
+                let html = '<h4>📊 Resultado:</h4>';
+                html += `<pre>${JSON.stringify(result, null, 2)}</pre>`;
+                
+                if (result.success && result.data) {
+                    const foundNames = result.data.map(item => item.nombre || item.name);
+                    const matches = test.expected.filter(expected => 
+                        foundNames.some(found => found.includes(expected) || expected.includes(found))
+                    );
+                    
+                    html += '<h4>📋 Análisis:</h4>';
+                    html += `<p><strong>Encontrados:</strong> ${foundNames.length}</p>`;
+                    html += `<p><strong>Esperados:</strong> ${test.expected.join(', ')}</p>`;
+                    html += `<p><strong>Coincidencias:</strong> ${matches.join(', ')}</p>`;
+                    
+                    if (foundNames.length > 0) {
+                        html += '<table class="result-table">';
+                        html += '<tr><th>ID</th><th>Nombre</th><th>Tipo</th></tr>';
+                        result.data.forEach(item => {
+                            html += `<tr><td>${item.id || item.id_preformato}</td><td>${item.nombre || item.name}</td><td>${item.categoria || item.tipo}</td></tr>`;
+                        });
+                        html += '</table>';
+                    }
+                    
+                    if (matches.length > 0) {
+                        container.classList.remove('error');
+                        container.classList.add('success');
+                        html += '<p style="color: green; font-weight: bold;">✅ PRUEBA EXITOSA</p>';
+                    } else if (foundNames.length === 0 && test.expected.length > 0) {
+                        container.classList.remove('success');
+                        container.classList.add('error');
+                        html += '<p style="color: red; font-weight: bold;">❌ No se encontraron resultados</p>';
+                    } else {
+                        html += '<p style="color: orange; font-weight: bold;">⚠️ Resultados parciales</p>';
+                    }
+                } else {
+                    container.classList.remove('success');
+                    container.classList.add('error');
+                    html += '<p style="color: red; font-weight: bold;">❌ Error en la respuesta de la API</p>';
+                }
+                
+                resultDiv.innerHTML = html;
+                
+            } catch (error) {
+                container.classList.remove('success');
+                container.classList.add('error');
+                resultDiv.innerHTML = `<p style="color: red;"><strong>❌ Error:</strong> ${error.message}</p>`;
+            }
+        }
+        
+        // Función para ejecutar todas las pruebas
+        async function runAllTests() {
+            const button = document.getElementById('runAllBtn');
+            button.disabled = true;
+            button.textContent = '🔄 Ejecutando...';
+            
+            for (let i = 0; i < tests.length; i++) {
+                await runTest(tests[i], i);
+                // Pequeña pausa entre pruebas
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+            
+            button.disabled = false;
+            button.textContent = '🚀 Ejecutar Todas las Pruebas';
+        }
+        
+        // Inicializar la página
+        function init() {
+            const testsContainer = document.getElementById('tests');
+            
+            // Botón para ejecutar todas las pruebas
+            const runAllButton = document.createElement('button');
+            runAllButton.id = 'runAllBtn';
+            runAllButton.textContent = '🚀 Ejecutar Todas las Pruebas';
+            runAllButton.onclick = runAllTests;
+            testsContainer.appendChild(runAllButton);
+            
+            // Crear contenedores para cada prueba
+            tests.forEach((test, index) => {
+                const container = document.createElement('div');
+                container.className = 'test-container';
+                container.id = `test-${index}`;
+                
+                container.innerHTML = `
+                    <h3>🧪 Prueba ${index + 1}: ${test.name}</h3>
+                    <p><strong>Parámetros:</strong> ${JSON.stringify(test.params)}</p>
+                    <button onclick="runTest(tests[${index}], ${index})">▶️ Ejecutar</button>
+                    <div class="result"></div>
+                `;
+                
+                testsContainer.appendChild(container);
+            });
+        }
+        
+        // Inicializar cuando el DOM esté listo
+        document.addEventListener('DOMContentLoaded', init);
+        
+        // Hacer tests accesible globalmente
+        window.tests = tests;
+        window.runTest = runTest;
+    </script>
+</body>
+</html>

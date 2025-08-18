@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug - Datos Reales de Preformatos</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .debug-container { border: 1px solid #ddd; margin: 10px 0; padding: 15px; border-radius: 5px; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+        .empty { color: #666; font-style: italic; }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Debug - Verificación de Datos Reales</h1>
+    <p>Esta página verifica qué datos están realmente en la base de datos vs. lo que devuelve la API.</p>
+    
+    <div id="results">
+        <div class="debug-container">
+            <h3>Cargando datos...</h3>
+            <div id="loading">🔄 Consultando base de datos...</div>
+        </div>
+    </div>
+    
+    <script>
+        const API_URL = 'modules/consultas/api/consultas-api.php';
+        
+        async function debugAPI() {
+            const resultsContainer = document.getElementById('results');
+            resultsContainer.innerHTML = '';
+            
+            // Probar diferentes combinaciones
+            const tests = [
+                { name: 'General - Consultas', params: { action: 'getPreformatos', tipo_formulario: 'general', tipo: 'consulta' }},
+                { name: 'General - Sin tipo específico', params: { action: 'getPreformatos', tipo_formulario: 'general' }},
+                { name: 'Todos los preformatos', params: { action: 'getPreformatos' }}
+            ];
+            
+            for (const test of tests) {
+                const container = document.createElement('div');
+                container.className = 'debug-container';
+                container.innerHTML = `<h3>🧪 ${test.name}</h3><div class="loading">⏳ Consultando...</div>`;
+                resultsContainer.appendChild(container);
+                
+                try {
+                    const formData = new FormData();
+                    Object.keys(test.params).forEach(key => {
+                        formData.append(key, test.params[key]);
+                    });
+                    
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const result = await response.json();
+                    
+                    let html = `<h3>🧪 ${test.name}</h3>`;
+                    html += `<p><strong>Parámetros:</strong> ${JSON.stringify(test.params)}</p>`;
+                    
+                    if (result.success) {
+                        if (result.data && result.data.length > 0) {
+                            html += `<p class="success">✅ Encontrados ${result.data.length} registros REALES</p>`;
+                            html += '<table border="1" style="border-collapse: collapse; width: 100%; margin: 10px 0;">';
+                            html += '<tr style="background: #f0f0f0;"><th>ID</th><th>Nombre</th><th>Tipo/Categoría</th><th>Es Ficticio?</th></tr>';
+                            
+                            result.data.forEach(item => {
+                                const isFake = checkIfFakeData(item.nombre);
+                                const bgColor = isFake ? '#ffe6e6' : '#e6ffe6';
+                                html += `<tr style="background: ${bgColor};">`;
+                                html += `<td>${item.id || item.id_preformato || 'N/A'}</td>`;
+                                html += `<td><strong>${item.nombre || 'Sin nombre'}</strong></td>`;
+                                html += `<td>${item.categoria || item.tipo || 'N/A'}</td>`;
+                                html += `<td>${isFake ? '❌ SÍ' : '✅ NO'}</td>`;
+                                html += '</tr>';
+                            });
+                            html += '</table>';
+                        } else {
+                            html += `<p class="empty">⚪ Sin resultados - Base de datos vacía para estos filtros</p>`;
+                        }
+                        
+                        html += `<details><summary>Ver respuesta JSON completa</summary><pre>${JSON.stringify(result, null, 2)}</pre></details>`;
+                    } else {
+                        html += `<p class="error">❌ Error: ${result.message || 'Sin mensaje'}</p>`;
+                        html += `<pre>${JSON.stringify(result, null, 2)}</pre>`;
+                    }
+                    
+                    container.innerHTML = html;
+                    
+                } catch (error) {
+                    container.innerHTML = `<h3>🧪 ${test.name}</h3><p class="error">❌ Error de conexión: ${error.message}</p>`;
+                }
+                
+                // Pausa entre requests
+                await new Promise(resolve => setTimeout(resolve, 300));
+            }
+        }
+        
+        // Función para detectar datos ficticios comunes
+        function checkIfFakeData(nombre) {
+            if (!nombre) return false;
+            
+            const fakePatterns = [
+                'Consulta General',
+                'Revisión Oftalmológica',
+                'Receta Básica',
+                'Paciente presenta',
+                'Examen oftalmológico completo',
+                'Se prescribe',
+                'consulta 1',
+                'Consulta General', 
+                'consulta prenatal',
+                'preformato 1',
+                'preformato de prueba',
+                'PREFORMATO PARA RECETAS'
+            ];
+            
+            return fakePatterns.some(pattern => 
+                nombre.toLowerCase().includes(pattern.toLowerCase())
+            );
+        }
+        
+        // Ejecutar debug al cargar
+        document.addEventListener('DOMContentLoaded', debugAPI);
+    </script>
+</body>
+</html>

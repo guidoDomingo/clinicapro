@@ -89,6 +89,23 @@ class ConsultasManager {
             // Procesar parámetros URL si existen
             await this.processUrlParameters();
             
+            // DEBUGGING: Exponer manager globalmente
+            if (window.DEBUG_MODE || window.location.href.includes('debug')) {
+                window.consultasManager = this;
+                window.testPreformatos = async () => {
+                    console.log('🧪 TEST MANUAL: Forzando recarga de preformatos...');
+                    const component = this.formComponents.get('general');
+                    if (component && component.forceReloadPreformatos) {
+                        await component.forceReloadPreformatos();
+                        console.log('✅ Test completado. Revisa los selects formatoConsulta y formatoreceta');
+                    } else {
+                        console.error('❌ Componente general no disponible o sin método forceReloadPreformatos');
+                    }
+                };
+                console.log('🐛 Manager expuesto globalmente como window.consultasManager');
+                console.log('🧪 Función de test disponible como window.testPreformatos()');
+            }
+
         } catch (error) {
             console.error('❌ Error inicializando ConsultasManager:', error);
             this.notifications.error('Error al inicializar el sistema');
@@ -131,16 +148,24 @@ class ConsultasManager {
         
         // Registrar componentes de formulario
         this.formComponents = new Map();
-        this.formComponents.set('general', new GeneralFormComponent());
-        this.formComponents.set('anteojos', new AnteojosFormComponent());
-        this.formComponents.set('estudios', new EstudiosFormComponent());
-        this.formComponents.set('informe_imagen', new InformeImagenFormComponent());
+        this.formComponents.set('general', new GeneralForm(this)); // Pasar referencia del manager
+        this.formComponents.set('anteojos', new AnteojosFormComponent(this));
+        this.formComponents.set('estudios', new EstudiosFormComponent(this));
+        this.formComponents.set('informe_imagen', new InformeImagenFormComponent(this));
         
         // Inicializar cada componente
         for (const [type, component] of this.formComponents) {
             try {
                 await component.initialize();
                 console.log(`✅ Componente ${type} inicializado`);
+                
+                // CARGA ESPECIAL DE PREFORMATOS PARA GENERAL
+                if (type === 'general' && component.loadPreformatos) {
+                    console.log('🔄 Cargando preformatos filtrados para general...');
+                    setTimeout(async () => {
+                        await component.loadPreformatos();
+                    }, 1500); // Delay para asegurar inicialización completa
+                }
             } catch (error) {
                 console.warn(`⚠️ Error inicializando componente ${type}:`, error);
             }
@@ -247,6 +272,17 @@ class ConsultasManager {
             
             // Mostrar nuevo formulario
             await this.showForm(newType);
+            
+            // FORZAR RECARGA DE PREFORMATOS para formulario general
+            if (newType === 'general') {
+                console.log('🔄 Recargando preformatos para formulario general...');
+                setTimeout(async () => {
+                    const component = this.formComponents.get('general');
+                    if (component && component.loadPreformatos) {
+                        await component.loadPreformatos();
+                    }
+                }, 500); // Delay para asegurar que DOM esté listo
+            }
             
             // Actualizar URL sin recargar página
             this.updateUrl();

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Específico - Preformatos Filtrados</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Test de Preformatos Filtrados - Usuario ID: 9</h1>
+    <div id="log"></div>
+    <hr>
+    <h2>Select de Consultas:</h2>
+    <select id="formatoConsulta">
+        <option value="">-- Seleccionar preformato --</option>
+    </select>
+    <hr>
+    <h2>Select de Recetas:</h2>
+    <select id="formatoreceta">
+        <option value="">-- Seleccionar preformato --</option>
+    </select>
+    
+    <script>
+    function log(message) {
+        document.getElementById('log').innerHTML += '<p style="font-family: monospace; margin: 2px 0;">' + 
+            new Date().toLocaleTimeString() + ': ' + message + '</p>';
+        console.log(message);
+    }
+
+    // Simular populateSelect
+    function populateSelect(selectId, data, valueField, textField) {
+        log(`🔧 populateSelect('${selectId}', ${data.length} items, '${valueField}', '${textField}')`);
+        
+        const select = document.getElementById(selectId);
+        if (!select) {
+            log(`❌ Select '${selectId}' no encontrado`);
+            return;
+        }
+        
+        log(`📋 Select '${selectId}' encontrado. Opciones actuales: ${select.options.length}`);
+        
+        // Limpiar opciones excepto la primera
+        while (select.options.length > 1) {
+            select.remove(1);
+        }
+        
+        log(`🧹 Select '${selectId}' limpiado. Opciones restantes: ${select.options.length}`);
+        
+        // Agregar datos
+        data.forEach((item, index) => {
+            const value = item[valueField];
+            const text = item[textField];
+            log(`   📝 Item ${index}: ${text} (ID: ${value})`);
+            
+            const option = new Option(text, value);
+            select.add(option);
+            
+            log(`   ✅ Opción agregada. Total opciones: ${select.options.length}`);
+        });
+        
+        // Forzar actualización visual
+        select.style.display = 'none';
+        select.offsetHeight; // Trigger reflow
+        select.style.display = 'block';
+        
+        log(`✅ Select '${selectId}' poblado con ${data.length} elementos (Total: ${select.options.length} opciones)`);
+        
+        // Log de todas las opciones finales
+        Array.from(select.options).forEach((option, i) => {
+            log(`   🔍 Opción ${i}: "${option.text}" (value: "${option.value}")`);
+        });
+    }
+    
+    // Simular apiCall
+    async function apiCall(url, data) {
+        const params = new URLSearchParams(data);
+        const response = await fetch(`${url}?${params.toString()}`);
+        return await response.json();
+    }
+
+    // Test de preformatos
+    async function testPreformatos() {
+        log('🚀 Iniciando test de preformatos...');
+        
+        // Test 1: Consultas
+        try {
+            log('📤 Test 1: Cargando preformatos de CONSULTAS');
+            const consultaData = {
+                action: 'get_preformatos_consulta',
+                tipo_formulario: 'general',
+                tipo: 'consulta',
+                usuario_id: '9',
+                debug: '1'
+            };
+            
+            log('📤 Request consultas: ' + JSON.stringify(consultaData));
+            const consultaResponse = await apiCall('modules/consultas/api/consultas-api.php', consultaData);
+            
+            log('📥 Respuesta consultas: ' + JSON.stringify(consultaResponse));
+            log('🔍 ANÁLISIS consultas:');
+            log('   - success: ' + consultaResponse.success);
+            log('   - data tipo: ' + typeof consultaResponse.data);
+            log('   - data es array: ' + Array.isArray(consultaResponse.data));
+            log('   - data length: ' + (consultaResponse.data?.length || 'undefined'));
+            
+            if (consultaResponse.data && consultaResponse.data.length > 0) {
+                consultaResponse.data.forEach((item, i) => {
+                    log(`   - Item ${i}: ${JSON.stringify(item)}`);
+                });
+            }
+            
+            if (consultaResponse.success && consultaResponse.data && consultaResponse.data.length > 0) {
+                populateSelect('formatoConsulta', consultaResponse.data, 'id', 'nombre');
+            } else {
+                log('❌ No hay datos válidos para consultas');
+            }
+            
+        } catch (error) {
+            log('❌ Error en test consultas: ' + error.message);
+        }
+        
+        // Test 2: Recetas  
+        try {
+            log('📤 Test 2: Cargando preformatos de RECETAS');
+            const recetaData = {
+                action: 'get_preformatos_receta',
+                tipo_formulario: 'general',
+                tipo: 'receta',
+                usuario_id: '9',
+                debug: '1'
+            };
+            
+            log('📤 Request recetas: ' + JSON.stringify(recetaData));
+            const recetaResponse = await apiCall('modules/consultas/api/consultas-api.php', recetaData);
+            
+            log('📥 Respuesta recetas: ' + JSON.stringify(recetaResponse));
+            log('🔍 ANÁLISIS recetas:');
+            log('   - success: ' + recetaResponse.success);
+            log('   - data tipo: ' + typeof recetaResponse.data);
+            log('   - data es array: ' + Array.isArray(recetaResponse.data));
+            log('   - data length: ' + (recetaResponse.data?.length || 'undefined'));
+            
+            if (recetaResponse.data && recetaResponse.data.length > 0) {
+                recetaResponse.data.forEach((item, i) => {
+                    log(`   - Item ${i}: ${JSON.stringify(item)}`);
+                });
+            }
+            
+            if (recetaResponse.success && recetaResponse.data && recetaResponse.data.length > 0) {
+                populateSelect('formatoreceta', recetaResponse.data, 'id', 'nombre');
+            } else {
+                log('❌ No hay datos válidos para recetas');
+            }
+            
+        } catch (error) {
+            log('❌ Error en test recetas: ' + error.message);
+        }
+        
+        log('✅ Test completado');
+    }
+    
+    // Ejecutar test automáticamente
+    testPreformatos();
+    </script>
+</body>
+</html>

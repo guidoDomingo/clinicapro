@@ -110,7 +110,8 @@ require_once "controller/MotivosController.php";
             <select id="tipoFormularioMotivo" name="tipoFormularioMotivo" class="form-control">
               <option value="general" selected>General</option>
               <option value="anteojos">Anteojos</option>
-              <!-- Agregar más tipos según sea necesario -->
+              <option value="estudios">Estudios</option>
+              <option value="informe_imagen">Informe de Imagen</option>
             </select>
           </div>
           <div class="form-group">
@@ -161,7 +162,8 @@ require_once "controller/MotivosController.php";
             <select id="editarTipoFormularioMotivo" name="editarTipoFormularioMotivo" class="form-control">
               <option value="general">General</option>
               <option value="anteojos">Anteojos</option>
-              <!-- Agregar más tipos según sea necesario -->
+              <option value="estudios">Estudios</option>
+              <option value="informe_imagen">Informe de Imagen</option>
             </select>
           </div>
           <div class="form-group">

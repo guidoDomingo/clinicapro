@@ -102,13 +102,26 @@ try {
         
         case 'get_motivos_comunes':
         case 'getMotivosComunes':
-            $response = getMotivosComunes();
+            $tipoFormulario = $_GET['tipo_formulario'] ?? $_POST['tipo_formulario'] ?? 'general';
+            $response = getMotivosComunes($tipoFormulario);
             break;
             
         case 'get_preformatos_consulta':
         case 'get_preformatos_receta':
         case 'getPreformatos':
-            $response = getPreformatosConsulta();
+            $tipoFormulario = $_GET['tipo_formulario'] ?? $_POST['tipo_formulario'] ?? 'general';
+            $userId = $_GET['usuario_id'] ?? $_POST['usuario_id'] ?? null;
+            $tipoPreformato = $_GET['tipo'] ?? $_POST['tipo'] ?? null; // Nuevo filtro por tipo específico
+            
+            // DEBUG: Log de parámetros recibidos (solo si se necesita)
+            if (isset($_GET['debug']) || isset($_POST['debug'])) {
+                error_log("PREFORMATOS DEBUG - Action: " . $action);
+                error_log("PREFORMATOS DEBUG - tipo_formulario: " . $tipoFormulario);
+                error_log("PREFORMATOS DEBUG - usuario_id: " . ($userId ?? 'NULL'));
+                error_log("PREFORMATOS DEBUG - tipo: " . ($tipoPreformato ?? 'NULL'));
+            }
+            
+            $response = getPreformatosConsulta($tipoFormulario, $userId, $tipoPreformato);
             break;
             
         case 'get_form_config':
@@ -400,33 +413,52 @@ function guardarConsulta() {
 // FUNCIONES DE CONFIGURACIÓN
 // ================================
 
-function getMotivosComunes() {
+function getMotivosComunes($tipoFormulario = 'general') {
     global $conexion;
     
     try {
-        // Intentar primero con una consulta simple para verificar la tabla
+        // Intentar consulta con filtro por tipo de formulario
         try {
-            $stmt = $conexion->query("
-                SELECT descripcion 
+            $stmt = $conexion->prepare("
+                SELECT id_motivo as id, nombre, descripcion, activo
                 FROM motivos_comunes 
+                WHERE activo = true AND tipo_formulario = :tipo_formulario
+                ORDER BY nombre ASC
+            ");
+            $stmt->bindParam(':tipo_formulario', $tipoFormulario, PDO::PARAM_STR);
+            $stmt->execute();
+            $motivos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Si no hay motivos para este tipo específico, obtener los generales
+            if (empty($motivos) && $tipoFormulario !== 'general') {
+                $stmt = $conexion->prepare("
+                    SELECT id_motivo as id, nombre, descripcion, activo
+                    FROM motivos_comunes 
+                    WHERE activo = true AND tipo_formulario = 'general'
+                    ORDER BY nombre ASC
+                ");
+                $stmt->execute();
+                $motivos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            }
+            
+        } catch (PDOException $e) {
+            // Si la tabla no existe o hay problemas con tipo_formulario, usar consulta simple
+            $stmt = $conexion->prepare("
+                SELECT id, descripcion, 'general' as tipo_formulario
+                FROM motivos_comunes 
+                WHERE activo = true
+                ORDER BY descripcion ASC
                 LIMIT 10
             ");
+            $stmt->execute();
             $motivos = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
-            // Si la tabla no existe, devolver motivos por defecto
-            $motivos = [
-                ['descripcion' => 'Consulta general'],
-                ['descripcion' => 'Dolor de cabeza'],
-                ['descripcion' => 'Problemas de visión'],
-                ['descripcion' => 'Revisión rutinaria'],
-                ['descripcion' => 'Seguimiento']
-            ];
         }
         
         return [
             'success' => true,
             'data' => $motivos,
-            'motivos' => $motivos // Compatibilidad con frontend existente
+            'motivos' => $motivos, // Compatibilidad con frontend existente
+            'tipo_formulario' => $tipoFormulario
         ];
         
     } catch (PDOException $e) {
@@ -434,35 +466,169 @@ function getMotivosComunes() {
     }
 }
 
-function getPreformatosConsulta() {
+function getPreformatosConsulta($tipo_formulario = 'general', $userId = null, $tipo_preformato = null) {
     global $conexion;
+    
+    // DEBUG: Log de entrada
+    error_log("=== GETPREFORMATOS DEBUG ===");
+    error_log("Función llamada con: tipo_formulario=$tipo_formulario, userId=$userId, tipo_preformato=$tipo_preformato");
     
     try {
         try {
-            $stmt = $conexion->query("
-                SELECT id, nombre, texto, categoria 
-                FROM preformatos_consulta 
-                WHERE activo = true OR activo IS NULL
-                ORDER BY nombre
-                LIMIT 20
-            ");
-            $preformatos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            // Si se proporciona userId, buscar preformatos del doctor asociado
+            if ($userId) {
+                error_log("DEBUG: Buscando con userId: $userId");
+                
+                // Construir la consulta base
+                $baseQuery = "
+                    SELECT p.id_preformato as id, p.nombre, p.contenido as texto, p.tipo as categoria 
+                    FROM person_system_user psu 
+                    INNER JOIN rh_doctors rd ON psu.person_id = rd.person_id 
+                    INNER JOIN preformatos p ON p.creado_por = rd.doctor_id 
+                    WHERE psu.system_user_id = :user_id 
+                      AND p.activo = true
+                      AND (p.tipo_formulario = :tipo_formulario OR p.tipo_formulario = 'general')
+                ";
+                
+                // Agregar filtro por tipo si se proporciona
+                if ($tipo_preformato) {
+                    $baseQuery .= " AND p.tipo = :tipo_preformato";
+                    error_log("DEBUG: Agregando filtro por tipo: $tipo_preformato");
+                }
+                
+                $baseQuery .= "
+                    ORDER BY 
+                      CASE WHEN p.tipo_formulario = :tipo_formulario THEN 0 ELSE 1 END,
+                      p.nombre
+                    LIMIT 20
+                ";
+                
+                error_log("DEBUG: Query construida: " . str_replace([':user_id', ':tipo_formulario', ':tipo_preformato'], [$userId, $tipo_formulario, $tipo_preformato], $baseQuery));
+                
+                $stmt = $conexion->prepare($baseQuery);
+                $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+                $stmt->bindParam(':tipo_formulario', $tipo_formulario, PDO::PARAM_STR);
+                
+                if ($tipo_preformato) {
+                    $stmt->bindParam(':tipo_preformato', $tipo_preformato, PDO::PARAM_STR);
+                }
+                
+                $stmt->execute();
+                $preformatos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                
+                error_log("DEBUG: Encontrados " . count($preformatos) . " preformatos específicos del usuario");
+                
+                // Si no hay resultados específicos del usuario, buscar solo generales del usuario
+                if (empty($preformatos) && $tipo_formulario !== 'general') {
+                    error_log("DEBUG: Sin resultados específicos, buscando generales para userId: $userId");
+                    
+                    $fallbackQuery = "
+                        SELECT p.id_preformato as id, p.nombre, p.contenido as texto, p.tipo as categoria 
+                        FROM person_system_user psu 
+                        INNER JOIN rh_doctors rd ON psu.person_id = rd.person_id 
+                        INNER JOIN preformatos p ON p.creado_por = rd.doctor_id 
+                        WHERE psu.system_user_id = :user_id 
+                          AND p.activo = true
+                          AND p.tipo_formulario = 'general'
+                    ";
+                    
+                    // Agregar filtro por tipo en el fallback también
+                    if ($tipo_preformato) {
+                        $fallbackQuery .= " AND p.tipo = :tipo_preformato";
+                    }
+                    
+                    $fallbackQuery .= " ORDER BY p.nombre LIMIT 20";
+                    
+                    $stmt = $conexion->prepare($fallbackQuery);
+                    $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+                    
+                    if ($tipo_preformato) {
+                        $stmt->bindParam(':tipo_preformato', $tipo_preformato, PDO::PARAM_STR);
+                    }
+                    
+                    $stmt->execute();
+                    $preformatos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                    
+                    error_log("DEBUG: Encontrados " . count($preformatos) . " preformatos generales del usuario");
+                }
+            } else {
+                error_log("DEBUG: Sin userId, buscando preformatos globales");
+                
+                // Si no hay userId, buscar preformatos globales (comportamiento anterior como fallback)
+                $globalQuery = "
+                    SELECT id_preformato as id, nombre, contenido as texto, tipo as categoria 
+                    FROM preformatos 
+                    WHERE (activo = true OR activo IS NULL) 
+                      AND (tipo_formulario = :tipo_formulario OR tipo_formulario = 'general')
+                ";
+                
+                // Agregar filtro por tipo
+                if ($tipo_preformato) {
+                    $globalQuery .= " AND tipo = :tipo_preformato";
+                    error_log("DEBUG: Agregando filtro global por tipo: $tipo_preformato");
+                }
+                
+                $globalQuery .= "
+                    ORDER BY 
+                      CASE WHEN tipo_formulario = :tipo_formulario THEN 0 ELSE 1 END,
+                      nombre
+                    LIMIT 20
+                ";
+                
+                error_log("DEBUG: Query global: " . str_replace([':tipo_formulario', ':tipo_preformato'], [$tipo_formulario, $tipo_preformato], $globalQuery));
+                
+                $stmt = $conexion->prepare($globalQuery);
+                $stmt->bindParam(':tipo_formulario', $tipo_formulario, PDO::PARAM_STR);
+                
+                if ($tipo_preformato) {
+                    $stmt->bindParam(':tipo_preformato', $tipo_preformato, PDO::PARAM_STR);
+                }
+                
+                $stmt->execute();
+                $preformatos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                
+                error_log("DEBUG: Encontrados " . count($preformatos) . " preformatos globales");
+                
+                // Si no hay resultados específicos, usar generales como fallback
+                if (empty($preformatos) && $tipo_formulario !== 'general') {
+                    error_log("DEBUG: Sin resultados específicos globales, buscando generales");
+                    
+                    $generalFallback = "
+                        SELECT id_preformato as id, nombre, contenido as texto, tipo as categoria 
+                        FROM preformatos 
+                        WHERE (activo = true OR activo IS NULL) 
+                          AND (tipo_formulario = 'general' OR tipo_formulario IS NULL)
+                    ";
+                    
+                    // Mantener el filtro por tipo en el fallback general
+                    if ($tipo_preformato) {
+                        $generalFallback .= " AND tipo = :tipo_preformato";
+                    }
+                    
+                    $generalFallback .= " ORDER BY nombre LIMIT 20";
+                    
+                    $stmt = $conexion->prepare($generalFallback);
+                    
+                    if ($tipo_preformato) {
+                        $stmt->bindParam(':tipo_preformato', $tipo_preformato, PDO::PARAM_STR);
+                    }
+                    
+                    $stmt->execute();
+                    $preformatos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                    
+                    error_log("DEBUG: Encontrados " . count($preformatos) . " preformatos generales fallback");
+                }
+            }
+            
+            // LOG de resultados finales
+            error_log("DEBUG: Resultados finales: " . count($preformatos) . " preformatos");
+            foreach ($preformatos as $p) {
+                error_log("DEBUG: - ID: {$p['id']}, Nombre: {$p['nombre']}, Categoria: {$p['categoria']}");
+            }
+            
         } catch (PDOException $e) {
-            // Si la tabla no existe, devolver preformatos por defecto
-            $preformatos = [
-                [
-                    'id' => 1,
-                    'nombre' => 'Consulta General',
-                    'texto' => 'Paciente presenta...',
-                    'categoria' => 'general'
-                ],
-                [
-                    'id' => 2,
-                    'nombre' => 'Revisión Oftalmológica',
-                    'texto' => 'Examen oftalmológico completo...',
-                    'categoria' => 'oftalmologia'
-                ]
-            ];
+            // Si hay error de base de datos, devolver array vacío - NO datos ficticios
+            $preformatos = [];
         }
         
         return [
@@ -490,15 +656,8 @@ function getPreformatosReceta() {
             ");
             $preformatos = $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            // Si la tabla no existe, devolver preformatos por defecto
-            $preformatos = [
-                [
-                    'id' => 1,
-                    'nombre' => 'Receta Básica',
-                    'texto' => 'Se prescribe...',
-                    'categoria' => 'general'
-                ]
-            ];
+            // Si hay error de base de datos, devolver array vacío - NO datos ficticios
+            $preformatos = [];
         }
         
         return [

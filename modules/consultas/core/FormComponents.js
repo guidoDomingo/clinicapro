@@ -239,14 +239,23 @@ class GeneralForm extends BaseFormComponent {
         ];
     }
     
+    async initialize() {
+        console.log('🔧 Inicializando GeneralForm...');
+        await this.initializeFields();
+    }
+    
     async initializeFields() {
         // Inicializar editores Summernote
         await this.initializeSummernote();
+
+        // Delay para evitar conflictos con scripts del sistema original
+        console.log('⏳ Esperando para evitar conflictos con scripts originales...');
+        await new Promise(resolve => setTimeout(resolve, 2000));
         
         // Cargar motivos comunes
         await this.loadMotivosComunes();
         
-        // Cargar preformatos
+        // Cargar preformatos (esto debería sobrescribir cualquier dato previo)
         await this.loadPreformatos();
     }
     
@@ -280,8 +289,8 @@ class GeneralForm extends BaseFormComponent {
     
     async loadMotivosComunes() {
         try {
-            const response = await this.manager.apiCall('ajax/preformatos.ajax.php', {
-                operacion: 'getMotivosComunes',
+            const response = await this.manager.apiCall('modules/consultas/api/consultas-api.php', {
+                action: 'get_motivos_comunes',
                 tipo_formulario: 'general'
             });
             
@@ -294,52 +303,126 @@ class GeneralForm extends BaseFormComponent {
     }
     
     async loadPreformatos() {
+        // Obtener ID de usuario desde configuración global
+        const userId = window.APP_CONFIG?.userId || null;
+        
+        console.log('🔍 DEBUG GeneralForm.loadPreformatos()');
+        console.log('🆔 UserId obtenido:', userId, '(tipo:', typeof userId, ')');
+        console.log('📊 APP_CONFIG completo:', window.APP_CONFIG);
+        
         // Cargar preformatos de consulta
         try {
-            const consultaResponse = await this.manager.apiCall('ajax/preformatos.ajax.php', {
-                operacion: 'getPreformatosConsulta',
-                tipo_formulario: 'general'
-            });
+            const requestData = {
+                action: 'get_preformatos_consulta',
+                tipo_formulario: 'general',
+                tipo: 'consulta' // Filtrar específicamente por tipo consulta
+            };
             
-            if (consultaResponse.status === 'success' && consultaResponse.data) {
-                this.populateSelect('formatoConsulta', consultaResponse.data, 'id_preformato', 'nombre');
+            if (userId) {
+                requestData.usuario_id = userId;
+            }
+            
+            console.log('📤 Enviando request para consultas:', requestData);
+            
+            const consultaResponse = await this.manager.apiCall('modules/consultas/api/consultas-api.php', requestData);
+            
+            console.log('📥 Respuesta consultas:', consultaResponse);
+            console.log('🔍 ANÁLISIS DETALLADO consultas:');
+            console.log('   - success:', consultaResponse.success);
+            console.log('   - data tipo:', typeof consultaResponse.data);
+            console.log('   - data es array:', Array.isArray(consultaResponse.data));
+            console.log('   - data length:', consultaResponse.data?.length);
+            console.log('   - data contenido:', consultaResponse.data);
+            
+            // CORREGIDO: Cambiar de .status a .success
+            if (consultaResponse.success === true && consultaResponse.data && consultaResponse.data.length > 0) {
+                console.log('✅ Poblando select formatoConsulta con', consultaResponse.data.length, 'elementos');
+                // CORREGIDO: Usar 'id' y 'nombre' según la API
+                this.populateSelect('formatoConsulta', consultaResponse.data, 'id', 'nombre');
+            } else {
+                console.log('❌ Sin datos en respuesta de consultas - Success:', consultaResponse.success, 'Data length:', consultaResponse.data?.length);
             }
         } catch (error) {
-            console.error('Error cargando preformatos consulta:', error);
+            console.error('❌ Error cargando preformatos consulta:', error);
         }
         
         // Cargar preformatos de receta
         try {
-            const recetaResponse = await this.manager.apiCall('ajax/preformatos.ajax.php', {
-                operacion: 'getPreformatosReceta',
-                tipo_formulario: 'general'
-            });
+            const requestData = {
+                action: 'get_preformatos_receta',
+                tipo_formulario: 'general',
+                tipo: 'receta' // Filtrar específicamente por tipo receta
+            };
             
-            if (recetaResponse.status === 'success' && recetaResponse.data) {
-                this.populateSelect('formatoreceta', recetaResponse.data, 'id_preformato', 'nombre');
+            if (userId) {
+                requestData.usuario_id = userId;
+            }
+            
+            console.log('📤 Enviando request para recetas:', requestData);
+            
+            const recetaResponse = await this.manager.apiCall('modules/consultas/api/consultas-api.php', requestData);
+            
+            console.log('📥 Respuesta recetas:', recetaResponse);
+            console.log('🔍 ANÁLISIS DETALLADO recetas:');
+            console.log('   - success:', recetaResponse.success);
+            console.log('   - data tipo:', typeof recetaResponse.data);
+            console.log('   - data es array:', Array.isArray(recetaResponse.data));
+            console.log('   - data length:', recetaResponse.data?.length);
+            console.log('   - data contenido:', recetaResponse.data);
+            
+            // CORREGIDO: Cambiar de .status a .success
+            if (recetaResponse.success === true && recetaResponse.data && recetaResponse.data.length > 0) {
+                console.log('✅ Poblando select formatoreceta con', recetaResponse.data.length, 'elementos');
+                // CORREGIDO: Usar 'id' y 'nombre' según la API
+                this.populateSelect('formatoreceta', recetaResponse.data, 'id', 'nombre');
+            } else {
+                console.log('❌ Sin datos en respuesta de recetas - Success:', recetaResponse.success, 'Data length:', recetaResponse.data?.length);
             }
         } catch (error) {
-            console.error('Error cargando preformatos receta:', error);
+            console.error('❌ Error cargando preformatos receta:', error);
         }
     }
     
     populateSelect(selectId, data, valueField, textField) {
-        const select = document.getElementById(selectId);
-        if (!select) return;
+        console.log('🔧 populateSelect called:', {selectId, dataLength: data.length, valueField, textField});
+        console.log('📊 Data received:', data);
         
-        // Limpiar opciones excepto la primera
-        while (select.options.length > 1) {
-            select.remove(1);
+        const select = document.getElementById(selectId);
+        if (!select) {
+            console.error('❌ Select element not found:', selectId);
+            return;
         }
         
+        console.log('🎯 Select element found:', select);
+        console.log('🧹 LIMPIANDO COMPLETAMENTE el select (todas las opciones)...');
+        
+        // LIMPIAR TODAS LAS OPCIONES (incluso la primera)
+        select.innerHTML = '';
+        
+        // Agregar opción por defecto
+        const defaultOption = new Option('Seleccionar preformato...', '');
+        defaultOption.selected = true;
+        select.add(defaultOption);
+        
+        console.log('➕ Adding', data.length, 'new options...');
+        
         // Agregar opciones
-        data.forEach(item => {
+        data.forEach((item, index) => {
+            console.log(`  Option ${index + 1}:`, item[textField], '(value:', item[valueField], ')');
             const option = new Option(item[textField], item[valueField]);
             if (item.contenido) {
                 option.setAttribute('data-contenido', item.contenido);
             }
             select.add(option);
         });
+        
+        console.log('✅ PopulateSelect completed. Total options:', select.options.length);
+        
+        // Forzar actualización visual si es Select2
+        if ($(select).hasClass('select2bs4')) {
+            console.log('🔄 Actualizando Select2...');
+            $(select).trigger('change.select2');
+        }
         
         // Configurar evento change
         select.addEventListener('change', () => {
@@ -497,12 +580,22 @@ class AnteojosForm extends BaseFormComponent {
     }
     
     async loadPreformatos() {
-        // Cargar preformatos específicos para anteojos
+        // Obtener ID de usuario desde configuración global
+        const userId = window.APP_CONFIG?.userId || null;
+        
+        // Cargar preformatos específicos para anteojos (tipo receta)
         try {
-            const response = await this.manager.apiCall('ajax/preformatos.ajax.php', {
-                operacion: 'getPreformatosReceta',
-                tipo_formulario: 'anteojos'
-            });
+            const requestData = {
+                action: 'get_preformatos_receta',
+                tipo_formulario: 'anteojos',
+                tipo: 'receta' // Filtrar específicamente por tipo receta
+            };
+            
+            if (userId) {
+                requestData.usuario_id = userId;
+            }
+            
+            const response = await this.manager.apiCall('modules/consultas/api/consultas-api.php', requestData);
             
             if (response.status === 'success' && response.data) {
                 this.populateSelect('formatoReceta', response.data, 'id_preformato', 'nombre');
@@ -515,8 +608,8 @@ class AnteojosForm extends BaseFormComponent {
     // Reutilizar métodos de GeneralForm adaptándolos
     async loadMotivosComunes() {
         try {
-            const response = await this.manager.apiCall('ajax/preformatos.ajax.php', {
-                operacion: 'getMotivosComunes',
+            const response = await this.manager.apiCall('modules/consultas/api/consultas-api.php', {
+                action: 'get_motivos_comunes',
                 tipo_formulario: 'anteojos'
             });
             
@@ -586,8 +679,8 @@ class EstudiosForm extends BaseFormComponent {
     
     async loadMotivosComunes() {
         try {
-            const response = await this.manager.apiCall('ajax/preformatos.ajax.php', {
-                operacion: 'getMotivosComunes',
+            const response = await this.manager.apiCall('modules/consultas/api/consultas-api.php', {
+                action: 'get_motivos_comunes',
                 tipo_formulario: 'estudios'
             });
             
@@ -754,8 +847,8 @@ class InformeImagenForm extends BaseFormComponent {
     
     async loadMotivosComunes() {
         try {
-            const response = await this.manager.apiCall('ajax/preformatos.ajax.php', {
-                operacion: 'getMotivosComunes',
+            const response = await this.manager.apiCall('modules/consultas/api/consultas-api.php', {
+                action: 'get_motivos_comunes',
                 tipo_formulario: 'informe_imagen'
             });
             
@@ -779,6 +872,28 @@ class InformeImagenForm extends BaseFormComponent {
             const option = new Option(item[textField], item[valueField]);
             select.add(option);
         });
+    }
+
+    /**
+     * Método público para forzar recarga de preformatos
+     * Útil para debugging desde consola del navegador
+     */
+    async forceReloadPreformatos() {
+        console.log('🔄 FORZANDO recarga de preformatos...');
+        await this.loadPreformatos();
+        console.log('✅ Recarga forzada completada');
+    }
+
+    /**
+     * Obtener información de debugging del componente
+     */
+    getDebugInfo() {
+        return {
+            manager: !!this.manager,
+            initialized: true,
+            hasLoadMethod: typeof this.loadPreformatos === 'function',
+            currentFormType: this.manager?.currentFormType || 'unknown'
+        };
     }
 }
 
@@ -852,6 +967,39 @@ class EstudiosFormComponent extends BaseFormComponent {
     async loadPreformatos() {
         try {
             console.log('📊 Cargando preformatos para formulario de estudios');
+            
+            // Obtener ID de usuario desde configuración global
+            const userId = window.APP_CONFIG?.userId || null;
+            
+            // Cargar preformatos específicos para estudios
+            const requestData = {
+                action: 'getPreformatos',
+                tipo_formulario: 'estudios',
+                tipo: 'orden_estudios' // Filtrar específicamente por tipo orden_estudios
+            };
+            
+            if (userId) {
+                requestData.usuario_id = userId;
+            }
+            
+            const response = await this.manager.apiCall('modules/consultas/api/consultas-api.php', requestData);
+            
+            if (response.status === 'success' && response.data) {
+                // Buscar el select de preformatos en el formulario de estudios
+                const preformatoSelect = document.querySelector('#formulario-estudios select[name="preformatos"]');
+                if (preformatoSelect) {
+                    // Limpiar opciones existentes
+                    preformatoSelect.innerHTML = '<option value="">Seleccionar preformato...</option>';
+                    
+                    // Agregar nuevas opciones
+                    response.data.forEach(preformato => {
+                        const option = document.createElement('option');
+                        option.value = preformato.id;
+                        option.textContent = preformato.nombre;
+                        preformatoSelect.appendChild(option);
+                    });
+                }
+            }
         } catch (error) {
             console.warn('Error cargando preformatos de estudios:', error);
         }

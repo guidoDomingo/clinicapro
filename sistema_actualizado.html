@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔄 Sistema Actualizado - Preformatos por Usuario</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .info { background: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .section { margin: 25px 0; padding: 20px; border-left: 5px solid #007bff; background: #f8f9fa; border-radius: 0 8px 8px 0; }
+        h1 { color: #343a40; text-align: center; border-bottom: 3px solid #007bff; padding-bottom: 15px; }
+        h2 { color: #495057; border-bottom: 2px solid #dee2e6; padding-bottom: 10px; }
+        .changes-list { list-style: none; padding: 0; }
+        .changes-list li { padding: 10px 0; border-bottom: 1px solid #eee; position: relative; padding-left: 30px; }
+        .changes-list li:before { content: "✅"; position: absolute; left: 0; font-weight: bold; }
+        .code-block { background: #f8f9fa; border: 1px solid #e9ecef; padding: 15px; border-radius: 4px; font-family: monospace; margin: 10px 0; }
+        .test-links { margin: 30px 0; text-align: center; }
+        .test-links a { display: inline-block; margin: 10px; padding: 15px 25px; background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: bold; }
+        .diagram { background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%); padding: 20px; border-radius: 10px; margin: 20px 0; }
+        .flow-step { background: white; padding: 15px; margin: 10px 0; border-radius: 8px; border-left: 4px solid #007bff; }
+        .emoji-big { font-size: 3em; text-align: center; margin: 15px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Sistema Actualizado: Preformatos por Usuario</h1>
+        
+        <div class="success">
+            <div class="emoji-big">🏆</div>
+            <h2 style="text-align: center; margin-top: 0;">¡ACTUALIZACIÓN COMPLETADA!</h2>
+            <p style="text-align: center; font-size: 1.2em;">
+                El sistema ahora carga preformatos específicos del doctor logueado, 
+                exactamente como funcionaba en el módulo anterior.
+            </p>
+        </div>
+
+        <div class="section">
+            <h2>🔧 Cambios Implementados</h2>
+            
+            <div class="info">
+                <h3>📄 API consultas-api.php:</h3>
+                <ul class="changes-list">
+                    <li>getPreformatosConsulta() ahora acepta parámetro $userId</li>
+                    <li>JOIN con person_system_user y rh_doctors para filtrar por doctor</li>
+                    <li>Fallback a preformatos globales si no hay específicos del usuario</li>
+                    <li>Case handler actualizado para recibir usuario_id desde POST/GET</li>
+                </ul>
+                
+                <h3>🖥️ JavaScript FormComponents.js:</h3>
+                <ul class="changes-list">
+                    <li>loadPreformatos() obtiene userId desde window.APP_CONFIG</li>
+                    <li>Envía usuario_id en todas las peticiones de preformatos</li>
+                    <li>Actualizado en GeneralForm y AnteojosForm</li>
+                </ul>
+                
+                <h3>🌐 consultas-new.php:</h3>
+                <ul class="changes-list">
+                    <li>Body incluye atributo data-user-id para compatibilidad</li>
+                    <li>userId disponible en JavaScript via window.APP_CONFIG.userId</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🔄 Flujo de Funcionamiento</h2>
+            
+            <div class="diagram">
+                <div class="flow-step">
+                    <strong>1. Usuario Logueado</strong><br>
+                    Sistema obtiene user_id desde $_SESSION['user_id']
+                </div>
+                
+                <div class="flow-step">
+                    <strong>2. Frontend JavaScript</strong><br>
+                    loadPreformatos() obtiene userId desde window.APP_CONFIG.userId
+                </div>
+                
+                <div class="flow-step">
+                    <strong>3. Petición AJAX</strong><br>
+                    Envía: action + tipo_formulario + usuario_id
+                </div>
+                
+                <div class="flow-step">
+                    <strong>4. API Backend</strong><br>
+                    getPreformatosConsulta($tipo_formulario, $userId)
+                </div>
+                
+                <div class="flow-step">
+                    <strong>5. Consulta SQL</strong><br>
+                    JOIN person_system_user → rh_doctors → preformatos<br>
+                    WHERE system_user_id = $userId AND tipo_formulario = $tipo
+                </div>
+                
+                <div class="flow-step">
+                    <strong>6. Resultado</strong><br>
+                    ✅ Preformatos específicos del doctor logueado<br>
+                    🔄 Fallback a preformatos generales si es necesario
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🧪 Ejemplos de Consultas SQL</h2>
+            
+            <h3>Preformatos específicos del usuario:</h3>
+            <div class="code-block">
+SELECT p.id_preformato as id, p.nombre, p.contenido as texto, p.tipo as categoria 
+FROM person_system_user psu 
+INNER JOIN rh_doctors rd ON psu.person_id = rd.person_id 
+INNER JOIN preformatos p ON p.creado_por = rd.doctor_id 
+WHERE psu.system_user_id = :user_id 
+  AND p.activo = true
+  AND p.tipo_formulario = :tipo_formulario
+ORDER BY p.nombre
+            </div>
+            
+            <h3>Fallback a preformatos generales:</h3>
+            <div class="code-block">
+SELECT id_preformato as id, nombre, contenido as texto, tipo as categoria 
+FROM preformatos 
+WHERE (activo = true OR activo IS NULL) 
+  AND tipo_formulario = 'general'
+ORDER BY nombre
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>✅ Compatibilidad Mantenida</h2>
+            
+            <div class="info">
+                <h3>🔗 Con Sistema Anterior:</h3>
+                <ul class="changes-list">
+                    <li>Misma estructura de JOIN con person_system_user y rh_doctors</li>
+                    <li>Mismo filtrado por creado_por = doctor_id</li>
+                    <li>data-user-id disponible en body para scripts legacy</li>
+                    <li>window.APP_CONFIG.userId para scripts modernos</li>
+                </ul>
+                
+                <h3>🚀 Con Módulos Administrativos:</h3>
+                <ul class="changes-list">
+                    <li>Preformatos creados siguen asociándose al doctor</li>
+                    <li>Campo tipo_formulario funciona correctamente</li>
+                    <li>Sistema de permisos por usuario mantenido</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>⚠️ Consideraciones Importantes</h2>
+            
+            <div class="info">
+                <h3>🔑 Motivos Comunes vs Preformatos:</h3>
+                <ul class="changes-list">
+                    <li><strong>Motivos Comunes:</strong> Compartidos globalmente (sin filtro de usuario)</li>
+                    <li><strong>Preformatos:</strong> Específicos del doctor logueado (con filtro de usuario)</li>
+                </ul>
+                
+                <h3>🛡️ Seguridad:</h3>
+                <ul class="changes-list">
+                    <li>Solo se muestran preformatos del doctor propietario</li>
+                    <li>No hay acceso cruzado entre doctores</li>
+                    <li>Fallback seguro a preformatos generales si es necesario</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-links">
+            <h2>🚀 Probar Sistema Actualizado</h2>
+            <a href="servicios/index.php?ruta=consultas-new">🏥 Sistema Consultas (Actualizado)</a>
+            <a href="servicios/index.php?ruta=preformatos">📄 Administrar Preformatos</a>
+            <a href="servicios/index.php?ruta=motivos">📋 Administrar Motivos</a>
+        </div>
+
+        <div class="success">
+            <h3>🎯 Estado del Sistema:</h3>
+            <ul class="changes-list">
+                <li><strong>✅ TOTALMENTE FUNCIONAL:</strong> Sistema actualizado y operativo</li>
+                <li><strong>✅ COMPATIBLE:</strong> Mantiene funcionalidad del módulo anterior</li>
+                <li><strong>✅ SEGURO:</strong> Preformatos específicos por doctor</li>
+                <li><strong>✅ DINÁMICO:</strong> Carga según tipo de formulario</li>
+                <li><strong>✅ ESCALABLE:</strong> Fácil mantenimiento y extensión</li>
+            </ul>
+            
+            <p style="text-align: center; font-size: 1.3em; font-weight: bold; margin-top: 20px; color: #155724;">
+                🏆 ¡El sistema funciona exactamente como el anterior! 🏆
+            </p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Timing Preformatos</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Test de Timing para Preformatos</h1>
+    <div id="log"></div>
+    
+    <script>
+    function log(message) {
+        document.getElementById('log').innerHTML += '<p>' + new Date().toLocaleTimeString() + ': ' + message + '</p>';
+        console.log(message);
+    }
+
+    // Simular el proceso de carga
+    async function testTimingProcess() {
+        log('🔄 Iniciando test de timing...');
+        
+        // 1. Cargar datos "legacy" (simular datos no filtrados)
+        setTimeout(() => {
+            log('📄 Cargando datos legacy (no filtrados) - SIMULADO');
+        }, 100);
+        
+        // 2. Cargar datos filtrados con diferentes delays
+        const delays = [500, 1000, 1500, 2000];
+        
+        for (const delay of delays) {
+            setTimeout(async () => {
+                log(`🎯 Cargando preformatos filtrados con delay ${delay}ms`);
+                
+                try {
+                    const response = await fetch('modules/consultas/api/consultas-api.php?action=getPreformatosConsulta&tipo_formulario=general&tipo=consulta&debug=1');
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        log(`✅ Delay ${delay}ms: ${data.data.length} preformatos filtrados`);
+                        data.data.forEach(p => {
+                            log(`   - ${p.titulo} (creado_por: ${p.creado_por})`);
+                        });
+                    } else {
+                        log(`❌ Delay ${delay}ms: Error - ${data.message}`);
+                    }
+                } catch (error) {
+                    log(`❌ Delay ${delay}ms: Exception - ${error.message}`);
+                }
+            }, delay);
+        }
+        
+        log('⏱️ Tests programados. Observa los resultados...');
+    }
+    
+    // Ejecutar test automáticamente
+    testTimingProcess();
+    </script>
+</body>
+</html>

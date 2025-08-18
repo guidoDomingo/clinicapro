@@ -148,7 +148,7 @@ $userName = $_SESSION['username'] ?? 'Usuario';
         }
     </style>
 </head>
-<body class="consultas-app">
+<body class="consultas-app" data-user-id="<?php echo $userId; ?>">
     
     <!-- Contenedor Principal -->
     <div class="app-container">
@@ -593,7 +593,7 @@ $userName = $_SESSION['username'] ?? 'Usuario';
             baseUrl: '', // Relativo al root del proyecto
             version: '2.0.0',
             debug: true, // Cambiar a false en producción
-            userId: '<?php echo $userId; ?>',
+            userId: <?php echo (int)$userId; ?>, // Convertir a número entero
             userName: '<?php echo htmlspecialchars($userName); ?>',
             timestamp: <?php echo time(); ?>,
             // Endpoints para compatibilidad

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug - Llamadas API Frontend</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .debug-container { border: 1px solid #ddd; margin: 10px 0; padding: 15px; border-radius: 5px; }
+        .request { background: #e3f2fd; }
+        .response { background: #f3e5f5; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Debug - Llamadas API desde Frontend</h1>
+    <p>Esta página simula exactamente lo que hace el frontend para diagnosticar el problema de filtrado.</p>
+    
+    <div id="results"></div>
+    
+    <script>
+        const API_URL = 'modules/consultas/api/consultas-api.php';
+        
+        // Simular configuración del usuario (igual que el frontend real)
+        window.APP_CONFIG = {
+            userId: 18 // Usuario de prueba
+        };
+        
+        async function debugFrontendCalls() {
+            const resultsContainer = document.getElementById('results');
+            resultsContainer.innerHTML = '<h3>🔄 Ejecutando debug...</h3>';
+            
+            // Simular exactamente las llamadas que hace FormComponents.js
+            const tests = [
+                {
+                    name: 'Preformatos de Consulta (General) - Como lo hace GeneralForm',
+                    params: {
+                        action: 'get_preformatos_consulta',
+                        tipo_formulario: 'general',
+                        tipo: 'consulta',
+                        usuario_id: window.APP_CONFIG?.userId || null
+                    }
+                },
+                {
+                    name: 'Preformatos de Receta (General) - Como lo hace GeneralForm', 
+                    params: {
+                        action: 'get_preformatos_receta',
+                        tipo_formulario: 'general',
+                        tipo: 'receta',
+                        usuario_id: window.APP_CONFIG?.userId || null
+                    }
+                },
+                {
+                    name: 'Sin parámetro tipo - Para comparar',
+                    params: {
+                        action: 'get_preformatos_consulta',
+                        tipo_formulario: 'general',
+                        usuario_id: window.APP_CONFIG?.userId || null
+                    }
+                },
+                {
+                    name: 'Sin usuario_id - Para comparar',
+                    params: {
+                        action: 'get_preformatos_consulta',
+                        tipo_formulario: 'general',
+                        tipo: 'consulta'
+                    }
+                }
+            ];
+            
+            resultsContainer.innerHTML = '';
+            
+            for (const test of tests) {
+                const container = document.createElement('div');
+                container.className = 'debug-container';
+                
+                // Mostrar request
+                const requestDiv = document.createElement('div');
+                requestDiv.className = 'request';
+                requestDiv.innerHTML = `
+                    <h3>📤 ${test.name}</h3>
+                    <h4>Parámetros enviados:</h4>
+                    <pre>${JSON.stringify(test.params, null, 2)}</pre>
+                `;
+                container.appendChild(requestDiv);
+                
+                try {
+                    // Hacer la llamada
+                    const formData = new FormData();
+                    Object.keys(test.params).forEach(key => {
+                        if (test.params[key] !== null && test.params[key] !== undefined) {
+                            formData.append(key, test.params[key]);
+                        }
+                    });
+                    
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const result = await response.json();
+                    
+                    // Mostrar response
+                    const responseDiv = document.createElement('div');
+                    responseDiv.className = 'response';
+                    
+                    let html = '<h4>📥 Respuesta recibida:</h4>';
+                    
+                    if (result.success && result.data) {
+                        html += `<p class="success">✅ ${result.data.length} preformatos encontrados</p>`;
+                        
+                        if (result.data.length > 0) {
+                            html += '<table border="1" style="border-collapse: collapse; width: 100%; margin: 10px 0;">';
+                            html += '<tr style="background: #f0f0f0;"><th>ID</th><th>Nombre</th><th>Tipo</th><th>Usuario</th></tr>';
+                            result.data.forEach(item => {
+                                html += '<tr>';
+                                html += `<td>${item.id || item.id_preformato}</td>`;
+                                html += `<td>${item.nombre}</td>`;
+                                html += `<td>${item.categoria || item.tipo}</td>`;
+                                html += `<td>Usuario ${window.APP_CONFIG.userId}</td>`;
+                                html += '</tr>';
+                            });
+                            html += '</table>';
+                        }
+                        
+                        // Verificar si los datos están correctamente filtrados
+                        const tipoEsperado = test.params.tipo;
+                        if (tipoEsperado) {
+                            const datosIncorrectos = result.data.filter(item => 
+                                (item.categoria && item.categoria !== tipoEsperado) ||
+                                (item.tipo && item.tipo !== tipoEsperado)
+                            );
+                            
+                            if (datosIncorrectos.length > 0) {
+                                html += `<p class="error">❌ PROBLEMA: Se encontraron ${datosIncorrectos.length} registros con tipo incorrecto</p>`;
+                                html += '<ul>';
+                                datosIncorrectos.forEach(item => {
+                                    html += `<li>${item.nombre} - Tipo: ${item.categoria || item.tipo} (esperado: ${tipoEsperado})</li>`;
+                                });
+                                html += '</ul>';
+                            } else {
+                                html += `<p class="success">✅ Filtrado por tipo correcto</p>`;
+                            }
+                        }
+                        
+                    } else {
+                        html += `<p class="error">❌ Error o sin datos: ${result.message || 'Sin mensaje'}</p>`;
+                    }
+                    
+                    html += `<details><summary>Ver JSON completo</summary><pre>${JSON.stringify(result, null, 2)}</pre></details>`;
+                    responseDiv.innerHTML = html;
+                    container.appendChild(responseDiv);
+                    
+                } catch (error) {
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'response';
+                    errorDiv.innerHTML = `<h4>📥 Error:</h4><p class="error">❌ ${error.message}</p>`;
+                    container.appendChild(errorDiv);
+                }
+                
+                resultsContainer.appendChild(container);
+                
+                // Pausa entre requests
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+            
+            // Al final, mostrar qué debería hacer el frontend
+            const recommendationDiv = document.createElement('div');
+            recommendationDiv.style.cssText = 'border: 2px solid #28a745; padding: 15px; margin: 20px 0; border-radius: 5px; background: #d4edda;';
+            recommendationDiv.innerHTML = `
+                <h3>🎯 Recomendaciones:</h3>
+                <ol>
+                    <li><strong>El frontend debe enviar usuario_id = ${window.APP_CONFIG.userId}</strong></li>
+                    <li><strong>Debe especificar el parámetro 'tipo' para filtrar correctamente</strong></li>
+                    <li><strong>Verificar que FormComponents.js esté usando estos parámetros</strong></li>
+                </ol>
+                <p><strong>Llamada correcta para consultas:</strong></p>
+                <pre>{ action: 'get_preformatos_consulta', tipo_formulario: 'general', tipo: 'consulta', usuario_id: ${window.APP_CONFIG.userId} }</pre>
+            `;
+            resultsContainer.appendChild(recommendationDiv);
+        }
+        
+        // Ejecutar al cargar
+        document.addEventListener('DOMContentLoaded', debugFrontendCalls);
+    </script>
+</body>
+</html>

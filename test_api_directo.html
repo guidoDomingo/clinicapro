@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Test API Directo</title>
+</head>
+<body>
+    <h1>🧪 Test API Directo</h1>
+    <div id="results"></div>
+    
+    <script>
+    async function testAPI() {
+        const resultsDiv = document.getElementById('results');
+        
+        // Test 1: Usuario 9, tipo consulta
+        try {
+            const formData = new FormData();
+            formData.append('action', 'get_preformatos_consulta');
+            formData.append('tipo_formulario', 'general');
+            formData.append('tipo', 'consulta');
+            formData.append('usuario_id', '9');
+            formData.append('debug', '1'); // Activar debug
+            
+            const response = await fetch('modules/consultas/api/consultas-api.php', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const result = await response.json();
+            
+            resultsDiv.innerHTML += `
+                <h3>Test Usuario 9, Tipo Consulta:</h3>
+                <pre>${JSON.stringify(result, null, 2)}</pre>
+            `;
+            
+        } catch (error) {
+            resultsDiv.innerHTML += `<p>Error: ${error.message}</p>`;
+        }
+        
+        // Test 2: Usuario 18, tipo consulta  
+        try {
+            const formData = new FormData();
+            formData.append('action', 'get_preformatos_consulta');
+            formData.append('tipo_formulario', 'general');
+            formData.append('tipo', 'consulta');
+            formData.append('usuario_id', '18');
+            formData.append('debug', '1');
+            
+            const response = await fetch('modules/consultas/api/consultas-api.php', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const result = await response.json();
+            
+            resultsDiv.innerHTML += `
+                <h3>Test Usuario 18, Tipo Consulta:</h3>
+                <pre>${JSON.stringify(result, null, 2)}</pre>
+            `;
+            
+        } catch (error) {
+            resultsDiv.innerHTML += `<p>Error: ${error.message}</p>`;
+        }
+    }
+    
+    document.addEventListener('DOMContentLoaded', testAPI);
+    </script>
+</body>
+</html>
