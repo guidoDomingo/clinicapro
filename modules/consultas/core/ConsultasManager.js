@@ -571,7 +571,34 @@ class ConsultasManager {
             this.hideLoadingOverlay();
         }
     }
-    
+
+    /**
+     * Confirmar cambios no guardados antes de cambiar de formulario
+     */
+    async confirmUnsavedChanges() {
+        return new Promise((resolve) => {
+            try {
+                // Usar alertify si está disponible, sino usar confirm nativo
+                if (typeof alertify !== 'undefined' && alertify.confirm) {
+                    alertify.confirm(
+                        'Cambios sin guardar',
+                        'Hay cambios sin guardar. ¿Deseas continuar sin guardar?',
+                        function() { resolve(true); },   // OK
+                        function() { resolve(false); }   // Cancel
+                    );
+                } else {
+                    // Fallback a confirm nativo
+                    const confirmed = confirm('Hay cambios sin guardar. ¿Deseas continuar sin guardar?');
+                    resolve(confirmed);
+                }
+            } catch (error) {
+                console.error('❌ Error en confirmUnsavedChanges:', error);
+                // En caso de error, permitir el cambio
+                resolve(true);
+            }
+        });
+    }
+
     /**
      * Mostrar overlay de carga
      */

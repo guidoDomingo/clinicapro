@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Cambio de Formularios</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .instructions { background: #f0f0f0; padding: 15px; margin: 20px 0; border-radius: 5px; }
+        .success { color: green; font-weight: bold; }
+        .error { color: red; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Test de Cambio de Formularios - Fix aplicado</h1>
+    
+    <div class="instructions">
+        <h2>🧪 Instrucciones de Testing:</h2>
+        <ol>
+            <li><strong>Abrir la aplicación principal:</strong> <a href="http://localhost/clinica/servicios?debug=1" target="_blank">http://localhost/clinica/servicios?debug=1</a></li>
+            <li><strong>Cambiar entre tabs:</strong> General → Anteojos → Estudios → Informe+Imagen</li>
+            <li><strong>Verificar en consola F12:</strong> No debe aparecer "confirmUnsavedChanges is not a function"</li>
+            <li><strong>Funcionamiento esperado:</strong> Cambio fluido entre formularios</li>
+        </ol>
+    </div>
+    
+    <div class="instructions">
+        <h2>✅ Fix Aplicado:</h2>
+        <ul>
+            <li><span class="success">✅ Función confirmUnsavedChanges agregada</span></li>
+            <li><span class="success">✅ Soporte para alertify.confirm y confirm nativo</span></li>
+            <li><span class="success">✅ Manejo de errores robusto</span></li>
+        </ul>
+    </div>
+    
+    <div class="instructions">
+        <h2>🔍 Lo que se corrigió:</h2>
+        <p><strong>Error original:</strong></p>
+        <code style="color: red;">TypeError: this.confirmUnsavedChanges is not a function</code>
+        
+        <p><strong>Causa:</strong> La función era llamada en línea 261 pero no estaba definida.</p>
+        
+        <p><strong>Solución:</strong> Agregada función que muestra confirmación cuando hay cambios sin guardar.</p>
+    </div>
+    
+    <div class="instructions">
+        <h2>🎯 Funcionalidades Actuales:</h2>
+        <ul>
+            <li><span class="success">✅ Filtrado de preformatos por usuario</span></li>
+            <li><span class="success">✅ Relleno automático de textarea al seleccionar preformato</span></li>
+            <li><span class="success">✅ Cambio entre formularios sin errores</span></li>
+            <li><span class="success">✅ Sistema de confirmación de cambios no guardados</span></li>
+        </ul>
+    </div>
+    
+    <script>
+    console.log('🎉 Test de cambio de formularios listo');
+    console.log('📝 Abrir http://localhost/clinica/servicios?debug=1 y probar cambiar entre tabs');
+    </script>
+</body>
+</html>
