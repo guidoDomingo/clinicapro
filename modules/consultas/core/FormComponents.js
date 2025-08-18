@@ -410,9 +410,16 @@ class GeneralForm extends BaseFormComponent {
         data.forEach((item, index) => {
             console.log(`  Option ${index + 1}:`, item[textField], '(value:', item[valueField], ')');
             const option = new Option(item[textField], item[valueField]);
-            if (item.contenido) {
+            
+            // CORREGIDO: El API devuelve 'texto' no 'contenido'
+            if (item.texto) {
+                option.setAttribute('data-contenido', item.texto);
+                console.log(`    📝 Contenido guardado para ${item[textField]}`);
+            } else if (item.contenido) {
                 option.setAttribute('data-contenido', item.contenido);
+                console.log(`    📝 Contenido guardado para ${item[textField]} (campo legacy)`);
             }
+            
             select.add(option);
         });
         
@@ -433,11 +440,27 @@ class GeneralForm extends BaseFormComponent {
     }
     
     applyPreformato(selectId, value) {
-        const select = document.getElementById(selectId);
-        const selectedOption = select.options[select.selectedIndex];
-        const contenido = selectedOption.getAttribute('data-contenido');
+        console.log(`🔄 applyPreformato(${selectId}, ${value})`);
         
-        if (!contenido) return;
+        const select = document.getElementById(selectId);
+        if (!select) {
+            console.error(`❌ Select ${selectId} no encontrado`);
+            return;
+        }
+        
+        const selectedOption = select.options[select.selectedIndex];
+        if (!selectedOption) {
+            console.error(`❌ Opción seleccionada no encontrada`);
+            return;
+        }
+        
+        const contenido = selectedOption.getAttribute('data-contenido');
+        console.log(`📄 Contenido encontrado:`, contenido ? 'SÍ' : 'NO');
+        
+        if (!contenido) {
+            console.warn(`⚠️ No hay contenido para la opción seleccionada`);
+            return;
+        }
         
         let targetId;
         if (selectId === 'formatoConsulta') {
@@ -446,15 +469,25 @@ class GeneralForm extends BaseFormComponent {
             targetId = 'receta-textarea';
         }
         
+        console.log(`🎯 Target textarea: ${targetId}`);
+        
         if (targetId) {
             const target = document.getElementById(targetId);
             if (target) {
+                console.log(`📝 Rellenando textarea con contenido...`);
                 if ($(target).data('summernote')) {
+                    console.log(`🔤 Usando Summernote para ${targetId}`);
                     $(target).summernote('code', contenido);
                 } else {
+                    console.log(`📄 Usando textarea normal para ${targetId}`);
                     target.value = contenido;
                 }
+                console.log(`✅ Contenido aplicado correctamente`);
+            } else {
+                console.error(`❌ Textarea ${targetId} no encontrado`);
             }
+        } else {
+            console.error(`❌ No se pudo determinar el target para ${selectId}`);
         }
     }
     
@@ -882,6 +915,26 @@ class InformeImagenForm extends BaseFormComponent {
         console.log('🔄 FORZANDO recarga de preformatos...');
         await this.loadPreformatos();
         console.log('✅ Recarga forzada completada');
+    }
+
+    /**
+     * Método público para testear aplicación de preformatos
+     */
+    testPreformatoApplication(selectId, optionIndex = 1) {
+        console.log(`🧪 TEST: Aplicando preformato ${optionIndex} del select ${selectId}`);
+        
+        const select = document.getElementById(selectId);
+        if (select && select.options[optionIndex]) {
+            select.selectedIndex = optionIndex;
+            select.value = select.options[optionIndex].value;
+            
+            // Disparar evento change
+            select.dispatchEvent(new Event('change'));
+            
+            console.log(`✅ Test completado para ${selectId}`);
+        } else {
+            console.error(`❌ No se pudo hacer el test para ${selectId}`);
+        }
     }
 
     /**

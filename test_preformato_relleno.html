@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Relleno de Preformatos</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        select, textarea { width: 100%; margin: 10px 0; }
+        textarea { height: 150px; }
+        .log { font-family: monospace; font-size: 12px; background: #f5f5f5; padding: 10px; margin: 10px 0; height: 200px; overflow-y: scroll; }
+    </style>
+</head>
+<body>
+    <h1>Test de Relleno Automático de Preformatos</h1>
+    <div id="log" class="log"></div>
+    
+    <div class="test-section">
+        <h2>Preformato de Consulta</h2>
+        <select id="formatoConsulta">
+            <option value="">-- Seleccionar preformato --</option>
+        </select>
+        <textarea id="consulta-textarea" placeholder="El contenido del preformato aparecerá aquí..."></textarea>
+    </div>
+    
+    <div class="test-section">
+        <h2>Preformato de Receta</h2>
+        <select id="formatoreceta">
+            <option value="">-- Seleccionar preformato --</option>
+        </select>
+        <textarea id="receta-textarea" placeholder="El contenido de la receta aparecerá aquí..."></textarea>
+    </div>
+    
+    <div class="test-section">
+        <h2>Tests Manuales</h2>
+        <button onclick="testManualFill('formatoConsulta')">Test Consulta</button>
+        <button onclick="testManualFill('formatoreceta')">Test Receta</button>
+        <button onclick="reloadPreformatos()">Recargar Preformatos</button>
+    </div>
+    
+    <script>
+    function log(message) {
+        const logDiv = document.getElementById('log');
+        logDiv.innerHTML += '<div>' + new Date().toLocaleTimeString() + ': ' + message + '</div>';
+        logDiv.scrollTop = logDiv.scrollHeight;
+        console.log(message);
+    }
+
+    // Simular populateSelect con evento change
+    function populateSelect(selectId, data, valueField, textField) {
+        log(`🔧 populateSelect('${selectId}', ${data.length} items, '${valueField}', '${textField}')`);
+        
+        const select = document.getElementById(selectId);
+        if (!select) {
+            log(`❌ Select '${selectId}' no encontrado`);
+            return;
+        }
+        
+        // Limpiar opciones excepto la primera
+        while (select.options.length > 1) {
+            select.remove(1);
+        }
+        
+        // Agregar opciones con contenido
+        data.forEach((item, index) => {
+            const option = new Option(item[textField], item[valueField]);
+            
+            // Guardar contenido en data-contenido (como hace el código real)
+            if (item.texto) {
+                option.setAttribute('data-contenido', item.texto);
+                log(`  📝 ${item[textField]} - Contenido guardado`);
+            }
+            
+            select.add(option);
+        });
+        
+        // Configurar evento change (como hace el código real)
+        select.addEventListener('change', function() {
+            if (select.value && select.value !== '') {
+                applyPreformato(selectId, select.value);
+            }
+        });
+        
+        log(`✅ Select '${selectId}' configurado con ${data.length} opciones y evento change`);
+    }
+    
+    // Simular applyPreformato
+    function applyPreformato(selectId, value) {
+        log(`🔄 applyPreformato(${selectId}, ${value})`);
+        
+        const select = document.getElementById(selectId);
+        if (!select) {
+            log(`❌ Select ${selectId} no encontrado`);
+            return;
+        }
+        
+        const selectedOption = select.options[select.selectedIndex];
+        if (!selectedOption) {
+            log(`❌ Opción seleccionada no encontrada`);
+            return;
+        }
+        
+        const contenido = selectedOption.getAttribute('data-contenido');
+        log(`📄 Contenido encontrado: ${contenido ? 'SÍ' : 'NO'}`);
+        
+        if (!contenido) {
+            log(`⚠️ No hay contenido para la opción seleccionada`);
+            return;
+        }
+        
+        let targetId;
+        if (selectId === 'formatoConsulta') {
+            targetId = 'consulta-textarea';
+        } else if (selectId === 'formatoreceta') {
+            targetId = 'receta-textarea';
+        }
+        
+        log(`🎯 Target textarea: ${targetId}`);
+        
+        if (targetId) {
+            const target = document.getElementById(targetId);
+            if (target) {
+                log(`📝 Rellenando textarea con contenido...`);
+                target.value = contenido;
+                log(`✅ Contenido aplicado correctamente`);
+            } else {
+                log(`❌ Textarea ${targetId} no encontrado`);
+            }
+        }
+    }
+    
+    // Test manual
+    function testManualFill(selectId) {
+        log(`🧪 TEST MANUAL: ${selectId}`);
+        const select = document.getElementById(selectId);
+        if (select && select.options.length > 1) {
+            select.selectedIndex = 1;
+            select.value = select.options[1].value;
+            select.dispatchEvent(new Event('change'));
+        } else {
+            log(`❌ No hay opciones disponibles para ${selectId}`);
+        }
+    }
+    
+    // Cargar preformatos usando la API real
+    async function reloadPreformatos() {
+        log('🔄 Recargando preformatos desde la API...');
+        
+        try {
+            // Consultas
+            const consultaResponse = await fetch('modules/consultas/api/consultas-api.php?action=get_preformatos_consulta&tipo_formulario=general&tipo=consulta&usuario_id=9&debug=1');
+            const consultaData = await consultaResponse.json();
+            
+            if (consultaData.success && consultaData.data) {
+                populateSelect('formatoConsulta', consultaData.data, 'id', 'nombre');
+                log(`✅ Cargadas ${consultaData.data.length} consultas`);
+            }
+            
+            // Recetas
+            const recetaResponse = await fetch('modules/consultas/api/consultas-api.php?action=get_preformatos_receta&tipo_formulario=general&tipo=receta&usuario_id=9&debug=1');
+            const recetaData = await recetaResponse.json();
+            
+            if (recetaData.success && recetaData.data) {
+                populateSelect('formatoreceta', recetaData.data, 'id', 'nombre');
+                log(`✅ Cargadas ${recetaData.data.length} recetas`);
+            }
+            
+        } catch (error) {
+            log(`❌ Error cargando preformatos: ${error.message}`);
+        }
+    }
+    
+    // Cargar automáticamente al iniciar
+    reloadPreformatos();
+    </script>
+</body>
+</html>

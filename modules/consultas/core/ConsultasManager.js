@@ -102,8 +102,18 @@ class ConsultasManager {
                         console.error('❌ Componente general no disponible o sin método forceReloadPreformatos');
                     }
                 };
+                window.testPreformatoFill = (selectId = 'formatoConsulta', optionIndex = 1) => {
+                    console.log(`🧪 TEST FILL: Aplicando preformato ${optionIndex} del select ${selectId}`);
+                    const component = this.formComponents.get('general');
+                    if (component && component.testPreformatoApplication) {
+                        component.testPreformatoApplication(selectId, optionIndex);
+                    } else {
+                        console.error('❌ Componente no disponible');
+                    }
+                };
                 console.log('🐛 Manager expuesto globalmente como window.consultasManager');
                 console.log('🧪 Función de test disponible como window.testPreformatos()');
+                console.log('📝 Función de test de relleno como window.testPreformatoFill("formatoConsulta", 1)');
             }
 
         } catch (error) {
