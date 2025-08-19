@@ -53,6 +53,11 @@ try {
         throw new Exception('Sesión no válida', 401);
     }
     
+    // Debug: Log de la acción recibida
+    error_log("DEBUG: Action recibida: '$action'");
+    error_log("DEBUG: POST data: " . json_encode($_POST));
+    error_log("DEBUG: GET data: " . json_encode($_GET));
+    
     // Router principal
     switch ($action) {
         
@@ -127,6 +132,22 @@ try {
             }
             
             $response = getPreformatosConsulta($tipoFormulario, $userId, $tipoPreformato);
+            break;
+            
+        case 'get_preformato_content':
+            error_log("DEBUG: Ejecutando get_preformato_content");
+            $preformatoId = $_GET['preformato_id'] ?? $_POST['preformato_id'] ?? null;
+            $userId = $_GET['usuario_id'] ?? $_POST['usuario_id'] ?? null;
+            $tipoFormulario = $_GET['tipo_formulario'] ?? $_POST['tipo_formulario'] ?? 'general';
+            
+            error_log("DEBUG: Parámetros recibidos - preformatoId: $preformatoId, userId: $userId, tipoFormulario: $tipoFormulario");
+            
+            if (!$preformatoId) {
+                throw new Exception('ID de preformato requerido');
+            }
+            
+            $response = getPreformatoContent($preformatoId, $userId, $tipoFormulario);
+            error_log("DEBUG: Respuesta generada: " . json_encode($response));
             break;
             
         case 'get_form_config':
@@ -484,13 +505,15 @@ function getPreformatosConsulta($tipo_formulario = 'general', $userId = null, $t
             if ($userId) {
                 error_log("DEBUG: Buscando con userId: $userId");
                 
-                // Construir la consulta base
+                // Construir la consulta base usando la estructura correcta de tablas
                 $baseQuery = "
                     SELECT p.id_preformato as id, p.nombre, p.contenido, p.tipo as categoria 
-                    FROM person_system_user psu 
-                    INNER JOIN rh_doctors rd ON psu.person_id = rd.person_id 
+                    FROM sys_users su 
+                    INNER JOIN person_system_user psu ON su.user_id = psu.system_user_id 
+                    INNER JOIN rh_person rp ON rp.person_id = psu.person_id 
+                    INNER JOIN rh_doctors rd ON rd.person_id = rp.person_id 
                     INNER JOIN preformatos p ON p.creado_por = rd.doctor_id 
-                    WHERE psu.system_user_id = :user_id 
+                    WHERE su.user_id = :user_id 
                       AND p.activo = true
                       AND (p.tipo_formulario = :tipo_formulario OR p.tipo_formulario = 'general')
                 ";
@@ -522,17 +545,53 @@ function getPreformatosConsulta($tipo_formulario = 'general', $userId = null, $t
                 $preformatos = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 
                 error_log("DEBUG: Encontrados " . count($preformatos) . " preformatos específicos del usuario");
+                error_log("DEBUG: Preformatos encontrados: " . json_encode($preformatos));
                 
-                // Si no hay resultados específicos del usuario, buscar solo generales del usuario
+                // Si no hay resultados específicos del usuario, buscar preformatos globales
+                if (empty($preformatos)) {
+                    error_log("DEBUG: Sin preformatos del usuario, buscando preformatos globales");
+                    
+                    $globalQuery = "
+                        SELECT id_preformato as id, nombre, contenido, tipo as categoria 
+                        FROM preformatos 
+                        WHERE activo = true 
+                          AND tipo_formulario = :tipo_formulario
+                    ";
+                    
+                    // Agregar filtro por tipo si se proporciona
+                    if ($tipo_preformato) {
+                        $globalQuery .= " AND tipo = :tipo_preformato";
+                    }
+                    
+                    $globalQuery .= " ORDER BY nombre LIMIT 20";
+                    
+                    error_log("DEBUG: Query global: " . str_replace([':tipo_formulario', ':tipo_preformato'], [$tipo_formulario, $tipo_preformato], $globalQuery));
+                    
+                    $stmt = $conexion->prepare($globalQuery);
+                    $stmt->bindParam(':tipo_formulario', $tipo_formulario, PDO::PARAM_STR);
+                    
+                    if ($tipo_preformato) {
+                        $stmt->bindParam(':tipo_preformato', $tipo_preformato, PDO::PARAM_STR);
+                    }
+                    
+                    $stmt->execute();
+                    $preformatos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                    
+                    error_log("DEBUG: Encontrados " . count($preformatos) . " preformatos globales");
+                }
+                
+                // Si todavía no hay resultados específicos del usuario, buscar solo generales del usuario
                 if (empty($preformatos) && $tipo_formulario !== 'general') {
                     error_log("DEBUG: Sin resultados específicos, buscando generales para userId: $userId");
                     
                     $fallbackQuery = "
                         SELECT p.id_preformato as id, p.nombre, p.contenido, p.tipo as categoria 
-                        FROM person_system_user psu 
-                        INNER JOIN rh_doctors rd ON psu.person_id = rd.person_id 
+                        FROM sys_users su 
+                        INNER JOIN person_system_user psu ON su.user_id = psu.system_user_id 
+                        INNER JOIN rh_person rp ON rp.person_id = psu.person_id 
+                        INNER JOIN rh_doctors rd ON rd.person_id = rp.person_id 
                         INNER JOIN preformatos p ON p.creado_por = rd.doctor_id 
-                        WHERE psu.system_user_id = :user_id 
+                        WHERE su.user_id = :user_id 
                           AND p.activo = true
                           AND p.tipo_formulario = 'general'
                     ";
@@ -625,6 +684,37 @@ function getPreformatosConsulta($tipo_formulario = 'general', $userId = null, $t
                 }
             }
             
+            // FALLBACK FINAL ESPECÍFICO PARA ANTEOJOS: Buscar cualquier preformato de anteojos en la base de datos
+            if (empty($preformatos) && $tipo_formulario === 'anteojos') {
+                error_log("DEBUG: Ejecutando fallback final para anteojos - buscar cualquier preformato de anteojos");
+                
+                $anteojosGlobalFallback = "
+                    SELECT id_preformato as id, nombre, contenido, tipo as categoria 
+                    FROM preformatos 
+                    WHERE (activo = true OR activo IS NULL) 
+                      AND (tipo_formulario = 'anteojos' OR tipo_formulario = 'Anteojos')
+                ";
+                
+                if ($tipo_preformato) {
+                    $anteojosGlobalFallback .= " AND tipo = :tipo_preformato";
+                }
+                
+                $anteojosGlobalFallback .= " ORDER BY nombre LIMIT 20";
+                
+                error_log("DEBUG: Query fallback anteojos: " . $anteojosGlobalFallback);
+                
+                $stmt = $conexion->prepare($anteojosGlobalFallback);
+                
+                if ($tipo_preformato) {
+                    $stmt->bindParam(':tipo_preformato', $tipo_preformato, PDO::PARAM_STR);
+                }
+                
+                $stmt->execute();
+                $preformatos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                
+                error_log("DEBUG: Fallback anteojos global encontró " . count($preformatos) . " preformatos");
+            }
+            
             // LOG de resultados finales
             error_log("DEBUG: Resultados finales: " . count($preformatos) . " preformatos");
             foreach ($preformatos as $p) {
@@ -644,6 +734,80 @@ function getPreformatosConsulta($tipo_formulario = 'general', $userId = null, $t
         
     } catch (PDOException $e) {
         throw new Exception('Error obteniendo preformatos de consulta: ' . $e->getMessage());
+    }
+}
+
+/**
+ * Obtener el contenido específico de un preformato
+ */
+function getPreformatoContent($preformatoId, $userId = null, $tipoFormulario = 'general') {
+    global $conexion;
+    
+    error_log("=== GET PREFORMATO CONTENT DEBUG ===");
+    error_log("Función llamada con: preformatoId=$preformatoId, userId=$userId, tipoFormulario=$tipoFormulario");
+    
+    try {
+        // Query para obtener el contenido del preformato específico
+        $query = "
+            SELECT p.id_preformato as id, p.nombre, p.contenido, p.tipo as categoria 
+            FROM preformatos p 
+            WHERE p.id_preformato = :preformato_id 
+              AND (p.activo = true OR p.activo IS NULL)
+        ";
+        
+        // Si se proporciona userId, verificar que el preformato pertenece al doctor o es general
+        if ($userId) {
+            $query = "
+                SELECT p.id_preformato as id, p.nombre, p.contenido, p.tipo as categoria 
+                FROM preformatos p 
+                LEFT JOIN sys_users su ON su.user_id = :user_id
+                LEFT JOIN person_system_user psu ON su.user_id = psu.system_user_id 
+                LEFT JOIN rh_person rp ON rp.person_id = psu.person_id 
+                LEFT JOIN rh_doctors rd ON rd.person_id = rp.person_id 
+                WHERE p.id_preformato = :preformato_id 
+                  AND (p.activo = true OR p.activo IS NULL)
+                  AND (p.creado_por = rd.doctor_id OR p.creado_por IS NULL OR p.tipo_formulario = 'general')
+            ";
+        }
+        
+        error_log("DEBUG: Query construida: " . str_replace([':preformato_id', ':user_id'], [$preformatoId, $userId], $query));
+        
+        $stmt = $conexion->prepare($query);
+        $stmt->bindParam(':preformato_id', $preformatoId, PDO::PARAM_INT);
+        
+        if ($userId) {
+            $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+        }
+        
+        $stmt->execute();
+        $preformato = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$preformato) {
+            error_log("DEBUG: No se encontró preformato con ID: $preformatoId");
+            return [
+                'success' => false,
+                'message' => 'Preformato no encontrado',
+                'contenido' => null
+            ];
+        }
+        
+        error_log("DEBUG: Preformato encontrado: ID={$preformato['id']}, Nombre={$preformato['nombre']}");
+        error_log("DEBUG: Contenido length: " . strlen($preformato['contenido']));
+        
+        return [
+            'success' => true,
+            'contenido' => $preformato['contenido'],
+            'nombre' => $preformato['nombre'],
+            'categoria' => $preformato['categoria']
+        ];
+        
+    } catch (PDOException $e) {
+        error_log("ERROR: Error obteniendo contenido de preformato: " . $e->getMessage());
+        return [
+            'success' => false,
+            'message' => 'Error obteniendo contenido de preformato: ' . $e->getMessage(),
+            'contenido' => null
+        ];
     }
 }
 
