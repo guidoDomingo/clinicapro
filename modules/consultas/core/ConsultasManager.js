@@ -35,19 +35,19 @@ class ConsultasManager {
             anteojos: {
                 title: 'Anteojos',
                 icon: 'fas fa-glasses',
-                component: 'AnteojosForm',
+                component: 'AnteojosFormComponent',
                 endpoint: 'ajax/guardar-consulta-anteojos.php'
             },
             estudios: {
                 title: 'Estudios Médicos',
                 icon: 'fas fa-x-ray',
-                component: 'EstudiosForm',
+                component: 'EstudiosFormComponent',
                 endpoint: 'ajax/guardar-consulta-estudios.php'
             },
             informe_imagen: {
                 title: 'Informe + Imagen',
                 icon: 'fas fa-images',
-                component: 'InformeImagenForm',
+                component: 'InformeImagenFormComponent',
                 endpoint: 'ajax/guardar-consulta-informe-imagen.php'
             }
         };
@@ -89,26 +89,45 @@ class ConsultasManager {
             // Procesar parámetros URL si existen
             await this.processUrlParameters();
             
+            // Mostrar el formulario inicial
+            await this.showForm(this.state.currentFormType);
+            
             // DEBUGGING: Exponer manager globalmente
             if (window.DEBUG_MODE || window.location.href.includes('debug')) {
                 window.consultasManager = this;
                 window.testPreformatos = async () => {
                     console.log('🧪 TEST MANUAL: Forzando recarga de preformatos...');
-                    const component = this.formComponents.get('general');
-                    if (component && component.forceReloadPreformatos) {
-                        await component.forceReloadPreformatos();
-                        console.log('✅ Test completado. Revisa los selects formatoConsulta y formatoreceta');
-                    } else {
-                        console.error('❌ Componente general no disponible o sin método forceReloadPreformatos');
+                    const generalComponent = this.formComponents.get('general');
+                    const anteojosComponent = this.formComponents.get('anteojos');
+                    
+                    if (generalComponent && generalComponent.forceReloadPreformatos) {
+                        console.log('🔄 Recargando preformatos GENERAL...');
+                        await generalComponent.forceReloadPreformatos();
                     }
+                    
+                    if (anteojosComponent && anteojosComponent.loadPreformatos) {
+                        console.log('🔄 Recargando preformatos ANTEOJOS...');
+                        await anteojosComponent.loadPreformatos();
+                    }
+                    
+                    console.log('✅ Test completado. Revisa los selects en ambos formularios');
                 };
                 window.testPreformatoFill = (selectId = 'formatoConsulta', optionIndex = 1) => {
                     console.log(`🧪 TEST FILL: Aplicando preformato ${optionIndex} del select ${selectId}`);
-                    const component = this.formComponents.get('general');
+                    const currentType = this.state.currentFormType;
+                    const component = this.formComponents.get(currentType);
                     if (component && component.testPreformatoApplication) {
                         component.testPreformatoApplication(selectId, optionIndex);
+                    } else if (component && component.applyPreformato) {
+                        // Para componentes que no tienen testPreformatoApplication pero sí applyPreformato
+                        const select = document.getElementById(selectId);
+                        if (select && select.options[optionIndex]) {
+                            select.selectedIndex = optionIndex;
+                            select.value = select.options[optionIndex].value;
+                            select.dispatchEvent(new Event('change'));
+                        }
                     } else {
-                        console.error('❌ Componente no disponible');
+                        console.error('❌ Componente no disponible o sin métodos de preformatos');
                     }
                 };
                 console.log('🐛 Manager expuesto globalmente como window.consultasManager');
@@ -128,12 +147,19 @@ class ConsultasManager {
     async setupInitialState() {
         const urlParams = new URLSearchParams(window.location.search);
         
-        // Determinar tipo de formulario
-        const formType = urlParams.get('form_type') || 
-                        localStorage.getItem('consultas_last_form_type') || 
-                        'general';
+        // Determinar tipo de formulario - priorizar URL sobre localStorage
+        let formType = urlParams.get('form_type');
+        if (!formType) {
+            // Solo usar localStorage si no hay parámetro de URL
+            formType = localStorage.getItem('consultas_last_form_type') || 'general';
+        }
         
         this.state.currentFormType = this.formTypes[formType] ? formType : 'general';
+        
+        // Si no hay parámetro de URL específico, usar general como default
+        if (!urlParams.get('form_type') && !urlParams.get('consulta_id')) {
+            this.state.currentFormType = 'general';
+        }
         
         // Información de paciente si existe
         const pacienteId = urlParams.get('paciente_id');
@@ -172,6 +198,14 @@ class ConsultasManager {
                 // CARGA ESPECIAL DE PREFORMATOS PARA GENERAL
                 if (type === 'general' && component.loadPreformatos) {
                     console.log('🔄 Cargando preformatos filtrados para general...');
+                    setTimeout(async () => {
+                        await component.loadPreformatos();
+                    }, 1500); // Delay para asegurar inicialización completa
+                }
+                
+                // CARGA ESPECIAL DE PREFORMATOS PARA ANTEOJOS
+                if (type === 'anteojos' && component.loadPreformatos) {
+                    console.log('🔄 Cargando preformatos filtrados para anteojos...');
                     setTimeout(async () => {
                         await component.loadPreformatos();
                     }, 1500); // Delay para asegurar inicialización completa
@@ -269,9 +303,6 @@ class ConsultasManager {
             // Mostrar loading
             this.setLoading(true, 'Cambiando formulario...');
             
-            // Ocultar formulario actual
-            this.hideCurrentForm();
-            
             // Actualizar estado
             this.state.currentFormType = newType;
             
@@ -282,17 +313,6 @@ class ConsultasManager {
             
             // Mostrar nuevo formulario
             await this.showForm(newType);
-            
-            // FORZAR RECARGA DE PREFORMATOS para formulario general
-            if (newType === 'general') {
-                console.log('🔄 Recargando preformatos para formulario general...');
-                setTimeout(async () => {
-                    const component = this.formComponents.get('general');
-                    if (component && component.loadPreformatos) {
-                        await component.loadPreformatos();
-                    }
-                }, 500); // Delay para asegurar que DOM esté listo
-            }
             
             // Actualizar URL sin recargar página
             this.updateUrl();
@@ -355,19 +375,36 @@ class ConsultasManager {
      * Mostrar formulario específico
      */
     async showForm(formType) {
+        console.log(`👁️ Mostrando formulario: ${formType}`);
+        
         const container = document.getElementById(`formulario-${formType}`);
         if (!container) {
             throw new Error(`Contenedor para formulario ${formType} no encontrado`);
         }
+        
+        // Ocultar todos los formularios primero
+        this.hideAllForms();
+        
+        // Mostrar contenedor específico
+        container.style.display = 'block';
+        container.classList.add('active');
+        
+        // Actualizar estado visual de los tabs
+        this.updateTabsVisualState(formType);
         
         // Inicializar componente si es necesario
         if (this.state.components[formType]) {
             await this.state.components[formType].show();
         }
         
-        // Mostrar contenedor
-        container.style.display = 'block';
-        container.classList.add('active');
+        // FORZAR RECARGA DE PREFORMATOS para el formulario activo
+        setTimeout(async () => {
+            const component = this.formComponents.get(formType);
+            if (component && component.loadPreformatos) {
+                console.log(`🔄 Recargando preformatos para formulario ${formType}...`);
+                await component.loadPreformatos();
+            }
+        }, 300); // Delay más corto para mejor experiencia
         
         // Actualizar título
         this.updateTitle(formType);
@@ -377,16 +414,64 @@ class ConsultasManager {
         if (firstInput && !firstInput.disabled) {
             setTimeout(() => firstInput.focus(), 100);
         }
+        
+        console.log(`✅ Formulario ${formType} mostrado`);
     }
     
     /**
-     * Ocultar formulario actual
+     * Ocultar todos los formularios
      */
-    hideCurrentForm() {
+    hideAllForms() {
         document.querySelectorAll('.formulario-especifico').forEach(form => {
             form.style.display = 'none';
             form.classList.remove('active');
         });
+    }
+    
+    /**
+     * Actualizar estado visual de los tabs
+     */
+    updateTabsVisualState(activeFormType) {
+        // Remover clase active de todos los tabs
+        document.querySelectorAll('.form-type-tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        
+        // Agregar clase active al tab seleccionado
+        const activeTab = document.querySelector(`[data-form-type="${activeFormType}"]`);
+        if (activeTab) {
+            activeTab.classList.add('active');
+        }
+        
+        console.log(`🎨 Estado visual de tabs actualizado para: ${activeFormType}`);
+    }
+    
+    /**
+     * Ocultar todos los formularios
+     */
+    hideAllForms() {
+        document.querySelectorAll('.formulario-especifico').forEach(form => {
+            form.style.display = 'none';
+            form.classList.remove('active');
+        });
+    }
+    
+    /**
+     * Actualizar estado visual de los tabs
+     */
+    updateTabsVisualState(activeFormType) {
+        // Remover clase active de todos los tabs
+        document.querySelectorAll('.form-type-tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        
+        // Agregar clase active al tab seleccionado
+        const activeTab = document.querySelector(`[data-form-type="${activeFormType}"]`);
+        if (activeTab) {
+            activeTab.classList.add('active');
+        }
+        
+        console.log(`🎨 Estado visual de tabs actualizado para: ${activeFormType}`);
     }
     
     /**

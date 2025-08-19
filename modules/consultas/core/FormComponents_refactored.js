@@ -4,11 +4,6 @@
  * ============================================
  */
 
-// Evitar redeclaración si ya existe
-if (typeof BaseFormComponent !== 'undefined') {
-    console.log('⚠️ FormComponents ya cargado, evitando redeclaración');
-} else {
-
 /**
  * Clase base para todos los componentes de formulario
  */
@@ -138,15 +133,12 @@ class BaseFormComponent {
         console.log('🎯 Select element found:', select);
         console.log('🧹 LIMPIANDO COMPLETAMENTE el select (todas las opciones)...');
         
-        // Limpiar completamente y agregar opción por defecto
+        // Limpiar completamente las opciones, manteniendo solo la primera (placeholder)
+        const firstOption = select.firstElementChild;
         select.innerHTML = '';
-        
-        // Agregar opción por defecto vacía
-        const defaultOption = document.createElement('option');
-        defaultOption.value = '';
-        defaultOption.textContent = '-- Seleccionar preformato --';
-        defaultOption.selected = true;
-        select.appendChild(defaultOption);
+        if (firstOption && (firstOption.value === '' || firstOption.value === '0')) {
+            select.appendChild(firstOption);
+        }
         
         console.log('➕ Adding', data.length, 'new options...');
         
@@ -164,11 +156,6 @@ class BaseFormComponent {
                 const key = `${selectId}-${item[valueField]}`;
                 this.preformatoContent.set(key, item.contenido);
                 console.log('    📝 Contenido guardado para', item[textField]);
-                console.log('    🔑 Key:', key);
-                console.log('    📄 Content preview:', item.contenido.substring(0, 50) + '...');
-                console.log('    🗺️ Map size después de guardar:', this.preformatoContent.size);
-            } else {
-                console.log('    ❌ Sin contenido para', item[textField]);
             }
         });
         
@@ -186,34 +173,11 @@ class BaseFormComponent {
         if (!select || select.hasAttribute('data-preformato-event')) return;
         
         select.setAttribute('data-preformato-event', 'true');
-        
-        // Evento estándar para selects normales
         select.addEventListener('change', (e) => {
-            console.log('🎯 Evento change disparado para:', selectId, 'valor:', e.target.value);
-            if (e.target.value && e.target.value !== '' && e.target.value !== '0') {
+            if (e.target.value && e.target.value !== '0') {
                 this.applyPreformato(selectId, e.target.value);
-            } else {
-                console.log('🔄 Valor vacío o cero, no aplicando preformato');
             }
         });
-        
-        // Si es Select2, también escuchar el evento específico de Select2
-        if (typeof $ !== 'undefined') {
-            const $select = $(select);
-            if ($select.hasClass('select2-hidden-accessible') || $select.data('select2')) {
-                console.log('🔄 Configurando evento Select2 para:', selectId);
-                $select.on('select2:select', (e) => {
-                    console.log('🎯 Evento Select2 disparado para:', selectId, 'valor:', e.target.value);
-                    if (e.target.value && e.target.value !== '' && e.target.value !== '0') {
-                        this.applyPreformato(selectId, e.target.value);
-                    } else {
-                        console.log('🔄 Valor vacío o cero en Select2, no aplicando preformato');
-                    }
-                });
-            }
-        }
-        
-        console.log('✅ Eventos configurados para select:', selectId);
     }
     
     /**
@@ -221,45 +185,16 @@ class BaseFormComponent {
      */
     applyPreformato(selectId, value) {
         console.log('🔄 applyPreformato(' + selectId + ', ' + value + ')');
-        console.log('🏗️ Componente actual:', this.constructor.name);
-        console.log('🆔 ID de formulario:', this.formType || 'no definido');
         
         const key = `${selectId}-${value}`;
-        console.log('🔑 Buscando key:', key);
-        
         const content = this.preformatoContent.get(key);
-        console.log('🗺️ Map size:', this.preformatoContent.size);
-        console.log('🗺️ Map keys:', Array.from(this.preformatoContent.keys()));
         
         if (!content) {
             console.log('📄 Sin contenido para:', key);
-            console.log('💡 Contenido disponible:');
-            this.preformatoContent.forEach((value, mapKey) => {
-                console.log(`  - ${mapKey}: ${value.substring(0, 50)}...`);
-            });
-            
-            // Verificar si hay otros componentes con contenido
-            if (typeof window.ConsultasManager !== 'undefined') {
-                console.log('🔍 Verificando otros componentes:');
-                const manager = window.ConsultasManager.getInstance();
-                if (manager && manager.state && manager.state.components) {
-                    Object.keys(manager.state.components).forEach(compName => {
-                        const comp = manager.state.components[compName];
-                        if (comp && comp.preformatoContent) {
-                            console.log(`  📦 ${compName}: ${comp.preformatoContent.size} elementos`);
-                            comp.preformatoContent.forEach((val, k) => {
-                                console.log(`    - ${k}: ${val.substring(0, 30)}...`);
-                            });
-                        }
-                    });
-                }
-            }
-            
             return;
         }
         
         console.log('📄 Contenido encontrado: SÍ');
-        console.log('📄 Content preview:', content.substring(0, 100) + '...');
         
         // Determinar textarea objetivo basado en el selectId
         let targetTextarea = this.getTargetTextarea(selectId);
@@ -292,63 +227,24 @@ class BaseFormComponent {
      */
     fillTextarea(textareaId, content) {
         console.log('📝 Rellenando textarea con contenido...');
-        console.log('🎯 TextareaId:', textareaId);
-        console.log('📄 Content length:', content.length);
         
         const textarea = document.getElementById(textareaId);
-        if (!textarea) {
-            console.warn('⚠️ Textarea no encontrado:', textareaId);
-            return;
-        }
-        
-        console.log('✅ Textarea encontrado:', textarea);
-        
-        // Verificar si jQuery está disponible
-        if (typeof $ === 'undefined') {
-            console.log('📝 jQuery no disponible, usando textarea normal');
-            textarea.value = content;
-            console.log('✅ Contenido aplicado correctamente');
-            return;
-        }
-        
-        try {
-            // Verificar si es Summernote - múltiples métodos de detección
-            const $textarea = $(textarea);
-            const hasSummernoteData = $textarea.data('summernote') !== undefined;
-            const hasNoteEditor = $textarea.next('.note-editor').length > 0;
-            const hasSummernoteFunction = typeof $textarea.summernote === 'function';
-            
-            console.log('🔍 Summernote detection:');
-            console.log('  - hasSummernoteData:', hasSummernoteData);
-            console.log('  - hasNoteEditor:', hasNoteEditor);
-            console.log('  - hasSummernoteFunction:', hasSummernoteFunction);
-            
-            if (hasSummernoteFunction && (hasSummernoteData || hasNoteEditor)) {
+        if (textarea) {
+            // Verificar si es Summernote
+            if (typeof $(textarea).summernote === 'function' && $(textarea).hasClass('note-editable')) {
                 console.log('🔤 Usando Summernote para', textareaId);
-                try {
-                    $textarea.summernote('code', content);
-                    console.log('✅ Contenido aplicado con Summernote');
-                } catch (summernoteError) {
-                    console.warn('⚠️ Error con Summernote, usando textarea normal:', summernoteError);
-                    textarea.value = content;
-                    console.log('✅ Contenido aplicado como fallback');
-                }
+                $(textarea).summernote('code', content);
+            } else if ($(textarea).next('.note-editor').length > 0) {
+                console.log('🔤 Usando Summernote para', textareaId);
+                $(textarea).summernote('code', content);
             } else {
                 console.log('📝 Usando textarea normal para', textareaId);
                 textarea.value = content;
-                console.log('✅ Contenido aplicado correctamente');
             }
-        } catch (error) {
-            console.error('❌ Error aplicando contenido:', error);
-            // Fallback final
-            textarea.value = content;
-            console.log('✅ Contenido aplicado como último recurso');
+            console.log('✅ Contenido aplicado correctamente');
+        } else {
+            console.warn('⚠️ Textarea no encontrado:', textareaId);
         }
-        
-        // Disparar evento change para notificar cambios
-        const changeEvent = new Event('change', { bubbles: true });
-        textarea.dispatchEvent(changeEvent);
-        console.log('📡 Evento change disparado');
     }
     
     /**
@@ -604,7 +500,7 @@ class GeneralForm extends BaseFormComponent {
             });
             
             if (response.success && response.data) {
-                this.populateSelect('motivoscomunes', response.data, 'id', 'nombre');
+                this.populateSelect('motivoscomunes', response.data, 'id_motivo', 'motivo');
             }
         } catch (error) {
             console.error('Error cargando motivos comunes:', error);
@@ -736,13 +632,6 @@ class AnteojosFormComponent extends BaseFormComponent {
             ];
             
             for (const ref of referenciales) {
-                // Verificar si el select existe antes de intentar poblarlo
-                const selectElement = document.getElementById(ref.selectId);
-                if (!selectElement) {
-                    console.log(`⏭️ Select ${ref.selectId} no encontrado, omitiendo...`);
-                    continue;
-                }
-                
                 const response = await this.manager.apiCall('modules/consultas/api/consultas-api.php', {
                     action: 'get_referenciales_anteojos',
                     tipo: ref.tipo
@@ -809,5 +698,3 @@ if (typeof window !== 'undefined') {
     window.EstudiosFormComponent = EstudiosFormComponent;
     window.InformeImagenFormComponent = InformeImagenFormComponent;
 }
-
-} // Cierre del guard de redeclaración

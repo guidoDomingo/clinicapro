@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Frontend Anteojos</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Debug Frontend - Formulario Anteojos</h1>
+    
+    <div>
+        <h3>1. Probar llamada directa a la API</h3>
+        <button onclick="testAPI()">Probar API de Preformatos</button>
+        <div id="api-result"></div>
+    </div>
+    
+    <div>
+        <h3>2. Simular Select</h3>
+        <select id="formatoConsulta">
+            <option value="">Seleccionar...</option>
+        </select>
+    </div>
+    
+    <div>
+        <h3>3. Resultados</h3>
+        <div id="debug-results"></div>
+    </div>
+
+    <script>
+        console.log('🚀 Iniciando debug frontend...');
+        
+        // Función para probar la API directamente
+        async function testAPI() {
+            console.log('🔍 Probando llamada directa a API...');
+            
+            const requestData = {
+                action: 'get_preformatos_consulta',
+                tipo_formulario: 'anteojos',
+                usuario_id: 9
+            };
+            
+            try {
+                const response = await fetch('modules/consultas/api/consultas-api.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+                console.log('📥 Response status:', response.status);
+                
+                const data = await response.json();
+                console.log('📊 Response data:', data);
+                
+                document.getElementById('api-result').innerHTML = `
+                    <h4>Respuesta API:</h4>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+                
+                // Si hay preformatos, llenar el select
+                if (data.success && data.preformatos && data.preformatos.length > 0) {
+                    const select = document.getElementById('formatoConsulta');
+                    data.preformatos.forEach(preformato => {
+                        const option = document.createElement('option');
+                        option.value = preformato.id;
+                        option.textContent = preformato.nombre;
+                        select.appendChild(option);
+                    });
+                    
+                    console.log('✅ Select poblado con ' + data.preformatos.length + ' opciones');
+                    
+                    document.getElementById('debug-results').innerHTML = `
+                        <div style="color: green;">
+                            ✅ API funcionando correctamente<br>
+                            📊 Preformatos encontrados: ${data.preformatos.length}<br>
+                            🎯 Select poblado correctamente
+                        </div>
+                    `;
+                } else {
+                    console.warn('⚠️ No hay preformatos en la respuesta');
+                    document.getElementById('debug-results').innerHTML = `
+                        <div style="color: orange;">
+                            ⚠️ API responde pero sin preformatos<br>
+                            📊 Respuesta: ${JSON.stringify(data)}
+                        </div>
+                    `;
+                }
+                
+            } catch (error) {
+                console.error('❌ Error en API:', error);
+                document.getElementById('api-result').innerHTML = `
+                    <div style="color: red;">
+                        <h4>Error en API:</h4>
+                        <pre>${error.message}</pre>
+                    </div>
+                `;
+                
+                document.getElementById('debug-results').innerHTML = `
+                    <div style="color: red;">
+                        ❌ Error de comunicación con API<br>
+                        📊 Error: ${error.message}
+                    </div>
+                `;
+            }
+        }
+        
+        // Auto-ejecutar al cargar
+        window.addEventListener('load', function() {
+            console.log('🔄 Página cargada, esperando interacción...');
+        });
+    </script>
+</body>
+</html>

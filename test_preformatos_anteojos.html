@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Preformatos Anteojos</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        select, textarea { width: 100%; margin: 10px 0; }
+        textarea { height: 150px; }
+        .log { font-family: monospace; font-size: 12px; background: #f5f5f5; padding: 10px; margin: 10px 0; height: 300px; overflow-y: scroll; }
+        .success { color: green; font-weight: bold; }
+        .error { color: red; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Test de Preformatos para Formulario de Anteojos</h1>
+    <div id="log" class="log"></div>
+    
+    <div class="test-section">
+        <h2>📊 Datos de Base de Datos (Usuario ID: 18)</h2>
+        <p>Según la consulta SQL mostrada en la imagen:</p>
+        <ul>
+            <li><span class="success">✅ receta de anteojos</span> (ID: 12)</li>
+            <li><span class="success">✅ prueba 2</span> (ID: 14)</li>
+            <li><span class="success">✅ prueba 3</span> (ID: 15)</li>
+            <li><span class="success">✅ PRUEBAAAA 4</span> (ID: 16)</li>
+            <li><span class="success">✅ anteojos prueba</span> (ID: 39)</li>
+        </ul>
+        <p><strong>Todos con tipo_formulario = 'anteojos' y creado_por = 18</strong></p>
+    </div>
+    
+    <div class="test-section">
+        <h2>🧪 Test de API para Anteojos</h2>
+        <button onclick="testAnteojos()">🔄 Cargar Preformatos de Anteojos</button>
+        <div id="results"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>🎯 Preformato de Anteojos</h2>
+        <select id="formatoConsulta">
+            <option value="">-- Seleccionar preformato --</option>
+        </select>
+        <textarea id="consulta-textarea" placeholder="El contenido del preformato aparecerá aquí..."></textarea>
+    </div>
+    
+    <script>
+    function log(message) {
+        const logDiv = document.getElementById('log');
+        logDiv.innerHTML += '<div>' + new Date().toLocaleTimeString() + ': ' + message + '</div>';
+        logDiv.scrollTop = logDiv.scrollHeight;
+        console.log(message);
+    }
+
+    // Test específico para preformatos de anteojos
+    async function testAnteojos() {
+        log('🔄 Iniciando test de preformatos para ANTEOJOS...');
+        
+        try {
+            // Test con usuario 18 (que tiene preformatos de anteojos)
+            const requestData = {
+                action: 'get_preformatos_consulta',
+                tipo_formulario: 'anteojos',
+                tipo: 'consulta',
+                usuario_id: '18', // Usuario que tiene preformatos de anteojos
+                debug: '1'
+            };
+            
+            log('📤 Request para anteojos: ' + JSON.stringify(requestData));
+            
+            const response = await fetch('modules/consultas/api/consultas-api.php?' + new URLSearchParams(requestData));
+            const data = await response.json();
+            
+            log('📥 Respuesta API: ' + JSON.stringify(data));
+            log('🔍 ANÁLISIS:');
+            log('   - success: ' + data.success);
+            log('   - data length: ' + (data.data?.length || 0));
+            
+            if (data.data && data.data.length > 0) {
+                log('✅ Preformatos encontrados:');
+                data.data.forEach((item, i) => {
+                    log(`   ${i + 1}. ${item.nombre} (ID: ${item.id})`);
+                });
+                
+                // Poblar select
+                populateSelect('formatoConsulta', data.data, 'id', 'nombre');
+                
+                document.getElementById('results').innerHTML = 
+                    '<div class="success">✅ ' + data.data.length + ' preformatos cargados correctamente</div>';
+                
+            } else {
+                log('❌ No se encontraron preformatos para anteojos');
+                document.getElementById('results').innerHTML = 
+                    '<div class="error">❌ No se encontraron preformatos</div>';
+            }
+            
+        } catch (error) {
+            log('❌ Error en test: ' + error.message);
+            document.getElementById('results').innerHTML = 
+                '<div class="error">❌ Error: ' + error.message + '</div>';
+        }
+    }
+    
+    // Poblar select con funcionalidad de relleno
+    function populateSelect(selectId, data, valueField, textField) {
+        const select = document.getElementById(selectId);
+        if (!select) return;
+        
+        // Limpiar
+        select.innerHTML = '<option value="">-- Seleccionar preformato --</option>';
+        
+        // Agregar opciones con contenido
+        data.forEach(item => {
+            const option = new Option(item[textField], item[valueField]);
+            if (item.texto) {
+                option.setAttribute('data-contenido', item.texto);
+            }
+            select.add(option);
+        });
+        
+        // Evento change
+        select.addEventListener('change', function() {
+            if (select.value) {
+                const selectedOption = select.options[select.selectedIndex];
+                const contenido = selectedOption.getAttribute('data-contenido');
+                if (contenido) {
+                    document.getElementById('consulta-textarea').value = contenido;
+                    log('✅ Contenido aplicado: ' + selectedOption.text);
+                }
+            }
+        });
+        
+        log('✅ Select poblado con ' + data.length + ' opciones');
+    }
+    
+    log('🎉 Test de anteojos listo');
+    log('👆 Haz clic en "Cargar Preformatos de Anteojos" para probar');
+    </script>
+</body>
+</html>

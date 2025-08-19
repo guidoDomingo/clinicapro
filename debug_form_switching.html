@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug - Form Switching Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .button:hover {
+            background: #0056b3;
+        }
+        .result {
+            background: white;
+            border: 1px solid #ccc;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .success { border-color: #28a745; background-color: #d4edda; }
+        .error { border-color: #dc3545; background-color: #f8d7da; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Debug - Form Switching Test</h1>
+    
+    <div class="test-section">
+        <h2>🚀 Quick Tests</h2>
+        <button class="button" onclick="openConsultasPage()">
+            📖 Abrir Página Principal
+        </button>
+        <button class="button" onclick="testFormSwitching()">
+            🔄 Test Form Switching
+        </button>
+        <button class="button" onclick="checkComponents()">
+            🔍 Check Components Status
+        </button>
+    </div>
+
+    <div class="test-section">
+        <h2>📊 Test Results</h2>
+        <div id="results" class="result">
+            Esperando tests...
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>🧪 Manual Form Switching</h2>
+        <p>Use estos botones para probar el cambio de formularios directamente:</p>
+        <button class="button" onclick="switchToForm('general')">➡️ General</button>
+        <button class="button" onclick="switchToForm('anteojos')">👓 Anteojos</button>
+        <button class="button" onclick="switchToForm('estudios')">🔬 Estudios</button>
+        <button class="button" onclick="switchToForm('informe_imagen')">🖼️ Informe+Imagen</button>
+    </div>
+
+    <div class="test-section">
+        <h2>🐛 Console Commands</h2>
+        <p>Ejecuta estos comandos en la consola del navegador:</p>
+        <code>
+debugConsultas.getState() - Ver estado actual<br>
+debugConsultas.testFormChange("anteojos") - Cambiar a anteojos<br>
+debugConsultas.testFormChange("general") - Cambiar a general<br>
+window.testPreformatos() - Test preformatos<br>
+window.testPreformatoFill("formatoConsulta", 1) - Test auto-fill<br>
+        </code>
+    </div>
+
+    <script>
+        let resultsDiv = document.getElementById('results');
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${message}\n`;
+            
+            resultsDiv.innerHTML += logEntry;
+            resultsDiv.className = `result ${type}`;
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+            
+            console.log(message);
+        }
+
+        function clearResults() {
+            resultsDiv.innerHTML = 'Test iniciado...\n';
+            resultsDiv.className = 'result';
+        }
+
+        function openConsultasPage() {
+            log('🌐 Abriendo página de consultas...', 'info');
+            window.open('http://localhost/clinica/index.php?ruta=consultas-new', '_blank');
+        }
+
+        function testFormSwitching() {
+            clearResults();
+            log('🧪 Iniciando test de cambio de formularios...', 'info');
+            
+            // Este test necesita acceso a la ventana principal
+            if (window.opener && window.opener.debugConsultas) {
+                const debug = window.opener.debugConsultas;
+                
+                log('✅ Acceso a debugConsultas encontrado', 'success');
+                log(`📊 Estado actual: ${JSON.stringify(debug.getState())}`, 'info');
+                
+                // Test switching
+                log('🔄 Probando cambio a anteojos...', 'info');
+                debug.testFormChange('anteojos');
+                
+                setTimeout(() => {
+                    log('🔄 Probando cambio a general...', 'info');
+                    debug.testFormChange('general');
+                    log('✅ Test de switching completado', 'success');
+                }, 2000);
+                
+            } else {
+                log('⚠️ Necesitas abrir la página principal primero', 'error');
+            }
+        }
+
+        function checkComponents() {
+            clearResults();
+            log('🔍 Verificando estado de componentes...', 'info');
+            
+            if (window.opener && window.opener.window) {
+                const win = window.opener;
+                
+                log(`🌐 URL actual: ${win.location.href}`, 'info');
+                log(`📦 AppInitializer: ${typeof win.AppInitializer !== 'undefined' ? '✅' : '❌'}`, 
+                    typeof win.AppInitializer !== 'undefined' ? 'success' : 'error');
+                log(`🛠️ ConsultasManager: ${typeof win.ConsultasManager !== 'undefined' ? '✅' : '❌'}`, 
+                    typeof win.ConsultasManager !== 'undefined' ? 'success' : 'error');
+                log(`🔧 BaseFormComponent: ${typeof win.BaseFormComponent !== 'undefined' ? '✅' : '❌'}`, 
+                    typeof win.BaseFormComponent !== 'undefined' ? 'success' : 'error');
+                log(`🐛 debugConsultas: ${typeof win.debugConsultas !== 'undefined' ? '✅' : '❌'}`, 
+                    typeof win.debugConsultas !== 'undefined' ? 'success' : 'error');
+                
+                if (win.appInitializer) {
+                    log(`🚀 App initialized: ${win.appInitializer.isReady() ? '✅' : '❌'}`, 
+                        win.appInitializer.isReady() ? 'success' : 'error');
+                }
+                
+            } else {
+                log('⚠️ Necesitas abrir la página principal primero', 'error');
+            }
+        }
+
+        function switchToForm(formType) {
+            log(`🔄 Cambiando a formulario: ${formType}`, 'info');
+            
+            if (window.opener && window.opener.debugConsultas) {
+                window.opener.debugConsultas.testFormChange(formType);
+                log(`✅ Comando enviado para cambiar a ${formType}`, 'success');
+            } else {
+                log('⚠️ Necesitas abrir la página principal primero', 'error');
+            }
+        }
+
+        // Auto-conectar si se abre desde la página principal
+        window.addEventListener('load', () => {
+            if (window.opener) {
+                log('🔗 Conectado con página principal', 'success');
+            } else {
+                log('🔗 Abre esta página desde la página principal para mejor funcionalidad', 'info');
+            }
+        });
+    </script>
+</body>
+</html>

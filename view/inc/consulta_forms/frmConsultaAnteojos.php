@@ -1097,5 +1097,24 @@ function limpiarFormularioAnteojosCompleto() {
 }
 </script>
 
+<!-- Incluir el sistema de componentes de formularios -->
+<script src="modules/consultas/core/FormComponents.js"></script>
+
 <!-- Incluir el script helper para manejo de formularios de consulta -->
 <script src="view/js/formulario-consulta-helper.js"></script>
+
+<script>
+// Inicializar el componente de anteojos cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Inicializando componente de anteojos...');
+    
+    // Verificar que la clase esté disponible
+    if (typeof AnteojosFormComponent !== 'undefined') {
+        // Inicializar el componente
+        window.anteojosForm = new AnteojosFormComponent();
+        console.log('✅ Componente AnteojosFormComponent inicializado correctamente');
+    } else {
+        console.error('❌ AnteojosFormComponent no está disponible');
+    }
+});
+</script>

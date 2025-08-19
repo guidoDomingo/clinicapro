@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Preformatos Anteojos - Usuario 18</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h2>🧪 Test Preformatos de Anteojos - Usuario 18</h2>
+    
+    <div>
+        <h3>📋 Resultados:</h3>
+        <div id="results"></div>
+    </div>
+    
+    <div>
+        <button onclick="testPreformatos(18)">🧪 Test Usuario ID 18</button>
+        <button onclick="testPreformatos(9)">🧪 Test Usuario ID 9</button>
+        <button onclick="testPreformatos()">🧪 Test Sin Usuario</button>
+    </div>
+
+    <script>
+        async function testPreformatos(userId = null) {
+            const results = document.getElementById('results');
+            results.innerHTML = '<p>⏳ Probando preformatos...</p>';
+            
+            try {
+                // Probar preformatos de anteojos
+                const requestData = {
+                    action: 'get_preformatos_consulta',
+                    tipo_formulario: 'anteojos',
+                    tipo: 'consulta'
+                };
+                
+                if (userId) {
+                    requestData.usuario_id = userId;
+                }
+                
+                console.log('📤 Enviando request:', requestData);
+                
+                const response = await fetch('modules/consultas/api/consultas-api.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+                const data = await response.json();
+                console.log('📥 Respuesta recibida:', data);
+                
+                let html = `<h4>🎯 Test con Usuario ID: ${userId || 'NULL'}</h4>`;
+                html += `<pre style="background: #f5f5f5; padding: 10px; border-radius: 5px;">`;
+                html += `<strong>Request:</strong>
+${JSON.stringify(requestData, null, 2)}
+
+<strong>Response:</strong>
+${JSON.stringify(data, null, 2)}
+`;
+                html += `</pre>`;
+                
+                if (data.success && data.data && data.data.length > 0) {
+                    html += `<p>✅ <strong>Éxito:</strong> ${data.data.length} preformatos encontrados</p>`;
+                    html += `<ul>`;
+                    data.data.forEach(item => {
+                        html += `<li><strong>${item.nombre}</strong> (ID: ${item.id})</li>`;
+                    });
+                    html += `</ul>`;
+                } else {
+                    html += `<p>❌ <strong>Sin preformatos:</strong> ${data.message || 'No se encontraron datos'}</p>`;
+                }
+                
+                results.innerHTML = html;
+                
+            } catch (error) {
+                console.error('❌ Error en la prueba:', error);
+                results.innerHTML = `<p>❌ <strong>Error:</strong> ${error.message}</p>`;
+            }
+        }
+        
+        // Test automático al cargar la página
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🧪 Iniciando test automático...');
+            testPreformatos(18);
+        });
+    </script>
+</body>
+</html>

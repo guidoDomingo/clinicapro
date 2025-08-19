@@ -106,6 +106,11 @@ try {
             $response = getMotivosComunes($tipoFormulario);
             break;
             
+        case 'get_referenciales_anteojos':
+            $tipo = $_GET['tipo'] ?? $_POST['tipo'] ?? null;
+            $response = getReferencialesAnteojos($tipo);
+            break;
+            
         case 'get_preformatos_consulta':
         case 'get_preformatos_receta':
         case 'getPreformatos':
@@ -481,7 +486,7 @@ function getPreformatosConsulta($tipo_formulario = 'general', $userId = null, $t
                 
                 // Construir la consulta base
                 $baseQuery = "
-                    SELECT p.id_preformato as id, p.nombre, p.contenido as texto, p.tipo as categoria 
+                    SELECT p.id_preformato as id, p.nombre, p.contenido, p.tipo as categoria 
                     FROM person_system_user psu 
                     INNER JOIN rh_doctors rd ON psu.person_id = rd.person_id 
                     INNER JOIN preformatos p ON p.creado_por = rd.doctor_id 
@@ -523,7 +528,7 @@ function getPreformatosConsulta($tipo_formulario = 'general', $userId = null, $t
                     error_log("DEBUG: Sin resultados específicos, buscando generales para userId: $userId");
                     
                     $fallbackQuery = "
-                        SELECT p.id_preformato as id, p.nombre, p.contenido as texto, p.tipo as categoria 
+                        SELECT p.id_preformato as id, p.nombre, p.contenido, p.tipo as categoria 
                         FROM person_system_user psu 
                         INNER JOIN rh_doctors rd ON psu.person_id = rd.person_id 
                         INNER JOIN preformatos p ON p.creado_por = rd.doctor_id 
@@ -556,7 +561,7 @@ function getPreformatosConsulta($tipo_formulario = 'general', $userId = null, $t
                 
                 // Si no hay userId, buscar preformatos globales (comportamiento anterior como fallback)
                 $globalQuery = "
-                    SELECT id_preformato as id, nombre, contenido as texto, tipo as categoria 
+                    SELECT id_preformato as id, nombre, contenido, tipo as categoria 
                     FROM preformatos 
                     WHERE (activo = true OR activo IS NULL) 
                       AND (tipo_formulario = :tipo_formulario OR tipo_formulario = 'general')
@@ -594,7 +599,7 @@ function getPreformatosConsulta($tipo_formulario = 'general', $userId = null, $t
                     error_log("DEBUG: Sin resultados específicos globales, buscando generales");
                     
                     $generalFallback = "
-                        SELECT id_preformato as id, nombre, contenido as texto, tipo as categoria 
+                        SELECT id_preformato as id, nombre, contenido, tipo as categoria 
                         FROM preformatos 
                         WHERE (activo = true OR activo IS NULL) 
                           AND (tipo_formulario = 'general' OR tipo_formulario IS NULL)
@@ -648,7 +653,7 @@ function getPreformatosReceta() {
     try {
         try {
             $stmt = $conexion->query("
-                SELECT id, nombre, texto, categoria 
+                SELECT id, nombre, texto as contenido, categoria 
                 FROM preformatos_receta 
                 WHERE activo = true OR activo IS NULL
                 ORDER BY nombre
@@ -986,6 +991,63 @@ function deleteFile() {
         
     } catch (PDOException $e) {
         throw new Exception('Error eliminando archivo: ' . $e->getMessage());
+    }
+}
+
+/**
+ * Obtener referenciales para anteojos (esfera, cilindro, eje)
+ */
+function getReferencialesAnteojos($tipo = null) {
+    global $conexion;
+    
+    try {
+        // Definir valores estándar para cada tipo de referencial
+        $referenciales = [];
+        
+        switch($tipo) {
+            case 'esfera':
+                // Valores de esfera de -20.00 a +20.00 en incrementos de 0.25
+                for ($i = -20.00; $i <= 20.00; $i += 0.25) {
+                    $valor = number_format($i, 2);
+                    $referenciales[] = ['valor' => $valor];
+                }
+                break;
+                
+            case 'cilindro':
+                // Valores de cilindro de -6.00 a +6.00 en incrementos de 0.25
+                for ($i = -6.00; $i <= 6.00; $i += 0.25) {
+                    $valor = number_format($i, 2);
+                    $referenciales[] = ['valor' => $valor];
+                }
+                break;
+                
+            case 'eje':
+                // Valores de eje de 0 a 180 en incrementos de 1
+                for ($i = 0; $i <= 180; $i++) {
+                    $referenciales[] = ['valor' => (string)$i];
+                }
+                break;
+                
+            default:
+                // Si no se especifica tipo, devolver error
+                return [
+                    'success' => false,
+                    'message' => 'Tipo de referencial no especificado o inválido'
+                ];
+        }
+        
+        return [
+            'success' => true,
+            'data' => $referenciales,
+            'tipo' => $tipo,
+            'count' => count($referenciales)
+        ];
+        
+    } catch (Exception $e) {
+        return [
+            'success' => false,
+            'message' => 'Error obteniendo referenciales: ' . $e->getMessage()
+        ];
     }
 }
 

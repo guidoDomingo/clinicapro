@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Preformatos - Auto-rellenado</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h2>🔍 Debug Preformatos - Auto-rellenado</h2>
+    
+    <div>
+        <h3>📋 Test Preformato Usuario 9:</h3>
+        <button onclick="debugPreformatos(9)">🧪 Debug Usuario 9</button>
+        <div id="debug-results"></div>
+    </div>
+
+    <div style="margin-top: 20px;">
+        <h3>📝 Test Simulación:</h3>
+        <select id="test-select">
+            <option value="">Seleccionar...</option>
+        </select>
+        <textarea id="consulta-textarea" placeholder="Contenido aparecerá aquí..."></textarea>
+    </div>
+
+    <script>
+        // Simular el Map de preformatos
+        let preformatoContent = new Map();
+        
+        async function debugPreformatos(userId) {
+            const results = document.getElementById('debug-results');
+            results.innerHTML = '<p>⏳ Analizando preformatos...</p>';
+            
+            try {
+                const requestData = {
+                    action: 'get_preformatos_consulta',
+                    tipo_formulario: 'general',
+                    tipo: 'consulta',
+                    usuario_id: userId.toString()
+                };
+                
+                console.log('📤 Enviando request:', requestData);
+                
+                const response = await fetch('modules/consultas/api/consultas-api.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+                const data = await response.json();
+                console.log('📥 Respuesta completa:', data);
+                
+                let html = `<h4>🔍 Análisis Detallado:</h4>`;
+                html += `<pre style="background: #f0f0f0; padding: 10px; border-radius: 5px; font-size: 12px;">`;
+                html += `<strong>Request enviado:</strong>
+${JSON.stringify(requestData, null, 2)}
+
+<strong>Response recibida:</strong>
+${JSON.stringify(data, null, 2)}
+`;
+                html += `</pre>`;
+                
+                if (data.success && data.data && data.data.length > 0) {
+                    html += `<h4>✅ ${data.data.length} Preformato(s) encontrado(s):</h4>`;
+                    
+                    // Simular el proceso de almacenamiento en Map
+                    const testSelect = document.getElementById('test-select');
+                    testSelect.innerHTML = '<option value="">Seleccionar...</option>';
+                    preformatoContent.clear();
+                    
+                    data.data.forEach((item, index) => {
+                        html += `<div style="border: 1px solid #ddd; margin: 10px 0; padding: 10px; border-radius: 5px;">`;
+                        html += `<strong>Preformato ${index + 1}:</strong><br>`;
+                        html += `- ID: ${item.id}<br>`;
+                        html += `- Nombre: ${item.nombre}<br>`;
+                        html += `- Tiene contenido: ${item.contenido ? 'SÍ' : 'NO'}<br>`;
+                        
+                        if (item.contenido) {
+                            html += `- Contenido (primeros 100 chars): "${item.contenido.substring(0, 100)}..."<br>`;
+                            
+                            // Simular almacenamiento en Map
+                            const key = `formatoConsulta-${item.id}`;
+                            preformatoContent.set(key, item.contenido);
+                            html += `- Key en Map: "${key}"<br>`;
+                            
+                            // Agregar opción al select de prueba
+                            const option = document.createElement('option');
+                            option.value = item.id;
+                            option.textContent = item.nombre;
+                            testSelect.appendChild(option);
+                        }
+                        html += `</div>`;
+                    });
+                    
+                    // Configurar evento de cambio para el select de prueba
+                    testSelect.onchange = function() {
+                        if (this.value) {
+                            testApplyPreformato('formatoConsulta', this.value);
+                        }
+                    };
+                    
+                    html += `<p>🎯 <strong>Map actual size:</strong> ${preformatoContent.size}</p>`;
+                    html += `<p>📝 <strong>Usa el select de arriba para probar el auto-rellenado</strong></p>`;
+                    
+                } else {
+                    html += `<p>❌ <strong>Sin preformatos encontrados</strong></p>`;
+                    html += `<p>Mensaje: ${data.message || 'No hay datos disponibles'}</p>`;
+                }
+                
+                results.innerHTML = html;
+                
+            } catch (error) {
+                console.error('❌ Error:', error);
+                results.innerHTML = `<p>❌ <strong>Error:</strong> ${error.message}</p>`;
+            }
+        }
+        
+        function testApplyPreformato(selectId, value) {
+            console.log('🔄 testApplyPreformato(' + selectId + ', ' + value + ')');
+            
+            const key = `${selectId}-${value}`;
+            const content = preformatoContent.get(key);
+            
+            console.log('🔑 Buscando key:', key);
+            console.log('📄 Contenido encontrado:', content ? 'SÍ' : 'NO');
+            console.log('🗺️ Map completo:', Array.from(preformatoContent.entries()));
+            
+            if (!content) {
+                alert('❌ Sin contenido para: ' + key);
+                return;
+            }
+            
+            // Aplicar contenido al textarea de prueba
+            const textarea = document.getElementById('consulta-textarea');
+            if (textarea) {
+                textarea.value = content;
+                alert('✅ Contenido aplicado correctamente!');
+            } else {
+                alert('❌ Textarea no encontrado');
+            }
+        }
+        
+        // Auto-ejecutar al cargar
+        document.addEventListener('DOMContentLoaded', () => {
+            debugPreformatos(9);
+        });
+    </script>
+</body>
+</html>

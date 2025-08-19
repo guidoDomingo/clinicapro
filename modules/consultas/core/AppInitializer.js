@@ -227,13 +227,21 @@ class AppInitializer {
                 
                 console.log(`🔄 Tab clickeado: ${formType}`);
                 
-                // Actualizar estado visual de los tabs
+                // Actualizar estado visual de los tabs ANTES del cambio
                 this.updateTabVisualState(formType);
                 
-                if (window.cambiarFormulario) {
+                // Llamar directamente al ConsultasManager
+                if (window.appInitializer && window.appInitializer.isReady()) {
+                    const consultasManager = window.appInitializer.getComponent('consultas');
+                    if (consultasManager) {
+                        consultasManager.changeFormType(formType);
+                    } else {
+                        console.error('❌ ConsultasManager no disponible');
+                    }
+                } else if (window.cambiarFormulario) {
                     window.cambiarFormulario(formType);
                 } else {
-                    console.error('❌ Función cambiarFormulario no está disponible');
+                    console.error('❌ Sistema no está listo para cambiar formulario');
                 }
             });
         });
@@ -510,12 +518,14 @@ class AppInitializer {
 
         tabsContainer.innerHTML = formTypes.map(type => `
             <button class="form-type-tab ${type.id === activeType ? 'active' : ''}" 
-                    data-form-type="${type.id}"
-                    onclick="window.cambiarFormulario('${type.id}')">
+                    data-form-type="${type.id}">
                 <i class="fas fa-${type.icon}"></i>
                 <span>${type.label}</span>
             </button>
         `).join('');
+        
+        // Re-configurar event listeners después de recrear el HTML
+        this.setupFormTypeTabs();
     }
 
     showNotification(message, type = 'info', duration = 3000) {
