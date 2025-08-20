@@ -108,6 +108,15 @@ function cargarPreformatosSinDuplicados(tipoPreformato, tipoFormulario = 'genera
                 const preformatos = response.data || [];
                 console.log(`✅ Recibidos ${preformatos.length} preformatos para ${selectorId}`);
                 
+                // Verificar si es Select2
+                const isSelect2 = $(selector).hasClass('select2-hidden-accessible');
+                
+                if (isSelect2) {
+                    // Para Select2, destruir y reconstruir
+                    console.log(`🔄 Actualizando Select2 para ${selectorId}`);
+                    $(selector).select2('destroy');
+                }
+                
                 // Limpiar completamente el selector
                 selector.innerHTML = '<option value="">Seleccionar</option>';
                 
@@ -122,6 +131,15 @@ function cargarPreformatosSinDuplicados(tipoPreformato, tipoFormulario = 'genera
                     }
                     selector.appendChild(option);
                 });
+                
+                // Reinicializar Select2 si era Select2
+                if (isSelect2) {
+                    $(selector).select2({
+                        placeholder: 'Seleccionar preformato',
+                        allowClear: true
+                    });
+                    console.log(`✅ Select2 reinicializado para ${selectorId}`);
+                }
                 
                 // Configurar eventos para este selector (CRÍTICO)
                 configurarEventosPreformato(selector, tipoPreformato);
@@ -158,44 +176,41 @@ window.cargarPreformatosReceta = function(tipoFormulario = 'general') {
 function configurarEventosPreformato(selector, tipoPreformato) {
     console.log(`🔧 Configurando eventos para selector ${selector.id} (tipo: ${tipoPreformato})`);
     
-    // Remover eventos existentes para evitar duplicados
-    const nuevoSelector = selector.cloneNode(true);
-    selector.parentNode.replaceChild(nuevoSelector, selector);
+    // Verificar si ya es Select2
+    const isSelect2 = $(selector).hasClass('select2-hidden-accessible');
     
-    // Configurar evento Select2 si está disponible
-    if (typeof $ !== 'undefined' && $.fn.select2) {
-        try {
-            // Inicializar Select2 si no está inicializado
-            if (!$(nuevoSelector).hasClass('select2-hidden-accessible')) {
-                $(nuevoSelector).select2({
-                    placeholder: 'Seleccionar preformato',
-                    allowClear: true
-                });
+    if (isSelect2) {
+        // Para Select2, limpiar eventos existentes
+        $(selector).off('select2:select');
+        
+        // Configurar evento Select2
+        $(selector).on('select2:select', function(e) {
+            if (e.params.data.id !== '' && e.params.data.id !== 'Seleccionar') {
+                console.log(`🎯 Select2: Aplicando preformato ${e.params.data.id} (${tipoPreformato})`);
+                aplicarPreformatoSinDuplicados(tipoPreformato, e.params.data.id, selector);
             }
-            
-            // Configurar evento Select2
-            $(nuevoSelector).on('select2:select', function(e) {
-                if (e.params.data.id !== '' && e.params.data.id !== 'Seleccionar') {
-                    console.log(`🎯 Select2: Aplicando preformato ${e.params.data.id} (${tipoPreformato})`);
-                    aplicarPreformatoSinDuplicados(tipoPreformato, e.params.data.id, nuevoSelector);
-                }
-            });
-            
-            console.log(`✅ Evento Select2 configurado para ${nuevoSelector.id}`);
-        } catch (error) {
-            console.warn(`⚠️ Error configurando Select2: ${error.message}`);
-        }
+        });
+        
+        console.log(`✅ Evento Select2 configurado para ${selector.id}`);
+    } else {
+        // Para selectores normales
+        
+        // Remover evento existente
+        selector.removeEventListener('change', selector._preformatoChangeHandler);
+        
+        // Crear y guardar nueva función handler
+        selector._preformatoChangeHandler = function() {
+            if (this.value !== '' && this.value !== 'Seleccionar') {
+                console.log(`🎯 Evento nativo: Aplicando preformato ${this.value} (${tipoPreformato})`);
+                aplicarPreformatoSinDuplicados(tipoPreformato, this.value, this);
+            }
+        };
+        
+        // Agregar el evento
+        selector.addEventListener('change', selector._preformatoChangeHandler);
     }
     
-    // Configurar evento nativo (como respaldo)
-    nuevoSelector.addEventListener('change', function() {
-        if (this.value !== '' && this.value !== 'Seleccionar') {
-            console.log(`🎯 Evento nativo: Aplicando preformato ${this.value} (${tipoPreformato})`);
-            aplicarPreformatoSinDuplicados(tipoPreformato, this.value, this);
-        }
-    });
-    
-    console.log(`✅ Eventos configurados para ${nuevoSelector.id}`);
+    console.log(`✅ Eventos configurados para ${selector.id}`);
 }
 
 /**
@@ -204,18 +219,33 @@ function configurarEventosPreformato(selector, tipoPreformato) {
 function aplicarPreformatoSinDuplicados(tipo, idPreformato, selector) {
     if (!idPreformato || idPreformato === 'Seleccionar' || idPreformato === '') return;
     
-    console.log(`🔄 Aplicando preformato ID: ${idPreformato}, tipo: ${tipo}`);
+    console.log(`🔄 Aplicando preformato ID: ${idPreformato}, tipo: ${tipo}, selector: ${selector.id}`);
     
-    // Determinar el ID del textarea según el tipo de preformato
+    // Determinar el ID del textarea según el selector y tipo
     let textareaId;
-    switch (tipo) {
-        case 'consulta': textareaId = 'consulta-textarea'; break;
-        case 'receta': 
-        case 'receta_anteojos': textareaId = 'receta-textarea'; break;
-        case 'orden_estudios': textareaId = 'orden-estudios-textarea'; break;
-        case 'orden_cirugias': textareaId = 'orden-cirugias-textarea'; break;
-        default: textareaId = `${tipo}-textarea`;
+    
+    // Detectar si es formulario de anteojos por el ID del selector
+    if (selector.id.includes('-anteojos')) {
+        // Para formulario de anteojos, usar IDs específicos
+        switch (tipo) {
+            case 'consulta': textareaId = 'consulta-textarea-anteojos'; break;
+            case 'receta': 
+            case 'receta_anteojos': textareaId = 'receta-textarea-anteojos'; break;
+            default: textareaId = `${tipo}-textarea-anteojos`;
+        }
+    } else {
+        // Para formularios generales, usar IDs estándar
+        switch (tipo) {
+            case 'consulta': textareaId = 'consulta-textarea'; break;
+            case 'receta': 
+            case 'receta_anteojos': textareaId = 'receta-textarea'; break;
+            case 'orden_estudios': textareaId = 'orden-estudios-textarea'; break;
+            case 'orden_cirugias': textareaId = 'orden-cirugias-textarea'; break;
+            default: textareaId = `${tipo}-textarea`;
+        }
     }
+    
+    console.log(`🎯 Textarea objetivo determinado: ${textareaId}`);
     
     // Obtener el contenido del preformato
     const selectedOption = selector.options[selector.selectedIndex];

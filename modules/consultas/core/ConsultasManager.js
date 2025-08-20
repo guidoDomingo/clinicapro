@@ -399,12 +399,29 @@ class ConsultasManager {
         
         // FORZAR RECARGA DE PREFORMATOS para el formulario activo
         setTimeout(async () => {
-            const component = this.formComponents.get(formType);
-            if (component && component.loadPreformatos) {
-                console.log(`🔄 Recargando preformatos para formulario ${formType}...`);
-                await component.loadPreformatos();
+            if (formType === 'anteojos') {
+                // Para anteojos, usar el sistema original que ya funciona con IDs específicos
+                console.log(`👓 Cargando preformatos de anteojos usando sistema original...`);
+                if (typeof window.cargarPreformatosConsulta === 'function') {
+                    window.cargarPreformatosConsulta('anteojos');
+                }
+                if (typeof window.cargarPreformatosReceta === 'function') {
+                    window.cargarPreformatosReceta('anteojos');
+                }
+                // También usar el sistema sin duplicados con IDs específicos
+                if (typeof cargarPreformatosSinDuplicados === 'function') {
+                    cargarPreformatosSinDuplicados('consulta', 'anteojos', 'formatoConsulta-anteojos');
+                    cargarPreformatosSinDuplicados('receta', 'anteojos', 'formatoreceta-anteojos');
+                }
+            } else {
+                // Para otros formularios, usar el sistema nuevo
+                const component = this.formComponents.get(formType);
+                if (component && component.loadPreformatos) {
+                    console.log(`🔄 Recargando preformatos para formulario ${formType}...`);
+                    await component.loadPreformatos();
+                }
             }
-        }, 300); // Delay más corto para mejor experiencia
+        }, 500); // Delay un poco más largo para anteojos
         
         // Actualizar título
         this.updateTitle(formType);

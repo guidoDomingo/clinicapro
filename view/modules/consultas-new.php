@@ -146,6 +146,46 @@ $userName = $_SESSION['username'] ?? 'Usuario';
         .formulario-especifico #fx {
             display: none !important;
         }
+        
+        /* Estilos específicos para formularios de anteojos */
+        .anteojos-eye-section {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2196F3;
+        }
+        
+        .anteojos-eye-section h5 {
+            color: #1976D2;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .anteojos-eye-section h5 i {
+            font-size: 18px;
+        }
+        
+        /* Sección específica para imágenes */
+        .imagen-section {
+            background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border-left: 4px solid #9c27b0;
+        }
+        
+        .imagen-section h5 {
+            color: #7b1fa2;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
     </style>
 </head>
 <body class="consultas-app" data-user-id="<?php echo $userId; ?>">
@@ -371,34 +411,163 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                                 <h4>Prescripción de Anteojos</h4>
                             </div>
                             
-                            <?php 
-                            // Función para filtrar la sección de pacientes de los formularios
-                            function includeFormularioSinPacientes($archivo) {
-                                if (file_exists($archivo)) {
-                                    ob_start();
-                                    include $archivo;
-                                    $contenido = ob_get_clean();
+                            <form id="tblConsulta" method="post" enctype="multipart/form-data">
+                                <!-- Campo oculto para identificar que es un formulario de anteojos -->
+                                <input type="hidden" id="form_type" name="form_type" value="anteojos">
+
+                                <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <label for="motivoscomunes-anteojos">Motivos comunes</label>
+                                        <select class="form-control select2bs4" id="motivoscomunes-anteojos" name="motivoscomunes" style="width: 100%;">
+                                            <option selected="selected">Seleccionar</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="formatoConsulta-anteojos">Preformato</label>
+                                        <select class="form-control select2bs4 " id="formatoConsulta-anteojos" name="formatoConsulta" style="width: 100%;">
+                                            <option selected="selected">Seleccionar</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="txtmotivo-anteojos">Motivo</label>
+                                    <input type="text" class="form-control" id="txtmotivo-anteojos" name="txtmotivo" placeholder="Motivo de consulta">
+                                </div>
+                                <div id="receta" style="background: linear-gradient(to right,rgb(29, 140, 244),rgb(81, 157, 232)); padding: 20px; border-radius: 8px; box-shadow: inset 0 0 10px rgba(2, 38, 242, 0.05);">
+                                    <h5>OD (Ojo Derecho)</h5>
+                                    <div class="form-row">
+                                        <div class="form-group col-md-3">
+                                            <label for="od_esf">Esfera (ESF)</label>
+                                            <select class="form-control" id="od_esf" name="od_esf">
+                                                <option value="">Seleccionar esfera...</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <label for="od_cil">Cilindro (CIL)</label>
+                                            <select class="form-control" id="od_cil" name="od_cil">
+                                                <option value="">Seleccionar cilindro...</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <label for="ejeod">Eje</label>
+                                            <input type="text" class="form-control" id="ejeod" name="ejeod" placeholder="Eje OD">
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <label for="dnpod">DNP</label>
+                                            <input type="text" class="form-control" id="dnpod" name="dnpod" placeholder="DNP OD">
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <label for="od_adicion">Adición</label>
+                                            <select class="form-control" id="od_adicion" name="od_adicion">
+                                                <option value="">Seleccionar adición...</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <label for="altura_od">Altura</label>
+                                            <input type="text" class="form-control" id="altura_od" name="altura_od" placeholder="Altura OD">
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            <label for="notaod">Nota:</label>
+                                            <input type="text" class="form-control" id="notaod" name="notaod" placeholder="Nota para ojo derecho">
+                                        </div>
+                                    </div>
+
+                                    <h5>OI (Ojo Izquierdo)</h5>
+                                    <div class="form-row">
+                                        <div class="form-group col-md-3">
+                                            <label for="oi_esf">Esfera (ESF)</label>
+                                            <select class="form-control" id="oi_esf" name="oi_esf">
+                                                <option value="">Seleccionar esfera...</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <label for="oi_cil">Cilindro (CIL)</label>
+                                            <select class="form-control" id="oi_cil" name="oi_cil">
+                                                <option value="">Seleccionar cilindro...</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <label for="ejeoi">Eje</label>
+                                            <input type="text" class="form-control" id="ejeoi" name="ejeoi" placeholder="Eje OI">
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <label for="dnpoi">DNP</label>
+                                            <input type="text" class="form-control" id="dnpoi" name="dnpoi" placeholder="DNP OI">
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <label for="oi_adicion">Adición</label>
+                                            <select class="form-control" id="oi_adicion" name="oi_adicion">
+                                                <option value="">Seleccionar adición...</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <label for="altura_oi">Altura</label>
+                                            <input type="text" class="form-control" id="altura_oi" name="altura_oi" placeholder="Altura OI">
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            <label for="notaoi">Nota:</label>
+                                            <input type="text" class="form-control" id="notaoi" name="notaoi" placeholder="Nota para ojo izquierdo">
+                                        </div>
+                                    </div>
                                     
-                                    // Patrón más específico para remover la sección de pacientes completa
-                                    // Busca desde <div class="form-row fx" hasta </div> incluyendo el input hidden idPersona
-                                    $patron = '/<div class="form-row fx"[^>]*>.*?<input type="hidden" id="idPersona"[^>]*>\s*<\/div>/s';
-                                    $contenido = preg_replace($patron, '', $contenido);
-                                    
-                                    // También remover divs de información de paciente si existen
-                                    $contenido = preg_replace('/<div[^>]*class="[^"]*patient-info[^"]*"[^>]*>.*?<\/div>/s', '', $contenido);
-                                    
-                                    // Limpiar espacios en blanco extras
-                                    $contenido = preg_replace('/\n\s*\n/', "\n", $contenido);
-                                    
-                                    echo $contenido;
-                                } else {
-                                    echo '<div class="alert alert-danger">Error: No se encontró el formulario</div>';
-                                }
-                            }
-                            
-                            // Incluir el formulario filtrado
-                            includeFormularioSinPacientes("view/inc/consulta_forms/frmConsultaAnteojos.php");
-                            ?>
+                                    <h5>Información Adicional</h5>
+                                    <div class="form-row">
+                                        <div class="form-group col-md-6">
+                                            <label for="dist_interpupilar">Distancia Interpupilar</label>
+                                            <input type="text" class="form-control" id="dist_interpupilar" name="dist_interpupilar" placeholder="Distancia interpupilar">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="consulta-textarea-anteojos">Descripción</label>
+                                    <textarea id="consulta-textarea-anteojos" name="consulta-textarea" class="form-control compose-textarea" style="height: 180px"></textarea>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="formatoreceta-anteojos">Preformato de receta</label>
+                                    <select class="form-control select2bs4" id="formatoreceta-anteojos" name="formatoreceta" style="width: 100%;">
+                                        <option selected="selected">Seleccionar</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="receta-textarea-anteojos">Receta</label>
+                                    <textarea id="receta-textarea-anteojos" name="receta-textarea" class="form-control compose-textarea" style="height: 180px"></textarea>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="txtnota">Nota</label>
+                                    <input type="text" class="form-control" id="txtnota" name="txtnota" placeholder="Nota">
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group col-md-4">
+                                        <label for="proximaconsulta">Próxima consulta</label>
+                                        <input type="date" class="form-control" id="proximaconsulta" name="proximaconsulta">
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label for="whatsapptxt">Nro. WhatsApp</label>
+                                        <input type="text" class="form-control" id="whatsapptxt" name="whatsapptxt" placeholder="595983222999">
+                                    </div>
+                                    <div class="form-group col-md-5">
+                                        <label for="email">Email del Paciente</label>
+                                        <input type="text" class="form-control" id="email" name="email" placeholder="jhondoe@gmail.com">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="gridCheck">
+                                        <label class="form-check-label" for="gridCheck">
+                                            Enviar informe
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <input type="hidden" id="id_user" name="id_user" value="<?php echo $userId; ?>">
+                                <input type="hidden" id="id_reserva" name="id_reserva" value="0">
+                            </form>
                         </div>
                     </div>
                     
@@ -410,10 +579,63 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                                 <h4>Estudios Médicos</h4>
                             </div>
                             
-                            <?php 
-                            // Incluir el formulario filtrado
-                            includeFormularioSinPacientes("view/inc/consulta_forms/frmConsultaEstudios.php");
-                            ?>
+                            <form id="form-estudios">
+                                <div class="form-row-enhanced">
+                                    <div class="form-group-enhanced">
+                                        <label for="txtmotivo">Motivo de Consulta</label>
+                                        <input type="text" id="txtmotivo" class="form-control" placeholder="Describe el motivo de la consulta">
+                                    </div>
+                                    <div class="form-group-enhanced">
+                                        <label for="motivoscomunes">Motivos Comunes</label>
+                                        <select id="motivoscomunes" class="form-control">
+                                            <option value="">Seleccionar motivo común...</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-row-enhanced">
+                                    <div class="form-group-enhanced">
+                                        <label for="formatoConsulta">Preformato de Consulta</label>
+                                        <select id="formatoConsulta" class="form-control">
+                                            <option value="">Seleccionar preformato...</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group-enhanced">
+                                    <label for="consulta-textarea">Descripción del Estudio</label>
+                                    <textarea id="consulta-textarea" class="form-control" rows="6" placeholder="Describe los resultados del estudio..."></textarea>
+                                </div>
+                                
+                                <div class="form-row-enhanced">
+                                    <div class="form-group-enhanced">
+                                        <label for="formatoreceta">Preformato de Receta</label>
+                                        <select id="formatoreceta" class="form-control">
+                                            <option value="">Seleccionar preformato...</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group-enhanced">
+                                    <label for="receta-textarea">Recomendaciones</label>
+                                    <textarea id="receta-textarea" class="form-control" rows="6" placeholder="Escriba las recomendaciones..."></textarea>
+                                </div>
+                                
+                                <div class="form-row-enhanced">
+                                    <div class="form-group-enhanced">
+                                        <label for="proximaconsulta">Próxima Consulta</label>
+                                        <input type="date" id="proximaconsulta" class="form-control">
+                                    </div>
+                                    <div class="form-group-enhanced">
+                                        <label for="whatsapptxt">WhatsApp</label>
+                                        <input type="text" id="whatsapptxt" class="form-control" placeholder="Número de WhatsApp">
+                                    </div>
+                                    <div class="form-group-enhanced">
+                                        <label for="email">Email</label>
+                                        <input type="email" id="email" class="form-control" placeholder="Email del paciente">
+                                    </div>
+                                </div>
+                            </form>
                         </div>
                     </div>
                     
@@ -425,10 +647,73 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                                 <h4>Informe de Imagen</h4>
                             </div>
                             
-                            <?php 
-                            // Incluir el formulario filtrado
-                            includeFormularioSinPacientes("view/inc/consulta_forms/frmConsultaInformeImagen.php");
-                            ?>
+                            <form id="form-informe-imagen">
+                                <div class="form-row-enhanced">
+                                    <div class="form-group-enhanced">
+                                        <label for="txtmotivo">Motivo de Consulta</label>
+                                        <input type="text" id="txtmotivo" class="form-control" placeholder="Describe el motivo de la consulta">
+                                    </div>
+                                    <div class="form-group-enhanced">
+                                        <label for="motivoscomunes">Motivos Comunes</label>
+                                        <select id="motivoscomunes" class="form-control">
+                                            <option value="">Seleccionar motivo común...</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-row-enhanced">
+                                    <div class="form-group-enhanced">
+                                        <label for="formatoConsulta">Preformato de Consulta</label>
+                                        <select id="formatoConsulta" class="form-control">
+                                            <option value="">Seleccionar preformato...</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group-enhanced">
+                                    <label for="consulta-textarea">Descripción de la Imagen</label>
+                                    <textarea id="consulta-textarea" class="form-control" rows="6" placeholder="Describe los hallazgos en la imagen..."></textarea>
+                                </div>
+                                
+                                <div class="form-row-enhanced">
+                                    <div class="form-group-enhanced">
+                                        <label for="formatoreceta">Preformato de Receta</label>
+                                        <select id="formatoreceta" class="form-control">
+                                            <option value="">Seleccionar preformato...</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group-enhanced">
+                                    <label for="receta-textarea">Informe y Recomendaciones</label>
+                                    <textarea id="receta-textarea" class="form-control" rows="6" placeholder="Escriba el informe y recomendaciones..."></textarea>
+                                </div>
+                                
+                                <!-- Sección específica para manejo de imágenes -->
+                                <div class="imagen-section">
+                                    <h5><i class="fas fa-images"></i> Gestión de Imágenes</h5>
+                                    <div class="form-group-enhanced">
+                                        <label for="emails">Emails para envío</label>
+                                        <input type="text" id="emails" class="form-control" placeholder="Ingrese emails separados por comas">
+                                        <small class="form-text text-muted">Puede ingresar múltiples emails separados por comas</small>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-row-enhanced">
+                                    <div class="form-group-enhanced">
+                                        <label for="proximaconsulta">Próxima Consulta</label>
+                                        <input type="date" id="proximaconsulta" class="form-control">
+                                    </div>
+                                    <div class="form-group-enhanced">
+                                        <label for="whatsapptxt">WhatsApp</label>
+                                        <input type="text" id="whatsapptxt" class="form-control" placeholder="Número de WhatsApp">
+                                    </div>
+                                    <div class="form-group-enhanced">
+                                        <label for="email">Email</label>
+                                        <input type="email" id="email" class="form-control" placeholder="Email del paciente">
+                                    </div>
+                                </div>
+                            </form>
                         </div>
                     </div>
                     
@@ -548,6 +833,7 @@ $userName = $_SESSION['username'] ?? 'Usuario';
     <script>
         // Cargar scripts dinámicamente con la ruta correcta
         const scriptsToLoad = [
+            './view/js/preformatos_sin_duplicados.js',
             './modules/consultas/core/ConsultasManager.js',
             './modules/consultas/core/FormComponents.js', 
             './modules/consultas/core/PatientManager.js',
