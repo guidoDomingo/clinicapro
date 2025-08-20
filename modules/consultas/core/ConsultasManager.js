@@ -413,6 +413,15 @@ class ConsultasManager {
                     cargarPreformatosSinDuplicados('consulta', 'anteojos', 'formatoConsulta-anteojos');
                     cargarPreformatosSinDuplicados('receta', 'anteojos', 'formatoreceta-anteojos');
                 }
+                
+                // CARGAR REFERENCIALES DINÁMICOS
+                console.log(`⚙️ Cargando referenciales dinámicos para anteojos...`);
+                const anteojosComponent = this.state.components['anteojos'];
+                if (anteojosComponent && anteojosComponent.loadReferenciales) {
+                    setTimeout(() => {
+                        anteojosComponent.loadReferenciales();
+                    }, 1000); // Delay para asegurar que el DOM esté listo
+                }
             } else {
                 // Para otros formularios, usar el sistema nuevo
                 const component = this.formComponents.get(formType);

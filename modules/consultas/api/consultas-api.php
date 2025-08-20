@@ -1192,6 +1192,14 @@ function getReferencialesAnteojos($tipo = null) {
                 }
                 break;
                 
+            case 'adicion':
+                // Valores de adición de +0.50 a +4.00 en incrementos de 0.25
+                for ($i = 0.50; $i <= 4.00; $i += 0.25) {
+                    $valor = '+' . number_format($i, 2);
+                    $referenciales[] = ['valor' => $valor];
+                }
+                break;
+                
             default:
                 // Si no se especifica tipo, devolver error
                 return [

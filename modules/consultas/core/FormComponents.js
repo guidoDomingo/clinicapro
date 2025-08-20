@@ -723,38 +723,133 @@ class AnteojosFormComponent extends BaseFormComponent {
     
     async loadReferenciales() {
         try {
-            console.log('👓 Cargando referenciales para formulario de anteojos');
+            console.log('👓 Cargando referenciales para formulario de anteojos desde base de datos');
             
-            // Lista de selectores y sus tipos
-            const referenciales = [
-                { selectId: 'esfera_od', tipo: 'esfera' },
-                { selectId: 'cilindro_od', tipo: 'cilindro' },
-                { selectId: 'eje_od', tipo: 'eje' },
-                { selectId: 'esfera_oi', tipo: 'esfera' },
-                { selectId: 'cilindro_oi', tipo: 'cilindro' },
-                { selectId: 'eje_oi', tipo: 'eje' }
+            // Configuración escalable de referenciales - todos desde BD
+            const referencialesConfig = [
+                // Ojo Derecho (OD)
+                { selectId: 'od_esf', codigo: 'valores_esfera', label: 'OD Esfera' },
+                { selectId: 'od_cil', codigo: 'valores_cilindro', label: 'OD Cilindro' },
+                { selectId: 'od_adicion', codigo: 'valores_adicion', label: 'OD Adición' },
+                
+                // Ojo Izquierdo (OI)
+                { selectId: 'oi_esf', codigo: 'valores_esfera', label: 'OI Esfera' },
+                { selectId: 'oi_cil', codigo: 'valores_cilindro', label: 'OI Cilindro' },
+                { selectId: 'oi_adicion', codigo: 'valores_adicion', label: 'OI Adición' }
             ];
             
-            for (const ref of referenciales) {
+            for (const config of referencialesConfig) {
                 // Verificar si el select existe antes de intentar poblarlo
-                const selectElement = document.getElementById(ref.selectId);
+                const selectElement = document.getElementById(config.selectId);
                 if (!selectElement) {
-                    console.log(`⏭️ Select ${ref.selectId} no encontrado, omitiendo...`);
+                    console.log(`⏭️ Select ${config.selectId} (${config.label}) no encontrado, omitiendo...`);
                     continue;
                 }
                 
-                const response = await this.manager.apiCall('modules/consultas/api/consultas-api.php', {
-                    action: 'get_referenciales_anteojos',
-                    tipo: ref.tipo
-                });
+                console.log(`📊 Cargando ${config.label} desde BD (código: ${config.codigo})`);
                 
-                if (response.success && response.data) {
-                    this.populateSelect(ref.selectId, response.data, 'valor', 'valor');
+                try {
+                    // Usar endpoint específico para mejor rendimiento
+                    const response = await this.loadReferencialFromDB(config.codigo);
+                    
+                    if (response.success && response.data && response.data.length > 0) {
+                        console.log(`✅ Cargados ${response.data.length} valores para ${config.label} desde BD`);
+                        this.populateSelect(config.selectId, response.data, 'valor', 'etiqueta');
+                    } else {
+                        console.error(`❌ No se encontraron datos en BD para ${config.label} (${config.codigo})`);
+                        console.error(`Response:`, response);
+                        // NO usar fallback - requerir que los datos estén en BD
+                        throw new Error(`Referencial ${config.codigo} no encontrado en base de datos`);
+                    }
+                } catch (error) {
+                    console.error(`❌ Error crítico cargando ${config.label}:`, error);
+                    // No continuar si los datos no están en BD
+                    throw error;
                 }
             }
             
         } catch (error) {
-            console.warn('Error cargando referenciales de anteojos:', error);
+            console.error('❌ Error crítico cargando referenciales de anteojos:', error);
+            // Mostrar mensaje al usuario
+            this.showErrorMessage('Los datos de referenciales no están disponibles en la base de datos. Contacte al administrador.');
+        }
+    }
+    
+    /**
+     * Cargar referencial específico desde base de datos usando endpoint directo
+     */
+    async loadReferencialFromDB(codigo) {
+        try {
+            // Primero intentar con el endpoint específico si existe
+            let endpointUrl = null;
+            
+            switch(codigo) {
+                case 'valores_esfera':
+                    endpointUrl = 'ajax/consulta/get_esfera_referencial.php';
+                    break;
+                case 'valores_cilindro':
+                    endpointUrl = 'ajax/consulta/get_cilindro_referencial.php';
+                    break;
+                case 'valores_adicion':
+                    endpointUrl = 'ajax/consulta/get_adicion_referencial.php';
+                    break;
+                default:
+                    // Usar endpoint genérico de referenciales
+                    endpointUrl = 'ajax/referenciales.ajax.php';
+                    break;
+            }
+            
+            console.log(`📡 Consultando endpoint: ${endpointUrl} para código: ${codigo}`);
+            
+            if (endpointUrl.includes('consulta/')) {
+                // Endpoint específico - solo GET
+                const response = await fetch(endpointUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                return await response.json();
+            } else {
+                // Endpoint genérico - POST con operación
+                const formData = new FormData();
+                formData.append('operacion', 'listarValoresReferenciales');
+                formData.append('codigo_referencial', codigo);
+                
+                const response = await fetch(endpointUrl, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                return await response.json();
+            }
+            
+        } catch (error) {
+            console.error(`Error cargando referencial ${codigo}:`, error);
+            throw error;
+        }
+    }
+    
+    /**
+     * Mostrar mensaje de error al usuario
+     */
+    showErrorMessage(message) {
+        // Usar sistema de notificaciones si existe
+        if (this.manager && this.manager.notifications) {
+            this.manager.notifications.error(message);
+        } else {
+            // Fallback a alert
+            console.error('CRITICAL ERROR:', message);
+            alert('Error: ' + message);
         }
     }
 }
