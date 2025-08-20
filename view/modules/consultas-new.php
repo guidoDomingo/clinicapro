@@ -579,63 +579,260 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                                 <h4>Estudios Médicos</h4>
                             </div>
                             
-                            <form id="form-estudios">
-                                <div class="form-row-enhanced">
-                                    <div class="form-group-enhanced">
-                                        <label for="txtmotivo">Motivo de Consulta</label>
-                                        <input type="text" id="txtmotivo" class="form-control" placeholder="Describe el motivo de la consulta">
+                            <!-- Incluir CSS para la carga de archivos -->
+                            <link rel="stylesheet" href="view/css/fileupload.css">
+
+                            <form id="tblConsulta-estudios" method="post" enctype="multipart/form-data">
+                                <!-- Campo oculto para identificar que es un formulario de estudios -->
+                                <input type="hidden" id="form_type-estudios" name="form_type" value="estudios">
+                                
+                                <div class="form-row fx" id="fx-estudios">
+                                    <div class="form-group col-md-2">
+                                        <label for="txtdocumento-estudios">Documento</label>
+                                        <input type="text" class="form-control" id="txtdocumento-estudios" name="txtdocumento" placeholder="Cedula de identidad">
                                     </div>
-                                    <div class="form-group-enhanced">
-                                        <label for="motivoscomunes">Motivos Comunes</label>
-                                        <select id="motivoscomunes" class="form-control">
-                                            <option value="">Seleccionar motivo común...</option>
+                                    <div class="form-group col-md-2">
+                                        <label for="txtficha-estudios">Ficha</label>
+                                        <input type="text" class="form-control" id="txtficha-estudios" name="txtficha" placeholder="Ficha médica">
+                                    </div>
+                                    <div class="col-md-6 col-md-8">
+                                        <label for="txtnombres-estudios">Nombres</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="paciente-estudios" placeholder="Buscar paciente..." aria-label="Buscar paciente">
+                                            <div class="input-group-append">
+                                                <button type="button" class="btn btn-primary" id="btnBuscarPersona-estudios" aria-label="Buscar">
+                                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-success" id="btnNuevaPersona-estudios" aria-label="Agregar">
+                                                    <i class="fa-solid fa-user-plus"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-dark" id="btnLimpiarPersona-estudios" aria-label="Limpiar">
+                                                    <i class="fa-solid fa-eraser"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" id="idPersona-estudios" name="idPersona" required>
+                                </div>
+
+                                <!-- Botón para mostrar/ocultar opciones adicionales -->
+                                <button type="button" class="btn btn-outline-success btn-sm" onclick="toggleFormularioEstudios(this)">
+                                    <i class="bi bi-eye"></i> Mostrar
+                                </button>
+
+                                <!-- Contenedor de opciones adicionales (inicialmente oculto) -->
+                                <div class="form-row" id="formOpciones-estudios" style="display: none;">
+                                    <div class="form-group col-md-6">
+                                        <label for="motivoscomunes-estudios">Motivos comunes</label>
+                                        <select class="form-control select2bs4" id="motivoscomunes-estudios" name="motivoscomunes" style="width: 100%;">
+                                            <option selected="selected">Seleccionar</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="txtmotivo-estudios">Motivo</label>
+                                        <input type="text" class="form-control" id="txtmotivo-estudios" name="txtmotivo" placeholder="Motivo de consulta">
+                                    </div>
+                                </div>
+
+                                <!-- Sección principal: Equipos médicos y preformatos -->
+                                <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <label for="equipo_medico-estudios">Equipo médico</label>
+                                        <select class="form-control select2bs4" id="equipo_medico-estudios" name="equipo_medico" style="width: 100%;">
+                                            <option value="">Seleccionar</option>
+                                            <option value="cirrus_700">Cirrus 700</option>
+                                            <option value="cirrus_500c">Cirrus 500c</option>
+                                            <option value="oct_triton">OCT Triton</option>
+                                            <option value="humphrey">Humphrey</option>
+                                            <option value="topcon">Topcon</option>
+                                            <option value="otro">Otro equipo</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="formatoConsulta-estudios">Preformato</label>
+                                        <select class="form-control select2bs4" id="formatoConsulta-estudios" name="formatoConsulta" style="width: 100%;">
+                                            <option selected="selected">Seleccionar</option>
                                         </select>
                                     </div>
                                 </div>
-                                
-                                <div class="form-row-enhanced">
-                                    <div class="form-group-enhanced">
-                                        <label for="formatoConsulta">Preformato de Consulta</label>
-                                        <select id="formatoConsulta" class="form-control">
-                                            <option value="">Seleccionar preformato...</option>
-                                        </select>
+
+                                <!-- Descripción del estudio -->
+                                <div class="form-group">
+                                    <label for="consulta-textarea-estudios">Descripción</label>
+                                    <textarea id="consulta-textarea-estudios" name="consulta-textarea" class="form-control compose-textarea" 
+                                              style="height: 200px" placeholder="Descripción del estudio..."></textarea>
+                                </div>
+
+                                <!-- Nota adicional -->
+                                <div class="form-group">
+                                    <label for="txtnota-estudios">Nota</label>
+                                    <input type="text" class="form-control" id="txtnota-estudios" name="txtnota" placeholder="Nota">
+                                </div>
+
+                                <!-- Compartir por email con funcionalidad mejorada -->
+                                <div class="form-group">
+                                    <label for="txtEmailShare-estudios">Compartir por correo electrónico</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="txtEmailShare-estudios" name="txtEmailShare" 
+                                               placeholder="Ej: email1@email.com,email2@email.com,email3@email.com">
+                                        <div class="input-group-append">
+                                            <button type="button" class="btn btn-info" id="btnValidarEmails-estudios" title="Validar emails">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-success" id="btnEnviarEmails-estudios" title="Debe guardar la consulta antes de enviar" disabled>
+                                                <i class="fas fa-paper-plane"></i> Enviar
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <small class="form-text text-muted">
+                                        Separe múltiples correos con comas. Ejemplo: doctor@clinica.com, especialista@hospital.com
+                                    </small>
+                                    <div id="emailValidationFeedback-estudios" class="mt-2"></div>
+                                </div>
+
+                                <!-- Información adicional -->
+                                <div class="form-row">
+                                    <div class="form-group col-md-4">
+                                        <label for="proximaconsulta-estudios">Próxima consulta</label>
+                                        <input type="date" class="form-control" id="proximaconsulta-estudios" name="proximaconsulta">
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label for="whatsapptxt-estudios">Nro. WhatsApp</label>
+                                        <input type="text" class="form-control" id="whatsapptxt-estudios" name="whatsapptxt" placeholder="595983222999">
+                                    </div>
+                                    <div class="form-group col-md-4">
+                                        <label for="email-estudios">Email del Paciente</label>
+                                        <input type="text" class="form-control" id="email-estudios" name="email" placeholder="jhondoe@gmail.com">
                                     </div>
                                 </div>
-                                
-                                <div class="form-group-enhanced">
-                                    <label for="consulta-textarea">Descripción del Estudio</label>
-                                    <textarea id="consulta-textarea" class="form-control" rows="6" placeholder="Describe los resultados del estudio..."></textarea>
-                                </div>
-                                
-                                <div class="form-row-enhanced">
-                                    <div class="form-group-enhanced">
-                                        <label for="formatoreceta">Preformato de Receta</label>
-                                        <select id="formatoreceta" class="form-control">
-                                            <option value="">Seleccionar preformato...</option>
-                                        </select>
+
+                                <!-- Opción de enviar informe -->
+                                <div class="form-group">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="gridCheck-estudios">
+                                        <label class="form-check-label" for="gridCheck-estudios">
+                                            Enviar informe
+                                        </label>
                                     </div>
                                 </div>
-                                
-                                <div class="form-group-enhanced">
-                                    <label for="receta-textarea">Recomendaciones</label>
-                                    <textarea id="receta-textarea" class="form-control" rows="6" placeholder="Escriba las recomendaciones..."></textarea>
-                                </div>
-                                
-                                <div class="form-row-enhanced">
-                                    <div class="form-group-enhanced">
-                                        <label for="proximaconsulta">Próxima Consulta</label>
-                                        <input type="date" id="proximaconsulta" class="form-control">
-                                    </div>
-                                    <div class="form-group-enhanced">
-                                        <label for="whatsapptxt">WhatsApp</label>
-                                        <input type="text" id="whatsapptxt" class="form-control" placeholder="Número de WhatsApp">
-                                    </div>
-                                    <div class="form-group-enhanced">
-                                        <label for="email">Email</label>
-                                        <input type="email" id="email" class="form-control" placeholder="Email del paciente">
-                                    </div>
-                                </div>
+
+                                <!-- Campos ocultos -->
+                                <input type="hidden" id="id_user-estudios" name="id_user" value="1">
+                                <input type="hidden" id="id_reserva-estudios" name="id_reserva" value="0">
+                                <input type="hidden" id="medico_id-estudios" name="medico_id" value="<?php echo isset($_SESSION['doctor_id']) ? $_SESSION['doctor_id'] : (isset($_SESSION['usuario_id']) ? $_SESSION['usuario_id'] : '1'); ?>">
+                                <input type="hidden" id="id_consulta_actual-estudios" name="id_consulta_actual">
+                                <input type="hidden" id="form_type_hidden-estudios" name="form_type" value="estudios">
+
+                                <!-- Botón de acción -->
+                                <button type="button" class="btn btn-primary" id="btnGuardarConsulta-estudios">Guardar</button>
                             </form>
+
+                            <!-- Contenedor para mostrar archivos existentes -->
+                            <div id="filePreviewContainer-estudios" class="mt-3" style="display: none;">
+                                <h5>📁 Archivos de la consulta</h5>
+                                <div id="archivos-existentes-estudios"></div>
+                            </div>
+
+                            <hr>
+
+                            <!-- Sección de subida de archivos -->
+                            <div class="form-container">
+                                <h2>Subir Archivos</h2>
+                                <form id="uploadForm-estudios" method="post" enctype="multipart/form-data">
+                                    <input type="hidden" id="id_persona_file-estudios" name="id_persona_file">
+                                    <input type="hidden" id="id_usuario-estudios" name="id_usuario" value="1">
+                                    <input type="hidden" id="id_consulta_file-estudios" name="id_consulta_file">
+                                    
+                                    <div class="file-upload-container">
+                                        <div class="file-drop-area" id="dropArea-estudios">
+                                            <span class="file-message">Examinar... No se han seleccionado archivos</span>
+                                            <input type="file" name="files[]" id="files-estudios" multiple class="file-input">
+                                        </div>
+                                    </div>
+                                    <div class="error" id="error-estudios"></div>
+                                    <input type="button" id="btnSubirArchivos-estudios" value="Subir Archivos" class="btn btn-primary mt-3">
+                                </form>
+                            </div>
+
+                            <script>
+                            function toggleFormularioEstudios(btn) {
+                                const form = document.getElementById("formOpciones-estudios");
+                                const icon = btn.querySelector("i");
+
+                                if (form.style.display === "none") {
+                                    form.style.display = "flex";
+                                    icon.classList.remove("bi-eye");
+                                    icon.classList.add("bi-eye-slash");
+                                    btn.innerHTML = '<i class="bi bi-eye-slash"></i> Ocultar';
+                                } else {
+                                    form.style.display = "none";
+                                    icon.classList.remove("bi-eye-slash");
+                                    icon.classList.add("bi-eye");
+                                    btn.innerHTML = '<i class="bi bi-eye"></i> Mostrar';
+                                }
+                            }
+                            </script>
+
+                            <!-- Script específico para envío de emails en estudios -->
+                            <script src="view/js/envio-emails-estudios.js"></script>
+
+                            <style>
+                            /* Estilos específicos para la funcionalidad de emails en estudios */
+                            #emailValidationFeedback-estudios .alert {
+                                padding: 8px 12px;
+                                margin: 0;
+                                border-radius: 4px;
+                                font-size: 0.875rem;
+                            }
+
+                            #btnValidarEmails-estudios, #btnEnviarEmails-estudios {
+                                border-radius: 0;
+                            }
+
+                            #btnValidarEmails-estudios {
+                                border-top-right-radius: 0;
+                                border-bottom-right-radius: 0;
+                            }
+
+                            #btnEnviarEmails-estudios {
+                                border-top-right-radius: 0.25rem;
+                                border-bottom-right-radius: 0.25rem;
+                            }
+
+                            #btnEnviarEmails-estudios:disabled {
+                                opacity: 0.6;
+                                cursor: not-allowed;
+                                background-color: #6c757d !important;
+                                border-color: #6c757d !important;
+                            }
+
+                            #btnEnviarEmails-estudios:disabled:hover {
+                                background-color: #6c757d !important;
+                                border-color: #6c757d !important;
+                                transform: none;
+                            }
+
+                            .input-group-append .btn + .btn {
+                                margin-left: -1px;
+                            }
+
+                            /* Tooltip personalizado para botón deshabilitado */
+                            #btnEnviarEmails-estudios[disabled][title]:hover::after {
+                                content: attr(title);
+                                position: absolute;
+                                bottom: 100%;
+                                left: 50%;
+                                transform: translateX(-50%);
+                                background-color: #333;
+                                color: white;
+                                padding: 5px 8px;
+                                border-radius: 4px;
+                                font-size: 12px;
+                                white-space: nowrap;
+                                z-index: 1000;
+                                margin-bottom: 5px;
+                            }
+                            </style>
                         </div>
                     </div>
                     

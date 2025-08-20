@@ -224,7 +224,7 @@ function aplicarPreformatoSinDuplicados(tipo, idPreformato, selector) {
     // Determinar el ID del textarea según el selector y tipo
     let textareaId;
     
-    // Detectar si es formulario de anteojos por el ID del selector
+    // Detectar tipo de formulario por el ID del selector
     if (selector.id.includes('-anteojos')) {
         // Para formulario de anteojos, usar IDs específicos
         switch (tipo) {
@@ -232,6 +232,13 @@ function aplicarPreformatoSinDuplicados(tipo, idPreformato, selector) {
             case 'receta': 
             case 'receta_anteojos': textareaId = 'receta-textarea-anteojos'; break;
             default: textareaId = `${tipo}-textarea-anteojos`;
+        }
+    } else if (selector.id.includes('-estudios')) {
+        // Para formulario de estudios, usar IDs específicos
+        switch (tipo) {
+            case 'consulta': textareaId = 'consulta-textarea-estudios'; break;
+            case 'receta': textareaId = 'receta-textarea-estudios'; break;
+            default: textareaId = `${tipo}-textarea-estudios`;
         }
     } else {
         // Para formularios generales, usar IDs estándar

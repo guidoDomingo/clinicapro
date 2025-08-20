@@ -422,6 +422,16 @@ class ConsultasManager {
                         anteojosComponent.loadReferenciales();
                     }, 1000); // Delay para asegurar que el DOM esté listo
                 }
+            } else if (formType === 'estudios') {
+                // Para estudios, usar el sistema sin duplicados con IDs específicos
+                console.log(`🔬 Cargando preformatos de estudios usando IDs específicos...`);
+                if (typeof cargarPreformatosSinDuplicados === 'function') {
+                    cargarPreformatosSinDuplicados('consulta', 'estudios', 'formatoConsulta-estudios');
+                }
+                // También cargar con sistema original si existe
+                if (typeof window.cargarPreformatosConsulta === 'function') {
+                    window.cargarPreformatosConsulta('estudios');
+                }
             } else {
                 // Para otros formularios, usar el sistema nuevo
                 const component = this.formComponents.get(formType);
