@@ -844,73 +844,263 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                                 <h4>Informe de Imagen</h4>
                             </div>
                             
-                            <form id="form-informe-imagen">
-                                <div class="form-row-enhanced">
-                                    <div class="form-group-enhanced">
-                                        <label for="txtmotivo">Motivo de Consulta</label>
-                                        <input type="text" id="txtmotivo" class="form-control" placeholder="Describe el motivo de la consulta">
+                            <!-- Incluir CSS para la carga de archivos -->
+                            <link rel="stylesheet" href="view/css/fileupload.css">
+                            <!-- Incluir Tagify para emails -->
+                            <link href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css" rel="stylesheet" type="text/css" />
+                            <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.min.js"></script>
+
+                            <form id="tblConsulta-informe-imagen" method="post" enctype="multipart/form-data">
+                                <div class="form-row fx" id="fx-informe-imagen">
+                                    <div class="form-group col-md-2">
+                                        <label for="txtdocumento-informe-imagen">Documento</label>
+                                        <input type="text" class="form-control" id="txtdocumento-informe-imagen" name="txtdocumento" placeholder="Cedula de identidad">
                                     </div>
-                                    <div class="form-group-enhanced">
-                                        <label for="motivoscomunes">Motivos Comunes</label>
-                                        <select id="motivoscomunes" class="form-control">
-                                            <option value="">Seleccionar motivo común...</option>
+                                    <div class="form-group col-md-2">
+                                        <label for="txtficha-informe-imagen">Ficha</label>
+                                        <input type="text" class="form-control" id="txtficha-informe-imagen" name="txtficha" placeholder="Ficha médica">
+                                    </div>
+                                    <div class="col-md-6 col-md-8">
+                                        <label for="txtnombres-informe-imagen">Nombres</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="paciente-informe-imagen" placeholder="Buscar paciente..." aria-label="Buscar paciente">
+                                            <div class="input-group-append">
+                                                <button type="button" class="btn btn-primary" id="btnBuscarPersona-informe-imagen" aria-label="Buscar">
+                                                <i class="fa-solid fa-magnifying-glass"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-success">
+                                                    <i class="fa-solid fa-user-plus"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-dark" id="btnLimpiarPersona-informe-imagen" aria-label="Limpiar">
+                                                    <i class="fa-solid fa-eraser"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" id="idPersona-informe-imagen" name="idPersona" required>
+                                </div>
+
+                                <!-- Botón para mostrar el formulario oculto -->
+                                <button type="button" class="btn btn-outline-success btn-sm" onclick="toggleFormularioInformeImagen(this)">
+                                    <i class="bi bi-eye"></i> Mostrar
+                                </button>
+
+                                <!-- Contenedor oculto por defecto -->
+                                <div class="form-row" id="formOpciones-informe-imagen" style="display: none;">
+                                    <div class="form-group col-md-6">
+                                        <label for="motivoscomunes-informe-imagen">Motivos comunes</label>
+                                        <select class="form-control select2bs4" id="motivoscomunes-informe-imagen" name="motivoscomunes" style="width: 100%;">
+                                            <option selected="selected">Seleccionar</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-12">
+                                        <label for="txtmotivo-informe-imagen">Motivo</label>
+                                        <input type="text" class="form-control" id="txtmotivo-informe-imagen" name="txtmotivo" placeholder="Motivo de consulta">
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                     <div class="form-group col-md-6">
+                                            <label for="equipoMedico-informe-imagen">Equipo médico</label>
+                                            <select class="form-control select2bs4 " id="equipoMedico-informe-imagen" name="equipoMedico" style="width: 100%;">
+                                                <option selected="selected">Seleccionar</option>
+                                                <option>Cirrus 700</option>
+                                                <option>Cirrus 500c</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                        <label for="formatoConsulta-informe-imagen">Preformato</label>
+                                        <select class="form-control select2bs4" id="formatoConsulta-informe-imagen" name="formatoConsulta" style="width: 100%;">
+                                            <option selected="selected">Seleccionar</option>
                                         </select>
                                     </div>
                                 </div>
-                                
-                                <div class="form-row-enhanced">
-                                    <div class="form-group-enhanced">
-                                        <label for="formatoConsulta">Preformato de Consulta</label>
-                                        <select id="formatoConsulta" class="form-control">
-                                            <option value="">Seleccionar preformato...</option>
-                                        </select>
+
+                                <div class="form-row formfile">
+                                     <div class="form-group col-md-6">
+                                        <h5><i class="bi bi-eye"></i> Archivos OD (Ojo Derecho)</h5>
+                                        <input type="file" name="archivo_od[]" id="archivo_od-informe-imagen" class="form-control" multiple accept="image/*,.pdf">
+                                        <label for="archivo_od-informe-imagen" class="btn btn-primary btn-sm label-file">
+                                            <i class="bi bi-upload"></i> Seleccionar archivos OD
+                                        </label>
+                                        
+                                        <table class="table table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">#</th>
+                                                    <th scope="col">Archivo</th>
+                                                    <th scope="col">Ver</th>
+                                                    <th scope="col">Quitar</th> 
+                                                </tr>
+                                            </thead>
+                                            <tbody id="tabla-archivos-od-informe-imagen">
+                                                <!-- Los archivos se agregarán dinámicamente aquí -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    
+                                    <div class="form-group col-md-6">
+                                        <h5><i class="bi bi-eye"></i> Archivos OI (Ojo Izquierdo)</h5>
+                                        <input type="file" name="archivo_oi[]" id="archivo_oi-informe-imagen" class="form-control" multiple accept="image/*,.pdf">
+                                        <label for="archivo_oi-informe-imagen" class="btn btn-primary btn-sm label-file">
+                                            <i class="bi bi-upload"></i> Seleccionar archivos OI
+                                        </label>
+                                        
+                                        <table class="table table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">#</th>
+                                                    <th scope="col">Archivo</th>
+                                                    <th scope="col">Ver</th>
+                                                    <th scope="col">Quitar</th> 
+                                                </tr>
+                                            </thead>
+                                            <tbody id="tabla-archivos-oi-informe-imagen">
+                                                <!-- Los archivos se agregarán dinámicamente aquí -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                        
+                                    </div>
+
+                                <div class="form-row">
+                                     <div class="form-group col-md-6">
+                                            <div class="form-group">
+                                                <label for="descripcion-od-textarea-informe-imagen">Descripción OD</label>
+                                                <textarea id="descripcion-od-textarea-informe-imagen" name="descripcion-od-textarea" class="form-control compose-textarea" style="height: 280px"></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            <div class="form-group">
+                                                <label for="descripcion-oi-textarea-informe-imagen">Descripción OI</label>
+                                                <textarea id="descripcion-oi-textarea-informe-imagen" name="descripcion-oi-textarea" class="form-control compose-textarea" style="height: 280px"></textarea>
+                                            </div>
                                     </div>
                                 </div>
-                                
-                                <div class="form-group-enhanced">
-                                    <label for="consulta-textarea">Descripción de la Imagen</label>
-                                    <textarea id="consulta-textarea" class="form-control" rows="6" placeholder="Describe los hallazgos en la imagen..."></textarea>
+
+                                <!-- Contenedor para mostrar archivos existentes de la consulta -->
+                                <div id="filePreviewContainer-informe-imagen" class="mt-3" style="display: none;">
+                                    <h5>📁 Archivos de la consulta</h5>
+                                    <div id="archivos-existentes-informe-imagen"></div>
                                 </div>
-                                
-                                <div class="form-row-enhanced">
-                                    <div class="form-group-enhanced">
-                                        <label for="formatoreceta">Preformato de Receta</label>
-                                        <select id="formatoreceta" class="form-control">
-                                            <option value="">Seleccionar preformato...</option>
-                                        </select>
+
+                                <hr>
+
+                                <div class="form-group">
+                                    <label for="consulta-textarea-informe-imagen">Descripción general</label>
+                                    <textarea id="consulta-textarea-informe-imagen" name="consulta-textarea" class="form-control compose-textarea" style="height: 280px"></textarea>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="txtnota-informe-imagen">Nota</label>
+                                    <input type="text" class="form-control" id="txtnota-informe-imagen" name="txtnota" placeholder="Nota">
+                                </div>
+                                <div class="form-group">
+                                <label for="txtEmailShare-informe-imagen">Compartir: Ej: email1@email.com,email2@email.com</label>
+                                <input type="text" class="form-control" id="txtEmailShare-informe-imagen" name="txtEmailShare" placeholder="Agregar correos...">
+                            </div>
+
+                                <div class="form-row">
+                                    <div class="form-group col-md-4">
+                                        <label for="proximaconsulta-informe-imagen">Próxima consulta</label>
+                                        <input type="date" class="form-control" id="proximaconsulta-informe-imagen" name="proximaconsulta">
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label for="whatsapptxt-informe-imagen">Nro. WhatsApp</label>
+                                        <input type="text" class="form-control" id="whatsapptxt-informe-imagen" name="whatsapptxt" placeholder="595983222999">
+                                    </div>
+                                    <div class="form-group col-md-5">
+                                        <label for="email-informe-imagen">Email del Paciente</label>
+                                        <input type="text" class="form-control" id="email-informe-imagen" name="email" placeholder="jhondoe@gmail.com">
                                     </div>
                                 </div>
-                                
-                                <div class="form-group-enhanced">
-                                    <label for="receta-textarea">Informe y Recomendaciones</label>
-                                    <textarea id="receta-textarea" class="form-control" rows="6" placeholder="Escriba el informe y recomendaciones..."></textarea>
-                                </div>
-                                
-                                <!-- Sección específica para manejo de imágenes -->
-                                <div class="imagen-section">
-                                    <h5><i class="fas fa-images"></i> Gestión de Imágenes</h5>
-                                    <div class="form-group-enhanced">
-                                        <label for="emails">Emails para envío</label>
-                                        <input type="text" id="emails" class="form-control" placeholder="Ingrese emails separados por comas">
-                                        <small class="form-text text-muted">Puede ingresar múltiples emails separados por comas</small>
+
+                                <div class="form-group">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="gridCheck-informe-imagen">
+                                        <label class="form-check-label" for="gridCheck-informe-imagen">
+                                            Enviar informe
+                                        </label>
                                     </div>
                                 </div>
-                                
-                                <div class="form-row-enhanced">
-                                    <div class="form-group-enhanced">
-                                        <label for="proximaconsulta">Próxima Consulta</label>
-                                        <input type="date" id="proximaconsulta" class="form-control">
-                                    </div>
-                                    <div class="form-group-enhanced">
-                                        <label for="whatsapptxt">WhatsApp</label>
-                                        <input type="text" id="whatsapptxt" class="form-control" placeholder="Número de WhatsApp">
-                                    </div>
-                                    <div class="form-group-enhanced">
-                                        <label for="email">Email</label>
-                                        <input type="email" id="email" class="form-control" placeholder="Email del paciente">
-                                    </div>
-                                </div>
+
+                                <input type="hidden" id="id_user-informe-imagen" name="id_user" value="1">
+                                <input type="hidden" id="id_reserva-informe-imagen" name="id_reserva" value="0">
+                                <input type="hidden" id="form_type-informe-imagen" name="form_type" value="informe_imagen">
+                                <button type="button" class="btn btn-primary" id="btnGuardarConsulta-informe-imagen">Guardar</button>
                             </form>
+                            <hr>
+
+                            <div class="form-container">
+                                <h2>Subir Archivos</h2>
+                                <form id="uploadForm-informe-imagen" method="post" enctype="multipart/form-data">
+                                    <input type="hidden" id="id_persona_file-informe-imagen" name="id_persona_file">
+                                    <input type="file" name="files[]" id="files-informe-imagen" multiple>
+                                    <div class="error" id="error-informe-imagen"></div>
+                                    <input type="button" id="btnSubirArchivos-informe-imagen" value="Subir Archivos">
+                                </form>
+                            </div>
+
+                            <script>
+                            function toggleFormularioInformeImagen(btn) {
+                                const form = document.getElementById("formOpciones-informe-imagen");
+                                const icon = btn.querySelector("i");
+
+                                if (form.style.display === "none") {
+                                    form.style.display = "flex";
+                                    icon.classList.remove("bi-eye");
+                                    icon.classList.add("bi-eye-slash");
+                                    btn.innerHTML = '<i class="bi bi-eye-slash"></i> Ocultar';
+                                } else {
+                                    form.style.display = "none";
+                                    icon.classList.remove("bi-eye-slash");
+                                    icon.classList.add("bi-eye");
+                                    btn.innerHTML = '<i class="bi bi-eye"></i> Mostrar';
+                                }
+                            }
+
+                            // Configuración específica del formulario de informe+imagen
+                            document.addEventListener('DOMContentLoaded', function() {
+                                console.log('Inicializando formulario de informe+imagen...');
+                                
+                                // Inicializar Tagify para emails
+                                const emailInput = document.getElementById('txtEmailShare-informe-imagen');
+                                if (emailInput && typeof Tagify !== 'undefined') {
+                                    const emailTagify = new Tagify(emailInput, {
+                                        delimiters: ", ",
+                                        pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                                        whitelist: [],
+                                        dropdown: {
+                                            enabled: 0
+                                        },
+                                        placeholder: "Agregar emails...",
+                                        maxTags: 10
+                                    });
+                                    console.log('Tagify inicializado para emails');
+                                }
+                                
+                                console.log('Formulario de informe+imagen inicializado, usando handler general');
+                                
+                                // Inicializar select2 si está disponible
+                                if (typeof $.fn.select2 !== 'undefined') {
+                                    $('.select2bs4').select2({
+                                        theme: 'bootstrap4',
+                                        width: '100%'
+                                    });
+                                }
+                                
+                                // Sincronizar id_persona con id_persona_file
+                                const idPersonaInput = document.getElementById('idPersona-informe-imagen');
+                                if (idPersonaInput) {
+                                    idPersonaInput.addEventListener('change', function() {
+                                        const idPersonaFile = document.getElementById('id_persona_file-informe-imagen');
+                                        if (idPersonaFile) {
+                                            idPersonaFile.value = this.value;
+                                        }
+                                    });
+                                }
+                            });
+                            </script>
                         </div>
                     </div>
                     

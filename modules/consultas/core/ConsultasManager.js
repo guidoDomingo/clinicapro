@@ -432,6 +432,16 @@ class ConsultasManager {
                 if (typeof window.cargarPreformatosConsulta === 'function') {
                     window.cargarPreformatosConsulta('estudios');
                 }
+            } else if (formType === 'informe_imagen') {
+                // Para informe imagen, usar el sistema sin duplicados con IDs específicos
+                console.log(`🖼️ Cargando preformatos de informe imagen usando IDs específicos...`);
+                if (typeof cargarPreformatosSinDuplicados === 'function') {
+                    cargarPreformatosSinDuplicados('consulta', 'informe_imagen', 'formatoConsulta-informe-imagen');
+                }
+                // También cargar con sistema original si existe
+                if (typeof window.cargarPreformatosConsulta === 'function') {
+                    window.cargarPreformatosConsulta('informe_imagen');
+                }
             } else {
                 // Para otros formularios, usar el sistema nuevo
                 const component = this.formComponents.get(formType);

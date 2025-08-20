@@ -240,6 +240,13 @@ function aplicarPreformatoSinDuplicados(tipo, idPreformato, selector) {
             case 'receta': textareaId = 'receta-textarea-estudios'; break;
             default: textareaId = `${tipo}-textarea-estudios`;
         }
+    } else if (selector.id.includes('-informe-imagen')) {
+        // Para formulario de informe imagen, usar IDs específicos
+        switch (tipo) {
+            case 'consulta': textareaId = 'consulta-textarea-informe-imagen'; break;
+            case 'receta': textareaId = 'receta-textarea-informe-imagen'; break;
+            default: textareaId = `${tipo}-textarea-informe-imagen`;
+        }
     } else {
         // Para formularios generales, usar IDs estándar
         switch (tipo) {
