@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Motivos Comunes - Debug</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .form-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .form-group { margin: 10px 0; }
+        label { font-weight: bold; }
+        select, textarea { width: 100%; max-width: 400px; }
+        textarea { height: 80px; }
+        button { margin: 5px; padding: 10px 15px; }
+        .debug-panel { background: #f5f5f5; padding: 15px; margin: 10px 0; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .nav-tabs { list-style: none; padding: 0; display: flex; margin: 0 0 20px 0; }
+        .nav-tabs li { margin-right: 10px; }
+        .nav-tabs a { display: block; padding: 10px 15px; background: #e9e9e9; text-decoration: none; color: #333; }
+        .nav-tabs .active a { background: #007cba; color: white; }
+    </style>
+</head>
+<body>
+    <h1>Test Motivos Comunes - Sistema Unificado</h1>
+    
+    <div class="debug-panel">
+        <h3>Panel de Debug</h3>
+        <button onclick="diagnosticarMotivosComunes()">🔧 Diagnosticar Sistema</button>
+        <button onclick="probarMotivo('Motivo de prueba manual')">🧪 Probar Motivo</button>
+        <button onclick="configurarMotivosComunes()">🔄 Reconfigurar</button>
+        <p><strong>Instrucciones:</strong> Abre las Herramientas de Desarrollador (F12) y ve a la pestaña Console para ver los logs detallados.</p>
+    </div>
+
+    <!-- Simulación de pestañas -->
+    <ul class="nav-tabs">
+        <li class="active"><a href="#" onclick="activateTab('general')">General</a></li>
+        <li><a href="#" onclick="activateTab('anteojos')">Anteojos</a></li>
+        <li><a href="#" onclick="activateTab('estudios')">Estudios</a></li>
+        <li><a href="#" onclick="activateTab('informe-imagen')">Informe Imagen</a></li>
+    </ul>
+
+    <!-- Formulario General -->
+    <div id="general" class="tab-content active">
+        <div class="form-section">
+            <h3>Formulario General</h3>
+            <div class="form-group">
+                <label>Motivos Comunes:</label>
+                <select id="motivoscomunes" class="form-control">
+                    <option value="">Seleccione un motivo...</option>
+                    <option value="Dolor de cabeza">Dolor de cabeza</option>
+                    <option value="Mareos">Mareos</option>
+                    <option value="Visión borrosa">Visión borrosa</option>
+                    <option value="Malestar general">Malestar general</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Motivo:</label>
+                <textarea id="motivo" name="motivo" placeholder="Motivo de la consulta..."></textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulario Anteojos -->
+    <div id="anteojos" class="tab-content">
+        <div class="form-section">
+            <h3>Formulario Anteojos</h3>
+            <div class="form-group">
+                <label>Motivos Comunes:</label>
+                <select id="motivoscomunes-anteojos" class="form-control select2-anteojos">
+                    <option value="">Seleccione un motivo...</option>
+                    <option value="Revisión de anteojos">Revisión de anteojos</option>
+                    <option value="Cambio de graduación">Cambio de graduación</option>
+                    <option value="Marcos nuevos">Marcos nuevos</option>
+                    <option value="Lentes progresivos">Lentes progresivos</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Motivo:</label>
+                <textarea id="motivo-anteojos" name="motivo" placeholder="Motivo de la consulta..."></textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulario Estudios -->
+    <div id="estudios" class="tab-content">
+        <div class="form-section">
+            <h3>Formulario Estudios</h3>
+            <div class="form-group">
+                <label>Motivos Comunes:</label>
+                <select id="motivoscomunes-estudios" class="form-control">
+                    <option value="">Seleccione un motivo...</option>
+                    <option value="Análisis de sangre">Análisis de sangre</option>
+                    <option value="Estudio cardiológico">Estudio cardiológico</option>
+                    <option value="Radiografía">Radiografía</option>
+                    <option value="Ecografía">Ecografía</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Motivo:</label>
+                <textarea id="motivo-estudios" name="motivo" placeholder="Motivo del estudio..."></textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulario Informe Imagen -->
+    <div id="informe-imagen" class="tab-content">
+        <div class="form-section">
+            <h3>Formulario Informe Imagen</h3>
+            <div class="form-group">
+                <label>Motivos Comunes:</label>
+                <select id="motivoscomunes-informe-imagen" class="form-control select2-informe">
+                    <option value="">Seleccione un motivo...</option>
+                    <option value="Análisis de imagen">Análisis de imagen</option>
+                    <option value="Comparación temporal">Comparación temporal</option>
+                    <option value="Segunda opinión">Segunda opinión</option>
+                    <option value="Informe especializado">Informe especializado</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Motivo:</label>
+                <textarea id="motivo-informe-imagen" name="motivo" placeholder="Motivo del informe..."></textarea>
+            </div>
+        </div>
+    </div>
+
+    <script src="view/js/motivos-comunes-unificado.js"></script>
+
+    <script>
+        // Funciones para simular el cambio de pestañas
+        function activateTab(tabName) {
+            // Ocultar todas las pestañas
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-tabs li').forEach(li => {
+                li.classList.remove('active');
+            });
+            
+            // Mostrar la pestaña seleccionada
+            document.getElementById(tabName).classList.add('active');
+            event.target.parentElement.classList.add('active');
+            
+            // Disparar evento personalizado para simular cambio de formulario
+            const customEvent = new CustomEvent('formTypeChanged', {
+                detail: { formType: tabName }
+            });
+            document.dispatchEvent(customEvent);
+            
+            console.log(`🔄 Pestaña cambiada a: ${tabName}`);
+        }
+
+        // Inicializar Select2 en algunos elementos
+        $(document).ready(function() {
+            $('.select2-anteojos').select2({
+                placeholder: 'Seleccione un motivo...',
+                allowClear: true,
+                width: '100%'
+            });
+            
+            $('.select2-informe').select2({
+                placeholder: 'Seleccione un motivo...',
+                allowClear: true,
+                width: '100%'
+            });
+        });
+    </script>
+</body>
+</html>

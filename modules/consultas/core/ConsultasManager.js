@@ -397,6 +397,9 @@ class ConsultasManager {
             await this.state.components[formType].show();
         }
         
+        // Asegurar que los motivos comunes estén poblados
+        this.populateMotivosComunes();
+        
         // FORZAR RECARGA DE PREFORMATOS para el formulario activo
         setTimeout(async () => {
             if (formType === 'anteojos') {
@@ -841,13 +844,83 @@ class ConsultasManager {
      */
     async loadMotivosComunes() {
         try {
-            const response = await fetch('modules/consultas/api/consultas-api.php?action=getMotivosComunes');
-            const data = await response.json();
-            this.state.motivosComunes = data.success ? data.data : [];
+            // Cargar motivos comunes para todos los tipos de formulario
+            const formTypes = ['general', 'anteojos', 'estudios', 'informe_imagen'];
+            const motivosPromises = formTypes.map(async (tipo) => {
+                const response = await fetch(`modules/consultas/api/consultas-api.php?action=getMotivosComunes&tipo_formulario=${tipo}`);
+                const data = await response.json();
+                return {
+                    tipo,
+                    motivos: data.success ? data.data : []
+                };
+            });
+            
+            const motivosResults = await Promise.all(motivosPromises);
+            
+            // Organizar motivos por tipo
+            this.state.motivosPorTipo = {};
+            motivosResults.forEach(result => {
+                this.state.motivosPorTipo[result.tipo] = result.motivos;
+            });
+            
+            // Mantener compatibilidad con el estado anterior (usar motivos generales)
+            this.state.motivosComunes = this.state.motivosPorTipo.general || [];
+            
+            // Poblar todos los selects de motivos comunes
+            this.populateMotivosComunes();
         } catch (error) {
             console.warn('Error cargando motivos comunes:', error);
             this.state.motivosComunes = [];
+            this.state.motivosPorTipo = {};
         }
+    }
+    
+    /**
+     * Poblar todos los selects de motivos comunes
+     */
+    populateMotivosComunes() {
+        console.log('🎯 Poblando motivos comunes en todos los formularios...');
+        
+        const selectConfig = [
+            { id: 'motivoscomunes', tipo: 'general' },
+            { id: 'motivoscomunes-anteojos', tipo: 'anteojos' }, 
+            { id: 'motivoscomunes-estudios', tipo: 'estudios' },
+            { id: 'motivoscomunes-informe-imagen', tipo: 'informe_imagen' }
+        ];
+        
+        selectConfig.forEach(config => {
+            const select = document.getElementById(config.id);
+            if (select) {
+                // Obtener motivos para este tipo específico o usar generales como fallback
+                const motivos = this.state.motivosPorTipo?.[config.tipo] || this.state.motivosPorTipo?.general || [];
+                
+                // Limpiar opciones existentes (excepto la primera)
+                const firstOption = select.querySelector('option');
+                select.innerHTML = '';
+                if (firstOption) {
+                    select.appendChild(firstOption);
+                }
+                
+                // Agregar opciones de motivos comunes
+                motivos.forEach(motivo => {
+                    const option = document.createElement('option');
+                    option.value = motivo.descripcion || motivo.nombre || motivo.text || motivo;
+                    option.textContent = motivo.descripcion || motivo.nombre || motivo.text || motivo;
+                    select.appendChild(option);
+                });
+                
+                console.log(`✅ ${motivos.length} motivos del tipo "${config.tipo}" cargados en ${config.id}`);
+                
+                // Si es Select2, refrescar
+                if (select.classList.contains('select2bs4') || select.classList.contains('select2-hidden-accessible')) {
+                    if (typeof $ !== 'undefined' && $(select).data('select2')) {
+                        $(select).trigger('change.select2');
+                    }
+                }
+            } else {
+                console.warn(`⚠️ Select ${config.id} no encontrado`);
+            }
+        });
     }
     
     /**

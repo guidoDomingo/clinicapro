@@ -1221,6 +1221,7 @@ $userName = $_SESSION['username'] ?? 'Usuario';
         // Cargar scripts dinámicamente con la ruta correcta
         const scriptsToLoad = [
             './view/js/preformatos_sin_duplicados.js',
+            './view/js/motivos-comunes-unificado.js',
             './modules/consultas/core/ConsultasManager.js',
             './modules/consultas/core/FormComponents.js', 
             './modules/consultas/core/PatientManager.js',
