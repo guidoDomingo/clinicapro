@@ -1104,6 +1104,13 @@ class PatientManager {
     }
     
     /**
+     * Obtener el paciente actualmente seleccionado
+     */
+    getSelectedPatient() {
+        return this.consultasManager?.state?.currentPatient || null;
+    }
+    
+    /**
      * Mostrar modal genérico
      */
     showModal(title, content, onShown = null) {

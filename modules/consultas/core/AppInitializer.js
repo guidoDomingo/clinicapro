@@ -171,6 +171,9 @@ class AppInitializer {
         // Configurar eventos de tabs de tipo de formulario
         this.setupFormTypeTabs();
         
+        // Configurar botones de acción
+        this.setupActionButtons();
+        
         // Configurar tooltips
         if (jQuery && jQuery.fn.tooltip) {
             jQuery('[data-toggle="tooltip"]').tooltip();
@@ -262,6 +265,104 @@ class AppInitializer {
         }
         
         console.log(`🎨 Estado visual actualizado para: ${activeFormType}`);
+    }
+
+    /**
+     * Configurar event listeners para los botones de acción
+     */
+    setupActionButtons() {
+        console.log('🔧 Configurando botones de acción...');
+        
+        // Botón Guardar Consulta
+        const btnGuardar = document.getElementById('btnGuardarConsulta');
+        if (btnGuardar) {
+            // Remover listeners existentes clonando el elemento
+            const newBtnGuardar = btnGuardar.cloneNode(true);
+            btnGuardar.parentNode.replaceChild(newBtnGuardar, btnGuardar);
+            
+            newBtnGuardar.addEventListener('click', async (e) => {
+                e.preventDefault();
+                console.log('💾 Botón Guardar clickeado');
+                
+                const consultasManager = this.components.get('consultas');
+                if (consultasManager) {
+                    try {
+                        await consultasManager.saveCurrentForm();
+                    } catch (error) {
+                        console.error('❌ Error guardando consulta:', error);
+                    }
+                } else {
+                    console.error('❌ ConsultasManager no disponible');
+                }
+            });
+            console.log('✅ Botón Guardar configurado');
+        } else {
+            console.warn('⚠️ Botón Guardar no encontrado');
+        }
+        
+        // Botón Limpiar Formulario
+        const btnLimpiar = document.getElementById('btnLimpiarFormulario');
+        if (btnLimpiar) {
+            const newBtnLimpiar = btnLimpiar.cloneNode(true);
+            btnLimpiar.parentNode.replaceChild(newBtnLimpiar, btnLimpiar);
+            
+            newBtnLimpiar.addEventListener('click', async (e) => {
+                e.preventDefault();
+                console.log('🗑️ Botón Limpiar clickeado');
+                
+                const consultasManager = this.components.get('consultas');
+                if (consultasManager) {
+                    consultasManager.clearCurrentForm();
+                } else {
+                    console.error('❌ ConsultasManager no disponible');
+                }
+            });
+            console.log('✅ Botón Limpiar configurado');
+        }
+        
+        // Botón Descargar PDF
+        const btnPDF = document.getElementById('btnDescargarPDF');
+        if (btnPDF) {
+            const newBtnPDF = btnPDF.cloneNode(true);
+            btnPDF.parentNode.replaceChild(newBtnPDF, btnPDF);
+            
+            newBtnPDF.addEventListener('click', async (e) => {
+                e.preventDefault();
+                console.log('📄 Botón PDF clickeado');
+                
+                const consultasManager = this.components.get('consultas');
+                if (consultasManager && consultasManager.state.currentConsulta) {
+                    // Implementar descarga de PDF
+                    console.log('📄 Generando PDF...');
+                } else {
+                    alert('Primero debe guardar la consulta para generar el PDF');
+                }
+            });
+            console.log('✅ Botón PDF configurado');
+        }
+        
+        // Botón WhatsApp
+        const btnWhatsApp = document.getElementById('btnEnviarWhatsApp');
+        if (btnWhatsApp) {
+            const newBtnWhatsApp = btnWhatsApp.cloneNode(true);
+            btnWhatsApp.parentNode.replaceChild(newBtnWhatsApp, btnWhatsApp);
+            
+            newBtnWhatsApp.addEventListener('click', async (e) => {
+                e.preventDefault();
+                console.log('📱 Botón WhatsApp clickeado');
+                
+                const consultasManager = this.components.get('consultas');
+                if (consultasManager && consultasManager.state.currentConsulta) {
+                    // Implementar envío por WhatsApp
+                    console.log('📱 Enviando por WhatsApp...');
+                } else {
+                    alert('Primero debe guardar la consulta para enviar por WhatsApp');
+                }
+            });
+            console.log('✅ Botón WhatsApp configurado');
+        }
+        
+        console.log('✅ Todos los botones de acción configurados');
     }
 
     // ================================

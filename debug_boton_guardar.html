@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>🔧 Debug Botón Guardar</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .debug-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; }
+        .error { background-color: #f8d7da; }
+        .info { background-color: #d1ecf1; }
+        .warning { background-color: #fff3cd; }
+        pre { background-color: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Debug del Botón Guardar</h1>
+    
+    <div class="debug-section info">
+        <h3>🧪 Pruebas de Funcionalidad</h3>
+        <button onclick="testComponents()">Test Componentes</button>
+        <button onclick="testFormData()">Test FormData</button>
+        <button onclick="testSaveFunction()">Test Función Guardar</button>
+        <button onclick="clearResults()">Limpiar Resultados</button>
+    </div>
+    
+    <div id="results"></div>
+    
+    <div class="debug-section warning">
+        <h3>📋 Instrucciones:</h3>
+        <ol>
+            <li>Abra esta página junto con la página de consultas</li>
+            <li>Use las DevTools para ver los logs de consola</li>
+            <li>Ejecute los tests para verificar que todo funcione</li>
+            <li>Si hay errores, se mostrarán aquí</li>
+        </ol>
+    </div>
+    
+    <script>
+        function addResult(title, content, type = 'info') {
+            const resultsDiv = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `debug-section ${type}`;
+            div.innerHTML = `
+                <h4>${title}</h4>
+                <pre>${typeof content === 'string' ? content : JSON.stringify(content, null, 2)}</pre>
+            `;
+            resultsDiv.appendChild(div);
+        }
+        
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+        
+        async function testComponents() {
+            addResult('🔍 Test de Componentes', 'Verificando disponibilidad de componentes...', 'info');
+            
+            try {
+                // Verificar si window tiene los componentes
+                const components = {
+                    GeneralForm: typeof window.GeneralForm,
+                    AnteojosFormComponent: typeof window.AnteojosFormComponent,
+                    EstudiosFormComponent: typeof window.EstudiosFormComponent,
+                    InformeImagenFormComponent: typeof window.InformeImagenFormComponent
+                };
+                
+                addResult('✅ Componentes en Window', components, 'success');
+                
+                // Verificar AppInitializer y ConsultasManager
+                const managers = {
+                    appInitializer: typeof window.appInitializer,
+                    debugConsultas: typeof window.debugConsultas
+                };
+                
+                addResult('📊 Managers Disponibles', managers, 'info');
+                
+                // Si debugConsultas está disponible, obtener más info
+                if (window.debugConsultas) {
+                    const manager = window.debugConsultas.getManager();
+                    if (manager) {
+                        const managerInfo = {
+                            currentFormType: manager.state.currentFormType,
+                            formComponentsSize: manager.formComponents?.size,
+                            stateComponentsKeys: Object.keys(manager.state.components || {}),
+                            hasGeneralForm: manager.formComponents?.has('general')
+                        };
+                        
+                        addResult('🎯 Estado del Manager', managerInfo, 'info');
+                    }
+                }
+                
+            } catch (error) {
+                addResult('❌ Error en Test de Componentes', error.message, 'error');
+            }
+        }
+        
+        async function testFormData() {
+            addResult('📋 Test de FormData', 'Verificando extracción de datos del formulario...', 'info');
+            
+            try {
+                if (!window.debugConsultas) {
+                    throw new Error('debugConsultas no disponible');
+                }
+                
+                const manager = window.debugConsultas.getManager();
+                if (!manager) {
+                    throw new Error('Manager no disponible');
+                }
+                
+                const formType = manager.state.currentFormType;
+                const component = manager.formComponents?.get(formType);
+                
+                if (!component) {
+                    throw new Error(`Componente ${formType} no encontrado`);
+                }
+                
+                addResult('📝 Componente Encontrado', {
+                    formType,
+                    componentType: component.constructor.name,
+                    hasGetFormData: typeof component.getFormData === 'function',
+                    componentMethods: Object.getOwnPropertyNames(Object.getPrototypeOf(component))
+                }, 'success');
+                
+                // Intentar obtener FormData
+                if (typeof component.getFormData === 'function') {
+                    const formData = await component.getFormData();
+                    const formDataInfo = {
+                        type: formData.constructor.name,
+                        keys: Array.from(formData.keys()),
+                        entries: Object.fromEntries(formData.entries())
+                    };
+                    
+                    addResult('✅ FormData Obtenido', formDataInfo, 'success');
+                } else {
+                    throw new Error('Componente no tiene método getFormData');
+                }
+                
+            } catch (error) {
+                addResult('❌ Error en Test de FormData', error.message, 'error');
+            }
+        }
+        
+        async function testSaveFunction() {
+            addResult('💾 Test de Función Guardar', 'Ejecutando simulación de guardado...', 'info');
+            
+            try {
+                if (!window.debugConsultas) {
+                    throw new Error('debugConsultas no disponible');
+                }
+                
+                const manager = window.debugConsultas.getManager();
+                if (!manager) {
+                    throw new Error('Manager no disponible');
+                }
+                
+                addResult('🔄 Ejecutando saveCurrentForm()...', 'Llamando al método de guardado', 'info');
+                
+                // Ejecutar la función de guardado
+                await manager.saveCurrentForm();
+                
+                addResult('✅ Guardado Completado', 'La función se ejecutó sin errores. Revise la consola del navegador para más detalles.', 'success');
+                
+            } catch (error) {
+                addResult('❌ Error en Test de Guardado', {
+                    message: error.message,
+                    stack: error.stack
+                }, 'error');
+            }
+        }
+        
+        // Auto-ejecutar test básico al cargar
+        setTimeout(() => {
+            addResult('🚀 Sistema de Debug Cargado', 'Use los botones de arriba para ejecutar pruebas específicas.', 'info');
+            testComponents();
+        }, 1000);
+    </script>
+</body>
+</html>

@@ -611,25 +611,73 @@ class ConsultasManager {
      */
     async saveCurrentForm() {
         const formType = this.state.currentFormType;
-        const component = this.state.components[formType];
+        
+        // Intentar obtener el componente desde formComponents (Map) primero
+        let component = this.formComponents?.get(formType);
+        
+        // Si no existe, intentar desde state.components (Object)
+        if (!component) {
+            component = this.state.components?.[formType];
+        }
+        
+        // Si aún no existe, intentar cargar dinámicamente
+        if (!component) {
+            try {
+                await this.loadFormComponent(formType);
+                component = this.state.components[formType];
+            } catch (error) {
+                console.error(`❌ No se pudo cargar componente ${formType}:`, error);
+            }
+        }
         
         if (!component) {
-            throw new Error(`Componente ${formType} no encontrado`);
+            throw new Error(`Componente ${formType} no encontrado - Verificado en formComponents y state.components`);
         }
         
         try {
             this.setLoading(true, 'Guardando consulta...');
             
-            // Obtener datos del formulario
-            const formData = await component.getFormData();
+            console.log(`💾 Guardando formulario tipo: ${formType}`, component);
             
-            // Validar datos
-            const validation = await component.validateData(formData);
-            if (!validation.valid) {
-                throw new Error(validation.message);
+            // Verificar que el componente esté inicializado
+            if (!component.isInitialized) {
+                console.warn(`⚠️ Componente ${formType} no está inicializado, inicializando ahora...`);
+                try {
+                    await component.initialize();
+                    console.log(`✅ Componente ${formType} inicializado correctamente`);
+                } catch (initError) {
+                    console.error(`❌ Error inicializando componente ${formType}:`, initError);
+                }
             }
             
-            // Guardar
+            // Verificar que el componente tiene los métodos necesarios
+            if (typeof component.getFormData !== 'function') {
+                console.error(`❌ Componente ${formType} no tiene método getFormData`);
+                throw new Error(`Componente ${formType} no implementa getFormData()`);
+            }
+            
+            // Obtener datos del formulario
+            const formData = await component.getFormData();
+            console.log(`📊 Datos del formulario obtenidos:`, formData);
+            
+            // Validar datos si el método existe
+            if (typeof component.validateData === 'function') {
+                const validation = await component.validateData(formData);
+                if (!validation.valid) {
+                    throw new Error(validation.message);
+                }
+            } else {
+                console.log(`⚠️ Componente ${formType} no tiene validación - continuando sin validar`);
+            }
+            
+            // Para debugging: solo mostrar los datos sin guardar por ahora
+            console.log(`✅ Datos preparados para guardar en ${formType}:`, {
+                formType,
+                formDataKeys: Array.from(formData.keys()),
+                componentMethods: Object.getOwnPropertyNames(Object.getPrototypeOf(component))
+            });
+            
+            // Implementar guardado real
             const result = await this.saveConsulta(formData, formType);
             
             if (result.success) {
@@ -637,11 +685,13 @@ class ConsultasManager {
                 this.state.currentConsulta = result.data;
                 
                 this.notifications.success(
-                    this.state.isEditing ? 'Consulta actualizada' : 'Consulta guardada'
+                    this.state.isEditing ? 'Consulta actualizada exitosamente' : 'Consulta guardada exitosamente'
                 );
                 
+                console.log('🎉 Guardado exitoso:', result.data);
+                
                 // Actualizar lista de consultas
-                this.refreshConsultasList();
+                // this.refreshConsultasList();
                 
                 // Disparar evento
                 document.dispatchEvent(new CustomEvent('consultaSaved', {
@@ -1036,6 +1086,69 @@ class ConsultasManager {
     }
     
     /**
+     * Limpiar formulario actual (alias para compatibilidad)
+     */
+    clearCurrentForm() {
+        console.log('🗑️ Limpiando formulario actual...');
+        
+        // Confirmar si hay cambios no guardados
+        if (this.state.hasUnsavedChanges) {
+            const confirmed = confirm('¿Estás seguro de que quieres limpiar el formulario? Se perderán todos los cambios no guardados.');
+            if (!confirmed) {
+                return;
+            }
+        }
+        
+        // Usar el método existente
+        this.clearActiveConsulta();
+        
+        // También limpiar el estado
+        this.state.hasUnsavedChanges = false;
+        this.state.currentConsulta = null;
+        
+        // Limpiar campos específicos del formulario actual
+        const currentFormType = this.state.currentFormType;
+        const component = this.state.components[currentFormType];
+        
+        if (component && typeof component.clearForm === 'function') {
+            component.clearForm();
+        } else {
+            // Limpiar de forma genérica
+            this.clearFormFields();
+        }
+        
+        console.log('✅ Formulario limpiado');
+    }
+    
+    /**
+     * Limpiar campos de forma genérica
+     */
+    clearFormFields() {
+        // Limpiar todos los inputs, textareas y selects del formulario activo
+        const activeForm = document.querySelector('.formulario-especifico.active');
+        if (activeForm) {
+            const fields = activeForm.querySelectorAll('input, textarea, select');
+            fields.forEach(field => {
+                if (field.type === 'checkbox' || field.type === 'radio') {
+                    field.checked = false;
+                } else if (field.tagName === 'SELECT') {
+                    field.selectedIndex = 0;
+                } else {
+                    field.value = '';
+                }
+            });
+            
+            // Limpiar Summernote si existe
+            const summernoteFields = activeForm.querySelectorAll('.summernote');
+            summernoteFields.forEach(field => {
+                if ($(field).data('summernote')) {
+                    $(field).summernote('code', '');
+                }
+            });
+        }
+    }
+    
+    /**
      * Configurar sistema de navegación
      */
     setupNavigation() {
@@ -1220,7 +1333,7 @@ class ConsultasManager {
         try {
             console.log(`📋 Cargando consulta ID: ${consultaId}`);
             
-            const response = await fetch(`modules/consultas/api/consultas-api.php?action=getConsulta&id=${consultaId}`);
+            const response = await fetch(`modules/consultas/api/consultas-api.php?action=get_consulta&consulta_id=${consultaId}`);
             const data = await response.json();
             
             if (data.success && data.data) {
@@ -1271,6 +1384,104 @@ class ConsultasManager {
         });
         
         console.log('📝 Formulario poblado con datos');
+    }
+    
+    /**
+     * Guardar consulta en la base de datos
+     */
+    async saveConsulta(formData, formType) {
+        try {
+            console.log(`💾 Enviando datos a la API para guardar consulta tipo: ${formType}`);
+            
+            // Verificar que hay un paciente seleccionado
+            const selectedPatient = this.state.currentPatient;
+            
+            if (!selectedPatient || !selectedPatient.id_persona) {
+                throw new Error('Debe seleccionar un paciente antes de guardar la consulta');
+            }
+            
+            // Preparar datos para envío
+            const submitData = new FormData();
+            
+            // Agregar ID del paciente
+            submitData.append('id_persona', selectedPatient.id_persona);
+            submitData.append('tipo_formulario', formType);
+            submitData.append('action', 'guardar_consulta');
+            
+            // Procesar FormData del formulario
+            for (const [key, value] of formData.entries()) {
+                if (value !== null && value !== undefined && value !== '') {
+                    submitData.append(key, value);
+                    console.log(`📝 Dato agregado: ${key} = ${value}`);
+                }
+            }
+            
+            // Agregar datos adicionales del sistema
+            const currentUser = this.getCurrentUser();
+            if (currentUser && currentUser.id) {
+                submitData.append('id_usuario', currentUser.id);
+            }
+            
+            // Log de datos que se van a enviar (sin mostrar archivos grandes)
+            const dataEntries = Array.from(submitData.entries()).filter(([key, value]) => !(value instanceof File));
+            console.log('📤 Datos que se enviarán:', Object.fromEntries(dataEntries));
+            
+            // Realizar petición
+            const response = await fetch('modules/consultas/api/consultas-api.php', {
+                method: 'POST',
+                body: submitData
+            });
+            
+            if (!response.ok) {
+                throw new Error(`Error HTTP: ${response.status} - ${response.statusText}`);
+            }
+            
+            const result = await response.json();
+            console.log('📨 Respuesta de la API:', result);
+            
+            if (!result.success) {
+                throw new Error(result.message || 'Error desconocido al guardar la consulta');
+            }
+            
+            console.log('✅ Consulta guardada exitosamente en la base de datos');
+            return result;
+            
+        } catch (error) {
+            console.error('❌ Error guardando consulta:', error);
+            throw error;
+        }
+    }
+    
+    /**
+     * Obtener información del usuario actual
+     */
+    getCurrentUser() {
+        // Intentar obtener desde variable global
+        if (typeof usuarioActual !== 'undefined') {
+            return usuarioActual;
+        }
+        
+        // Intentar obtener desde sessionStorage
+        const userStr = sessionStorage.getItem('currentUser');
+        if (userStr) {
+            try {
+                return JSON.parse(userStr);
+            } catch (e) {
+                console.warn('Error parseando usuario desde sessionStorage');
+            }
+        }
+        
+        // Intentar obtener desde meta tags o elementos DOM
+        const userIdMeta = document.querySelector('meta[name="user-id"]');
+        if (userIdMeta) {
+            return {
+                id: userIdMeta.getAttribute('content'),
+                username: document.querySelector('meta[name="username"]')?.getAttribute('content') || 'unknown'
+            };
+        }
+        
+        console.warn('No se pudo obtener información del usuario actual');
+        return null;
     }
     
     /**

@@ -25,15 +25,37 @@ class BaseFormComponent {
     /**
      * Inicializar componente
      */
-    async init() {
+    async initialize() {
         if (this.isInitialized) return;
         
         console.log(`🔧 Inicializando componente ${this.constructor.name}...`);
         
-        // Encontrar contenedor
-        this.container = document.getElementById(`formulario-${this.getFormType()}`);
+        // Intentar múltiples formas de encontrar el container
+        const formType = this.getFormType();
+        
+        console.log(`🔍 Buscando container para tipo: ${formType}`);
+        
+        // Lista de selectores a probar
+        const selectors = [
+            `#formulario-${formType}`,
+            `#form-${formType}`,
+            `.formulario-${formType}`,
+            `.form-${formType}`,
+            `[data-form-type="${formType}"]`
+        ];
+        
+        for (const selector of selectors) {
+            this.container = document.querySelector(selector);
+            if (this.container) {
+                console.log(`✅ Container encontrado con selector: ${selector}`, this.container);
+                break;
+            } else {
+                console.log(`❌ No encontrado con selector: ${selector}`);
+            }
+        }
+        
         if (!this.container) {
-            throw new Error(`Contenedor para ${this.getFormType()} no encontrado`);
+            console.warn(`⚠️ Container no encontrado para ${formType}. Continuando sin container específico.`);
         }
         
         // Configurar eventos
@@ -369,12 +391,44 @@ class BaseFormComponent {
     async getFormData() {
         const formData = new FormData();
         
+        console.log(`📋 getFormData() para ${this.getFormType()}, container:`, this.container, 'initialized:', this.isInitialized);
+        
+        // Verificar que el container existe
+        if (!this.container) {
+            console.warn(`🚨 Container no encontrado para ${this.getFormType()}, intentando re-inicializar...`);
+            await this.initialize();
+            
+            // Si sigue siendo null, intentar buscar el form directamente
+            if (!this.container) {
+                const formType = this.getFormType();
+                this.container = document.querySelector(`#form-${formType}`) || 
+                               document.querySelector(`#formulario-${formType}`) ||
+                               document.querySelector(`.form-${formType}`);
+                               
+                console.log(`🔍 Búsqueda manual de container para ${formType}:`, this.container);
+            }
+        }
+        
+        // Si no podemos encontrar el container, usar document como fallback
+        const searchRoot = this.container || document;
+        
+        if (!searchRoot) {
+            throw new Error(`No se puede acceder al DOM para el formulario ${this.getFormType()}`);
+        }
+        
+        console.log(`📍 Usando searchRoot:`, searchRoot === document ? 'document' : searchRoot.id || 'elemento sin ID');
+        
         // Obtener campos básicos
         const basicFields = this.getBasicFields();
+        console.log(`📝 Campos básicos para ${this.getFormType()}:`, basicFields);
+        
         basicFields.forEach(field => {
-            const element = this.container.querySelector(`#${field}`);
+            const element = searchRoot.querySelector(`#${field}`);
             if (element) {
                 formData.append(field, element.value || '');
+                console.log(`✅ Campo ${field}: "${element.value}"`);
+            } else {
+                console.warn(`🚨 Campo ${field} no encontrado en formulario ${this.getFormType()}`);
             }
         });
         
@@ -384,6 +438,7 @@ class BaseFormComponent {
             formData.append(key, value);
         }
         
+        console.log(`📊 FormData completa para ${this.getFormType()}:`, Array.from(formData.entries()));
         return formData;
     }
     
@@ -391,10 +446,13 @@ class BaseFormComponent {
      * Cargar datos en el formulario
      */
     async loadData(data) {
+        // Usar container si está disponible, sino buscar en documento
+        const searchRoot = this.container || document;
+        
         // Cargar campos básicos
         const basicFields = this.getBasicFields();
         basicFields.forEach(field => {
-            const element = this.container.querySelector(`#${field}`);
+            const element = searchRoot.querySelector(`#${field}`);
             if (element && data[field] !== undefined) {
                 element.value = data[field];
             }
@@ -432,10 +490,13 @@ class BaseFormComponent {
      * Limpiar formulario
      */
     async clear() {
+        // Usar container si está disponible, sino buscar en documento
+        const searchRoot = this.container || document;
+        
         // Limpiar campos básicos
         const basicFields = this.getBasicFields();
         basicFields.forEach(field => {
-            const element = this.container.querySelector(`#${field}`);
+            const element = searchRoot.querySelector(`#${field}`);
             if (element) {
                 element.value = '';
             }
@@ -452,14 +513,28 @@ class BaseFormComponent {
      * Configurar eventos del formulario
      */
     setupEvents() {
-        // Detectar cambios para marcar como modificado
-        this.container.addEventListener('input', () => {
-            this.manager.state.hasUnsavedChanges = true;
-        });
-        
-        this.container.addEventListener('change', () => {
-            this.manager.state.hasUnsavedChanges = true;
-        });
+        // Solo configurar eventos si tenemos container
+        if (this.container) {
+            // Detectar cambios para marcar como modificado
+            this.container.addEventListener('input', () => {
+                this.manager.state.hasUnsavedChanges = true;
+            });
+            
+            this.container.addEventListener('change', () => {
+                this.manager.state.hasUnsavedChanges = true;
+            });
+        } else {
+            // Si no hay container específico, usar document como fallback
+            document.addEventListener('input', (e) => {
+                // Solo escuchar elementos que pertenezcan a este formulario
+                const formType = this.getFormType();
+                if (e.target.closest(`#formulario-${formType}`) || 
+                    e.target.closest(`#form-${formType}`) ||
+                    this.getBasicFields().includes(e.target.id)) {
+                    this.manager.state.hasUnsavedChanges = true;
+                }
+            });
+        }
         
         // Eventos específicos del componente
         this.setupSpecificEvents();
@@ -551,6 +626,11 @@ class GeneralForm extends BaseFormComponent {
     
     async initialize() {
         console.log('🔧 Inicializando GeneralForm...');
+        
+        // Llamar inicialización de la clase padre
+        await super.initialize();
+        
+        // Inicializaciones específicas de GeneralForm
         await this.initializeFields();
     }
     
@@ -614,25 +694,38 @@ class GeneralForm extends BaseFormComponent {
     async getSpecificData() {
         const data = {};
         
+        console.log('📋 GeneralForm.getSpecificData() - Buscando campos específicos...');
+        
         // Obtener contenido de Summernote
         const consultaTextarea = document.getElementById('consulta-textarea');
         if (consultaTextarea) {
+            console.log('✅ Encontrado consulta-textarea');
             if ($(consultaTextarea).data('summernote')) {
                 data.diagnostico = $(consultaTextarea).summernote('code');
+                console.log('📝 Summernote consulta:', data.diagnostico?.substring(0, 50));
             } else {
                 data.diagnostico = consultaTextarea.value;
+                console.log('📝 Textarea consulta:', data.diagnostico?.substring(0, 50));
             }
+        } else {
+            console.warn('❌ No se encontró consulta-textarea');
         }
         
         const recetaTextarea = document.getElementById('receta-textarea');
         if (recetaTextarea) {
+            console.log('✅ Encontrado receta-textarea');
             if ($(recetaTextarea).data('summernote')) {
                 data.receta_textarea = $(recetaTextarea).summernote('code');
+                console.log('📝 Summernote receta:', data.receta_textarea?.substring(0, 50));
             } else {
                 data.receta_textarea = recetaTextarea.value;
+                console.log('📝 Textarea receta:', data.receta_textarea?.substring(0, 50));
             }
+        } else {
+            console.warn('❌ No se encontró receta-textarea');
         }
         
+        console.log('📊 GeneralForm data específica:', data);
         return data;
     }
     

@@ -188,7 +188,7 @@ $userName = $_SESSION['username'] ?? 'Usuario';
         }
     </style>
 </head>
-<body class="consultas-app" data-user-id="<?php echo $userId; ?>">
+<body class="consultas-app consultas-page" data-user-id="<?php echo $userId; ?>">
     
     <!-- Contenedor Principal -->
     <div class="app-container">
@@ -1206,6 +1206,10 @@ $userName = $_SESSION['username'] ?? 'Usuario';
     
     <!-- Scripts del Sistema Refactorizado -->
     <!-- IMPORTANTE: Cargar en este orden específico -->
+    
+    <!-- Script para corrección de footer -->
+    <script src="./modules/consultas/assets/js/footer-fix.js"></script>
+    
     <script>
         // Detectar la ruta base correcta
         const basePath = window.location.pathname.includes('index.php') ? './' : '';

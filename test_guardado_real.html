@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧪 Test Guardado Real - Clínica</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 20px; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid rgba(255,255,255,0.3);
+            padding-bottom: 20px;
+        }
+        .test-section {
+            background: rgba(255,255,255,0.05);
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .test-button {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .test-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+        .test-button.danger {
+            background: linear-gradient(45deg, #dc3545, #fd7e14);
+        }
+        .test-button.info {
+            background: linear-gradient(45deg, #17a2b8, #6f42c1);
+        }
+        .console-output {
+            background: rgba(0,0,0,0.7);
+            border: 1px solid #444;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-success { background: #28a745; }
+        .status-error { background: #dc3545; }
+        .status-warning { background: #ffc107; }
+        .status-info { background: #17a2b8; }
+        
+        .form-simulator {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .form-field {
+            margin: 10px 0;
+        }
+        .form-field input, .form-field textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 5px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            font-size: 14px;
+        }
+        .form-field input::placeholder, .form-field textarea::placeholder {
+            color: rgba(255,255,255,0.7);
+        }
+        .form-field label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 TEST GUARDADO REAL</h1>
+            <p>Pruebas del sistema de guardado implementado - Base de Datos Real</p>
+            <div id="systemStatus">
+                <span class="status-indicator status-info"></span>
+                <span>Sistema inicializando...</span>
+            </div>
+        </div>
+
+        <!-- Estado del Sistema -->
+        <div class="test-section">
+            <h3>🔍 Estado del Sistema</h3>
+            <button class="test-button info" onclick="checkSystemStatus()">🔄 Verificar Estado</button>
+            <button class="test-button info" onclick="checkConsultasManager()">📋 Verificar ConsultasManager</button>
+            <button class="test-button info" onclick="checkSelectedPatient()">👤 Verificar Paciente Seleccionado</button>
+            
+            <div id="systemInfo" class="console-output">Esperando verificación...</div>
+        </div>
+
+        <!-- Simulador de Paciente -->
+        <div class="test-section">
+            <h3>👤 Simulador de Paciente</h3>
+            <p>Simular selección de paciente para pruebas</p>
+            
+            <div class="form-simulator">
+                <div class="form-field">
+                    <label>ID Persona:</label>
+                    <input type="number" id="simulatePatientId" value="1" placeholder="ID del paciente">
+                </div>
+                <div class="form-field">
+                    <label>Nombre Completo:</label>
+                    <input type="text" id="simulatePatientName" value="Paciente de Prueba" placeholder="Nombre del paciente">
+                </div>
+                <div class="form-field">
+                    <label>Documento:</label>
+                    <input type="text" id="simulatePatientDoc" value="12345678" placeholder="Documento">
+                </div>
+            </div>
+            
+            <button class="test-button" onclick="simulatePatientSelection()">🎭 Simular Paciente Seleccionado</button>
+            <button class="test-button danger" onclick="clearPatientSelection()">🗑️ Limpiar Selección</button>
+            
+            <div id="patientInfo" class="console-output">Sin paciente seleccionado...</div>
+        </div>
+
+        <!-- Simulador de Formulario -->
+        <div class="test-section">
+            <h3>📋 Simulador de Datos de Consulta</h3>
+            <p>Datos de ejemplo para probar el guardado</p>
+            
+            <div class="form-simulator">
+                <div class="form-field">
+                    <label>Motivo:</label>
+                    <input type="text" id="testMotivo" value="Control de rutina - PRUEBA" placeholder="Motivo de la consulta">
+                </div>
+                <div class="form-field">
+                    <label>Consulta:</label>
+                    <textarea id="testConsulta" rows="4" placeholder="Descripción de la consulta">Consulta de prueba realizada desde el sistema de testing.
+                    
+Datos de ejemplo:
+- Presión arterial: Normal
+- Temperatura: 36.5°C
+- Observaciones: Paciente en buen estado general
+
+Esta es una consulta de PRUEBA del sistema de guardado real.</textarea>
+                </div>
+                <div class="form-field">
+                    <label>Receta:</label>
+                    <textarea id="testReceta" rows="3" placeholder="Receta médica">Paracetamol 500mg - Tomar 1 cada 8 horas por 3 días
+Descanso por 24 horas
+Control en 1 semana
+
+RECETA DE PRUEBA - Sistema de testing</textarea>
+                </div>
+                <div class="form-field">
+                    <label>Visión OD:</label>
+                    <input type="text" id="testVisionOd" value="20/20" placeholder="Visión ojo derecho">
+                </div>
+                <div class="form-field">
+                    <label>Visión OI:</label>
+                    <input type="text" id="testVisionOi" value="20/20" placeholder="Visión ojo izquierdo">
+                </div>
+                <div class="form-field">
+                    <label>Tipo de Formulario:</label>
+                    <select id="testTipoForm" style="width: 100%; padding: 8px; border-radius: 5px; background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.3);">
+                        <option value="general">General</option>
+                        <option value="anteojos">Anteojos</option>
+                        <option value="estudios">Estudios</option>
+                        <option value="informe_imagen">Informe + Imagen</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pruebas de Guardado -->
+        <div class="test-section">
+            <h3>💾 Pruebas de Guardado Real</h3>
+            <p>Tests del sistema de guardado en base de datos</p>
+            
+            <button class="test-button" onclick="testRealSave()">💾 PROBAR GUARDADO REAL</button>
+            <button class="test-button info" onclick="testFormDataCreation()">📊 Test Creación FormData</button>
+            <button class="test-button info" onclick="testAPIConnection()">🔌 Test Conexión API</button>
+            <button class="test-button danger" onclick="testErrorHandling()">⚠️ Test Manejo de Errores</button>
+            
+            <div id="saveResults" class="console-output">Esperando prueba de guardado...</div>
+        </div>
+
+        <!-- Logs en Tiempo Real -->
+        <div class="test-section">
+            <h3>📊 Logs del Sistema</h3>
+            <button class="test-button info" onclick="clearLogs()">🗑️ Limpiar Logs</button>
+            <button class="test-button info" onclick="startLogCapture()">📝 Capturar Logs</button>
+            <button class="test-button" onclick="exportLogs()">💾 Exportar Logs</button>
+            
+            <div id="systemLogs" class="console-output">🔄 Iniciando captura de logs...</div>
+        </div>
+    </div>
+
+    <script>
+        // Sistema de logs
+        let systemLogs = [];
+        let originalConsoleLog = console.log;
+        let originalConsoleError = console.error;
+        let originalConsoleWarn = console.warn;
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${type.toUpperCase()}: ${message}`;
+            systemLogs.push(logEntry);
+            
+            // Mostrar en la consola original también
+            switch(type) {
+                case 'error': originalConsoleError(message); break;
+                case 'warn': originalConsoleWarn(message); break;
+                default: originalConsoleLog(message); break;
+            }
+            
+            updateLogsDisplay();
+        }
+        
+        function updateLogsDisplay() {
+            const logsDiv = document.getElementById('systemLogs');
+            if (logsDiv) {
+                logsDiv.textContent = systemLogs.slice(-50).join('\n'); // Mostrar últimos 50 logs
+                logsDiv.scrollTop = logsDiv.scrollHeight;
+            }
+        }
+        
+        function clearLogs() {
+            systemLogs = [];
+            updateLogsDisplay();
+            log('Logs limpiados', 'info');
+        }
+        
+        function startLogCapture() {
+            // Interceptar console.log, console.error, etc.
+            console.log = function(...args) {
+                log(args.join(' '), 'info');
+            };
+            
+            console.error = function(...args) {
+                log(args.join(' '), 'error');
+            };
+            
+            console.warn = function(...args) {
+                log(args.join(' '), 'warn');
+            };
+            
+            log('Captura de logs iniciada', 'info');
+        }
+        
+        function exportLogs() {
+            const blob = new Blob([systemLogs.join('\n')], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `sistema_logs_${new Date().toISOString().split('T')[0]}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            log('Logs exportados', 'info');
+        }
+        
+        // Verificaciones del sistema
+        function checkSystemStatus() {
+            log('🔍 Verificando estado del sistema...', 'info');
+            
+            const checks = {
+                'ConsultasManager disponible': typeof ConsultasManager !== 'undefined',
+                'PatientManager disponible': typeof PatientManager !== 'undefined',
+                'window.debugConsultas': typeof window.debugConsultas !== 'undefined',
+                'Fetch API': typeof fetch !== 'undefined',
+                'FormData': typeof FormData !== 'undefined'
+            };
+            
+            let output = '=== ESTADO DEL SISTEMA ===\n';
+            for (const [check, result] of Object.entries(checks)) {
+                const status = result ? '✅' : '❌';
+                output += `${status} ${check}: ${result}\n`;
+                log(`${status} ${check}: ${result}`, result ? 'info' : 'error');
+            }
+            
+            document.getElementById('systemInfo').textContent = output;
+            
+            // Verificar estado general
+            const allPassed = Object.values(checks).every(Boolean);
+            const statusElement = document.getElementById('systemStatus');
+            if (allPassed) {
+                statusElement.innerHTML = '<span class="status-indicator status-success"></span><span>✅ Sistema Operacional</span>';
+                log('✅ Verificación del sistema: EXITOSA', 'info');
+            } else {
+                statusElement.innerHTML = '<span class="status-indicator status-error"></span><span>❌ Sistema con Errores</span>';
+                log('❌ Verificación del sistema: CON ERRORES', 'error');
+            }
+        }
+        
+        function checkConsultasManager() {
+            log('🔍 Verificando ConsultasManager...', 'info');
+            
+            try {
+                let manager;
+                
+                // Intentar obtener manager de diferentes fuentes
+                if (typeof window.debugConsultas !== 'undefined') {
+                    manager = window.debugConsultas.getManager();
+                    log('✅ Manager obtenido desde debugConsultas', 'info');
+                } else if (typeof ConsultasManager !== 'undefined') {
+                    manager = ConsultasManager.getInstance();
+                    log('✅ Manager obtenido desde ConsultasManager.getInstance()', 'info');
+                } else {
+                    throw new Error('ConsultasManager no disponible');
+                }
+                
+                const info = {
+                    'Instancia válida': !!manager,
+                    'Método saveCurrentForm': typeof manager.saveCurrentForm === 'function',
+                    'Método saveConsulta': typeof manager.saveConsulta === 'function',
+                    'Estado actual': manager.state ? 'Disponible' : 'No disponible',
+                    'Paciente actual': manager.state?.currentPatient ? 'Seleccionado' : 'No seleccionado'
+                };
+                
+                let output = '=== CONSULTAS MANAGER ===\n';
+                for (const [key, value] of Object.entries(info)) {
+                    const status = (typeof value === 'boolean' ? value : !!value) ? '✅' : '❌';
+                    output += `${status} ${key}: ${value}\n`;
+                }
+                
+                document.getElementById('systemInfo').textContent = output;
+                log('✅ ConsultasManager verificado correctamente', 'info');
+                
+            } catch (error) {
+                const errorMsg = `❌ Error verificando ConsultasManager: ${error.message}`;
+                document.getElementById('systemInfo').textContent = errorMsg;
+                log(errorMsg, 'error');
+            }
+        }
+        
+        function checkSelectedPatient() {
+            log('🔍 Verificando paciente seleccionado...', 'info');
+            
+            try {
+                let manager;
+                
+                if (typeof window.debugConsultas !== 'undefined') {
+                    manager = window.debugConsultas.getManager();
+                } else if (typeof ConsultasManager !== 'undefined') {
+                    manager = ConsultasManager.getInstance();
+                } else {
+                    throw new Error('ConsultasManager no disponible');
+                }
+                
+                const patient = manager.state?.currentPatient;
+                
+                let output = '=== PACIENTE SELECCIONADO ===\n';
+                if (patient) {
+                    output += `✅ Paciente: ${patient.nombres || 'Sin nombre'} ${patient.apellidos || ''}\n`;
+                    output += `✅ ID: ${patient.id_persona || 'Sin ID'}\n`;
+                    output += `✅ Documento: ${patient.documento || patient.ci || 'Sin documento'}\n`;
+                    output += `✅ Ficha: ${patient.nro_ficha || patient.ficha || 'Sin ficha'}\n`;
+                    log(`✅ Paciente seleccionado: ${patient.nombres} ${patient.apellidos}`, 'info');
+                } else {
+                    output += '❌ No hay paciente seleccionado\n';
+                    output += '⚠️ Necesario seleccionar paciente para guardar consulta\n';
+                    log('❌ No hay paciente seleccionado', 'warn');
+                }
+                
+                document.getElementById('patientInfo').textContent = output;
+                
+            } catch (error) {
+                const errorMsg = `❌ Error verificando paciente: ${error.message}`;
+                document.getElementById('patientInfo').textContent = errorMsg;
+                log(errorMsg, 'error');
+            }
+        }
+        
+        // Simulador de paciente
+        function simulatePatientSelection() {
+            log('🎭 Simulando selección de paciente...', 'info');
+            
+            try {
+                let manager;
+                
+                if (typeof window.debugConsultas !== 'undefined') {
+                    manager = window.debugConsultas.getManager();
+                } else if (typeof ConsultasManager !== 'undefined') {
+                    manager = ConsultasManager.getInstance();
+                } else {
+                    throw new Error('ConsultasManager no disponible');
+                }
+                
+                const simulatedPatient = {
+                    id_persona: document.getElementById('simulatePatientId').value,
+                    nombres: document.getElementById('simulatePatientName').value.split(' ')[0] || 'Paciente',
+                    apellidos: document.getElementById('simulatePatientName').value.split(' ').slice(1).join(' ') || 'de Prueba',
+                    documento: document.getElementById('simulatePatientDoc').value,
+                    ci: document.getElementById('simulatePatientDoc').value,
+                    nro_ficha: '001',
+                    ficha: '001'
+                };
+                
+                // Simular selección
+                manager.state.currentPatient = simulatedPatient;
+                
+                log(`✅ Paciente simulado: ${simulatedPatient.nombres} ${simulatedPatient.apellidos}`, 'info');
+                checkSelectedPatient(); // Actualizar display
+                
+            } catch (error) {
+                log(`❌ Error simulando paciente: ${error.message}`, 'error');
+            }
+        }
+        
+        function clearPatientSelection() {
+            log('🗑️ Limpiando selección de paciente...', 'info');
+            
+            try {
+                let manager;
+                
+                if (typeof window.debugConsultas !== 'undefined') {
+                    manager = window.debugConsultas.getManager();
+                } else if (typeof ConsultasManager !== 'undefined') {
+                    manager = ConsultasManager.getInstance();
+                } else {
+                    throw new Error('ConsultasManager no disponible');
+                }
+                
+                manager.state.currentPatient = null;
+                log('✅ Selección de paciente limpiada', 'info');
+                checkSelectedPatient(); // Actualizar display
+                
+            } catch (error) {
+                log(`❌ Error limpiando selección: ${error.message}`, 'error');
+            }
+        }
+        
+        // Pruebas de guardado
+        function testFormDataCreation() {
+            log('📊 Probando creación de FormData...', 'info');
+            
+            try {
+                const formData = new FormData();
+                
+                // Agregar datos de prueba
+                formData.append('motivo', document.getElementById('testMotivo').value);
+                formData.append('consulta', document.getElementById('testConsulta').value);
+                formData.append('receta', document.getElementById('testReceta').value);
+                formData.append('vision_od', document.getElementById('testVisionOd').value);
+                formData.append('vision_oi', document.getElementById('testVisionOi').value);
+                
+                let output = '=== FORMDATA CREADO ===\n';
+                for (const [key, value] of formData.entries()) {
+                    output += `✅ ${key}: ${value.substring(0, 50)}${value.length > 50 ? '...' : ''}\n`;
+                }
+                
+                document.getElementById('saveResults').textContent = output;
+                log('✅ FormData creado correctamente', 'info');
+                
+            } catch (error) {
+                const errorMsg = `❌ Error creando FormData: ${error.message}`;
+                document.getElementById('saveResults').textContent = errorMsg;
+                log(errorMsg, 'error');
+            }
+        }
+        
+        async function testAPIConnection() {
+            log('🔌 Probando conexión con API...', 'info');
+            
+            try {
+                document.getElementById('saveResults').textContent = 'Probando conexión con API...';
+                
+                const response = await fetch('modules/consultas/api/consultas-api.php?action=get_system_status');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                let output = '=== CONEXIÓN API ===\n';
+                output += `✅ Status HTTP: ${response.status}\n`;
+                output += `✅ Response OK: ${response.ok}\n`;
+                output += `✅ API Success: ${data.success}\n`;
+                output += `✅ Timestamp: ${data.timestamp || 'No disponible'}\n`;
+                output += `✅ PHP Version: ${data.data?.php_version || 'No disponible'}\n`;
+                
+                document.getElementById('saveResults').textContent = output;
+                log('✅ Conexión API exitosa', 'info');
+                
+            } catch (error) {
+                const errorMsg = `❌ Error conectando con API: ${error.message}`;
+                document.getElementById('saveResults').textContent = errorMsg;
+                log(errorMsg, 'error');
+            }
+        }
+        
+        async function testRealSave() {
+            log('💾 INICIANDO PRUEBA DE GUARDADO REAL...', 'info');
+            
+            document.getElementById('saveResults').textContent = '💾 Guardando consulta real en base de datos...';
+            
+            try {
+                let manager;
+                
+                if (typeof window.debugConsultas !== 'undefined') {
+                    manager = window.debugConsultas.getManager();
+                } else if (typeof ConsultasManager !== 'undefined') {
+                    manager = ConsultasManager.getInstance();
+                } else {
+                    throw new Error('ConsultasManager no disponible');
+                }
+                
+                // Verificar que hay paciente seleccionado
+                if (!manager.state?.currentPatient) {
+                    throw new Error('No hay paciente seleccionado. Use el simulador de paciente primero.');
+                }
+                
+                // Crear FormData con datos de prueba
+                const formData = new FormData();
+                formData.append('motivo', document.getElementById('testMotivo').value);
+                formData.append('consulta', document.getElementById('testConsulta').value);
+                formData.append('receta', document.getElementById('testReceta').value);
+                formData.append('vision_od', document.getElementById('testVisionOd').value);
+                formData.append('vision_oi', document.getElementById('testVisionOi').value);
+                
+                const formType = document.getElementById('testTipoForm').value;
+                
+                log(`📝 Datos preparados para ${formType}`, 'info');
+                log(`👤 Paciente: ${manager.state.currentPatient.nombres} ${manager.state.currentPatient.apellidos}`, 'info');
+                
+                // Ejecutar guardado real
+                const result = await manager.saveConsulta(formData, formType);
+                
+                let output = '=== GUARDADO EXITOSO ===\n';
+                output += `✅ Success: ${result.success}\n`;
+                output += `✅ Message: ${result.message}\n`;
+                output += `✅ Consulta ID: ${result.data?.consulta_id || 'No disponible'}\n`;
+                output += `✅ Paciente ID: ${result.data?.paciente_id || 'No disponible'}\n`;
+                output += `✅ Timestamp: ${result.timestamp || new Date().toLocaleTimeString()}\n`;
+                
+                document.getElementById('saveResults').textContent = output;
+                log('🎉 GUARDADO REAL EXITOSO', 'info');
+                log(`Consulta ID generado: ${result.data?.consulta_id}`, 'info');
+                
+            } catch (error) {
+                const errorMsg = `❌ ERROR EN GUARDADO REAL: ${error.message}`;
+                document.getElementById('saveResults').textContent = errorMsg;
+                log(errorMsg, 'error');
+                log(`Stack trace: ${error.stack}`, 'error');
+            }
+        }
+        
+        async function testErrorHandling() {
+            log('⚠️ Probando manejo de errores...', 'info');
+            
+            try {
+                let manager;
+                
+                if (typeof window.debugConsultas !== 'undefined') {
+                    manager = window.debugConsultas.getManager();
+                } else if (typeof ConsultasManager !== 'undefined') {
+                    manager = ConsultasManager.getInstance();
+                } else {
+                    throw new Error('ConsultasManager no disponible');
+                }
+                
+                // Limpiar paciente para forzar error
+                const originalPatient = manager.state.currentPatient;
+                manager.state.currentPatient = null;
+                
+                const formData = new FormData();
+                formData.append('motivo', 'Test de error');
+                
+                try {
+                    await manager.saveConsulta(formData, 'general');
+                    document.getElementById('saveResults').textContent = '❌ ERROR: Debería haber fallado sin paciente';
+                    log('❌ Error en test: Debería haber fallado', 'error');
+                } catch (expectedError) {
+                    let output = '=== MANEJO DE ERRORES ===\n';
+                    output += `✅ Error capturado correctamente\n`;
+                    output += `✅ Mensaje: ${expectedError.message}\n`;
+                    output += `✅ Validación funcionando\n`;
+                    
+                    document.getElementById('saveResults').textContent = output;
+                    log('✅ Manejo de errores funcionando correctamente', 'info');
+                }
+                
+                // Restaurar paciente
+                manager.state.currentPatient = originalPatient;
+                
+            } catch (error) {
+                const errorMsg = `❌ Error en test de errores: ${error.message}`;
+                document.getElementById('saveResults').textContent = errorMsg;
+                log(errorMsg, 'error');
+            }
+        }
+        
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            log('🚀 Página de test cargada', 'info');
+            startLogCapture();
+            checkSystemStatus();
+        });
+    </script>
+</body>
+</html>

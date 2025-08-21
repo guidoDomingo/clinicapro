@@ -18,6 +18,38 @@
 }
 
 /* ============================================
+   CORRECCIÓN PARA FOOTER FIJO DE ADMINLTE
+   ============================================ */
+
+/* Asegurar que el contenido no se superponga con el footer */
+.consultas-app {
+    margin-bottom: 80px !important; /* Espacio para el footer */
+    min-height: calc(100vh - 180px) !important; /* Ajustar altura */
+}
+
+/* Estilos específicos para los botones de acción */
+.form-actions {
+    margin-bottom: 100px !important; /* Extra espacio antes del footer */
+    padding: 30px 20px !important;
+    background: white !important;
+    border-radius: 12px !important;
+    box-shadow: var(--shadow) !important;
+    position: relative !important;
+    z-index: 1000 !important; /* Por debajo del footer pero visible */
+}
+
+/* En caso de que el footer tenga z-index muy alto */
+.main-footer {
+    z-index: 999 !important; /* Reducir z-index del footer si es necesario */
+}
+
+/* Alternativa: hacer el footer no fijo en páginas de consultas */
+body.consultas-page .main-footer {
+    position: relative !important;
+    z-index: auto !important;
+}
+
+/* ============================================
    ESTILOS PARA BÚSQUEDA DE PACIENTES
    ============================================ */
 
@@ -912,4 +944,97 @@
 .is-valid-form {
     border-color: var(--success-color) !important;
     box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.15) !important;
+}
+
+/* ============================================
+   BOTONES DE ACCIÓN - VISIBILIDAD MEJORADA
+   ============================================ */
+
+/* Asegurar que los botones de acción sean visibles */
+.form-actions {
+    position: relative !important;
+    z-index: 1000 !important;
+    background: white !important;
+    border-radius: 12px !important;
+    box-shadow: var(--shadow) !important;
+    padding: 30px 20px !important;
+    margin-top: 30px !important;
+    margin-bottom: 120px !important; /* Espacio extra para footer */
+    border-top: 2px solid #f0f0f0 !important;
+}
+
+/* Estilos específicos para cada botón */
+.form-actions .btn-enhanced {
+    margin: 0 10px 10px 0 !important;
+    min-width: 140px !important;
+    font-weight: 600 !important;
+    position: relative !important;
+    z-index: 1001 !important;
+}
+
+/* Responsivo para móviles */
+@media (max-width: 768px) {
+    .form-actions {
+        padding: 20px 15px !important;
+        margin-bottom: 150px !important; /* Más espacio en móviles */
+    }
+    
+    .form-actions .btn-enhanced {
+        width: 100% !important;
+        margin: 0 0 10px 0 !important;
+        min-width: auto !important;
+    }
+}
+
+/* Sticky footer de AdminLTE - override para consultas */
+body.consultas-page .main-footer {
+    position: relative !important;
+    z-index: 900 !important; /* Menor que los botones */
+    margin-top: 50px !important;
+}
+
+/* Asegurar que el wrapper tenga suficiente altura */
+body.consultas-page .wrapper {
+    min-height: 100vh !important;
+    padding-bottom: 0 !important;
+}
+
+/* Contenedor principal con espacio suficiente */
+body.consultas-page .content-wrapper {
+    margin-bottom: 0 !important;
+    padding-bottom: 50px !important;
+}
+
+/* Scroll suave para llegar a los botones */
+.scroll-to-actions {
+    scroll-behavior: smooth;
+}
+
+/* Indicador visual si los botones están ocultos */
+.form-actions::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    border-radius: 2px;
+}
+
+/* Animación de entrada para los botones */
+.form-actions {
+    animation: slideUpFromFooter 0.8s ease-out;
+}
+
+@keyframes slideUpFromFooter {
+    from {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }

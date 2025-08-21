@@ -362,80 +362,175 @@ function getPatientHistory() {
 function guardarConsulta() {
     global $conexion;
     
-    // Obtener datos del POST
-    $data = [
-        'id_persona' => $_POST['id_persona'] ?? null,
-        'motivo' => $_POST['motivo'] ?? '',
-        'consulta' => $_POST['consulta'] ?? '',
-        'receta' => $_POST['receta'] ?? '',
-        'vision_od' => $_POST['vision_od'] ?? '',
-        'vision_oi' => $_POST['vision_oi'] ?? '',
-        'tension_od' => $_POST['tension_od'] ?? '',
-        'tension_oi' => $_POST['tension_oi'] ?? '',
-        'proxima_consulta' => $_POST['proxima_consulta'] ?? null,
-        'whatsapp' => $_POST['whatsapp'] ?? '',
-        'email' => $_POST['email'] ?? '',
-        'tipo_formulario' => $_POST['tipo_formulario'] ?? 'general',
-        'id_usuario' => $_SESSION['user_id']
+    // Configuración de tipos de formularios y sus tablas específicas
+    $formConfig = [
+        'general' => [
+            'table' => null, // Solo tabla principal
+            'fields' => []
+        ],
+        'anteojos' => [
+            'table' => 'consulta_anteojos',
+            'fields' => ['esfera_od', 'cilindro_od', 'eje_od', 'dnp_od', 'add_od', 'nota_od',
+                        'esfera_oi', 'cilindro_oi', 'eje_oi', 'dnp_oi', 'add_oi', 'nota_oi',
+                        'dist_interpupilar', 'altura_od', 'altura_oi']
+        ],
+        'estudios' => [
+            'table' => 'consulta_estudios',
+            'fields' => ['equipo_medico', 'otro_equipo', 'resultados', 'emails_compartir', 'compartir_activo']
+        ],
+        'informe_imagen' => [
+            'table' => 'consulta_informe_imagen',
+            'fields' => ['equipo_medico', 'descripcion_od', 'descripcion_oi', 'emails_compartir', 'compartir_activo']
+        ]
     ];
     
-    // Validaciones
-    if (empty($data['id_persona'])) {
-        throw new Exception('Debe seleccionar un paciente');
-    }
-    
-    if (empty($data['motivo']) && empty($data['consulta'])) {
-        throw new Exception('Debe completar al menos el motivo o la consulta');
-    }
-    
     try {
+        // Obtener y validar datos básicos
+        $tipoFormulario = $_POST['tipo_formulario'] ?? 'general';
+        $idPersona = $_POST['id_persona'] ?? null;
+        $idUsuario = $_SESSION['user_id'] ?? null;
+        
+        // Validaciones básicas
+        if (empty($idPersona)) {
+            throw new Exception('Debe seleccionar un paciente');
+        }
+        
+        if (empty($idUsuario)) {
+            throw new Exception('Sesión de usuario no válida');
+        }
+        
+        if (!isset($formConfig[$tipoFormulario])) {
+            throw new Exception('Tipo de formulario no válido: ' . $tipoFormulario);
+        }
+        
+        // Preparar datos para tabla principal con mapeo de campos
+        $datosConsulta = [
+            'id_persona' => $idPersona,
+            'tipo_formulario' => $tipoFormulario,
+            'id_user' => $idUsuario,
+            
+            // Mapear campos con nombres alternativos para compatibilidad
+            'motivoscomunes' => $_POST['motivoscomunes'] ?? $_POST['motivo'] ?? '',
+            'txtmotivo' => $_POST['txtmotivo'] ?? $_POST['motivo_personalizado'] ?? '',
+            'consulta_textarea' => $_POST['consulta_textarea'] ?? $_POST['consulta'] ?? '',
+            'receta_textarea' => $_POST['receta_textarea'] ?? $_POST['receta'] ?? '',
+            'visionod' => $_POST['visionod'] ?? $_POST['vision_od'] ?? '',
+            'visionoi' => $_POST['visionoi'] ?? $_POST['vision_oi'] ?? '',
+            'tensionod' => $_POST['tensionod'] ?? $_POST['tension_od'] ?? '',
+            'tensionoi' => $_POST['tensionoi'] ?? $_POST['tension_oi'] ?? '',
+            'txtnota' => $_POST['txtnota'] ?? $_POST['notas'] ?? '',
+            'proximaconsulta' => $_POST['proximaconsulta'] ?? $_POST['proxima_consulta'] ?? null,
+            'whatsapptxt' => $_POST['whatsapptxt'] ?? $_POST['whatsapp'] ?? '',
+            'email' => $_POST['email'] ?? ''
+        ];
+        
+        // Iniciar transacción
         $conexion->beginTransaction();
         
-        // Insertar consulta principal
-        $stmt = $conexion->prepare("
+        // === PASO 1: INSERTAR EN TABLA PRINCIPAL ===
+        $sqlConsulta = "
             INSERT INTO consultas (
-                id_persona, motivo, consulta, receta, vision_od, vision_oi,
-                tension_od, tension_oi, proxima_consulta, whatsapp, email,
-                tipo_formulario, id_usuario, fecha
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
-        ");
+                id_persona, tipo_formulario, id_user,
+                motivoscomunes, txtmotivo, consulta_textarea, receta_textarea,
+                visionod, visionoi, tensionod, tensionoi, txtnota,
+                proximaconsulta, whatsapptxt, email, fecha_registro
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+        ";
         
-        $stmt->execute([
-            $data['id_persona'], $data['motivo'], $data['consulta'], $data['receta'],
-            $data['vision_od'], $data['vision_oi'], $data['tension_od'], $data['tension_oi'],
-            $data['proxima_consulta'], $data['whatsapp'], $data['email'],
-            $data['tipo_formulario'], $data['id_usuario']
+        $stmtConsulta = $conexion->prepare($sqlConsulta);
+        $stmtConsulta->execute([
+            $datosConsulta['id_persona'],
+            $datosConsulta['tipo_formulario'], 
+            $datosConsulta['id_user'],
+            $datosConsulta['motivoscomunes'],
+            $datosConsulta['txtmotivo'],
+            $datosConsulta['consulta_textarea'],
+            $datosConsulta['receta_textarea'],
+            $datosConsulta['visionod'],
+            $datosConsulta['visionoi'],
+            $datosConsulta['tensionod'],
+            $datosConsulta['tensionoi'],
+            $datosConsulta['txtnota'],
+            $datosConsulta['proximaconsulta'],
+            $datosConsulta['whatsapptxt'],
+            $datosConsulta['email']
         ]);
         
         $consultaId = $conexion->lastInsertId();
         
-        // Guardar datos específicos según el tipo de formulario
-        switch ($data['tipo_formulario']) {
-            case 'anteojos':
-                guardarDatosAnteojos($consultaId, $_POST);
-                break;
-            case 'estudios':
-                guardarDatosEstudios($consultaId, $_POST);
-                break;
-            case 'informe_imagen':
-                guardarDatosInformeImagen($consultaId, $_POST);
-                break;
+        // === PASO 2: INSERTAR DATOS ESPECÍFICOS SI ES NECESARIO ===
+        if ($formConfig[$tipoFormulario]['table']) {
+            $tableName = $formConfig[$tipoFormulario]['table'];
+            $specificFields = $formConfig[$tipoFormulario]['fields'];
+            
+            // Preparar datos específicos
+            $datosEspecificos = ['id_consulta' => $consultaId];
+            foreach ($specificFields as $field) {
+                $datosEspecificos[$field] = $_POST[$field] ?? null;
+            }
+            
+            // Construir SQL dinámicamente
+            $campos = array_keys($datosEspecificos);
+            $placeholders = array_fill(0, count($campos), '?');
+            
+            $sqlEspecifico = "INSERT INTO {$tableName} (" . implode(', ', $campos) . ") VALUES (" . implode(', ', $placeholders) . ")";
+            
+            $stmtEspecifico = $conexion->prepare($sqlEspecifico);
+            $stmtEspecifico->execute(array_values($datosEspecificos));
+            
+            error_log("DEBUG: Datos específicos guardados en {$tableName} para consulta {$consultaId}");
         }
         
+        // === PASO 3: GUARDAR DATOS ADICIONALES EN JSONB (OPCIONAL) ===
+        $datosAdicionales = [];
+        foreach ($_POST as $key => $value) {
+            // Guardar campos que no están en la estructura estándar
+            if (!in_array($key, ['id_persona', 'tipo_formulario', 'id_user', 'action', 
+                                'motivoscomunes', 'txtmotivo', 'consulta_textarea', 'receta_textarea',
+                                'visionod', 'visionoi', 'tensionod', 'tensionoi', 'txtnota',
+                                'proximaconsulta', 'whatsapptxt', 'email']) 
+                && (!isset($formConfig[$tipoFormulario]['fields']) || 
+                    !in_array($key, $formConfig[$tipoFormulario]['fields']))) {
+                
+                $datosAdicionales[$key] = $value;
+            }
+        }
+        
+        if (!empty($datosAdicionales)) {
+            $sqlJsonb = "UPDATE consultas SET datos_especificos = ? WHERE id_consulta = ?";
+            $stmtJsonb = $conexion->prepare($sqlJsonb);
+            $stmtJsonb->execute([json_encode($datosAdicionales), $consultaId]);
+            
+            error_log("DEBUG: Datos adicionales guardados en JSONB: " . json_encode($datosAdicionales));
+        }
+        
+        // Confirmar transacción
         $conexion->commit();
+        
+        // Registrar éxito
+        error_log("SUCCESS: Consulta {$tipoFormulario} guardada con ID {$consultaId} para paciente {$idPersona}");
         
         return [
             'success' => true,
             'message' => 'Consulta guardada exitosamente',
             'data' => [
                 'consulta_id' => $consultaId,
-                'paciente_id' => $data['id_persona']
+                'paciente_id' => $idPersona,
+                'tipo_formulario' => $tipoFormulario,
+                'tabla_especifica' => $formConfig[$tipoFormulario]['table'] ?? null
             ]
         ];
         
     } catch (PDOException $e) {
         $conexion->rollBack();
-        throw new Exception('Error guardando consulta: ' . $e->getMessage());
+        error_log("ERROR SQL: " . $e->getMessage());
+        throw new Exception('Error en base de datos: ' . $e->getMessage());
+    } catch (Exception $e) {
+        if ($conexion->inTransaction()) {
+            $conexion->rollBack();
+        }
+        error_log("ERROR: " . $e->getMessage());
+        throw new Exception($e->getMessage());
     }
 }
 
@@ -884,126 +979,484 @@ function calcularEdad($fechaNacimiento) {
     return $edad->y;
 }
 
-// Funciones auxiliares para tipos específicos de consulta
-function guardarDatosAnteojos($consultaId, $data) {
-    // Implementar según estructura de tabla consulta_anteojos
-    // Esta función se expandirá según los campos específicos de anteojos
-}
-
-function guardarDatosEstudios($consultaId, $data) {
-    // Implementar según estructura de tabla consulta_estudios
-    // Esta función se expandirá según los campos específicos de estudios
-}
-
-function guardarDatosInformeImagen($consultaId, $data) {
-    // Implementar según estructura de tabla consulta_informe_imagen
-    // Esta función se expandirá según los campos específicos de informe+imagen
-}
-
-// ================================
-// FUNCIONES FALTANTES
-// ================================
+/**
+ * ============================================
+ * FUNCIONES GENÉRICAS DE CONSULTAS - IMPLEMENTADAS
+ * ============================================
+ * 
+ * El sistema ahora maneja automáticamente todos los tipos de formularios:
+ * - general: Solo tabla principal
+ * - anteojos: Tabla principal + consulta_anteojos  
+ * - estudios: Tabla principal + consulta_estudios
+ * - informe_imagen: Tabla principal + consulta_informe_imagen
+ * 
+ * Las funciones auxiliares específicas ya no son necesarias.
+ * Todo se maneja dinámicamente según la configuración en $formConfig.
+ * 
+ * ✅ guardarConsulta() - Genérica para todos los tipos
+ * ✅ updateConsulta() - Genérica para todos los tipos  
+ * ✅ getConsulta() - Genérica para todos los tipos
+ * ✅ deleteConsulta() - Genérica para todos los tipos
+ */
 
 function getConsulta() {
     global $conexion;
     
-    $consultaId = $_GET['consulta_id'] ?? '';
-    if (empty($consultaId)) {
-        throw new Exception('ID de consulta requerido');
-    }
+    // Configuración de tipos de formularios (misma que en otras funciones)
+    $formConfig = [
+        'general' => [
+            'table' => null,
+            'fields' => []
+        ],
+        'anteojos' => [
+            'table' => 'consulta_anteojos',
+            'fields' => ['esfera_od', 'cilindro_od', 'eje_od', 'dnp_od', 'add_od', 'nota_od',
+                        'esfera_oi', 'cilindro_oi', 'eje_oi', 'dnp_oi', 'add_oi', 'nota_oi',
+                        'dist_interpupilar', 'altura_od', 'altura_oi']
+        ],
+        'estudios' => [
+            'table' => 'consulta_estudios',
+            'fields' => ['equipo_medico', 'otro_equipo', 'resultados', 'emails_compartir', 'compartir_activo']
+        ],
+        'informe_imagen' => [
+            'table' => 'consulta_informe_imagen',
+            'fields' => ['equipo_medico', 'descripcion_od', 'descripcion_oi', 'emails_compartir', 'compartir_activo']
+        ]
+    ];
     
     try {
-        $stmt = $conexion->prepare("
-            SELECT c.*, p.nombres, p.apellidos, u.nombre as doctor_nombre
-            FROM consultas c
-            LEFT JOIN personas p ON c.id_persona = p.id
-            LEFT JOIN usuarios u ON c.id_usuario = u.id
-            WHERE c.id = ?
-        ");
-        $stmt->execute([$consultaId]);
+        $consultaId = $_GET['consulta_id'] ?? '';
+        if (empty($consultaId)) {
+            throw new Exception('ID de consulta requerido');
+        }
         
-        $consulta = $stmt->fetch(PDO::FETCH_ASSOC);
+        // === PASO 1: OBTENER DATOS DE TABLA PRINCIPAL ===
+        $sqlPrincipal = "
+            SELECT c.*, p.nombres, p.apellidos, p.documento, p.nro_ficha,
+                   u.nombre as doctor_nombre, u.apellidos as doctor_apellidos
+            FROM consultas c
+            LEFT JOIN personas p ON c.id_persona = p.id_persona
+            LEFT JOIN usuarios u ON c.id_user = u.id
+            WHERE c.id_consulta = ?
+        ";
+        
+        $stmtPrincipal = $conexion->prepare($sqlPrincipal);
+        $stmtPrincipal->execute([$consultaId]);
+        
+        $consulta = $stmtPrincipal->fetch(PDO::FETCH_ASSOC);
         
         if (!$consulta) {
             throw new Exception('Consulta no encontrada');
         }
         
+        $tipoFormulario = $consulta['tipo_formulario'] ?? 'general';
+        
+        // === PASO 2: OBTENER DATOS ESPECÍFICOS SI EXISTEN ===
+        if ($formConfig[$tipoFormulario]['table']) {
+            $tableName = $formConfig[$tipoFormulario]['table'];
+            
+            $sqlEspecifico = "SELECT * FROM {$tableName} WHERE id_consulta = ?";
+            $stmtEspecifico = $conexion->prepare($sqlEspecifico);
+            $stmtEspecifico->execute([$consultaId]);
+            
+            $datosEspecificos = $stmtEspecifico->fetch(PDO::FETCH_ASSOC);
+            
+            if ($datosEspecificos) {
+                // Remover el id de la tabla específica del resultado
+                unset($datosEspecificos['id_consulta']);
+                unset($datosEspecificos['fecha_creacion']);
+                unset($datosEspecificos['fecha_actualizacion']);
+                
+                // Fusionar datos específicos con los datos principales
+                $consulta = array_merge($consulta, $datosEspecificos);
+                
+                error_log("DEBUG: Datos específicos cargados desde {$tableName} para consulta {$consultaId}");
+            }
+        }
+        
+        // === PASO 3: PROCESAR DATOS ADICIONALES DE JSONB ===
+        if (!empty($consulta['datos_especificos'])) {
+            $datosAdicionales = json_decode($consulta['datos_especificos'], true);
+            if (is_array($datosAdicionales)) {
+                $consulta = array_merge($consulta, $datosAdicionales);
+                error_log("DEBUG: Datos adicionales cargados desde JSONB: " . json_encode($datosAdicionales));
+            }
+        }
+        
+        // === PASO 4: FORMATEAR Y MAPEAR DATOS PARA COMPATIBILIDAD ===
+        // Crear aliases para compatibilidad con diferentes versiones del frontend
+        $consulta['motivo'] = $consulta['motivoscomunes'] ?? $consulta['txtmotivo'] ?? '';
+        $consulta['consulta'] = $consulta['consulta_textarea'] ?? '';
+        $consulta['receta'] = $consulta['receta_textarea'] ?? '';
+        $consulta['vision_od'] = $consulta['visionod'] ?? '';
+        $consulta['vision_oi'] = $consulta['visionoi'] ?? '';
+        $consulta['tension_od'] = $consulta['tensionod'] ?? '';
+        $consulta['tension_oi'] = $consulta['tensionoi'] ?? '';
+        $consulta['notas'] = $consulta['txtnota'] ?? '';
+        $consulta['proxima_consulta'] = $consulta['proximaconsulta'] ?? '';
+        $consulta['whatsapp'] = $consulta['whatsapptxt'] ?? '';
+        
+        // Formatear fechas
+        if ($consulta['fecha_registro']) {
+            $consulta['fecha_formato'] = date('d/m/Y H:i', strtotime($consulta['fecha_registro']));
+        }
+        if ($consulta['proximaconsulta']) {
+            $consulta['proxima_consulta_formato'] = date('d/m/Y', strtotime($consulta['proximaconsulta']));
+        }
+        
+        // Información del paciente
+        $consulta['paciente_nombre_completo'] = trim(($consulta['nombres'] ?? '') . ' ' . ($consulta['apellidos'] ?? ''));
+        
+        // Información del doctor
+        if ($consulta['doctor_nombre']) {
+            $consulta['doctor_nombre_completo'] = trim($consulta['doctor_nombre'] . ' ' . ($consulta['doctor_apellidos'] ?? ''));
+        }
+        
+        // === PASO 5: OBTENER ARCHIVOS ASOCIADOS (SI EXISTEN) ===
+        $sqlArchivos = "SELECT * FROM archivos_consulta WHERE id_consulta = ? ORDER BY fecha_subida DESC";
+        $stmtArchivos = $conexion->prepare($sqlArchivos);
+        $stmtArchivos->execute([$consultaId]);
+        $archivos = $stmtArchivos->fetchAll(PDO::FETCH_ASSOC);
+        $consulta['archivos'] = $archivos;
+        
+        error_log("SUCCESS: Consulta {$tipoFormulario} cargada con ID {$consultaId}");
+        
         return [
             'success' => true,
-            'data' => $consulta
+            'data' => $consulta,
+            'metadata' => [
+                'tipo_formulario' => $tipoFormulario,
+                'tabla_especifica' => $formConfig[$tipoFormulario]['table'] ?? null,
+                'tiene_datos_especificos' => isset($datosEspecificos) && !empty($datosEspecificos),
+                'tiene_archivos' => count($archivos) > 0,
+                'campos_disponibles' => array_keys($consulta)
+            ]
         ];
         
     } catch (PDOException $e) {
-        throw new Exception('Error obteniendo consulta: ' . $e->getMessage());
+        error_log("ERROR SQL: " . $e->getMessage());
+        throw new Exception('Error en base de datos: ' . $e->getMessage());
+    } catch (Exception $e) {
+        error_log("ERROR: " . $e->getMessage());
+        throw new Exception($e->getMessage());
+    }
+}
+
+/**
+        if ($consulta['fecha_registro']) {
+            $consulta['fecha_formato'] = date('d/m/Y H:i', strtotime($consulta['fecha_registro']));
+        }
+        if ($consulta['proximaconsulta']) {
+            $consulta['proxima_consulta_formato'] = date('d/m/Y', strtotime($consulta['proximaconsulta']));
+        }
+        
+        // Información del paciente
+        $consulta['paciente_nombre_completo'] = trim(($consulta['nombres'] ?? '') . ' ' . ($consulta['apellidos'] ?? ''));
+        
+        // Información del doctor
+        if ($consulta['doctor_nombre']) {
+            $consulta['doctor_nombre_completo'] = trim($consulta['doctor_nombre'] . ' ' . ($consulta['doctor_apellidos'] ?? ''));
+        }
+        
+        // === PASO 5: OBTENER ARCHIVOS ASOCIADOS (SI EXISTEN) ===
+        $sqlArchivos = "SELECT * FROM archivos_consulta WHERE id_consulta = ? ORDER BY fecha_subida DESC";
+        $stmtArchivos = $conexion->prepare($sqlArchivos);
+        $stmtArchivos->execute([$consultaId]);
+        $archivos = $stmtArchivos->fetchAll(PDO::FETCH_ASSOC);
+        $consulta['archivos'] = $archivos;
+        
+        error_log("SUCCESS: Consulta {$tipoFormulario} cargada con ID {$consultaId}");
+        
+        return [
+            'success' => true,
+            'data' => $consulta,
+            'metadata' => [
+                'tipo_formulario' => $tipoFormulario,
+                'tabla_especifica' => $formConfig[$tipoFormulario]['table'] ?? null,
+                'tiene_datos_especificos' => isset($datosEspecificos) && !empty($datosEspecificos),
+                'tiene_archivos' => count($archivos) > 0,
+                'campos_disponibles' => array_keys($consulta)
+            ]
+        ];
+        
+    } catch (PDOException $e) {
+        error_log("ERROR SQL: " . $e->getMessage());
+        throw new Exception('Error en base de datos: ' . $e->getMessage());
+    } catch (Exception $e) {
+        error_log("ERROR: " . $e->getMessage());
+        throw new Exception($e->getMessage());
     }
 }
 
 function updateConsulta() {
     global $conexion;
     
-    $consultaId = $_POST['consulta_id'] ?? '';
-    if (empty($consultaId)) {
-        throw new Exception('ID de consulta requerido');
-    }
-    
-    // Similar a guardarConsulta pero con UPDATE
-    $data = [
-        'motivo' => $_POST['motivo'] ?? '',
-        'consulta' => $_POST['consulta'] ?? '',
-        'receta' => $_POST['receta'] ?? '',
-        'vision_od' => $_POST['vision_od'] ?? '',
-        'vision_oi' => $_POST['vision_oi'] ?? '',
-        'tension_od' => $_POST['tension_od'] ?? '',
-        'tension_oi' => $_POST['tension_oi'] ?? '',
-        'proxima_consulta' => $_POST['proxima_consulta'] ?? null,
-        'whatsapp' => $_POST['whatsapp'] ?? '',
-        'email' => $_POST['email'] ?? '',
+    // Configuración de tipos de formularios (misma que en guardarConsulta)
+    $formConfig = [
+        'general' => [
+            'table' => null,
+            'fields' => []
+        ],
+        'anteojos' => [
+            'table' => 'consulta_anteojos',
+            'fields' => ['esfera_od', 'cilindro_od', 'eje_od', 'dnp_od', 'add_od', 'nota_od',
+                        'esfera_oi', 'cilindro_oi', 'eje_oi', 'dnp_oi', 'add_oi', 'nota_oi',
+                        'dist_interpupilar', 'altura_od', 'altura_oi']
+        ],
+        'estudios' => [
+            'table' => 'consulta_estudios',
+            'fields' => ['equipo_medico', 'otro_equipo', 'resultados', 'emails_compartir', 'compartir_activo']
+        ],
+        'informe_imagen' => [
+            'table' => 'consulta_informe_imagen',
+            'fields' => ['equipo_medico', 'descripcion_od', 'descripcion_oi', 'emails_compartir', 'compartir_activo']
+        ]
     ];
     
     try {
-        $stmt = $conexion->prepare("
-            UPDATE consultas SET 
-                motivo = ?, consulta = ?, receta = ?, vision_od = ?, vision_oi = ?,
-                tension_od = ?, tension_oi = ?, proxima_consulta = ?, whatsapp = ?, email = ?
-            WHERE id = ?
-        ");
+        $consultaId = $_POST['consulta_id'] ?? $_GET['consulta_id'] ?? '';
+        if (empty($consultaId)) {
+            throw new Exception('ID de consulta requerido');
+        }
         
-        $stmt->execute([
-            $data['motivo'], $data['consulta'], $data['receta'],
-            $data['vision_od'], $data['vision_oi'], $data['tension_od'], $data['tension_oi'],
-            $data['proxima_consulta'], $data['whatsapp'], $data['email'], $consultaId
+        // Obtener tipo de formulario actual
+        $stmtTipo = $conexion->prepare("SELECT tipo_formulario FROM consultas WHERE id_consulta = ?");
+        $stmtTipo->execute([$consultaId]);
+        $consultaActual = $stmtTipo->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$consultaActual) {
+            throw new Exception('Consulta no encontrada');
+        }
+        
+        $tipoFormulario = $_POST['tipo_formulario'] ?? $consultaActual['tipo_formulario'];
+        
+        if (!isset($formConfig[$tipoFormulario])) {
+            throw new Exception('Tipo de formulario no válido: ' . $tipoFormulario);
+        }
+        
+        // Preparar datos para tabla principal
+        $datosConsulta = [
+            'tipo_formulario' => $tipoFormulario,
+            'motivoscomunes' => $_POST['motivoscomunes'] ?? $_POST['motivo'] ?? '',
+            'txtmotivo' => $_POST['txtmotivo'] ?? $_POST['motivo_personalizado'] ?? '',
+            'consulta_textarea' => $_POST['consulta_textarea'] ?? $_POST['consulta'] ?? '',
+            'receta_textarea' => $_POST['receta_textarea'] ?? $_POST['receta'] ?? '',
+            'visionod' => $_POST['visionod'] ?? $_POST['vision_od'] ?? '',
+            'visionoi' => $_POST['visionoi'] ?? $_POST['vision_oi'] ?? '',
+            'tensionod' => $_POST['tensionod'] ?? $_POST['tension_od'] ?? '',
+            'tensionoi' => $_POST['tensionoi'] ?? $_POST['tension_oi'] ?? '',
+            'txtnota' => $_POST['txtnota'] ?? $_POST['notas'] ?? '',
+            'proximaconsulta' => $_POST['proximaconsulta'] ?? $_POST['proxima_consulta'] ?? null,
+            'whatsapptxt' => $_POST['whatsapptxt'] ?? $_POST['whatsapp'] ?? '',
+            'email' => $_POST['email'] ?? ''
+        ];
+        
+        // Iniciar transacción
+        $conexion->beginTransaction();
+        
+        // === PASO 1: ACTUALIZAR TABLA PRINCIPAL ===
+        $sqlConsulta = "
+            UPDATE consultas SET 
+                tipo_formulario = ?, motivoscomunes = ?, txtmotivo = ?, consulta_textarea = ?, 
+                receta_textarea = ?, visionod = ?, visionoi = ?, tensionod = ?, tensionoi = ?, 
+                txtnota = ?, proximaconsulta = ?, whatsapptxt = ?, email = ?, ultima_modificacion = NOW()
+            WHERE id_consulta = ?
+        ";
+        
+        $stmtConsulta = $conexion->prepare($sqlConsulta);
+        $stmtConsulta->execute([
+            $datosConsulta['tipo_formulario'],
+            $datosConsulta['motivoscomunes'],
+            $datosConsulta['txtmotivo'],
+            $datosConsulta['consulta_textarea'],
+            $datosConsulta['receta_textarea'],
+            $datosConsulta['visionod'],
+            $datosConsulta['visionoi'],
+            $datosConsulta['tensionod'],
+            $datosConsulta['tensionoi'],
+            $datosConsulta['txtnota'],
+            $datosConsulta['proximaconsulta'],
+            $datosConsulta['whatsapptxt'],
+            $datosConsulta['email'],
+            $consultaId
         ]);
+        
+        // === PASO 2: ACTUALIZAR/INSERTAR DATOS ESPECÍFICOS ===
+        if ($formConfig[$tipoFormulario]['table']) {
+            $tableName = $formConfig[$tipoFormulario]['table'];
+            $specificFields = $formConfig[$tipoFormulario]['fields'];
+            
+            // Verificar si ya existen datos específicos
+            $checkStmt = $conexion->prepare("SELECT COUNT(*) FROM {$tableName} WHERE id_consulta = ?");
+            $checkStmt->execute([$consultaId]);
+            $exists = $checkStmt->fetchColumn() > 0;
+            
+            // Preparar datos específicos
+            $datosEspecificos = [];
+            foreach ($specificFields as $field) {
+                $datosEspecificos[$field] = $_POST[$field] ?? null;
+            }
+            
+            if ($exists) {
+                // ACTUALIZAR datos existentes
+                $setClauses = [];
+                $values = [];
+                foreach ($datosEspecificos as $field => $value) {
+                    $setClauses[] = "{$field} = ?";
+                    $values[] = $value;
+                }
+                $values[] = $consultaId; // WHERE id_consulta = ?
+                
+                $sqlUpdate = "UPDATE {$tableName} SET " . implode(', ', $setClauses) . " WHERE id_consulta = ?";
+                $stmtUpdate = $conexion->prepare($sqlUpdate);
+                $stmtUpdate->execute($values);
+                
+                error_log("DEBUG: Datos específicos actualizados en {$tableName} para consulta {$consultaId}");
+            } else {
+                // INSERTAR nuevos datos
+                $datosEspecificos['id_consulta'] = $consultaId;
+                $campos = array_keys($datosEspecificos);
+                $placeholders = array_fill(0, count($campos), '?');
+                
+                $sqlInsert = "INSERT INTO {$tableName} (" . implode(', ', $campos) . ") VALUES (" . implode(', ', $placeholders) . ")";
+                $stmtInsert = $conexion->prepare($sqlInsert);
+                $stmtInsert->execute(array_values($datosEspecificos));
+                
+                error_log("DEBUG: Datos específicos insertados en {$tableName} para consulta {$consultaId}");
+            }
+        }
+        
+        // === PASO 3: ACTUALIZAR DATOS ADICIONALES EN JSONB ===
+        $datosAdicionales = [];
+        foreach ($_POST as $key => $value) {
+            if (!in_array($key, ['consulta_id', 'tipo_formulario', 'action',
+                                'motivoscomunes', 'txtmotivo', 'consulta_textarea', 'receta_textarea',
+                                'visionod', 'visionoi', 'tensionod', 'tensionoi', 'txtnota',
+                                'proximaconsulta', 'whatsapptxt', 'email']) 
+                && (!isset($formConfig[$tipoFormulario]['fields']) || 
+                    !in_array($key, $formConfig[$tipoFormulario]['fields']))) {
+                
+                $datosAdicionales[$key] = $value;
+            }
+        }
+        
+        if (!empty($datosAdicionales)) {
+            $sqlJsonb = "UPDATE consultas SET datos_especificos = ? WHERE id_consulta = ?";
+            $stmtJsonb = $conexion->prepare($sqlJsonb);
+            $stmtJsonb->execute([json_encode($datosAdicionales), $consultaId]);
+            
+            error_log("DEBUG: Datos adicionales actualizados en JSONB: " . json_encode($datosAdicionales));
+        }
+        
+        // Confirmar transacción
+        $conexion->commit();
+        
+        error_log("SUCCESS: Consulta {$tipoFormulario} actualizada con ID {$consultaId}");
         
         return [
             'success' => true,
             'message' => 'Consulta actualizada exitosamente',
-            'data' => ['consulta_id' => $consultaId]
+            'data' => [
+                'consulta_id' => $consultaId,
+                'tipo_formulario' => $tipoFormulario,
+                'tabla_especifica' => $formConfig[$tipoFormulario]['table'] ?? null
+            ]
         ];
         
     } catch (PDOException $e) {
-        throw new Exception('Error actualizando consulta: ' . $e->getMessage());
+        $conexion->rollBack();
+        error_log("ERROR SQL: " . $e->getMessage());
+        throw new Exception('Error en base de datos: ' . $e->getMessage());
+    } catch (Exception $e) {
+        if ($conexion->inTransaction()) {
+            $conexion->rollBack();
+        }
+        error_log("ERROR: " . $e->getMessage());
+        throw new Exception($e->getMessage());
     }
 }
 
 function deleteConsulta() {
     global $conexion;
     
-    $consultaId = $_POST['consulta_id'] ?? $_GET['consulta_id'] ?? '';
-    if (empty($consultaId)) {
-        throw new Exception('ID de consulta requerido');
-    }
-    
     try {
-        $stmt = $conexion->prepare("DELETE FROM consultas WHERE id = ?");
-        $stmt->execute([$consultaId]);
+        $consultaId = $_POST['consulta_id'] ?? $_GET['consulta_id'] ?? '';
+        if (empty($consultaId)) {
+            throw new Exception('ID de consulta requerido');
+        }
+        
+        // Verificar que la consulta existe y obtener información
+        $stmtCheck = $conexion->prepare("SELECT id_consulta, tipo_formulario, id_persona FROM consultas WHERE id_consulta = ?");
+        $stmtCheck->execute([$consultaId]);
+        $consulta = $stmtCheck->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$consulta) {
+            throw new Exception('Consulta no encontrada');
+        }
+        
+        $tipoFormulario = $consulta['tipo_formulario'];
+        $idPersona = $consulta['id_persona'];
+        
+        // Iniciar transacción
+        $conexion->beginTransaction();
+        
+        // === PASO 1: ELIMINAR ARCHIVOS ASOCIADOS (SI EXISTEN) ===
+        $stmtArchivos = $conexion->prepare("SELECT ruta_archivo FROM archivos_consulta WHERE id_consulta = ?");
+        $stmtArchivos->execute([$consultaId]);
+        $archivos = $stmtArchivos->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Eliminar archivos físicos
+        foreach ($archivos as $archivo) {
+            if (!empty($archivo['ruta_archivo']) && file_exists($archivo['ruta_archivo'])) {
+                unlink($archivo['ruta_archivo']);
+                error_log("DEBUG: Archivo físico eliminado: " . $archivo['ruta_archivo']);
+            }
+        }
+        
+        // Eliminar registros de archivos
+        $stmtDeleteArchivos = $conexion->prepare("DELETE FROM archivos_consulta WHERE id_consulta = ?");
+        $stmtDeleteArchivos->execute([$consultaId]);
+        
+        // === PASO 2: LAS TABLAS ESPECÍFICAS SE ELIMINAN AUTOMÁTICAMENTE ===
+        // Gracias a las claves foráneas ON DELETE CASCADE en:
+        // - consulta_anteojos
+        // - consulta_estudios  
+        // - consulta_informe_imagen
+        
+        // === PASO 3: ELIMINAR CONSULTA PRINCIPAL ===
+        $stmtDelete = $conexion->prepare("DELETE FROM consultas WHERE id_consulta = ?");
+        $stmtDelete->execute([$consultaId]);
+        
+        if ($stmtDelete->rowCount() === 0) {
+            throw new Exception('No se pudo eliminar la consulta');
+        }
+        
+        // Confirmar transacción
+        $conexion->commit();
+        
+        error_log("SUCCESS: Consulta {$tipoFormulario} eliminada con ID {$consultaId} (paciente {$idPersona})");
         
         return [
             'success' => true,
-            'message' => 'Consulta eliminada exitosamente'
+            'message' => 'Consulta eliminada exitosamente',
+            'data' => [
+                'consulta_id' => $consultaId,
+                'tipo_formulario' => $tipoFormulario,
+                'paciente_id' => $idPersona,
+                'archivos_eliminados' => count($archivos)
+            ]
         ];
         
     } catch (PDOException $e) {
-        throw new Exception('Error eliminando consulta: ' . $e->getMessage());
+        $conexion->rollBack();
+        error_log("ERROR SQL: " . $e->getMessage());
+        throw new Exception('Error en base de datos: ' . $e->getMessage());
+    } catch (Exception $e) {
+        if ($conexion->inTransaction()) {
+            $conexion->rollBack();
+        }
+        error_log("ERROR: " . $e->getMessage());
+        throw new Exception($e->getMessage());
     }
 }
 
