@@ -639,13 +639,7 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                                     <div class="form-group col-md-6">
                                         <label for="equipo_medico-estudios">Equipo médico</label>
                                         <select class="form-control select2bs4" id="equipo_medico-estudios" name="equipo_medico" style="width: 100%;">
-                                            <option value="">Seleccionar</option>
-                                            <option value="cirrus_700">Cirrus 700</option>
-                                            <option value="cirrus_500c">Cirrus 500c</option>
-                                            <option value="oct_triton">OCT Triton</option>
-                                            <option value="humphrey">Humphrey</option>
-                                            <option value="topcon">Topcon</option>
-                                            <option value="otro">Otro equipo</option>
+                                            <option value="">Seleccionar equipo...</option>
                                         </select>
                                     </div>
                                     <div class="form-group col-md-6">

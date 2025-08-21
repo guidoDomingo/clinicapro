@@ -116,6 +116,10 @@ try {
             $response = getReferencialesAnteojos($tipo);
             break;
             
+        case 'get_equipos_medicos':
+            $response = getEquiposMedicos();
+            break;
+            
         case 'get_preformatos_consulta':
         case 'get_preformatos_receta':
         case 'getPreformatos':
@@ -1219,6 +1223,88 @@ function getReferencialesAnteojos($tipo = null) {
         return [
             'success' => false,
             'message' => 'Error obteniendo referenciales: ' . $e->getMessage()
+        ];
+    }
+}
+
+/**
+ * Obtener equipos médicos desde la tabla de referenciales
+ * Usando la misma estructura que los referenciales de anteojos pero desde BD
+ */
+function getEquiposMedicos() {
+    global $conexion;
+    
+    // Si la conexión global no está disponible, crear una directa
+    if (!$conexion) {
+        try {
+            $conexion = new PDO('pgsql:host=localhost;port=5432;dbname=clinica', 'postgres', 'admin');
+            $conexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        } catch (PDOException $e) {
+            return [
+                'success' => false,
+                'message' => 'Error de conexión a la base de datos: ' . $e->getMessage()
+            ];
+        }
+    }
+    
+    try {
+        // Buscar el referencial de equipos médicos
+        $stmt = $conexion->prepare("
+            SELECT r.id, r.codigo, r.nombre as nombre_referencial 
+            FROM referenciales r 
+            WHERE (r.codigo = 'equipos_medicos' OR r.codigo = 'estudios_medicos') 
+            AND r.activo = 1
+            LIMIT 1
+        ");
+        $stmt->execute();
+        $referencial = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$referencial) {
+            // Si no existe el referencial, devolver lista vacía
+            return [
+                'success' => true,
+                'data' => [],
+                'count' => 0,
+                'message' => 'Referencial de equipos médicos no encontrado. Ejecuta poblar_equipos_medicos.php'
+            ];
+        }
+        
+        // Obtener los valores del referencial
+        $stmt = $conexion->prepare("
+            SELECT rv.id, rv.valor, rv.etiqueta as texto, rv.orden_visualizacion as orden, rv.activo, rv.descripcion
+            FROM referencial_valores rv
+            WHERE rv.referencial_id = :referencial_id 
+            AND rv.activo = 1
+            ORDER BY rv.orden_visualizacion ASC, rv.etiqueta ASC
+        ");
+        $stmt->bindParam(':referencial_id', $referencial['id'], PDO::PARAM_INT);
+        $stmt->execute();
+        $valores = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Formatear para compatibilidad con el frontend
+        $equipos = array_map(function($valor) {
+            return [
+                'id' => $valor['id'],
+                'codigo' => $valor['valor'],
+                'nombre' => $valor['texto'],
+                'valor' => $valor['valor'],
+                'texto' => $valor['texto'],
+                'descripcion' => $valor['descripcion'] ?? ''
+            ];
+        }, $valores);
+        
+        return [
+            'success' => true,
+            'data' => $equipos,
+            'count' => count($equipos),
+            'referencial_id' => $referencial['id'],
+            'referencial_codigo' => $referencial['codigo']
+        ];
+        
+    } catch (Exception $e) {
+        return [
+            'success' => false,
+            'message' => 'Error obteniendo equipos médicos: ' . $e->getMessage()
         ];
     }
 }

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Verificar Equipos Médicos</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+        pre { background: #f5f5f5; padding: 10px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h1>🏥 Verificación de Equipos Médicos</h1>
+    <div id="resultado"></div>
+    
+    <script>
+        async function verificarEquipos() {
+            try {
+                const response = await fetch('modules/consultas/api/consultas-api.php?action=get_equipos_medicos');
+                const data = await response.json();
+                
+                const resultado = document.getElementById('resultado');
+                
+                if (data.success) {
+                    resultado.innerHTML = `
+                        <p class="success">✅ API funcionando correctamente</p>
+                        <p class="info">📊 Total de equipos: ${data.count}</p>
+                        <p class="info">🗃️ Referencial ID: ${data.referencial_id || 'N/A'}</p>
+                        <p class="info">📋 Referencial Código: ${data.referencial_codigo || 'N/A'}</p>
+                        <h3>Equipos desde la base de datos:</h3>
+                        <pre>${JSON.stringify(data.data, null, 2)}</pre>
+                        ${data.data.length === 0 ? '<p class="error">⚠️ No hay equipos en la base de datos. Ejecuta poblar_equipos_medicos.php</p>' : ''}
+                    `;
+                } else {
+                    resultado.innerHTML = `
+                        <p class="error">❌ Error en la API: ${data.message}</p>
+                        <p class="info">Posibles soluciones:</p>
+                        <ul>
+                            <li>Ejecutar poblar_equipos_medicos.php para crear los datos</li>
+                            <li>Verificar que la tabla referenciales exista</li>
+                            <li>Verificar la conexión a la base de datos</li>
+                        </ul>
+                    `;
+                }
+            } catch (error) {
+                document.getElementById('resultado').innerHTML = `
+                    <p class="error">❌ Error de conexión: ${error.message}</p>
+                `;
+            }
+        }
+        
+        // Ejecutar al cargar la página
+        verificarEquipos();
+    </script>
+</body>
+</html>

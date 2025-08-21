@@ -431,6 +431,10 @@ class ConsultasManager {
                 if (typeof cargarPreformatosSinDuplicados === 'function') {
                     cargarPreformatosSinDuplicados('consulta', 'estudios', 'formatoConsulta-estudios');
                 }
+                
+                // CARGAR EQUIPOS MÉDICOS DINÁMICOS
+                console.log(`🏥 Cargando equipos médicos para estudios...`);
+                this.loadEquiposMedicos();
                 // También cargar con sistema original si existe
                 if (typeof window.cargarPreformatosConsulta === 'function') {
                     window.cargarPreformatosConsulta('estudios');
@@ -934,6 +938,63 @@ class ConsultasManager {
         } catch (error) {
             console.warn('Error cargando preformatos:', error);
             this.state.preformatos = [];
+        }
+    }
+    
+    /**
+     * Cargar equipos médicos para formulario de estudios
+     */
+    async loadEquiposMedicos() {
+        try {
+            const response = await fetch('modules/consultas/api/consultas-api.php?action=get_equipos_medicos');
+            const data = await response.json();
+            
+            if (data.success && data.data) {
+                this.populateEquiposMedicos(data.data);
+            } else {
+                console.warn('Error cargando equipos médicos:', data.message);
+            }
+        } catch (error) {
+            console.warn('Error cargando equipos médicos:', error);
+        }
+    }
+    
+    /**
+     * Poblar select de equipos médicos
+     */
+    populateEquiposMedicos(equipos) {
+        console.log('🏥 Poblando select de equipos médicos desde base de datos...');
+        
+        const select = document.getElementById('equipo_medico-estudios');
+        if (!select) {
+            console.warn('⚠️ Select equipo_medico-estudios no encontrado');
+            return;
+        }
+        
+        // Limpiar opciones existentes (excepto la primera)
+        const firstOption = select.querySelector('option');
+        select.innerHTML = '';
+        if (firstOption) {
+            select.appendChild(firstOption);
+        }
+        
+        // Agregar opciones de equipos médicos desde la base de datos
+        equipos.forEach(equipo => {
+            const option = document.createElement('option');
+            option.value = equipo.valor || equipo.codigo;
+            option.textContent = equipo.texto || equipo.nombre;
+            // Agregar atributos adicionales para compatibilidad
+            if (equipo.id) option.setAttribute('data-id', equipo.id);
+            select.appendChild(option);
+        });
+        
+        console.log(`✅ ${equipos.length} equipos médicos cargados desde la base de datos`);
+        
+        // Si es Select2, refrescar
+        if (select.classList.contains('select2bs4') || select.classList.contains('select2-hidden-accessible')) {
+            if (typeof $ !== 'undefined' && $(select).data('select2')) {
+                $(select).trigger('change.select2');
+            }
         }
     }
     

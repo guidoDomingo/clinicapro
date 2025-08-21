@@ -329,6 +329,58 @@ window.probarMotivo = function(texto = 'Motivo de prueba') {
 };
 
 /**
+ * Función para verificar el estado de los equipos médicos
+ */
+window.verificarEquiposMedicos = function() {
+    console.group('🏥 VERIFICACIÓN DE EQUIPOS MÉDICOS');
+    
+    const select = document.getElementById('equipo_medico-estudios');
+    if (select) {
+        const opciones = Array.from(select.options);
+        console.log('📋 Select equipo_medico-estudios:');
+        console.log('   - Total opciones:', opciones.length);
+        console.log('   - Opciones disponibles:', opciones.map(o => `"${o.value}": "${o.text}"`));
+        console.log('   - Es Select2:', select.classList.contains('select2-hidden-accessible') || (typeof $ !== 'undefined' && $(select).hasClass('select2-hidden-accessible')));
+        console.log('   - Visible:', select.offsetParent !== null);
+        
+        // Verificar si tiene datos o solo la opción por defecto
+        if (opciones.length <= 1) {
+            console.warn('⚠️ El select parece estar vacío. Intentando cargar equipos...');
+            if (window.appInitializer && window.appInitializer.getComponent) {
+                const consultasManager = window.appInitializer.getComponent('consultas');
+                if (consultasManager && consultasManager.loadEquiposMedicos) {
+                    consultasManager.loadEquiposMedicos();
+                }
+            }
+        } else {
+            console.log('✅ Equipos médicos cargados correctamente desde la base de datos');
+        }
+    } else {
+        console.error('❌ Select equipo_medico-estudios NO ENCONTRADO');
+    }
+    
+    // Probar también el endpoint directamente
+    fetch('modules/consultas/api/consultas-api.php?action=get_equipos_medicos')
+        .then(response => response.json())
+        .then(data => {
+            console.log('🌐 Respuesta del endpoint get_equipos_medicos:', data);
+            if (data.success) {
+                console.log(`✅ API funcionando - ${data.count} equipos disponibles`);
+                if (data.referencial_id) {
+                    console.log(`📋 Referencial ID: ${data.referencial_id} (${data.referencial_codigo})`);
+                }
+            } else {
+                console.warn('⚠️ Error en API:', data.message);
+            }
+        })
+        .catch(error => {
+            console.error('❌ Error llamando al endpoint:', error);
+        });
+    
+    console.groupEnd();
+};
+
+/**
  * Función para verificar el estado de los motivos comunes en todos los selects
  */
 window.verificarMotivosEnSelects = function() {
