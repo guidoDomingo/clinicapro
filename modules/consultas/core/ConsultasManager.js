@@ -1401,18 +1401,62 @@ class ConsultasManager {
                 throw new Error('Debe seleccionar un paciente antes de guardar la consulta');
             }
             
+            // Determinar si es creación o actualización
+            const editingBanner = document.querySelector('.editing-banner');
+            const stateConsultaId = this.state.currentConsulta?.id;
+            
+            // Obtener ID de consulta desde múltiples fuentes
+            let idConsulta = null;
+            
+            // 1. Desde el state del manager
+            if (stateConsultaId) {
+                idConsulta = stateConsultaId;
+                console.log(`🎯 ID de consulta desde state: ${idConsulta}`);
+            }
+            
+            // 2. Desde el banner de edición
+            if (editingBanner && !idConsulta) {
+                const bannerMatch = editingBanner.textContent.match(/#(\d+)/);
+                if (bannerMatch) {
+                    idConsulta = bannerMatch[1];
+                    console.log(`🎯 ID de consulta desde banner: ${idConsulta}`);
+                }
+            }
+            
+            // 3. Desde un campo oculto del formulario (si existe)
+            if (!idConsulta) {
+                const hiddenIdField = document.querySelector('input[name="id_consulta"]');
+                if (hiddenIdField && hiddenIdField.value) {
+                    idConsulta = hiddenIdField.value;
+                    console.log(`🎯 ID de consulta desde campo oculto: ${idConsulta}`);
+                }
+            }
+            
+            const isUpdate = idConsulta !== null && idConsulta !== undefined && idConsulta !== '';
+            console.log(`🔄 Modo: ${isUpdate ? 'ACTUALIZACIÓN' : 'CREACIÓN'}, ID: ${idConsulta || 'nuevo'}`);
+            
+            if (isUpdate) {
+                console.log(`📝 Actualizando consulta existente con ID: ${idConsulta}`);
+            } else {
+                console.log(`✨ Creando nueva consulta para paciente ID: ${selectedPatient.id_persona}`);
+            }
+            
             // Preparar datos para envío
-            const submitData = new FormData();
+            const submitData = {};
             
             // Agregar ID del paciente
-            submitData.append('id_persona', selectedPatient.id_persona);
-            submitData.append('tipo_formulario', formType);
-            submitData.append('action', 'guardar_consulta');
+            submitData.id_persona = selectedPatient.id_persona;
+            submitData.tipo_formulario = formType;
+            
+            // Si es actualización, agregar ID de consulta
+            if (isUpdate) {
+                submitData.id_consulta = idConsulta;
+            }
             
             // Procesar FormData del formulario
             for (const [key, value] of formData.entries()) {
                 if (value !== null && value !== undefined && value !== '') {
-                    submitData.append(key, value);
+                    submitData[key] = value;
                     console.log(`📝 Dato agregado: ${key} = ${value}`);
                 }
             }
@@ -1420,17 +1464,28 @@ class ConsultasManager {
             // Agregar datos adicionales del sistema
             const currentUser = this.getCurrentUser();
             if (currentUser && currentUser.id) {
-                submitData.append('id_usuario', currentUser.id);
+                submitData.id_usuario = currentUser.id;
             }
             
-            // Log de datos que se van a enviar (sin mostrar archivos grandes)
-            const dataEntries = Array.from(submitData.entries()).filter(([key, value]) => !(value instanceof File));
-            console.log('📤 Datos que se enviarán:', Object.fromEntries(dataEntries));
+            // Log de datos que se van a enviar
+            console.log('📤 Datos que se enviarán:', submitData);
+            
+            // Determinar URL y método según operación
+            const apiUrl = isUpdate 
+                ? `modules/consultas/api/modern-api.php?action=update_consulta&id=${idConsulta}`
+                : `modules/consultas/api/modern-api.php?action=create_consulta`;
+            
+            const method = isUpdate ? 'PUT' : 'POST';
+            
+            console.log(`🌐 ${isUpdate ? 'Actualizando' : 'Creando'} vía: ${method} ${apiUrl}`);
             
             // Realizar petición
-            const response = await fetch('modules/consultas/api/consultas-api.php', {
-                method: 'POST',
-                body: submitData
+            const response = await fetch(apiUrl, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(submitData)
             });
             
             if (!response.ok) {
@@ -1564,7 +1619,7 @@ class ConsultasManager {
      */
     async getConsultaData(idConsulta) {
         try {
-            const response = await fetch(`modules/consultas/api/consultas-api.php?action=get_consulta&id=${idConsulta}`, {
+            const response = await fetch(`modules/consultas/api/modern-api.php?action=get_consulta&id=${idConsulta}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'

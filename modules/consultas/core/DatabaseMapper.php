@@ -156,17 +156,19 @@ class DatabaseMapper {
     public function getHtmlFieldMapping($formType) {
         $htmlMappings = [
             'general' => [
-                // Campos principales
-                'txtmotivo' => 'motivo_consulta',
-                'visionod' => 'vision_od',
-                'visionoi' => 'vision_oi', 
-                'tensionod' => 'tension_od',
-                'tensionoi' => 'tension_oi',
-                'txtnota' => 'nota_consulta',
-                'proximaconsulta' => 'proxima_consulta',
-                'whatsapptxt' => 'mensaje_whatsapp',
-                'email' => 'email_paciente',
-                'motivoscomunes' => 'motivo_comun_id'
+                // Campos principales - usando nombres reales de columnas
+                'txtmotivo' => 'txtmotivo',                    // Mapeo directo
+                'visionod' => 'visionod',                     // Mapeo directo  
+                'visionoi' => 'visionoi',                     // Mapeo directo
+                'tensionod' => 'tensionod',                   // Mapeo directo
+                'tensionoi' => 'tensionoi',                   // Mapeo directo
+                'txtnota' => 'txtnota',                       // Mapeo directo
+                'proximaconsulta' => 'proximaconsulta',       // Mapeo directo
+                'whatsapptxt' => 'whatsapptxt',               // Mapeo directo
+                'email' => 'email',                           // Mapeo directo
+                'motivoscomunes' => 'motivoscomunes',         // Mapeo directo
+                'consulta-textarea' => 'consulta_textarea',   // Diagnóstico (HTML usa guión)
+                'receta-textarea' => 'receta_textarea'        // Receta (HTML usa guión)
             ],
             'anteojos' => [
                 // Campos principales
@@ -380,13 +382,33 @@ class DatabaseMapper {
         $mainFields = $this->config['general']['fields'];
         $preparedData = [];
         
+        // IMPORTANTE: Obtener mapeo HTML para convertir nombres de campos del frontend
+        $htmlMapping = $this->getHtmlFieldMapping($tipoFormulario);
+        
         foreach ($mainFields as $fieldName => $fieldConfig) {
             if (isset($fieldConfig['auto_increment']) && $fieldConfig['auto_increment']) {
                 continue; // Skip auto increment fields
             }
             
+            $fieldValue = null;
+            
+            // 1. Buscar directamente por nombre de campo de BD
             if (isset($data[$fieldName])) {
-                $preparedData[$fieldName] = $data[$fieldName];
+                $fieldValue = $data[$fieldName];
+            } 
+            // 2. Buscar usando mapeo inverso HTML (consulta-textarea -> consulta_textarea)
+            else {
+                foreach ($htmlMapping as $htmlKey => $dbKey) {
+                    if ($dbKey === $fieldName && isset($data[$htmlKey])) {
+                        $fieldValue = $data[$htmlKey];
+                        break;
+                    }
+                }
+            }
+            
+            // 3. Usar valor por defecto si no se encontró
+            if ($fieldValue !== null) {
+                $preparedData[$fieldName] = $fieldValue;
             } elseif (isset($fieldConfig['default'])) {
                 $preparedData[$fieldName] = $fieldConfig['default'];
             }

@@ -1721,11 +1721,19 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                         }
                     }
                     
-                    // Textareas específicos con TinyMCE
+                    // Textareas específicos con Summernote (todos los formularios)
                     const textareaFields = [
+                        // Formulario General
+                        'consulta-textarea',
+                        'receta-textarea',
+                        // Formulario Informe Imagen
                         'descripcion-od-textarea-informe-imagen',
                         'descripcion-oi-textarea-informe-imagen',
-                        'consulta-textarea-informe-imagen'
+                        'consulta-textarea-informe-imagen',
+                        // Formulario Anteojos
+                        'consulta-textarea-anteojos',
+                        // Formulario Estudios
+                        'consulta-textarea-estudios'
                     ];
                     
                     textareaFields.forEach(fieldId => {
@@ -1733,18 +1741,37 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                         if (dbField && htmlData[fieldId]) {
                             const field = document.getElementById(fieldId);
                             if (field) {
-                                // Usar Summernote en lugar de TinyMCE
-                                if (typeof $ !== 'undefined' && $(field).data('summernote')) {
-                                    console.log(`🔤 Usando Summernote para ${fieldId}`);
-                                    $(field).summernote('code', htmlData[fieldId]);
-                                } else if (typeof tinymce !== 'undefined' && tinymce.get(fieldId)) {
-                                    console.log(`📝 Usando TinyMCE para ${fieldId}`);
-                                    tinymce.get(fieldId).setContent(htmlData[fieldId]);
-                                } else {
-                                    console.log(`📝 Usando textarea normal para ${fieldId}`);
-                                    field.value = htmlData[fieldId];
-                                }
-                                console.log(`📝 Textarea ${fieldId}:`, htmlData[fieldId].substring(0, 50) + '...');
+                                // Usar setTimeout para asegurar que Summernote esté inicializado
+                                setTimeout(() => {
+                                    // Usar Summernote en lugar de TinyMCE
+                                    if (typeof $ !== 'undefined' && $(field).data('summernote')) {
+                                        console.log(`🔤 Usando Summernote para ${fieldId}`);
+                                        $(field).summernote('code', htmlData[fieldId]);
+                                    } else if (typeof tinymce !== 'undefined' && tinymce.get(fieldId)) {
+                                        console.log(`📝 Usando TinyMCE para ${fieldId}`);
+                                        tinymce.get(fieldId).setContent(htmlData[fieldId]);
+                                    } else {
+                                        console.log(`📝 Usando textarea normal para ${fieldId}`);
+                                        field.value = htmlData[fieldId];
+                                        
+                                        // Si no hay Summernote, intentar inicializarlo y luego poblar
+                                        if (typeof $ !== 'undefined' && typeof $.fn.summernote !== 'undefined') {
+                                            $(field).summernote({
+                                                height: 150,
+                                                toolbar: [
+                                                    ['style', ['bold', 'italic', 'underline']],
+                                                    ['para', ['ul', 'ol', 'paragraph']],
+                                                    ['view', ['codeview']]
+                                                ]
+                                            });
+                                            setTimeout(() => {
+                                                $(field).summernote('code', htmlData[fieldId]);
+                                                console.log(`🔄 Summernote inicializado y poblado para ${fieldId}`);
+                                            }, 200);
+                                        }
+                                    }
+                                    console.log(`📝 Textarea ${fieldId}:`, htmlData[fieldId].substring(0, 50) + '...');
+                                }, 300); // Esperar 300ms para que Summernote esté listo
                                 camposPoblados++;
                             }
                         }
@@ -1753,12 +1780,75 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                 
                 console.log(`✅ Poblado completo: ${camposPoblados} campos con datos reales de BD (mapeo HTML)`);
                 
-                // 🖼️ POBLAR ARCHIVOS DE INFORME IMAGEN
+                // � Re-poblar textareas con retraso adicional para asegurar Summernote
+                setTimeout(() => {
+                    repoblarTextareasConSummernote(htmlData, tipoFormulario);
+                }, 500);
+                
+                // �🖼️ POBLAR ARCHIVOS DE INFORME IMAGEN
                 if (consultaData.archivos && tipoFormulario === 'informe_imagen') {
                     poblarArchivosInformeImagen(consultaData.archivos);
                 }
                 
                 return camposPoblados;
+            }
+            
+            /**
+             * Re-poblar textareas con Summernote después de inicialización completa
+             */
+            function repoblarTextareasConSummernote(htmlData, tipoFormulario) {
+                console.log(`🔄 Re-poblando textareas con Summernote para ${tipoFormulario}`);
+                
+                const textareaFields = [
+                    'consulta-textarea', 'receta-textarea', // General
+                    'descripcion-od-textarea-informe-imagen', 'descripcion-oi-textarea-informe-imagen', 'consulta-textarea-informe-imagen', // Informe Imagen
+                    'consulta-textarea-anteojos', // Anteojos  
+                    'consulta-textarea-estudios' // Estudios
+                ];
+                
+                textareaFields.forEach(fieldId => {
+                    const field = document.getElementById(fieldId);
+                    const valor = htmlData[fieldId];
+                    
+                    if (field && valor && valor.trim() !== '') {
+                        console.log(`🔍 Intentando poblar ${fieldId} con:`, valor.substring(0, 30) + '...');
+                        
+                        // Verificar si Summernote está disponible
+                        if (typeof $ !== 'undefined' && $(field).data('summernote')) {
+                            console.log(`✅ Summernote encontrado para ${fieldId}, poblando...`);
+                            $(field).summernote('code', valor);
+                        } else if (field.style.display !== 'none' && field.offsetHeight > 0) {
+                            // El campo es visible, intentar inicializar Summernote si no existe
+                            console.log(`🔧 Inicializando Summernote para ${fieldId}`);
+                            
+                            if (typeof $ !== 'undefined' && typeof $.fn.summernote !== 'undefined') {
+                                $(field).summernote({
+                                    height: fieldId.includes('receta') ? 200 : 150,
+                                    toolbar: [
+                                        ['style', ['bold', 'italic', 'underline']],
+                                        ['font', ['strikethrough', 'superscript', 'subscript']],
+                                        ['para', ['ul', 'ol', 'paragraph']],
+                                        ['table', ['table']],
+                                        ['insert', ['link']],
+                                        ['view', ['codeview']]
+                                    ]
+                                });
+                                
+                                // Poblar después de inicializar
+                                setTimeout(() => {
+                                    $(field).summernote('code', valor);
+                                    console.log(`🎯 ${fieldId} poblado exitosamente con Summernote`);
+                                }, 100);
+                            } else {
+                                // Fallback a textarea normal
+                                field.value = valor;
+                                console.log(`📝 ${fieldId} poblado como textarea normal`);
+                            }
+                        } else {
+                            console.log(`⚠️ Campo ${fieldId} no visible o no encontrado`);
+                        }
+                    }
+                });
             }
             
             // 2. MÉTODO FALLBACK (MANTENER PARA COMPATIBILIDAD)
@@ -2725,8 +2815,9 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                         
                         console.log('💾 Guardado solicitado:', { tipoFormulario, idConsulta });
                         
-                        // Llamar al sistema de guardado
-                        window.guardarConsultaConMapeoReal(tipoFormulario, idConsulta);
+                        // Solo usar el sistema principal - el fallback causa confusión
+                        console.log('✅ El sistema principal ConsultasManager ya manejó el guardado');
+                        // window.guardarConsultaConMapeoReal(tipoFormulario, idConsulta);
                     });
                     
                     console.log('✅ Botón principal de guardar conectado');

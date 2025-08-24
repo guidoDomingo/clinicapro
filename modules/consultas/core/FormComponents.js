@@ -707,11 +707,11 @@ class GeneralForm extends BaseFormComponent {
         if (consultaTextarea) {
             console.log('✅ Encontrado consulta-textarea');
             if ($(consultaTextarea).data('summernote')) {
-                data.diagnostico = $(consultaTextarea).summernote('code');
-                console.log('📝 Summernote consulta:', data.diagnostico?.substring(0, 50));
+                data['consulta-textarea'] = $(consultaTextarea).summernote('code');
+                console.log('📝 Summernote consulta:', data['consulta-textarea']?.substring(0, 50));
             } else {
-                data.diagnostico = consultaTextarea.value;
-                console.log('📝 Textarea consulta:', data.diagnostico?.substring(0, 50));
+                data['consulta-textarea'] = consultaTextarea.value;
+                console.log('📝 Textarea consulta:', data['consulta-textarea']?.substring(0, 50));
             }
         } else {
             console.warn('❌ No se encontró consulta-textarea');
@@ -736,14 +736,15 @@ class GeneralForm extends BaseFormComponent {
     }
     
     async loadSpecificData(data) {
-        // Cargar en Summernote
-        if (data.diagnostico) {
+        // Cargar en Summernote - usar la clave correcta
+        const consultaContent = data['consulta-textarea'] || data.diagnostico || data.consulta_textarea;
+        if (consultaContent) {
             const consultaTextarea = document.getElementById('consulta-textarea');
             if (consultaTextarea) {
                 if ($(consultaTextarea).data('summernote')) {
-                    $(consultaTextarea).summernote('code', data.diagnostico);
+                    $(consultaTextarea).summernote('code', consultaContent);
                 } else {
-                    consultaTextarea.value = data.diagnostico;
+                    consultaTextarea.value = consultaContent;
                 }
             }
         }
