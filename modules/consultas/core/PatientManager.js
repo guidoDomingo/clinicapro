@@ -663,7 +663,9 @@ class PatientManager {
                                 <span class="badge badge-info">${consulta.tipo_formulario || 'General'}</span>
                             </td>
                             <td>
-                                <button class="btn btn-sm btn-primary load-consulta" data-id="${consulta.id_consulta}">
+                                <button class="btn btn-sm btn-primary editar-consulta" 
+                                        data-id="${consulta.id_consulta}"
+                                        data-idpersona="${patientId}">
                                     <i class="fas fa-edit"></i> Editar
                                 </button>
                                 <button class="btn btn-sm btn-info view-consulta" data-id="${consulta.id_consulta}">
@@ -730,15 +732,7 @@ class PatientManager {
      * Configurar eventos de la tabla de consultas
      */
     setupConsultasTableEvents() {
-        // Botones de cargar consulta
-        document.querySelectorAll('.load-consulta').forEach(btn => {
-            btn.addEventListener('click', async (e) => {
-                const consultaId = e.target.closest('button').dataset.id;
-                await this.loadConsultaForEditing(consultaId);
-            });
-        });
-        
-        // Botones de ver detalle
+        // Botones de ver detalle (el botón editar es manejado por el sistema genérico)
         document.querySelectorAll('.view-consulta').forEach(btn => {
             btn.addEventListener('click', async (e) => {
                 const consultaId = e.target.closest('button').dataset.id;
@@ -747,20 +741,6 @@ class PatientManager {
         });
     }
     
-    /**
-     * Cargar consulta para edición
-     */
-    async loadConsultaForEditing(consultaId) {
-        try {
-            this.consultasManager.notifications.info('Cargando consulta para edición...');
-            // TODO: Implementar carga de consulta para edición
-            console.log('🔄 Cargando consulta para edición:', consultaId);
-            
-        } catch (error) {
-            console.error('Error cargando consulta para edición:', error);
-            this.consultasManager.notifications.error('Error al cargar consulta');
-        }
-    }
     
     /**
      * Mostrar historial completo del paciente

@@ -15,6 +15,9 @@
     <!-- Incluir CSS para la carga de archivos -->
     <link rel="stylesheet" href="view/css/fileupload.css">
     
+    <!-- CSS para modo de edición -->
+    <link rel="stylesheet" href="modules/consultas/css/editing-mode.css">
+    
     <!-- CSS moderno para el módulo de consultas -->
     <style>
         /* === ESTILOS MODERNOS PARA CONSULTAS === */
@@ -671,6 +674,9 @@
 <script src="view/js/cargar_datos.js"></script>
 <script src="view/js/consultas.js"></script>
 <script src="view/js/remedios.js"></script>
+
+<!-- Debug tools para sistema de edición -->
+<script src="debug_edit_system.js"></script>
 
 <script>
     // Script para detectar el tipo de formulario

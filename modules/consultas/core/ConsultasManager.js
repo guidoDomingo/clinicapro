@@ -1493,6 +1493,377 @@ class ConsultasManager {
         }
         return ConsultasManager.instance;
     }
+
+    /**
+     * ============================================
+     * SISTEMA DE EDICIÓN GENÉRICO
+     * ============================================
+     */
+
+    /**
+     * Editar una consulta de cualquier tipo
+     */
+    async editConsulta(idConsulta, idPersona = null) {
+        try {
+            console.log('🔧 Iniciando edición genérica de consulta:', { idConsulta, idPersona });
+            
+            // Mostrar indicador de carga
+            this.setLoading(true);
+            
+            // Obtener datos de la consulta
+            const consultaData = await this.getConsultaData(idConsulta);
+            
+            if (!consultaData) {
+                throw new Error('No se pudieron obtener los datos de la consulta');
+            }
+            
+            // Determinar el tipo de formulario basado en los datos
+            const tipoFormulario = this.determineFormType(consultaData);
+            console.log('📋 Tipo de formulario determinado:', tipoFormulario);
+            
+            // Cambiar al formulario apropiado si es necesario
+            if (this.state.currentFormType !== tipoFormulario) {
+                await this.changeFormType(tipoFormulario);
+            }
+            
+            // Seleccionar el paciente si se proporciona
+            if (idPersona) {
+                await this.selectPatient(idPersona);
+            }
+            
+            // Poblar el formulario con los datos
+            await this.populateForm(consultaData, tipoFormulario);
+            
+            // Marcar como editando
+            this.state.isEditing = true;
+            this.state.currentConsulta = {
+                id: idConsulta,
+                data: consultaData,
+                tipo: tipoFormulario
+            };
+            
+            // Actualizar UI para modo edición
+            this.updateUIForEditMode();
+            
+            console.log('✅ Consulta cargada para edición exitosamente');
+            
+            // Mostrar notificación
+            this.showNotification('Consulta cargada para edición', 'success');
+            
+        } catch (error) {
+            console.error('❌ Error editando consulta:', error);
+            this.showNotification(`Error al cargar consulta: ${error.message}`, 'error');
+        } finally {
+            this.setLoading(false);
+        }
+    }
+
+    /**
+     * Obtener datos de consulta desde la API
+     */
+    async getConsultaData(idConsulta) {
+        try {
+            const response = await fetch(`modules/consultas/api/consultas-api.php?action=get_consulta&id=${idConsulta}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error(`Error HTTP: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            if (!data.success) {
+                throw new Error(data.message || 'Error obteniendo datos de consulta');
+            }
+            
+            console.log('📊 Datos de consulta obtenidos:', data.data);
+            return data.data;
+            
+        } catch (error) {
+            console.error('❌ Error obteniendo consulta:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Determinar el tipo de formulario basado en los datos de la consulta
+     */
+    determineFormType(consultaData) {
+        // Lógica para determinar el tipo basado en los campos presentes
+        if (consultaData.od_esf !== undefined || consultaData.oi_esf !== undefined) {
+            return 'anteojos';
+        } else if (consultaData.tipo_estudio !== undefined) {
+            return 'estudios';
+        } else if (consultaData.archivo_imagen !== undefined) {
+            return 'informe_imagen';
+        } else {
+            return 'general';
+        }
+    }
+
+    /**
+     * Poblar el formulario con los datos de la consulta
+     */
+    async populateForm(consultaData, tipoFormulario) {
+        try {
+            console.log(`🔄 Poblando formulario ${tipoFormulario} con datos:`, consultaData);
+            
+            // Poblar campos básicos comunes
+            this.populateBasicFields(consultaData);
+            
+            // Poblar campos específicos del tipo de formulario
+            switch (tipoFormulario) {
+                case 'general':
+                    await this.populateGeneralForm(consultaData);
+                    break;
+                case 'anteojos':
+                    await this.populateAnteojosForm(consultaData);
+                    break;
+                case 'estudios':
+                    await this.populateEstudiosForm(consultaData);
+                    break;
+                case 'informe_imagen':
+                    await this.populateInformeImagenForm(consultaData);
+                    break;
+            }
+            
+            console.log('✅ Formulario poblado exitosamente');
+            
+        } catch (error) {
+            console.error('❌ Error poblando formulario:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Poblar campos básicos comunes a todos los formularios
+     */
+    populateBasicFields(data) {
+        const basicFields = [
+            'txtmotivo', 'visionod', 'visionoi', 'tensionod', 'tensionoi',
+            'proximaconsulta', 'whatsapptxt', 'email'
+        ];
+        
+        basicFields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field && data[fieldId] !== undefined) {
+                field.value = data[fieldId] || '';
+                console.log(`📝 Campo ${fieldId} poblado:`, data[fieldId]);
+            }
+        });
+    }
+
+    /**
+     * Poblar formulario general
+     */
+    async populateGeneralForm(data) {
+        // Poblar editores Summernote si existen
+        if (typeof $.fn.summernote !== 'undefined') {
+            if (data.consulta_contenido && document.getElementById('consulta-textarea')) {
+                $('#consulta-textarea').summernote('code', data.consulta_contenido);
+            }
+            if (data.receta_contenido && document.getElementById('receta-textarea')) {
+                $('#receta-textarea').summernote('code', data.receta_contenido);
+            }
+        }
+    }
+
+    /**
+     * Poblar formulario de anteojos
+     */
+    async populateAnteojosForm(data) {
+        const anteojosFields = [
+            'od_esf', 'od_cil', 'od_adicion', 'od_eje',
+            'oi_esf', 'oi_cil', 'oi_adicion', 'oi_eje',
+            'av_od', 'av_oi', 'tipo_lente', 'observaciones_anteojos'
+        ];
+        
+        anteojosFields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field && data[fieldId] !== undefined) {
+                if (field.tagName === 'SELECT') {
+                    // Para selects, incluyendo Select2
+                    field.value = data[fieldId];
+                    if ($(field).hasClass('select2-hidden-accessible')) {
+                        $(field).trigger('change');
+                    }
+                } else {
+                    field.value = data[fieldId] || '';
+                }
+                console.log(`👓 Campo anteojos ${fieldId} poblado:`, data[fieldId]);
+            }
+        });
+    }
+
+    /**
+     * Poblar formulario de estudios
+     */
+    async populateEstudiosForm(data) {
+        const estudiosFields = ['tipo_estudio', 'descripcion_estudio', 'resultado_estudio'];
+        
+        estudiosFields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field && data[fieldId] !== undefined) {
+                field.value = data[fieldId] || '';
+                console.log(`🔬 Campo estudios ${fieldId} poblado:`, data[fieldId]);
+            }
+        });
+    }
+
+    /**
+     * Poblar formulario de informe + imagen
+     */
+    async populateInformeImagenForm(data) {
+        const informeFields = ['descripcion_informe', 'archivo_imagen', 'observaciones_imagen'];
+        
+        informeFields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field && data[fieldId] !== undefined) {
+                field.value = data[fieldId] || '';
+                console.log(`🖼️ Campo informe ${fieldId} poblado:`, data[fieldId]);
+            }
+        });
+    }
+
+    /**
+     * Actualizar UI para modo edición
+     */
+    updateUIForEditMode() {
+        // Cambiar texto de botón Guardar
+        const saveBtn = document.getElementById('btn-guardar-consulta');
+        if (saveBtn) {
+            saveBtn.textContent = 'Actualizar Consulta';
+            saveBtn.classList.add('btn-warning');
+            saveBtn.classList.remove('btn-primary');
+        }
+        
+        // Mostrar indicador de modo edición
+        const container = document.querySelector('.consulta-form-container');
+        if (container) {
+            container.classList.add('editing-mode');
+        }
+        
+        // Agregar banner de edición
+        this.showEditingBanner();
+    }
+
+    /**
+     * Mostrar banner de modo edición
+     */
+    showEditingBanner() {
+        // Remover banner existente si hay uno
+        const existingBanner = document.querySelector('.editing-banner');
+        if (existingBanner) {
+            existingBanner.remove();
+        }
+        
+        // Crear nuevo banner
+        const banner = document.createElement('div');
+        banner.className = 'editing-banner alert alert-warning';
+        banner.innerHTML = `
+            <i class="fas fa-edit"></i>
+            <strong>Modo Edición:</strong> Está editando la consulta #${this.state.currentConsulta.id}
+            <button type="button" class="btn btn-sm btn-outline-secondary ml-2" onclick="consultasManager.cancelEdit()">
+                <i class="fas fa-times"></i> Cancelar Edición
+            </button>
+        `;
+        
+        // Insertar banner al inicio del contenido
+        const mainContent = document.querySelector('.main-content') || document.querySelector('.content');
+        if (mainContent) {
+            mainContent.insertBefore(banner, mainContent.firstChild);
+        }
+    }
+
+    /**
+     * Cancelar edición y limpiar formulario
+     */
+    cancelEdit() {
+        if (confirm('¿Está seguro que desea cancelar la edición? Los cambios no guardados se perderán.')) {
+            this.state.isEditing = false;
+            this.state.currentConsulta = null;
+            
+            // Limpiar formulario
+            this.clearForm();
+            
+            // Restaurar UI normal
+            this.restoreNormalUI();
+            
+            this.showNotification('Edición cancelada', 'info');
+        }
+    }
+
+    /**
+     * Restaurar UI normal (salir del modo edición)
+     */
+    restoreNormalUI() {
+        // Restaurar botón Guardar
+        const saveBtn = document.getElementById('btn-guardar-consulta');
+        if (saveBtn) {
+            saveBtn.textContent = 'Guardar Consulta';
+            saveBtn.classList.remove('btn-warning');
+            saveBtn.classList.add('btn-primary');
+        }
+        
+        // Remover clase de modo edición
+        const container = document.querySelector('.consulta-form-container');
+        if (container) {
+            container.classList.remove('editing-mode');
+        }
+        
+        // Remover banner de edición
+        const banner = document.querySelector('.editing-banner');
+        if (banner) {
+            banner.remove();
+        }
+    }
+
+    /**
+     * Seleccionar paciente por ID
+     */
+    async selectPatient(idPersona) {
+        try {
+            // Si tenemos PatientManager, usarlo
+            if (window.patientManager && typeof window.patientManager.selectPatientById === 'function') {
+                await window.patientManager.selectPatientById(idPersona);
+                console.log('👤 Paciente seleccionado vía PatientManager:', idPersona);
+            } else {
+                console.log('⚠️ PatientManager no disponible, omitiendo selección de paciente');
+            }
+        } catch (error) {
+            console.error('❌ Error seleccionando paciente:', error);
+        }
+    }
+
+    /**
+     * Mostrar notificación
+     */
+    showNotification(message, type = 'info') {
+        if (window.notificationSystem) {
+            window.notificationSystem.show(message, type);
+        } else if (typeof alertify !== 'undefined') {
+            alertify[type](message);
+        } else {
+            alert(message);
+        }
+    }
+
+    /**
+     * Establecer estado de carga
+     */
+    setLoading(isLoading) {
+        this.state.isLoading = isLoading;
+        
+        // Actualizar UI de carga si existe
+        const loadingIndicator = document.querySelector('.loading-indicator');
+        if (loadingIndicator) {
+            loadingIndicator.style.display = isLoading ? 'block' : 'none';
+        }
+    }
 }
 
 /**
@@ -1587,3 +1958,64 @@ class NotificationSystem {
 // Exportar para uso global
 window.ConsultasManager = ConsultasManager;
 window.NotificationSystem = NotificationSystem;
+
+/**
+ * ============================================
+ * SISTEMA GLOBAL DE INTERCEPTORES DE EDICIÓN
+ * ============================================
+ */
+
+/**
+ * Función global para manejar todos los clics en botones de editar
+ */
+window.editarConsultaGenerico = function(idConsulta, idPersona = null) {
+    console.log('🔧 Función global editarConsultaGenerico llamada:', { idConsulta, idPersona });
+    
+    // Verificar que tenemos ConsultasManager disponible
+    if (!window.consultasManager) {
+        console.error('❌ ConsultasManager no está disponible');
+        alert('Error: Sistema de consultas no está inicializado');
+        return;
+    }
+    
+    // Llamar al método de edición genérico
+    window.consultasManager.editConsulta(idConsulta, idPersona);
+};
+
+/**
+ * Auto-configurar interceptores cuando el DOM esté listo
+ */
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🔧 Configurando interceptores de edición genéricos...');
+    
+    // Interceptar todos los botones con clase 'editar-consulta'
+    document.addEventListener('click', function(e) {
+        const editBtn = e.target.closest('.editar-consulta, [data-action="edit"], .btn-editar');
+        
+        if (editBtn) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Obtener IDs de los atributos data
+            const idConsulta = editBtn.dataset.id || editBtn.dataset.idconsulta;
+            const idPersona = editBtn.dataset.idpersona || editBtn.dataset.persona;
+            
+            console.log('🔧 Botón de editar interceptado:', { idConsulta, idPersona, element: editBtn });
+            
+            if (idConsulta) {
+                window.editarConsultaGenerico(idConsulta, idPersona);
+            } else {
+                console.error('❌ ID de consulta no encontrado en el botón');
+                alert('Error: No se puede identificar la consulta a editar');
+            }
+        }
+    });
+    
+    console.log('✅ Interceptores de edición configurados');
+});
+
+/**
+ * Función de compatibilidad para scripts existentes
+ */
+window.editarConsulta = window.editarConsultaGenerico;
+window.editarConsultaProtegida = window.editarConsultaGenerico;

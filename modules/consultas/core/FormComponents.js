@@ -624,6 +624,12 @@ class GeneralForm extends BaseFormComponent {
         ];
     }
     
+    async init() {
+        console.log('🔧 Inicializando GeneralForm...');
+        await this.initialize();
+        this.isInitialized = true;
+    }
+    
     async initialize() {
         console.log('🔧 Inicializando GeneralForm...');
         
@@ -800,13 +806,17 @@ class AnteojosFormComponent extends BaseFormComponent {
             }
         ];
     }
-    
+
+    async init() {
+        console.log('🔧 Inicializando AnteojosFormComponent...');
+        await this.initializeFields();
+        this.isInitialized = true;
+    }
+
     async initialize() {
         console.log('🔧 Inicializando AnteojosFormComponent...');
         await this.initializeFields();
-    }
-    
-    async initializeFields() {
+    }    async initializeFields() {
         // Cargar referenciales específicos de anteojos
         await this.loadReferenciales();
         
@@ -957,6 +967,12 @@ class EstudiosFormComponent extends BaseFormComponent {
         return 'estudios';
     }
     
+    async init() {
+        console.log('🔧 Inicializando EstudiosFormComponent...');
+        await this.initializeFields();
+        this.isInitialized = true;
+    }
+    
     async initialize() {
         console.log('🔧 Inicializando EstudiosFormComponent...');
         await this.initializeFields();
@@ -976,6 +992,12 @@ class EstudiosFormComponent extends BaseFormComponent {
 class InformeImagenFormComponent extends BaseFormComponent {
     getFormType() {
         return 'informe_imagen';
+    }
+    
+    async init() {
+        console.log('🔧 Inicializando InformeImagenFormComponent...');
+        await this.initializeFields();
+        this.isInitialized = true;
     }
     
     async initialize() {

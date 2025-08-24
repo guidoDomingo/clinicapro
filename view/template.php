@@ -57,7 +57,8 @@
     <script src="view/dist/js/adminlte.min.js"></script>
     <!-- AdminLTE for demo purposes -->
     <!-- <script src="view/dist/js/demo.js"></script> -->
-    <script src="https://kit.fontawesome.com/8faaf42ade.js" crossorigin="anonymous"></script>
+    <!-- FontAwesome Kit comentado temporalmente por error 403 -->
+    <!-- <script src="https://kit.fontawesome.com/8faaf42ade.js" crossorigin="anonymous"></script> -->
     <!-- Select2 -->
     <script src="view/plugins/select2/js/select2.full.min.js"></script>
     <!-- Summernote -->

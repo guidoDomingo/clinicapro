@@ -425,8 +425,6 @@ window.detectarCampoMotivoActivo = detectarCampoMotivoActivo;
 window.agregarMotivoAlCampo = agregarMotivoAlCampo;
 window.configurarEventListenersMotivosComunes = configurarEventListenersMotivosComunes;
 window.configurarMotivosComunes = configurarEventListenersMotivosComunes;
-window.detectarFormasMotivos = detectarFormasActivas;
 window.detectarSelectMotivos = detectarSelectMotivosActivo;
-window.detectarTextareaMotivos = detectarTextareaActivco;
 
 console.log('✅ Sistema unificado de motivos comunes cargado');

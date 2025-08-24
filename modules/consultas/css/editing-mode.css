@@ -1,0 +1,202 @@
+/**
+ * ESTILOS PARA MODO DE EDICIÓN DE CONSULTAS
+ */
+
+/* Banner de modo edición */
+.editing-banner {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    border-radius: 0;
+    margin-bottom: 20px;
+    border-left: 4px solid #f0ad4e;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Contenedor en modo edición */
+.editing-mode {
+    background-color: #fefefe;
+    border: 2px dashed #f0ad4e;
+    border-radius: 8px;
+    padding: 15px;
+    position: relative;
+}
+
+.editing-mode::before {
+    content: "MODO EDICIÓN";
+    position: absolute;
+    top: -12px;
+    left: 20px;
+    background-color: #f0ad4e;
+    color: white;
+    padding: 2px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: bold;
+    z-index: 10;
+}
+
+/* Campos modificados en modo edición */
+.editing-mode .form-control:focus {
+    border-color: #f0ad4e;
+    box-shadow: 0 0 0 0.2rem rgba(240, 173, 78, 0.25);
+}
+
+.editing-mode .select2-container--default .select2-selection--single:focus,
+.editing-mode .select2-container--default.select2-container--focus .select2-selection--single {
+    border-color: #f0ad4e;
+}
+
+/* Botón de actualizar en modo edición */
+.btn-warning.btn-update {
+    background-color: #f0ad4e;
+    border-color: #eea236;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(240, 173, 78, 0.3);
+}
+
+.btn-warning.btn-update:hover {
+    background-color: #ec971f;
+    border-color: #d58512;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(240, 173, 78, 0.4);
+}
+
+/* Indicador de campos modificados */
+.field-modified {
+    border-left: 3px solid #5cb85c !important;
+    background-color: rgba(92, 184, 92, 0.05);
+}
+
+/* Loading overlay para modo edición */
+.editing-loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    z-index: 100;
+}
+
+.editing-loading .spinner {
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #f0ad4e;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Notificaciones personalizadas */
+.notifications-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 2000;
+    max-width: 350px;
+}
+
+.notification {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    margin-bottom: 10px;
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.3s ease;
+}
+
+.notification.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.notification-content {
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.notification-success {
+    border-left: 4px solid #5cb85c;
+}
+
+.notification-error {
+    border-left: 4px solid #d9534f;
+}
+
+.notification-warning {
+    border-left: 4px solid #f0ad4e;
+}
+
+.notification-info {
+    border-left: 4px solid #5bc0de;
+}
+
+.notification-close {
+    background: none;
+    border: none;
+    font-size: 18px;
+    color: #999;
+    cursor: pointer;
+    margin-left: auto;
+}
+
+.notification-close:hover {
+    color: #333;
+}
+
+/* Resaltado de tabs en modo edición */
+.editing-mode .nav-tabs .nav-link.active {
+    background-color: #fff3cd;
+    border-color: #f0ad4e #f0ad4e #fff;
+    color: #856404;
+}
+
+/* Efectos de hover mejorados */
+.editar-consulta:hover,
+.btn-editar:hover {
+    transform: scale(1.05);
+    transition: transform 0.2s ease;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .notifications-container {
+        left: 10px;
+        right: 10px;
+        max-width: none;
+    }
+    
+    .editing-banner {
+        font-size: 14px;
+        padding: 10px;
+    }
+    
+    .editing-mode::before {
+        font-size: 10px;
+        padding: 1px 8px;
+    }
+}

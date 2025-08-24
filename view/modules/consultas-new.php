@@ -46,6 +46,8 @@ $userName = $_SESSION['username'] ?? 'Usuario';
     
     <!-- CSS específico del módulo (se carga después de AdminLTE) -->
     <link rel="stylesheet" href="modules/consultas/assets/css/consultas-enhanced.css">
+    <!-- CSS para modo de edición -->
+    <link rel="stylesheet" href="modules/consultas/css/editing-mode.css">
     
     <style>
         /* CSS crítico inline para evitar FOUC */
@@ -1407,6 +1409,1544 @@ $userName = $_SESSION['username'] ?? 'Usuario';
             console.log('🔧 Debug tools disponibles en window.debugConsultas');
             console.log('💡 Ejemplos: debugConsultas.getState(), debugConsultas.testFormChange("anteojos")');
         }
+
+        // 🔧 VERIFICACIÓN INMEDIATA DEL SISTEMA DE EDICIÓN
+        console.log('🔍 Verificando sistema de edición...');
+        console.log('- ConsultasManager:', !!window.consultasManager);
+        console.log('- editarConsultaGenerico:', typeof window.editarConsultaGenerico);
+        
+        // 🚨 FUNCIÓN DE EMERGENCIA PARA EDICIÓN
+        if (!window.editarConsultaGenerico) {
+            window.editarConsultaGenerico = function(idConsulta, idPersona) {
+                console.log('🚨 Función de emergencia ejecutada:', { idConsulta, idPersona });
+                
+                // 🔍 DIAGNÓSTICO COMPLETO DEL SISTEMA
+                console.group('🔍 DIAGNÓSTICO DEL SISTEMA');
+                console.log('1. window.consultasManager:', !!window.consultasManager);
+                console.log('2. window.appInitializer:', !!window.appInitializer);
+                console.log('3. window.ConsultasManager:', !!window.ConsultasManager);
+                
+                if (window.appInitializer) {
+                    console.log('4. appInitializer.getComponent("consultas"):', !!window.appInitializer.getComponent('consultas'));
+                    const consultasComponent = window.appInitializer.getComponent('consultas');
+                    if (consultasComponent) {
+                        console.log('5. consultasComponent.editConsulta:', typeof consultasComponent.editConsulta);
+                    }
+                }
+                console.groupEnd();
+                
+                // 🎯 INTENTAR MÚLTIPLES RUTAS PARA ENCONTRAR EL MANAGER
+                let consultasManager = null;
+                
+                // Ruta 1: window.consultasManager directo
+                if (window.consultasManager && typeof window.consultasManager.editConsulta === 'function') {
+                    consultasManager = window.consultasManager;
+                    console.log('✅ Encontrado en window.consultasManager');
+                }
+                // Ruta 2: A través del appInitializer
+                else if (window.appInitializer) {
+                    consultasManager = window.appInitializer.getComponent('consultas');
+                    if (consultasManager && typeof consultasManager.editConsulta === 'function') {
+                        console.log('✅ Encontrado vía appInitializer');
+                    } else {
+                        consultasManager = null;
+                    }
+                }
+                // Ruta 3: Instancia directa de ConsultasManager
+                else if (window.ConsultasManager) {
+                    console.log('🔄 Intentando crear nueva instancia de ConsultasManager...');
+                    try {
+                        consultasManager = new window.ConsultasManager();
+                        console.log('✅ Nueva instancia creada');
+                    } catch (error) {
+                        console.error('❌ Error creando instancia:', error);
+                        consultasManager = null;
+                    }
+                }
+                
+                // 🚀 EJECUTAR EDICIÓN SI ENCONTRAMOS EL MANAGER
+                if (consultasManager) {
+                    console.log('🎯 Ejecutando edición con manager encontrado');
+                    try {
+                        consultasManager.editConsulta(idConsulta, idPersona);
+                        console.log('✅ Edición ejecutada exitosamente');
+                    } catch (error) {
+                        console.error('❌ Error ejecutando edición:', error);
+                        console.log('🔄 Fallback activado debido a error');
+                        window.editConsultaFallback(idConsulta, idPersona);
+                    }
+                } else {
+                    console.warn('⚠️ No se encontró ConsultasManager - usando fallback');
+                    window.editConsultaFallback(idConsulta, idPersona);
+                }
+            };
+            console.log('✅ Función de emergencia creada');
+        }
+        
+        // 🔧 INTERCEPTOR DE EVENTOS DE EDICIÓN MEJORADO
+        document.addEventListener('click', function(e) {
+            const editBtn = e.target.closest('.editar-consulta, [data-action="edit"], .btn-editar');
+            
+            if (editBtn) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const idConsulta = editBtn.dataset.id || editBtn.dataset.idconsulta;
+                const idPersona = editBtn.dataset.idpersona || editBtn.dataset.persona;
+                
+                console.log('🔧 Clic interceptado en botón editar:', { 
+                    element: editBtn, 
+                    idConsulta, 
+                    idPersona,
+                    classes: editBtn.className 
+                });
+                
+                if (idConsulta) {
+                    // Usar directamente el fallback que es más confiable
+                    console.log('🚀 Ejecutando edición directa con fallback...');
+                    window.editConsultaFallback(idConsulta, idPersona);
+                } else {
+                    console.error('❌ No se encontró ID de consulta en el botón');
+                    alert('Error: No se puede identificar la consulta a editar');
+                }
+            }
+        });
+        console.log('✅ Interceptor de eventos mejorado configurado');
+        
+        // Verificar si tenemos paciente seleccionado
+        setTimeout(() => {
+            if (window.consultasManager && window.consultasManager.state.currentPatient) {
+                console.log('👤 Paciente actual:', window.consultasManager.state.currentPatient);
+                
+                // Buscar botones de editar en el historial
+                const editButtons = document.querySelectorAll('.editar-consulta');
+                console.log('🔘 Botones de editar encontrados:', editButtons.length);
+                
+                if (editButtons.length > 0) {
+                    console.log('✅ Sistema de edición listo para usar');
+                    console.log('💡 Haz clic en cualquier botón "Editar" del historial');
+                } else {
+                    console.log('⚠️ No se encontraron botones de editar. Selecciona un paciente primero.');
+                }
+            } else {
+                console.log('⚠️ No hay paciente seleccionado');
+            }
+        }, 3000);
+        
+        // 🔄 FUNCIONES AUXILIARES PARA LOADING Y NOTIFICACIONES
+        
+        // 🔄 Función para mostrar overlay de loading
+        function showLoadingOverlay(message = 'Cargando...') {
+            // Remover overlay existente si hay
+            hideLoadingOverlay();
+            
+            const overlay = document.createElement('div');
+            overlay.id = 'loading-overlay-edit';
+            overlay.className = 'loading-overlay';
+            overlay.innerHTML = `
+                <div class="loading-content">
+                    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                    <p class="mt-3 mb-0" style="font-size: 16px; font-weight: 500;">${message}</p>
+                </div>
+            `;
+            
+            // CSS inline para el overlay
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.8);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 9999;
+                color: white;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            `;
+            
+            document.body.appendChild(overlay);
+            console.log('🔄 Loading overlay mostrado:', message);
+        }
+        
+        // 🔄 Función para ocultar overlay de loading
+        function hideLoadingOverlay() {
+            const overlay = document.getElementById('loading-overlay-edit');
+            if (overlay) {
+                overlay.remove();
+                console.log('✅ Loading overlay ocultado');
+            }
+        }
+        
+        // 🔄 FUNCIÓN DE FALLBACK MEJORADA CON MAPEO REAL DE BASE DE DATOS
+        window.editConsultaFallback = function(idConsulta, idPersona) {
+            console.log('🔄 Ejecutando fallback con mapeo real de BD:', { idConsulta, idPersona });
+            
+            // Mostrar loading mientras obtenemos los datos
+            showLoadingOverlay('Cargando datos reales de la consulta...');
+            
+            // 1. Llamar a la nueva API con mapeo directo de base de datos
+            const apiUrl = `modules/consultas/api/modern-api.php?action=get_consulta&id=${idConsulta}`;
+            console.log('🌐 Llamando API moderna:', apiUrl);
+            
+            fetch(apiUrl)
+                .then(response => {
+                    console.log('📡 Respuesta API moderna:', response.status);
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(result => {
+                    console.log('📊 Datos reales obtenidos:', result);
+                    hideLoadingOverlay();
+                    
+                    if (result.success && result.data) {
+                        const consultaData = result.data;
+                        
+                        // 2. Determinar tipo de formulario desde la BD
+                        const tipoFormulario = consultaData.type || consultaData.main.tipo_formulario || 'general';
+                        console.log('📋 Tipo desde BD:', tipoFormulario);
+                        
+                        // 3. Cambiar al formulario correcto
+                        changeToFormTabFallback(tipoFormulario);
+                        
+                        // 4. Poblar formulario con datos reales
+                        setTimeout(() => {
+                            populateRealFormData(consultaData, tipoFormulario);
+                            showEditingModeFallback(idConsulta);
+                        }, 800);
+                        
+                    } else {
+                        throw new Error(result.message || 'No se pudieron obtener los datos de la consulta');
+                    }
+                })
+                .catch(error => {
+                    console.error('❌ Error con API moderna:', error);
+                    hideLoadingOverlay();
+                    
+                    // Mostrar error específico pero permitir continuar
+                    showErrorModal(`Error cargando datos: ${error.message}`, () => {
+                        // Permitir continuar en modo de edición vacío
+                        console.log('🎭 Activando modo de edición vacío...');
+                        changeToFormTabFallback('general');
+                        setTimeout(() => {
+                            showEditingModeFallback(idConsulta);
+                        }, 500);
+                    });
+                });
+        };
+        
+        // 📝 FUNCIÓN PARA POBLAR FORMULARIOS CON DATOS REALES DE LA BD
+        function populateRealFormData(consultaData, tipoFormulario) {
+            console.log(`📝 Poblando formulario ${tipoFormulario} con datos reales:`, consultaData);
+            
+            let camposPoblados = 0;
+            
+            // 1. USAR MAPEO HTML SI ESTÁ DISPONIBLE (NUEVO MÉTODO)
+            if (consultaData.html_data && consultaData.html_mapping) {
+                console.log(`🗺️ Usando mapeo HTML completo para ${tipoFormulario}:`, consultaData.html_mapping);
+                
+                const htmlData = consultaData.html_data;
+                
+                Object.keys(htmlData).forEach(fieldId => {
+                    const field = document.getElementById(fieldId);
+                    const value = htmlData[fieldId];
+                    
+                    if (field && value !== undefined && value !== null && value !== '') {
+                        // Manejar diferentes tipos de campos
+                        if (field.type === 'date') {
+                            field.value = value.split(' ')[0]; // Solo la fecha
+                        } else if (field.tagName === 'TEXTAREA') {
+                            // Manejar textareas con TinyMCE
+                            if (typeof tinymce !== 'undefined' && tinymce.get(fieldId)) {
+                                tinymce.get(fieldId).setContent(value);
+                                console.log(`📝 TinyMCE ${fieldId} actualizado con contenido HTML`);
+                            } else {
+                                field.value = value;
+                            }
+                        } else if (field.tagName === 'SELECT') {
+                            field.value = value;
+                            // Trigger para Select2
+                            if (field.classList.contains('select2-hidden-accessible') && typeof $ !== 'undefined') {
+                                $(field).trigger('change');
+                            }
+                        } else {
+                            field.value = value;
+                        }
+                        
+                        camposPoblados++;
+                        console.log(`✅ Campo HTML ${fieldId}:`, value);
+                    }
+                });
+                
+                // Manejar campos especiales para informe_imagen
+                if (tipoFormulario === 'informe_imagen') {
+                    // Emails compartir (formato Tagify)
+                    if (htmlData['txtEmailShare-informe-imagen']) {
+                        const emailField = document.getElementById('txtEmailShare-informe-imagen');
+                        if (emailField) {
+                            try {
+                                const emails = JSON.parse(htmlData['txtEmailShare-informe-imagen']);
+                                if (emailField._tagify) {
+                                    emailField._tagify.addTags(emails);
+                                } else {
+                                    // Si Tagify no está inicializado, usar valor directo
+                                    emailField.value = emails.map(e => e.value).join(',');
+                                }
+                                console.log(`🖼️ Informe emails_compartir:`, emails);
+                                camposPoblados++;
+                            } catch (e) {
+                                console.log(`⚠️ Error parseando emails:`, e);
+                                // Intentar como string simple
+                                emailField.value = htmlData['txtEmailShare-informe-imagen'];
+                                camposPoblados++;
+                            }
+                        }
+                    }
+                    
+                    // Equipo médico (select)
+                    if (htmlData['equipoMedico-informe-imagen']) {
+                        const equipoField = document.getElementById('equipoMedico-informe-imagen');
+                        if (equipoField) {
+                            equipoField.value = htmlData['equipoMedico-informe-imagen'];
+                            if (typeof $ !== 'undefined') {
+                                $(equipoField).trigger('change');
+                            }
+                            console.log(`🖼️ Equipo médico:`, htmlData['equipoMedico-informe-imagen']);
+                            camposPoblados++;
+                        }
+                    }
+                    
+                    // Textareas específicos con TinyMCE
+                    const textareaFields = [
+                        'descripcion-od-textarea-informe-imagen',
+                        'descripcion-oi-textarea-informe-imagen',
+                        'consulta-textarea-informe-imagen'
+                    ];
+                    
+                    textareaFields.forEach(fieldId => {
+                        const dbField = consultaData.html_mapping?.[fieldId];
+                        if (dbField && htmlData[fieldId]) {
+                            const field = document.getElementById(fieldId);
+                            if (field) {
+                                // Usar Summernote en lugar de TinyMCE
+                                if (typeof $ !== 'undefined' && $(field).data('summernote')) {
+                                    console.log(`🔤 Usando Summernote para ${fieldId}`);
+                                    $(field).summernote('code', htmlData[fieldId]);
+                                } else if (typeof tinymce !== 'undefined' && tinymce.get(fieldId)) {
+                                    console.log(`📝 Usando TinyMCE para ${fieldId}`);
+                                    tinymce.get(fieldId).setContent(htmlData[fieldId]);
+                                } else {
+                                    console.log(`📝 Usando textarea normal para ${fieldId}`);
+                                    field.value = htmlData[fieldId];
+                                }
+                                console.log(`📝 Textarea ${fieldId}:`, htmlData[fieldId].substring(0, 50) + '...');
+                                camposPoblados++;
+                            }
+                        }
+                    });
+                }
+                
+                console.log(`✅ Poblado completo: ${camposPoblados} campos con datos reales de BD (mapeo HTML)`);
+                
+                // 🖼️ POBLAR ARCHIVOS DE INFORME IMAGEN
+                if (consultaData.archivos && tipoFormulario === 'informe_imagen') {
+                    poblarArchivosInformeImagen(consultaData.archivos);
+                }
+                
+                return camposPoblados;
+            }
+            
+            // 2. MÉTODO FALLBACK (MANTENER PARA COMPATIBILIDAD)
+            const mainData = consultaData.main;
+            if (mainData) {
+                // Mapeo directo de campos principales
+                const mainFields = [
+                    'txtmotivo', 'visionod', 'visionoi', 'tensionod', 'tensionoi',
+                    'consulta_textarea', 'receta_textarea', 'txtnota', 
+                    'proximaconsulta', 'whatsapptxt', 'email', 'motivoscomunes'
+                ];
+                
+                mainFields.forEach(fieldName => {
+                    const field = document.getElementById(fieldName);
+                    if (field && mainData[fieldName] !== undefined && mainData[fieldName] !== null) {
+                        field.value = mainData[fieldName];
+                        camposPoblados++;
+                        console.log(`✅ Campo principal ${fieldName}:`, mainData[fieldName]);
+                        
+                        // Trigger para elementos especiales
+                        if (field.classList.contains('select2-hidden-accessible') && typeof $ !== 'undefined') {
+                            $(field).trigger('change');
+                        }
+                    }
+                });
+            }
+            
+            // 2. Poblar datos específicos según tipo de formulario
+            if (consultaData.related) {
+                
+                // ANTEOJOS - Mapeo directo desde consulta_anteojos
+                if (tipoFormulario === 'anteojos' && consultaData.related.consulta_anteojos) {
+                    const anteojosData = consultaData.related.consulta_anteojos;
+                    
+                    // Mapeo específico OD (Ojo Derecho)
+                    const odFields = {
+                        'od_esf': 'esfera_od',
+                        'od_cil': 'cilindro_od', 
+                        'od_eje': 'eje_od',
+                        'od_adicion': 'add_od'
+                    };
+                    
+                    // Mapeo específico OI (Ojo Izquierdo)
+                    const oiFields = {
+                        'oi_esf': 'esfera_oi',
+                        'oi_cil': 'cilindro_oi',
+                        'oi_eje': 'eje_oi', 
+                        'oi_adicion': 'add_oi'
+                    };
+                    
+                    // Poblar campos OD
+                    Object.keys(odFields).forEach(formFieldId => {
+                        const dbFieldName = odFields[formFieldId];
+                        const field = document.getElementById(formFieldId);
+                        
+                        if (field && anteojosData[dbFieldName] !== undefined) {
+                            field.value = anteojosData[dbFieldName] || '';
+                            camposPoblados++;
+                            console.log(`👓 OD ${formFieldId} (${dbFieldName}):`, anteojosData[dbFieldName]);
+                            
+                            if (field.classList.contains('select2-hidden-accessible') && typeof $ !== 'undefined') {
+                                $(field).trigger('change');
+                            }
+                        }
+                    });
+                    
+                    // Poblar campos OI
+                    Object.keys(oiFields).forEach(formFieldId => {
+                        const dbFieldName = oiFields[formFieldId];
+                        const field = document.getElementById(formFieldId);
+                        
+                        if (field && anteojosData[dbFieldName] !== undefined) {
+                            field.value = anteojosData[dbFieldName] || '';
+                            camposPoblados++;
+                            console.log(`👓 OI ${formFieldId} (${dbFieldName}):`, anteojosData[dbFieldName]);
+                            
+                            if (field.classList.contains('select2-hidden-accessible') && typeof $ !== 'undefined') {
+                                $(field).trigger('change');
+                            }
+                        }
+                    });
+                    
+                    // Campos adicionales de anteojos
+                    const additionalFields = ['dist_interpupilar', 'altura_od', 'altura_oi', 'notas'];
+                    additionalFields.forEach(fieldName => {
+                        const field = document.getElementById(fieldName);
+                        if (field && anteojosData[fieldName] !== undefined) {
+                            field.value = anteojosData[fieldName] || '';
+                            camposPoblados++;
+                            console.log(`� Adicional ${fieldName}:`, anteojosData[fieldName]);
+                        }
+                    });
+                }
+                
+                // ESTUDIOS - Mapeo directo desde consulta_estudios
+                if (tipoFormulario === 'estudios' && consultaData.related.consulta_estudios) {
+                    const estudiosData = consultaData.related.consulta_estudios;
+                    
+                    const estudiosFields = {
+                        'tipo_estudio': 'equipo_medico',
+                        'observaciones': 'resultados',
+                        'otro_equipo': 'otro_equipo'
+                    };
+                    
+                    Object.keys(estudiosFields).forEach(formFieldId => {
+                        const dbFieldName = estudiosFields[formFieldId];
+                        const field = document.getElementById(formFieldId);
+                        
+                        if (field && estudiosData[dbFieldName] !== undefined) {
+                            field.value = estudiosData[dbFieldName] || '';
+                            camposPoblados++;
+                            console.log(`🔬 Estudios ${formFieldId} (${dbFieldName}):`, estudiosData[dbFieldName]);
+                        }
+                    });
+                }
+                
+                // INFORME + IMAGEN - Mapeo directo desde consulta_informe_imagen
+                if (tipoFormulario === 'informe_imagen' && consultaData.related.consulta_informe_imagen) {
+                    const informeData = consultaData.related.consulta_informe_imagen;
+                    
+                    const informeFields = {
+                        'equipo_medico': 'equipo_medico',
+                        'descripcion_od': 'descripcion_od',
+                        'descripcion_oi': 'descripcion_oi',
+                        'txtEmailShare-informe-imagen': 'emails_compartir'
+                    };
+                    
+                    Object.keys(informeFields).forEach(formFieldId => {
+                        const dbFieldName = informeFields[formFieldId];
+                        const field = document.getElementById(formFieldId);
+                        
+                        if (field && informeData[dbFieldName] !== undefined) {
+                            field.value = informeData[dbFieldName] || '';
+                            camposPoblados++;
+                            console.log(`🖼️ Informe ${formFieldId} (${dbFieldName}):`, informeData[dbFieldName]);
+                        }
+                    });
+                }
+            }
+            
+            // 3. Mostrar resultado de poblado
+            console.log(`✅ Poblado completo: ${camposPoblados} campos con datos reales de BD`);
+            
+            // Notificación de éxito mejorada
+            showSuccessNotification(
+                `Consulta #${consultaData.main?.id_consulta} Cargada`,
+                `${camposPoblados} campos poblados desde base de datos\nFormulario: ${tipoFormulario}\nÚltima modificación: ${consultaData.main?.ultima_modificacion || 'N/A'}`
+            );
+        }
+        
+        // � FUNCIONES AUXILIARES PARA NOTIFICACIONES Y MODALES
+        
+        function showErrorModal(message, onAccept = null) {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay error-modal';
+            modal.innerHTML = `
+                <div class="modal-content error-content">
+                    <div class="modal-header error-header">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h4>Error al Cargar Consulta</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>${message}</p>
+                        <p><small>¿Desea continuar en modo de edición vacío?</small></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" onclick="this.closest('.modal-overlay').remove()">
+                            <i class="fas fa-times"></i> Cancelar
+                        </button>
+                        <button class="btn btn-primary" id="accept-error-btn">
+                            <i class="fas fa-check"></i> Continuar
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.8);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+            `;
+            
+            document.body.appendChild(modal);
+            
+            const acceptBtn = modal.querySelector('#accept-error-btn');
+            acceptBtn.onclick = () => {
+                modal.remove();
+                if (onAccept) onAccept();
+            };
+        }
+        
+        function showSuccessNotification(title, message) {
+            const notification = document.createElement('div');
+            notification.className = 'notification success-notification';
+            notification.innerHTML = `
+                <div class="notification-content">
+                    <div class="notification-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="notification-text">
+                        <strong>${title}</strong>
+                        <p>${message.replace(/\n/g, '<br>')}</p>
+                    </div>
+                    <button class="notification-close" onclick="this.closest('.notification').remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+            
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #28a745, #20c997);
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 15px rgba(40,167,69,0.3);
+                z-index: 9999;
+                min-width: 350px;
+                max-width: 500px;
+                animation: slideInRight 0.5s ease-out;
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Auto-remover después de 7 segundos
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.style.animation = 'slideOutRight 0.5s ease-in';
+                    setTimeout(() => notification.remove(), 500);
+                }
+            }, 7000);
+        }
+        
+        // CSS dinámico para animaciones
+        const animationCSS = document.createElement('style');
+        animationCSS.textContent = `
+            @keyframes slideInRight {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            
+            @keyframes slideOutRight {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+            
+            .modal-content.error-content {
+                background: white;
+                padding: 25px;
+                border-radius: 12px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                max-width: 500px;
+                width: 90%;
+            }
+            
+            .modal-header.error-header {
+                color: #dc3545;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                margin-bottom: 15px;
+                padding-bottom: 15px;
+                border-bottom: 2px solid #f8f9fa;
+            }
+            
+            .modal-header.error-header i {
+                font-size: 24px;
+            }
+            
+            .notification-content {
+                display: flex;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .notification-icon i {
+                font-size: 24px;
+            }
+            
+            .notification-text strong {
+                display: block;
+                font-size: 16px;
+                margin-bottom: 5px;
+            }
+            
+            .notification-text p {
+                margin: 0;
+                font-size: 14px;
+                line-height: 1.4;
+                opacity: 0.9;
+            }
+            
+            .notification-close {
+                background: none;
+                border: none;
+                color: white;
+                font-size: 16px;
+                cursor: pointer;
+                padding: 0;
+                margin-left: auto;
+            }
+        `;
+        document.head.appendChild(animationCSS);
+        
+        // 🔄 Función para mostrar overlay de loading
+        function showLoadingOverlay(message = 'Cargando...') {
+            const overlay = document.createElement('div');
+            overlay.id = 'loading-overlay-edit';
+            overlay.className = 'loading-overlay';
+            overlay.innerHTML = `
+                <div class="loading-content">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                    <p class="mt-3">${message}</p>
+                </div>
+            `;
+            
+            // CSS inline para el overlay
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.7);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 9999;
+                color: white;
+                font-size: 16px;
+            `;
+            
+            document.body.appendChild(overlay);
+        }
+        
+        // � SISTEMA DE GUARDADO CON MAPEO REAL DE BASE DE DATOS
+        
+        window.guardarConsultaConMapeoReal = function(tipoFormulario = 'general', idConsulta = null) {
+            console.log('💾 Iniciando guardado con mapeo real:', { tipoFormulario, idConsulta });
+            
+            // Mostrar loading
+            showLoadingOverlay(idConsulta ? 'Actualizando consulta...' : 'Creando consulta...');
+            
+            try {
+                // 1. Recolectar datos del formulario activo
+                const formData = collectFormData(tipoFormulario);
+                console.log('📋 Datos recolectados:', formData);
+                
+                // 2. Validar datos básicos
+                if (!validateFormData(formData, tipoFormulario)) {
+                    hideLoadingOverlay();
+                    return;
+                }
+                
+                // 3. Preparar datos para la API
+                const payload = {
+                    ...formData,
+                    tipo_formulario: tipoFormulario,
+                    id_user: window.APP_CONFIG?.userId || 1,
+                    fecha_registro: idConsulta ? undefined : new Date().toISOString().split('T')[0]
+                };
+                
+                if (idConsulta) {
+                    payload.id_consulta = idConsulta;
+                }
+                
+                // 4. Determinar endpoint y método
+                const isUpdate = idConsulta !== null;
+                const endpoint = `modules/consultas/api/modern-api.php?action=${isUpdate ? 'update_consulta' : 'create_consulta'}`;
+                const method = isUpdate ? 'PUT' : 'POST';
+                
+                console.log('🌐 Enviando a:', endpoint, 'Método:', method);
+                
+                // 5. Enviar a la API
+                fetch(endpoint, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload)
+                })
+                .then(response => {
+                    console.log('📡 Respuesta guardado:', response.status);
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(result => {
+                    console.log('✅ Resultado guardado:', result);
+                    hideLoadingOverlay();
+                    
+                    if (result.success) {
+                        // Notificar éxito
+                        showSuccessNotification(
+                            isUpdate ? 'Consulta Actualizada' : 'Consulta Creada',
+                            `ID: #${result.data.id_consulta}\nTipo: ${tipoFormulario}\nOperación: ${result.data.operation}`
+                        );
+                        
+                        // Actualizar estado de edición si es nueva
+                        if (!isUpdate) {
+                            showEditingModeFallback(result.data.id_consulta);
+                        }
+                        
+                        // Limpiar campos si es nuevo
+                        if (!isUpdate) {
+                            setTimeout(() => {
+                                if (confirm('¿Desea limpiar el formulario para una nueva consulta?')) {
+                                    clearCurrentForm();
+                                }
+                            }, 2000);
+                        }
+                        
+                    } else {
+                        throw new Error(result.message || 'Error desconocido al guardar');
+                    }
+                })
+                .catch(error => {
+                    console.error('❌ Error guardando:', error);
+                    hideLoadingOverlay();
+                    
+                    showErrorModal(`Error al ${isUpdate ? 'actualizar' : 'crear'} consulta:\n${error.message}`, () => {
+                        console.log('Usuario eligió continuar después del error');
+                    });
+                });
+                
+            } catch (error) {
+                console.error('❌ Error en guardado:', error);
+                hideLoadingOverlay();
+                alert('Error preparando datos para guardado: ' + error.message);
+            }
+        };
+        
+        // 📋 FUNCIÓN PARA RECOLECTAR DATOS DEL FORMULARIO
+        function collectFormData(tipoFormulario) {
+            const data = {};
+            
+            // Campos comunes principales
+            const commonFields = [
+                'txtmotivo', 'visionod', 'visionoi', 'tensionod', 'tensionoi',
+                'consulta_textarea', 'receta_textarea', 'txtnota', 
+                'proximaconsulta', 'whatsapptxt', 'email', 'motivoscomunes'
+            ];
+            
+            commonFields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (field) {
+                    data[fieldId] = field.value || null;
+                }
+            });
+            
+            // Recolectar ID de persona desde el selector de pacientes
+            const personaField = document.getElementById('idPersona') || 
+                                document.querySelector('input[name="id_persona"]') ||
+                                document.querySelector('[data-persona-id]');
+            
+            if (personaField) {
+                data.id_persona = personaField.value || personaField.dataset.personaId;
+            }
+            
+            // Campos específicos por tipo de formulario
+            switch (tipoFormulario) {
+                case 'anteojos':
+                    // Mapeo OD (Ojo Derecho)
+                    const odFields = ['od_esf', 'od_cil', 'od_eje', 'od_adicion'];
+                    odFields.forEach(fieldId => {
+                        const field = document.getElementById(fieldId);
+                        if (field) {
+                            data[fieldId] = field.value || null;
+                        }
+                    });
+                    
+                    // Mapeo OI (Ojo Izquierdo)
+                    const oiFields = ['oi_esf', 'oi_cil', 'oi_eje', 'oi_adicion'];
+                    oiFields.forEach(fieldId => {
+                        const field = document.getElementById(fieldId);
+                        if (field) {
+                            data[fieldId] = field.value || null;
+                        }
+                    });
+                    
+                    // Campos adicionales de anteojos
+                    const additionalFields = ['dist_interpupilar', 'altura_od', 'altura_oi', 'notas'];
+                    additionalFields.forEach(fieldId => {
+                        const field = document.getElementById(fieldId);
+                        if (field) {
+                            data[fieldId] = field.value || null;
+                        }
+                    });
+                    break;
+                    
+                case 'estudios':
+                    const estudiosFields = ['tipo_estudio', 'observaciones', 'otro_equipo'];
+                    estudiosFields.forEach(fieldId => {
+                        const field = document.getElementById(fieldId);
+                        if (field) {
+                            data[fieldId] = field.value || null;
+                        }
+                    });
+                    break;
+                    
+                case 'informe_imagen':
+                    const informeFields = ['equipo_medico', 'descripcion_od', 'descripcion_oi'];
+                    informeFields.forEach(fieldId => {
+                        const field = document.getElementById(fieldId);
+                        if (field) {
+                            data[fieldId] = field.value || null;
+                        }
+                    });
+                    
+                    // Campo especial de emails
+                    const emailField = document.getElementById('txtEmailShare-informe-imagen');
+                    if (emailField) {
+                        data.emails_compartir = emailField.value || null;
+                    }
+                    break;
+            }
+            
+            console.log('📊 Datos recolectados para', tipoFormulario, ':', data);
+            return data;
+        }
+        
+        // ✅ FUNCIÓN PARA VALIDAR DATOS DEL FORMULARIO
+        function validateFormData(data, tipoFormulario) {
+            const errors = [];
+            
+            // Validaciones básicas
+            if (!data.id_persona || data.id_persona === '0' || data.id_persona === '') {
+                errors.push('Debe seleccionar un paciente');
+            }
+            
+            if (!data.txtmotivo || data.txtmotivo.trim() === '') {
+                errors.push('El motivo de consulta es requerido');
+            }
+            
+            // Validaciones específicas por tipo
+            switch (tipoFormulario) {
+                case 'anteojos':
+                    const hasAnteojosData = data.od_esf || data.od_cil || data.oi_esf || data.oi_cil;
+                    if (!hasAnteojosData) {
+                        errors.push('Debe ingresar al menos un valor de receta para anteojos');
+                    }
+                    break;
+                    
+                case 'estudios':
+                    if (!data.tipo_estudio) {
+                        errors.push('Debe seleccionar el tipo de estudio');
+                    }
+                    break;
+                    
+                case 'informe_imagen':
+                    if (!data.equipo_medico) {
+                        errors.push('Debe especificar el equipo médico utilizado');
+                    }
+                    break;
+            }
+            
+            if (errors.length > 0) {
+                alert('Errores de validación:\n\n' + errors.join('\n'));
+                return false;
+            }
+            
+            return true;
+        }
+        
+        // 🧹 FUNCIÓN PARA LIMPIAR FORMULARIO ACTUAL
+        function clearCurrentForm() {
+            const form = document.querySelector('.formulario-especifico[style*="block"]');
+            if (form) {
+                const inputs = form.querySelectorAll('input, textarea, select');
+                inputs.forEach(input => {
+                    if (input.type === 'checkbox' || input.type === 'radio') {
+                        input.checked = false;
+                    } else {
+                        input.value = '';
+                    }
+                    
+                    // Trigger change para Select2
+                    if (input.classList.contains('select2-hidden-accessible') && typeof $ !== 'undefined') {
+                        $(input).trigger('change');
+                    }
+                });
+            }
+            
+            // Limpiar banner de edición
+            const banner = document.querySelector('.editing-banner');
+            if (banner) {
+                banner.remove();
+            }
+            
+            console.log('🧹 Formulario limpiado');
+        }
+        
+        // 📋 Determinar tipo de formulario basado en datos
+        function determineFormTypeFallback(data) {
+            if (data.od_esf !== undefined || data.oi_esf !== undefined) {
+                return 'anteojos';
+            } else if (data.tipo_estudio !== undefined) {
+                return 'estudios';
+            } else if (data.archivo_imagen !== undefined) {
+                return 'informe_imagen';
+            } else {
+                return 'general';
+            }
+        }
+        
+        // 🔄 Cambiar al tab de formulario correcto - MEJORADO
+        function changeToFormTabFallback(tipoFormulario) {
+            console.log(`🔄 Cambiando a formulario: ${tipoFormulario}`);
+            
+            // Primero cambiar al tab principal de consulta si no está activo
+            const consultaTab = document.querySelector('[href="#consulta-panel"]');
+            if (consultaTab && !consultaTab.classList.contains('active')) {
+                console.log('🔄 Activando tab principal de consulta...');
+                consultaTab.click();
+            }
+            
+            // Mapear tipos a sus selectores de formulario y tabs
+            const formConfig = {
+                'general': {
+                    formId: 'formulario-general',
+                    tabSelector: '#tab-general, [onclick*="general"]',
+                    typeSelectValue: 'general',
+                    visualTabSelector: '.form-type-selector .btn:nth-child(1)' // General
+                },
+                'anteojos': {
+                    formId: 'formulario-anteojos',
+                    tabSelector: '#tab-anteojos, [onclick*="anteojos"]',
+                    typeSelectValue: 'anteojos',
+                    visualTabSelector: '.form-type-selector .btn:nth-child(2)' // Anteojos
+                },
+                'estudios': {
+                    formId: 'formulario-estudios',
+                    tabSelector: '#tab-estudios, [onclick*="estudios"]',
+                    typeSelectValue: 'estudios',
+                    visualTabSelector: '.form-type-selector .btn:nth-child(3)' // Estudios
+                },
+                'informe_imagen': {
+                    formId: 'formulario-informe_imagen',
+                    tabSelector: '#tab-informe-imagen, [onclick*="informe"]',
+                    typeSelectValue: 'informe_imagen',
+                    visualTabSelector: '.form-type-selector .btn:nth-child(4)' // Informe + Imagen
+                }
+            };
+            
+            const config = formConfig[tipoFormulario] || formConfig['general'];
+            
+            // 1. CAMBIAR TABS VISUALES EN LA PARTE SUPERIOR
+            // Remover clase active de todos los tabs
+            document.querySelectorAll('.form-type-selector .btn, .form-type-selector [class*="btn"]').forEach(btn => {
+                btn.classList.remove('active', 'btn-primary');
+                btn.classList.add('btn-outline-primary');
+            });
+            
+            // Activar el tab visual correcto
+            const visualTab = document.querySelector(config.visualTabSelector);
+            if (visualTab) {
+                visualTab.classList.remove('btn-outline-primary');
+                visualTab.classList.add('btn-primary', 'active');
+                console.log('🎨 Tab visual activado:', tipoFormulario);
+            }
+            
+            // También buscar por onclick attribute
+            const onClickTabs = document.querySelectorAll(`[onclick*="${tipoFormulario}"], [onclick*="cambiarFormulario('${tipoFormulario}')"]`);
+            onClickTabs.forEach(tab => {
+                tab.classList.remove('btn-outline-primary');
+                tab.classList.add('btn-primary', 'active');
+                console.log('🎨 Tab onclick activado:', tab.textContent);
+            });
+            
+            // 2. Actualizar selector de tipo de formulario si existe
+            const typeSelector = document.getElementById('form-type-selector');
+            if (typeSelector) {
+                typeSelector.value = config.typeSelectValue;
+                console.log(`📋 Selector de tipo actualizado a: ${config.typeSelectValue}`);
+            }
+            
+            // 3. Ocultar todos los formularios primero
+            document.querySelectorAll('.formulario-especifico').forEach(form => {
+                form.style.display = 'none';
+                form.classList.remove('active');
+            });
+            
+            // 4. Mostrar el formulario correcto
+            const targetForm = document.getElementById(config.formId);
+            if (targetForm) {
+                targetForm.style.display = 'block';
+                targetForm.classList.add('active');
+                console.log(`✅ Formulario ${config.formId} mostrado y activado`);
+                
+                // Trigger para elementos select2 dentro del formulario
+                setTimeout(() => {
+                    const select2Elements = targetForm.querySelectorAll('.select2-hidden-accessible');
+                    if (select2Elements.length > 0 && typeof $ !== 'undefined') {
+                        select2Elements.forEach(el => {
+                            try {
+                                $(el).trigger('change');
+                            } catch (e) {
+                                console.warn('⚠️ Error actualizando Select2:', e);
+                            }
+                        });
+                    }
+                }, 100);
+                
+            } else {
+                console.warn(`⚠️ Formulario ${config.formId} no encontrado`);
+            }
+            
+            // 5. Activar el tab correcto si existe (método tradicional)
+            const tabElements = document.querySelectorAll(config.tabSelector);
+            if (tabElements.length > 0) {
+                tabElements.forEach(tab => {
+                    try {
+                        if (tab.click) {
+                            tab.click();
+                            console.log(`✅ Tab tradicional activado: ${tab.id || tab.textContent}`);
+                        }
+                    } catch (error) {
+                        console.warn('⚠️ Error activando tab:', error);
+                    }
+                });
+            }
+            
+            // 6. Forzar actualización visual y simular clic en tab
+            setTimeout(() => {
+                // Intentar activar mediante la función cambiarFormulario si existe
+                if (typeof window.cambiarFormulario === 'function') {
+                    try {
+                        console.log(`🔄 Activando formulario via cambiarFormulario(${tipoFormulario})`);
+                        window.cambiarFormulario(tipoFormulario);
+                    } catch (e) {
+                        console.warn('⚠️ Error con cambiarFormulario:', e);
+                    }
+                }
+                
+                // Scroll suave hacia el formulario
+                if (targetForm) {
+                    targetForm.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'start' 
+                    });
+                }
+                
+                // Trigger evento personalizado para notificar el cambio
+                window.dispatchEvent(new CustomEvent('formularioChanged', {
+                    detail: { 
+                        tipo: tipoFormulario, 
+                        formId: config.formId,
+                        success: !!targetForm
+                    }
+                }));
+                
+                console.log(`🎯 Cambio de formulario completado: ${tipoFormulario}`);
+            }, 200);
+        }
+        
+        // 📝 Poblar formulario con datos - MEJORADO
+        function populateFormFallback(data, tipoFormulario) {
+            console.log(`📝 Poblando formulario ${tipoFormulario} con datos:`, data);
+            
+            let camposPoblados = 0;
+            
+            // Campos básicos comunes (con mapeo de nombres alternativos)
+            const camposBasicos = {
+                'txtmotivo': ['txtmotivo', 'motivo', 'motivo_consulta'],
+                'visionod': ['visionod', 'vision_od'],
+                'visionoi': ['visionoi', 'vision_oi'], 
+                'tensionod': ['tensionod', 'tension_od'],
+                'tensionoi': ['tensionoi', 'tension_oi'],
+                'proximaconsulta': ['proximaconsulta', 'proxima_consulta'],
+                'whatsapptxt': ['whatsapptxt', 'whatsapp'],
+                'email': ['email', 'correo']
+            };
+            
+            // Poblar campos básicos
+            Object.keys(camposBasicos).forEach(fieldId => {
+                const posiblesCampos = camposBasicos[fieldId];
+                let valor = null;
+                
+                // Buscar el valor en los posibles nombres de campo
+                for (const campo of posiblesCampos) {
+                    if (data[campo] !== undefined && data[campo] !== null) {
+                        valor = data[campo];
+                        break;
+                    }
+                }
+                
+                if (valor !== null) {
+                    const field = document.getElementById(fieldId);
+                    if (field) {
+                        field.value = valor;
+                        camposPoblados++;
+                        console.log(`✅ Campo ${fieldId} poblado:`, valor);
+                        
+                        // Trigger change event para elementos especiales
+                        if (field.classList.contains('select2-hidden-accessible') && typeof $ !== 'undefined') {
+                            $(field).trigger('change');
+                        }
+                    }
+                }
+            });
+            
+            // Campos específicos según tipo de formulario
+            if (tipoFormulario === 'anteojos') {
+                const camposAnteojos = {
+                    'od_esf': ['od_esf', 'esfera_od'],
+                    'od_cil': ['od_cil', 'cilindro_od'], 
+                    'od_adicion': ['od_adicion', 'adicion_od'],
+                    'od_eje': ['od_eje', 'eje_od'],
+                    'oi_esf': ['oi_esf', 'esfera_oi'],
+                    'oi_cil': ['oi_cil', 'cilindro_oi'],
+                    'oi_adicion': ['oi_adicion', 'adicion_oi'],
+                    'oi_eje': ['oi_eje', 'eje_oi']
+                };
+                
+                Object.keys(camposAnteojos).forEach(fieldId => {
+                    const posiblesCampos = camposAnteojos[fieldId];
+                    let valor = null;
+                    
+                    for (const campo of posiblesCampos) {
+                        if (data[campo] !== undefined && data[campo] !== null) {
+                            valor = data[campo];
+                            break;
+                        }
+                    }
+                    
+                    if (valor !== null) {
+                        const field = document.getElementById(fieldId);
+                        if (field) {
+                            field.value = valor;
+                            camposPoblados++;
+                            console.log(`👓 Campo anteojos ${fieldId} poblado:`, valor);
+                            
+                            // Especial handling para Select2
+                            if (field.classList.contains('select2-hidden-accessible') && typeof $ !== 'undefined') {
+                                $(field).trigger('change');
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Campos específicos para estudios
+            if (tipoFormulario === 'estudios') {
+                const camposEstudios = {
+                    'tipo_estudio': ['tipo_estudio', 'estudio_tipo'],
+                    'observaciones': ['observaciones', 'obs']
+                };
+                
+                Object.keys(camposEstudios).forEach(fieldId => {
+                    const posiblesCampos = camposEstudios[fieldId];
+                    let valor = null;
+                    
+                    for (const campo of posiblesCampos) {
+                        if (data[campo] !== undefined && data[campo] !== null) {
+                            valor = data[campo];
+                            break;
+                        }
+                    }
+                    
+                    if (valor !== null) {
+                        const field = document.getElementById(fieldId);
+                        if (field) {
+                            field.value = valor;
+                            camposPoblados++;
+                            console.log(`� Campo estudios ${fieldId} poblado:`, valor);
+                        }
+                    }
+                });
+            }
+            
+            // Campos específicos para informe + imagen
+            if (tipoFormulario === 'informe_imagen') {
+                const camposInforme = {
+                    'archivo_imagen': ['archivo_imagen', 'imagen'],
+                    'descripcion_imagen': ['descripcion_imagen', 'descripcion']
+                };
+                
+                Object.keys(camposInforme).forEach(fieldId => {
+                    const posiblesCampos = camposInforme[fieldId];
+                    let valor = null;
+                    
+                    for (const campo of posiblesCampos) {
+                        if (data[campo] !== undefined && data[campo] !== null) {
+                            valor = data[campo];
+                            break;
+                        }
+                    }
+                    
+                    if (valor !== null) {
+                        const field = document.getElementById(fieldId);
+                        if (field) {
+                            field.value = valor;
+                            camposPoblados++;
+                            console.log(`🖼️ Campo informe ${fieldId} poblado:`, valor);
+                        }
+                    }
+                });
+            }
+            
+            // Mostrar resumen
+            const consultaId = data.id_consulta || data.id || 'N/A';
+            console.log(`✅ Formulario poblado: ${camposPoblados} campos actualizados`);
+            
+            // Notification mejorada
+            const notification = document.createElement('div');
+            notification.className = 'alert alert-success alert-dismissible fade show position-fixed';
+            notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            notification.innerHTML = `
+                <i class="fas fa-check-circle"></i>
+                <strong>Consulta Cargada</strong><br>
+                Consulta #${consultaId} cargada para edición<br>
+                <small>${camposPoblados} campos actualizados en formulario ${tipoFormulario}</small>
+                <button type="button" class="close" data-dismiss="alert">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Auto-remover después de 5 segundos
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 5000);
+        }
+        
+        // 🔗 CONECTAR BOTONES DE GUARDAR CON EL NUEVO SISTEMA
+        document.addEventListener('DOMContentLoaded', function() {
+            // Esperar a que los elementos estén disponibles
+            setTimeout(() => {
+                // Botón principal de guardar
+                const btnGuardar = document.getElementById('btnGuardarConsulta');
+                if (btnGuardar) {
+                    btnGuardar.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        
+                        // Determinar tipo de formulario activo
+                        const activeForm = document.querySelector('.formulario-especifico[style*="block"]');
+                        let tipoFormulario = 'general';
+                        
+                        if (activeForm) {
+                            if (activeForm.id === 'formulario-anteojos') tipoFormulario = 'anteojos';
+                            else if (activeForm.id === 'formulario-estudios') tipoFormulario = 'estudios';
+                            else if (activeForm.id === 'formulario-informe_imagen') tipoFormulario = 'informe_imagen';
+                        }
+                        
+                        // Verificar si estamos en modo edición
+                        const editingBanner = document.querySelector('.editing-banner');
+                        const idConsulta = editingBanner ? 
+                            editingBanner.textContent.match(/#(\d+)/)?.[1] : null;
+                        
+                        console.log('💾 Guardado solicitado:', { tipoFormulario, idConsulta });
+                        
+                        // Llamar al sistema de guardado
+                        window.guardarConsultaConMapeoReal(tipoFormulario, idConsulta);
+                    });
+                    
+                    console.log('✅ Botón principal de guardar conectado');
+                }
+                
+                // Botones específicos por formulario
+                const formularios = ['general', 'anteojos', 'estudios', 'informe-imagen'];
+                formularios.forEach(tipo => {
+                    const btn = document.getElementById(`btnGuardarConsulta-${tipo}`);
+                    if (btn) {
+                        btn.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            
+                            const tipoFormulario = tipo === 'informe-imagen' ? 'informe_imagen' : tipo;
+                            
+                            const editingBanner = document.querySelector('.editing-banner');
+                            const idConsulta = editingBanner ? 
+                                editingBanner.textContent.match(/#(\d+)/)?.[1] : null;
+                            
+                            window.guardarConsultaConMapeoReal(tipoFormulario, idConsulta);
+                        });
+                        
+                        console.log(`✅ Botón ${tipo} conectado`);
+                    }
+                });
+                
+                // Botón de limpiar
+                const btnLimpiar = document.getElementById('btnLimpiarFormulario');
+                if (btnLimpiar) {
+                    btnLimpiar.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        
+                        if (confirm('¿Está seguro de que desea limpiar el formulario?')) {
+                            clearCurrentForm();
+                            
+                            // Quitar modo de edición
+                            const banner = document.querySelector('.editing-banner');
+                            if (banner) {
+                                banner.remove();
+                            }
+                            
+                            showSuccessNotification('Formulario Limpiado', 'Todos los campos han sido reiniciados');
+                        }
+                    });
+                    
+                    console.log('✅ Botón limpiar conectado');
+                }
+                
+            }, 2000); // Delay para asegurar que los elementos estén cargados
+        });
+        
+        // 🔄 FUNCIÓN PARA ACTUALIZAR TEXTO DE BOTONES EN MODO EDICIÓN
+        function updateSaveButtonsForEditing(isEditing, idConsulta = null) {
+            const buttons = [
+                'btnGuardarConsulta',
+                'btnGuardarConsulta-general',
+                'btnGuardarConsulta-anteojos', 
+                'btnGuardarConsulta-estudios',
+                'btnGuardarConsulta-informe-imagen'
+            ];
+            
+            buttons.forEach(btnId => {
+                const btn = document.getElementById(btnId);
+                if (btn) {
+                    if (isEditing) {
+                        btn.innerHTML = '<i class="fas fa-save"></i> Actualizar Consulta';
+                        btn.className = btn.className.replace('btn-primary', 'btn-warning');
+                        btn.title = `Actualizar consulta #${idConsulta}`;
+                    } else {
+                        btn.innerHTML = '<i class="fas fa-save"></i> Guardar Consulta';
+                        btn.className = btn.className.replace('btn-warning', 'btn-primary');
+                        btn.title = 'Crear nueva consulta';
+                    }
+                }
+            });
+        }
+        
+        // 🎨 Mostrar modo de edición mejorado
+        function showEditingModeFallback(idConsulta) {
+            // Remover banner existente si hay
+            const existingBanner = document.querySelector('.editing-banner');
+            if (existingBanner) {
+                existingBanner.remove();
+            }
+            
+            // Crear banner de edición con más información
+            const banner = document.createElement('div');
+            banner.className = 'alert alert-warning editing-banner';
+            banner.innerHTML = `
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-edit fa-lg mr-3"></i>
+                        <div>
+                            <strong>Modo Edición Activo</strong>
+                            <div><small>Editando consulta #${idConsulta} - Datos cargados desde base de datos</small></div>
+                        </div>
+                    </div>
+                    <div>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="clearCurrentForm(); this.closest('.editing-banner').remove();">
+                            <i class="fas fa-broom"></i> Nuevo
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-danger ml-2" onclick="location.reload()">
+                            <i class="fas fa-times"></i> Cancelar
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            banner.style.cssText = `
+                margin-bottom: 20px;
+                border-left: 4px solid #ffc107;
+                background: linear-gradient(135deg, #fff3cd, #fef9e7);
+                border-radius: 8px;
+                animation: slideInDown 0.5s ease-out;
+            `;
+            
+            // Insertar banner al inicio del contenido principal
+            const content = document.querySelector('.main-content') || document.querySelector('.content-wrapper');
+            if (content) {
+                content.insertBefore(banner, content.firstChild);
+            }
+            
+            // Actualizar botones para modo edición
+            updateSaveButtonsForEditing(true, idConsulta);
+            
+            console.log(`✅ Modo de edición activado para consulta #${idConsulta}`);
+        }
+        
+        /**
+         * 📁 Poblar archivos de informe imagen
+         */
+        function poblarArchivosInformeImagen(archivos) {
+            console.log('📁 Poblando archivos de informe imagen:', archivos);
+            
+            // Limpiar tablas actuales
+            const tablaOD = document.getElementById('tabla-archivos-od-informe-imagen');
+            const tablaOI = document.getElementById('tabla-archivos-oi-informe-imagen');
+            
+            if (tablaOD) tablaOD.innerHTML = '';
+            if (tablaOI) tablaOI.innerHTML = '';
+            
+            let totalArchivos = 0;
+            
+            // Poblar archivos OD (Ojo Derecho)
+            if (archivos.od && archivos.od.length > 0) {
+                archivos.od.forEach(archivo => {
+                    const fila = crearFilaArchivo(archivo, 'od');
+                    if (tablaOD) {
+                        tablaOD.appendChild(fila);
+                        totalArchivos++;
+                    }
+                });
+                console.log(`📸 ${archivos.od.length} archivos OD cargados`);
+            }
+            
+            // Poblar archivos OI (Ojo Izquierdo)  
+            if (archivos.oi && archivos.oi.length > 0) {
+                archivos.oi.forEach(archivo => {
+                    const fila = crearFilaArchivo(archivo, 'oi');
+                    if (tablaOI) {
+                        tablaOI.appendChild(fila);
+                        totalArchivos++;
+                    }
+                });
+                console.log(`📸 ${archivos.oi.length} archivos OI cargados`);
+            }
+            
+            console.log(`📂 Total de ${totalArchivos} archivos cargados para consulta`);
+        }
+        
+        /**
+         * 🗂️ Crear fila de archivo para tabla
+         */
+        function crearFilaArchivo(archivo, tipoOjo) {
+            const fila = document.createElement('tr');
+            fila.innerHTML = `
+                <td class="text-center">${archivo.id}</td>
+                <td>
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-file-image text-primary mr-2"></i>
+                        <span>${archivo.nombre_archivo}</span>
+                    </div>
+                </td>
+                <td class="text-center">
+                    <a href="${archivo.ruta}" target="_blank" class="btn btn-sm btn-outline-primary" title="Ver archivo">
+                        <i class="fas fa-eye"></i>
+                    </a>
+                </td>
+                <td class="text-center">
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="eliminarArchivo(${archivo.id}, '${tipoOjo}')" title="Eliminar">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            `;
+            return fila;
+        }
+        
+        /**
+         * 🗑️ Eliminar archivo
+         */
+        function eliminarArchivo(idArchivo, tipoOjo) {
+            if (!confirm('¿Está seguro de que desea eliminar este archivo?')) {
+                return;
+            }
+            
+            console.log(`🗑️ Eliminando archivo ${idArchivo} (${tipoOjo})`);
+            
+            // Aquí se implementaría la llamada AJAX para eliminar el archivo
+            // Por ahora solo removemos la fila visualmente
+            const fila = event.target.closest('tr');
+            if (fila) {
+                fila.remove();
+                console.log('✅ Archivo removido de la interfaz');
+            }
+        }
+        
+        console.log('🎯 Sistema de guardado con mapeo real configurado');
     </script>
+
+    <!-- Debug tools para sistema de edición -->
+    <script src="debug_edit_system.js"></script>
 </body>
 </html>
