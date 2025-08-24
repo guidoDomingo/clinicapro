@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forzar Recarga Sistema</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .btn { padding: 10px 20px; margin: 10px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-warning { background: #ffc107; color: black; }
+        .result { margin: 20px 0; padding: 15px; border-radius: 5px; }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 5px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 Forzar Recarga del Sistema de Consultas</h1>
+        
+        <div>
+            <h3>Acciones de Limpieza:</h3>
+            <button class="btn btn-warning" onclick="limpiarCache()">🧹 Limpiar Cache del Navegador</button>
+            <button class="btn btn-primary" onclick="probarAPI()">🧪 Probar API Directamente</button>
+            <button class="btn btn-success" onclick="abrirSistemaLimpio()">🚀 Abrir Sistema Limpio</button>
+        </div>
+        
+        <div id="results"></div>
+        
+        <div style="margin-top: 20px;">
+            <h3>Enlaces de Prueba:</h3>
+            <a href="index.php?ruta=consultas-new&nocache=<?php echo time(); ?>" target="_blank" class="btn btn-primary">🔗 Sistema Principal (Sin Cache)</a>
+            <a href="modules/consultas/api/modern-api.php?action=get_consulta&id=107" target="_blank" class="btn btn-success">📡 API Directa</a>
+        </div>
+        
+        <div style="margin-top: 20px;">
+            <h3>Información del Sistema:</h3>
+            <pre id="sistemInfo">Cargando...</pre>
+        </div>
+    </div>
+
+    <script>
+        // Mostrar información del sistema
+        document.getElementById('sistemInfo').innerHTML = `
+Timestamp: ${new Date().toLocaleString()}
+User Agent: ${navigator.userAgent}
+URL Actual: ${window.location.href}
+Cache Status: ${navigator.serviceWorker ? 'Service Worker Disponible' : 'Sin Service Worker'}
+        `;
+        
+        function limpiarCache() {
+            const results = document.getElementById('results');
+            
+            // Limpiar localStorage y sessionStorage
+            localStorage.clear();
+            sessionStorage.clear();
+            
+            // Si hay service workers, limpiarlos
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(registrations => {
+                    registrations.forEach(registration => {
+                        registration.unregister();
+                    });
+                });
+            }
+            
+            results.innerHTML = `
+                <div class="result success">
+                    <h4>✅ Cache Limpiado</h4>
+                    <p>Se han limpiado:</p>
+                    <ul>
+                        <li>LocalStorage</li>
+                        <li>SessionStorage</li>
+                        <li>Service Workers</li>
+                    </ul>
+                    <p><strong>Instrucciones:</strong> Presiona Ctrl+F5 para hacer hard refresh o cierra todas las pestañas del sitio y vuelve a abrir.</p>
+                </div>
+            `;
+        }
+        
+        function probarAPI() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<div class="result">🔄 Probando API...</div>';
+            
+            fetch('modules/consultas/api/modern-api.php?action=get_consulta&id=107')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    return response.text();
+                })
+                .then(data => {
+                    let jsonData;
+                    try {
+                        jsonData = JSON.parse(data);
+                        results.innerHTML = `
+                            <div class="result success">
+                                <h4>✅ API Funcionando Correctamente</h4>
+                                <p>La API devuelve JSON válido:</p>
+                                <pre>${JSON.stringify(jsonData, null, 2).substring(0, 500)}...</pre>
+                            </div>
+                        `;
+                    } catch (e) {
+                        results.innerHTML = `
+                            <div class="result error">
+                                <h4>❌ API Devuelve HTML/Error</h4>
+                                <p>Error de parsing JSON: ${e.message}</p>
+                                <p>Respuesta (primeros 500 caracteres):</p>
+                                <pre>${data.substring(0, 500)}</pre>
+                            </div>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    results.innerHTML = `
+                        <div class="result error">
+                            <h4>❌ Error de Conexión</h4>
+                            <p>${error.message}</p>
+                        </div>
+                    `;
+                });
+        }
+        
+        function abrirSistemaLimpio() {
+            const timestamp = new Date().getTime();
+            const url = `index.php?ruta=consultas-new&nocache=${timestamp}&reload=true`;
+            
+            // Abrir en nueva ventana
+            window.open(url, '_blank');
+            
+            document.getElementById('results').innerHTML = `
+                <div class="result success">
+                    <h4>🚀 Sistema Abierto en Nueva Ventana</h4>
+                    <p>Se ha abierto el sistema con parámetros anti-cache:</p>
+                    <p><code>${url}</code></p>
+                </div>
+            `;
+        }
+        
+        // Auto-probar API al cargar
+        window.addEventListener('load', () => {
+            setTimeout(probarAPI, 1000);
+        });
+    </script>
+</body>
+</html>
