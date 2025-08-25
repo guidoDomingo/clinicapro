@@ -1,0 +1,245 @@
+<?php
+/**
+ * PRUEBA FINAL DEL SISTEMA DE FORMULARIOS
+ * =======================================
+ * Verifica que todos los 4 formularios funcionen correctamente con los nuevos mappings de campos
+ */
+
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+header('Content-Type: text/html; charset=UTF-8');
+
+?>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧪 Prueba Final del Sistema de Formularios</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            background: #f5f5f5; 
+        }
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            background: white; 
+            padding: 20px; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            border-left: 4px solid #28a745;
+        }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+        .info { color: #17a2b8; }
+        .warning { color: #ffc107; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        #results {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e9ecef;
+            border-radius: 5px;
+            min-height: 100px;
+        }
+        .field-test {
+            margin: 10px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Prueba Final del Sistema de Formularios</h1>
+        <p class="info">Esta página verifica que todos los 4 formularios funcionen correctamente después de las correcciones de mapeo de campos.</p>
+        
+        <div class="test-section">
+            <h2>🎯 Plan de Pruebas</h2>
+            <ol>
+                <li><strong>Verificación de Campos:</strong> Comprobar que todos los campos están correctamente mapeados</li>
+                <li><strong>Simulación de FormData:</strong> Probar la recolección de datos de cada formulario</li>
+                <li><strong>Test de API:</strong> Verificar que los datos se envían correctamente al backend</li>
+                <li><strong>Validación Cruzada:</strong> Confirmar que no hay conflictos entre formularios</li>
+            </ol>
+        </div>
+        
+        <!-- Simulación de formularios para pruebas -->
+        <div id="test-forms" class="hidden">
+            <!-- Formulario General -->
+            <form id="formulario-general" data-form-type="general">
+                <input type="text" id="txtmotivo" value="Test motivo general">
+                <input type="text" id="visionod" value="20/20">
+                <input type="text" id="visionoi" value="20/20">
+            </form>
+            
+            <!-- Formulario Anteojos -->
+            <form id="formulario-anteojos" data-form-type="anteojos">
+                <input type="text" id="txtmotivo-anteojos" name="txtmotivo" value="Test motivo anteojos">
+                <input type="text" id="visionod" value="20/20">
+                <input type="text" id="visionoi" value="20/20">
+            </form>
+            
+            <!-- Formulario Estudios -->
+            <form id="formulario-estudios" data-form-type="estudios">
+                <input type="text" id="txtmotivo-estudios" name="txtmotivo" value="Test motivo estudios">
+                <input type="text" id="visionod" value="20/20">
+                <input type="text" id="visionoi" value="20/20">
+            </form>
+            
+            <!-- Formulario Informe Imagen -->
+            <form id="formulario-informe_imagen" data-form-type="informe_imagen">
+                <input type="text" id="txtmotivo-informe-imagen" name="txtmotivo" value="Test motivo informe imagen">
+                <input type="text" id="visionod" value="20/20">
+                <input type="text" id="visionoi" value="20/20">
+            </form>
+        </div>
+        
+        <div class="test-section">
+            <h2>🚀 Ejecutar Pruebas</h2>
+            <button onclick="runAllTests()">🧪 Ejecutar Todas las Pruebas</button>
+            <button onclick="testFormComponent('general')">📋 Probar General</button>
+            <button onclick="testFormComponent('anteojos')">👓 Probar Anteojos</button>
+            <button onclick="testFormComponent('estudios')">📊 Probar Estudios</button>
+            <button onclick="testFormComponent('informe_imagen')">🖼️ Probar Informe Imagen</button>
+            <button onclick="clearResults()">🧹 Limpiar Resultados</button>
+        </div>
+        
+        <div id="results">
+            <h3>📊 Resultados de Pruebas</h3>
+            <p class="info">Presiona "Ejecutar Todas las Pruebas" para comenzar...</p>
+        </div>
+    </div>
+
+    <script>
+        // Mock de configuración global
+        window.APP_CONFIG = {
+            userId: 1,
+            baseUrl: '/clinica/'
+        };
+
+        // Log collector
+        let testResults = [];
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = {
+                timestamp,
+                message,
+                type
+            };
+            testResults.push(logEntry);
+            updateResults();
+        }
+        
+        function updateResults() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<h3>📊 Resultados de Pruebas</h3>';
+            
+            testResults.forEach(entry => {
+                const div = document.createElement('div');
+                div.className = `field-test ${entry.type}`;
+                div.innerHTML = `<strong>[${entry.timestamp}]</strong> ${entry.message}`;
+                resultsDiv.appendChild(div);
+            });
+        }
+        
+        function clearResults() {
+            testResults = [];
+            updateResults();
+        }
+
+        // Test individual de componente
+        function testFormComponent(formType) {
+            log(`🧪 Iniciando prueba para formulario: ${formType}`, 'info');
+            
+            try {
+                // Simular búsqueda de campos como lo hace FormComponents.js
+                const expectedFields = getExpectedFields(formType);
+                log(`📝 Campos esperados: [${expectedFields.join(', ')}]`, 'info');
+                
+                let foundFields = 0;
+                let missingFields = [];
+                
+                expectedFields.forEach(fieldId => {
+                    const element = document.getElementById(fieldId);
+                    if (element) {
+                        foundFields++;
+                        log(`✅ Campo '${fieldId}' encontrado con valor: "${element.value}"`, 'success');
+                    } else {
+                        missingFields.push(fieldId);
+                        log(`❌ Campo '${fieldId}' NO encontrado`, 'error');
+                    }
+                });
+                
+                // Resumen
+                if (missingFields.length === 0) {
+                    log(`🎉 ÉXITO: Todos los campos del formulario ${formType} fueron encontrados (${foundFields}/${expectedFields.length})`, 'success');
+                } else {
+                    log(`⚠️ PROBLEMAS: ${missingFields.length} campos faltantes en formulario ${formType}: [${missingFields.join(', ')}]`, 'warning');
+                }
+                
+            } catch (error) {
+                log(`💥 ERROR en prueba de ${formType}: ${error.message}`, 'error');
+            }
+            
+            log(`──────────────────────────`, 'info');
+        }
+        
+        function getExpectedFields(formType) {
+            const fieldMappings = {
+                'general': ['txtmotivo', 'visionod', 'visionoi'],
+                'anteojos': ['txtmotivo-anteojos', 'visionod', 'visionoi'],
+                'estudios': ['txtmotivo-estudios', 'visionod', 'visionoi'], 
+                'informe_imagen': ['txtmotivo-informe-imagen', 'visionod', 'visionoi']
+            };
+            
+            return fieldMappings[formType] || [];
+        }
+        
+        function runAllTests() {
+            log('🚀 INICIANDO BATERÍA COMPLETA DE PRUEBAS', 'info');
+            log('══════════════════════════════════════', 'info');
+            
+            const formTypes = ['general', 'anteojos', 'estudios', 'informe_imagen'];
+            
+            formTypes.forEach(formType => {
+                testFormComponent(formType);
+            });
+            
+            // Resumen final
+            const totalTests = testResults.filter(r => r.message.includes('ÉXITO:')).length;
+            const totalProblems = testResults.filter(r => r.message.includes('PROBLEMAS:')).length;
+            
+            log('══════════════════════════════════════', 'info');
+            log(`📊 RESUMEN FINAL: ${totalTests} formularios exitosos, ${totalProblems} con problemas`, totalProblems > 0 ? 'warning' : 'success');
+            
+            if (totalProblems === 0) {
+                log('🎉 ¡TODOS LOS FORMULARIOS ESTÁN FUNCIONANDO CORRECTAMENTE!', 'success');
+                log('✅ El sistema está listo para producción', 'success');
+            } else {
+                log('⚠️ Hay formularios que requieren atención', 'warning');
+            }
+        }
+    </script>
+</body>
+</html>

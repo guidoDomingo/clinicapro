@@ -880,6 +880,15 @@ class AnteojosFormComponent extends BaseFormComponent {
     }
     
     /**
+     * Campos básicos específicos del formulario de anteojos
+     */
+    getBasicFields() {
+        return [
+            'txtmotivo-anteojos', 'proximaconsulta', 'whatsapptxt', 'email'
+        ];
+    }
+
+    /**
      * Cargar referencial específico desde base de datos usando endpoint directo
      */
     async loadReferencialFromDB(codigo) {
@@ -968,6 +977,16 @@ class EstudiosFormComponent extends BaseFormComponent {
         return 'estudios';
     }
     
+    /**
+     * Campos básicos específicos del formulario de estudios
+     */
+    getBasicFields() {
+        return [
+            'txtmotivo-estudios', 'equipo_medico-estudios', 'visionod', 'visionoi', 'tensionod', 'tensionoi',
+            'proximaconsulta', 'whatsapptxt', 'email'
+        ];
+    }
+    
     async init() {
         console.log('🔧 Inicializando EstudiosFormComponent...');
         await this.initializeFields();
@@ -983,6 +1002,34 @@ class EstudiosFormComponent extends BaseFormComponent {
         // Implementar lógica específica de estudios
         console.log('📊 Cargando preformatos para formulario de estudios');
     }
+    
+    /**
+     * Obtener datos específicos del formulario de estudios
+     */
+    async getSpecificData() {
+        const specificData = {};
+        
+        // Mapeo específico para campos de estudios
+        // El campo equipo_medico-estudios se mapea a tipo_estudio para el backend
+        const equipoMedico = document.getElementById('equipo_medico-estudios');
+        if (equipoMedico) {
+            specificData.tipo_estudio = equipoMedico.value || null;
+        }
+        
+        // El campo consulta-textarea-estudios se mapea a observaciones para el backend  
+        const observaciones = document.getElementById('consulta-textarea-estudios');
+        if (observaciones) {
+            specificData.observaciones = observaciones.value || null;
+        }
+        
+        // Campo de nota específico para estudios
+        const nota = document.getElementById('txtnota-estudios');
+        if (nota) {
+            specificData.txtnota = nota.value || null;
+        }
+        
+        return specificData;
+    }
 }
 
 /**
@@ -993,6 +1040,16 @@ class EstudiosFormComponent extends BaseFormComponent {
 class InformeImagenFormComponent extends BaseFormComponent {
     getFormType() {
         return 'informe_imagen';
+    }
+    
+    /**
+     * Campos básicos específicos del formulario de informe imagen
+     */
+    getBasicFields() {
+        return [
+            'txtmotivo-informe-imagen', 'visionod', 'visionoi', 'tensionod', 'tensionoi',
+            'proximaconsulta', 'whatsapptxt', 'email'
+        ];
     }
     
     async init() {
@@ -1006,9 +1063,46 @@ class InformeImagenFormComponent extends BaseFormComponent {
         await this.initializeFields();
     }
     
+    /**
+     * Campos básicos específicos del formulario de informe imagen
+     */
+    getBasicFields() {
+        return [
+            'txtmotivo-informe-imagen', 'visionod', 'visionoi', 'tensionod', 'tensionoi',
+            'proximaconsulta', 'whatsapptxt', 'email'
+        ];
+    }
+
     async initializeFields() {
         // Implementar lógica específica de informe imagen
         console.log('🖼️ Cargando configuración para formulario de informe imagen');
+    }
+    
+    /**
+     * Obtener datos específicos del formulario de informe imagen
+     */
+    async getSpecificData() {
+        const specificData = {};
+        
+        // Campo de equipo médico específico para informe imagen
+        const equipoMedico = document.getElementById('equipoMedico-informe-imagen');
+        if (equipoMedico) {
+            specificData.equipo_medico = equipoMedico.value || null;
+        }
+        
+        // Campo de descripción/observaciones para informe imagen
+        const descripcion = document.getElementById('consulta-textarea-informe-imagen');
+        if (descripcion) {
+            specificData.descripcion = descripcion.value || null;
+        }
+        
+        // Campo de nota específico para informe imagen
+        const nota = document.getElementById('txtnota-informe-imagen');
+        if (nota) {
+            specificData.txtnota = nota.value || null;
+        }
+        
+        return specificData;
     }
 }
 

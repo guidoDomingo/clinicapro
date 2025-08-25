@@ -1649,14 +1649,44 @@ class ConsultasManager {
      * Determinar el tipo de formulario basado en los datos de la consulta
      */
     determineFormType(consultaData) {
-        // Lógica para determinar el tipo basado en los campos presentes
+        // Primero, verificar si hay tipo_formulario explícito
+        if (consultaData.tipo_formulario) {
+            console.log('🎯 Tipo explícito encontrado:', consultaData.tipo_formulario);
+            return consultaData.tipo_formulario;
+        }
+        
+        // Si los datos están estructurados, verificar en main
+        if (consultaData.main && consultaData.main.tipo_formulario) {
+            console.log('🎯 Tipo en main encontrado:', consultaData.main.tipo_formulario);
+            return consultaData.main.tipo_formulario;
+        }
+        
+        // Verificar datos relacionados para determinar el tipo
+        if (consultaData.related) {
+            if (consultaData.related.consulta_anteojos) {
+                console.log('🎯 Tipo determinado por tabla relacionada: anteojos');
+                return 'anteojos';
+            } else if (consultaData.related.consulta_estudios) {
+                console.log('🎯 Tipo determinado por tabla relacionada: estudios');
+                return 'estudios';
+            } else if (consultaData.related.consulta_informe_imagen) {
+                console.log('🎯 Tipo determinado por tabla relacionada: informe_imagen');
+                return 'informe_imagen';
+            }
+        }
+        
+        // Fallback a lógica antigua para compatibilidad
         if (consultaData.od_esf !== undefined || consultaData.oi_esf !== undefined) {
+            console.log('🎯 Tipo determinado por campos específicos: anteojos');
             return 'anteojos';
         } else if (consultaData.tipo_estudio !== undefined) {
+            console.log('🎯 Tipo determinado por campos específicos: estudios');
             return 'estudios';
         } else if (consultaData.archivo_imagen !== undefined) {
+            console.log('🎯 Tipo determinado por campos específicos: informe_imagen');
             return 'informe_imagen';
         } else {
+            console.log('🎯 Tipo determinado por defecto: general');
             return 'general';
         }
     }
@@ -1699,6 +1729,9 @@ class ConsultasManager {
      * Poblar campos básicos comunes a todos los formularios
      */
     populateBasicFields(data) {
+        // Obtener datos de la tabla principal
+        const mainData = data.main || data;
+        
         const basicFields = [
             'txtmotivo', 'visionod', 'visionoi', 'tensionod', 'tensionoi',
             'proximaconsulta', 'whatsapptxt', 'email'
@@ -1706,9 +1739,9 @@ class ConsultasManager {
         
         basicFields.forEach(fieldId => {
             const field = document.getElementById(fieldId);
-            if (field && data[fieldId] !== undefined) {
-                field.value = data[fieldId] || '';
-                console.log(`📝 Campo ${fieldId} poblado:`, data[fieldId]);
+            if (field && mainData[fieldId] !== undefined) {
+                field.value = mainData[fieldId] || '';
+                console.log(`📝 Campo básico ${fieldId} poblado con dato de BD:`, mainData[fieldId]);
             }
         });
     }
@@ -1732,6 +1765,9 @@ class ConsultasManager {
      * Poblar formulario de anteojos
      */
     async populateAnteojosForm(data) {
+        // Obtener datos de la tabla relacionada de anteojos
+        const anteojosData = data.related?.consulta_anteojos || {};
+        
         const anteojosFields = [
             'od_esf', 'od_cil', 'od_adicion', 'od_eje',
             'oi_esf', 'oi_cil', 'oi_adicion', 'oi_eje',
@@ -1740,17 +1776,17 @@ class ConsultasManager {
         
         anteojosFields.forEach(fieldId => {
             const field = document.getElementById(fieldId);
-            if (field && data[fieldId] !== undefined) {
+            if (field && anteojosData[fieldId] !== undefined) {
                 if (field.tagName === 'SELECT') {
                     // Para selects, incluyendo Select2
-                    field.value = data[fieldId];
+                    field.value = anteojosData[fieldId];
                     if ($(field).hasClass('select2-hidden-accessible')) {
                         $(field).trigger('change');
                     }
                 } else {
-                    field.value = data[fieldId] || '';
+                    field.value = anteojosData[fieldId] || '';
                 }
-                console.log(`👓 Campo anteojos ${fieldId} poblado:`, data[fieldId]);
+                console.log(`👓 Campo anteojos ${fieldId} poblado con dato de BD:`, anteojosData[fieldId]);
             }
         });
     }
@@ -1759,13 +1795,16 @@ class ConsultasManager {
      * Poblar formulario de estudios
      */
     async populateEstudiosForm(data) {
+        // Obtener datos de la tabla relacionada de estudios
+        const estudiosData = data.related?.consulta_estudios || {};
+        
         const estudiosFields = ['tipo_estudio', 'descripcion_estudio', 'resultado_estudio'];
         
         estudiosFields.forEach(fieldId => {
             const field = document.getElementById(fieldId);
-            if (field && data[fieldId] !== undefined) {
-                field.value = data[fieldId] || '';
-                console.log(`🔬 Campo estudios ${fieldId} poblado:`, data[fieldId]);
+            if (field && estudiosData[fieldId] !== undefined) {
+                field.value = estudiosData[fieldId] || '';
+                console.log(`🔬 Campo estudios ${fieldId} poblado con dato de BD:`, estudiosData[fieldId]);
             }
         });
     }
@@ -1774,13 +1813,16 @@ class ConsultasManager {
      * Poblar formulario de informe + imagen
      */
     async populateInformeImagenForm(data) {
+        // Obtener datos de la tabla relacionada de informe imagen
+        const informeData = data.related?.consulta_informe_imagen || {};
+        
         const informeFields = ['descripcion_informe', 'archivo_imagen', 'observaciones_imagen'];
         
         informeFields.forEach(fieldId => {
             const field = document.getElementById(fieldId);
-            if (field && data[fieldId] !== undefined) {
-                field.value = data[fieldId] || '';
-                console.log(`🖼️ Campo informe ${fieldId} poblado:`, data[fieldId]);
+            if (field && informeData[fieldId] !== undefined) {
+                field.value = informeData[fieldId] || '';
+                console.log(`🖼️ Campo informe ${fieldId} poblado con dato de BD:`, informeData[fieldId]);
             }
         });
     }
