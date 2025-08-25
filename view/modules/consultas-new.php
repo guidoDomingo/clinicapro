@@ -2352,13 +2352,23 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                     break;
                     
                 case 'estudios':
-                    const estudiosFields = ['tipo_estudio', 'observaciones', 'otro_equipo'];
-                    estudiosFields.forEach(fieldId => {
-                        const field = document.getElementById(fieldId);
-                        if (field) {
-                            data[fieldId] = field.value || null;
-                        }
-                    });
+                    // Mapear campo equipo_medico-estudios a tipo_estudio para validación
+                    const equipoMedico = document.getElementById('equipo_medico-estudios');
+                    if (equipoMedico) {
+                        data.tipo_estudio = equipoMedico.value || null;
+                    }
+                    
+                    // Campo de observaciones específico de estudios (consulta-textarea-estudios)
+                    const observacionesEstudios = document.getElementById('consulta-textarea-estudios');
+                    if (observacionesEstudios) {
+                        data.observaciones = observacionesEstudios.value || null;
+                    }
+                    
+                    // Otros campos de estudios
+                    const otroEquipo = document.getElementById('otro_equipo');
+                    if (otroEquipo) {
+                        data.otro_equipo = otroEquipo.value || null;
+                    }
                     break;
                     
                 case 'informe_imagen':
