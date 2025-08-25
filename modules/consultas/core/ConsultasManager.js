@@ -1795,16 +1795,48 @@ class ConsultasManager {
      * Poblar formulario de estudios
      */
     async populateEstudiosForm(data) {
-        // Obtener datos de la tabla relacionada de estudios
+        // Llamar al método específico del componente EstudiosFormComponent
+        const estudiosComponent = this.formComponents.get('estudios');
+        if (estudiosComponent && estudiosComponent.populateData) {
+            await estudiosComponent.populateData(data);
+        }
+        
+        // También poblar campos estándar si existen
         const estudiosData = data.related?.consulta_estudios || {};
         
-        const estudiosFields = ['tipo_estudio', 'descripcion_estudio', 'resultado_estudio'];
+        // Campos específicos del formulario de estudios actual
+        const estudiosFields = ['equipo_medico-estudios', 'consulta-textarea-estudios', 'txtnota-estudios'];
         
         estudiosFields.forEach(fieldId => {
             const field = document.getElementById(fieldId);
-            if (field && estudiosData[fieldId] !== undefined) {
-                field.value = estudiosData[fieldId] || '';
-                console.log(`🔬 Campo estudios ${fieldId} poblado con dato de BD:`, estudiosData[fieldId]);
+            if (field && estudiosData) {
+                let value = null;
+                
+                // Mapear nombres de campo correctos
+                switch(fieldId) {
+                    case 'equipo_medico-estudios':
+                        value = estudiosData.equipo_medico;
+                        break;
+                    case 'consulta-textarea-estudios':
+                        value = estudiosData.observaciones;
+                        break;
+                    case 'txtnota-estudios':
+                        value = estudiosData.txtnota;
+                        break;
+                }
+                
+                if (value !== undefined && value !== null) {
+                    if (field.tagName === 'SELECT') {
+                        field.value = value;
+                        // Trigger para Select2
+                        if (field.classList.contains('select2-hidden-accessible') && typeof $ !== 'undefined') {
+                            $(field).val(value).trigger('change');
+                        }
+                    } else {
+                        field.value = value;
+                    }
+                    console.log(`🔬 Campo estudios ${fieldId} poblado con dato de BD:`, value);
+                }
             }
         });
     }

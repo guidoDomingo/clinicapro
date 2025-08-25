@@ -953,6 +953,48 @@ class AnteojosFormComponent extends BaseFormComponent {
     }
     
     /**
+     * Obtener datos específicos del formulario de anteojos
+     */
+    async getSpecificData() {
+        const specificData = {};
+        
+        console.log('👓 Recolectando datos específicos de anteojos...');
+        
+        // Campos del Ojo Derecho (OD)
+        const odFields = ['od_esf', 'od_cil', 'od_eje', 'od_adicion'];
+        odFields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                specificData[fieldId] = field.value || null;
+                console.log(`📊 Campo OD ${fieldId}:`, field.value);
+            }
+        });
+        
+        // Campos del Ojo Izquierdo (OI)
+        const oiFields = ['oi_esf', 'oi_cil', 'oi_eje', 'oi_adicion'];
+        oiFields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                specificData[fieldId] = field.value || null;
+                console.log(`📊 Campo OI ${fieldId}:`, field.value);
+            }
+        });
+        
+        // Campos adicionales de anteojos
+        const additionalFields = ['dist_interpupilar', 'altura_od', 'altura_oi', 'notas'];
+        additionalFields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                specificData[fieldId] = field.value || null;
+                console.log(`📊 Campo adicional ${fieldId}:`, field.value);
+            }
+        });
+        
+        console.log('👓 Datos específicos de anteojos recolectados:', specificData);
+        return specificData;
+    }
+    
+    /**
      * Mostrar mensaje de error al usuario
      */
     showErrorMessage(message) {
@@ -1029,6 +1071,57 @@ class EstudiosFormComponent extends BaseFormComponent {
         }
         
         return specificData;
+    }
+    
+    /**
+     * Poblar datos específicos del formulario de estudios
+     */
+    async populateData(consultaData) {
+        console.log('🔬 Poblando datos específicos para formulario de estudios:', consultaData);
+        
+        try {
+            // Poblar equipo médico desde datos relacionados
+            if (consultaData.related && consultaData.related.consulta_estudios) {
+                const estudiosData = consultaData.related.consulta_estudios;
+                
+                // Poblar equipo médico
+                if (estudiosData.equipo_medico) {
+                    const equipoSelect = document.getElementById('equipo_medico-estudios');
+                    if (equipoSelect) {
+                        // Esperar un poco para asegurar que las opciones estén cargadas
+                        setTimeout(() => {
+                            equipoSelect.value = estudiosData.equipo_medico;
+                            // Trigger para Select2
+                            if (equipoSelect.classList.contains('select2-hidden-accessible') && typeof $ !== 'undefined') {
+                                $(equipoSelect).val(estudiosData.equipo_medico).trigger('change');
+                            }
+                            console.log(`📋 Equipo médico poblado: ${estudiosData.equipo_medico}`);
+                        }, 500);
+                    }
+                }
+                
+                // Poblar descripción/observaciones
+                if (estudiosData.observaciones) {
+                    const descripcionField = document.getElementById('consulta-textarea-estudios');
+                    if (descripcionField) {
+                        descripcionField.value = estudiosData.observaciones;
+                        console.log(`📝 Observaciones pobladas: ${estudiosData.observaciones}`);
+                    }
+                }
+                
+                // Poblar nota
+                if (estudiosData.txtnota || consultaData.main?.txtnota) {
+                    const notaField = document.getElementById('txtnota-estudios');
+                    if (notaField) {
+                        notaField.value = estudiosData.txtnota || consultaData.main.txtnota;
+                        console.log(`📝 Nota poblada: ${estudiosData.txtnota || consultaData.main.txtnota}`);
+                    }
+                }
+            }
+            
+        } catch (error) {
+            console.error('❌ Error poblando datos de estudios:', error);
+        }
     }
 }
 
