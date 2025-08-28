@@ -1,0 +1,1413 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Livewire CRUD - Consultas Médicas</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/alertifyjs/1.13.1/css/alertify.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/alertifyjs/1.13.1/css/themes/bootstrap.min.css" rel="stylesheet">
+    
+    <style>
+        .livewire-crud {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .crud-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .crud-section {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .crud-section-header {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .crud-section-body {
+            padding: 20px;
+        }
+        
+        .record-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .record-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transform: translateY(-2px);
+        }
+        
+        .record-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .btn-action {
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 20px;
+        }
+        
+        .form-floating {
+            margin-bottom: 15px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #007bff;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .search-box {
+            position: relative;
+        }
+        
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-top: none;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+        
+        .search-result-item {
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .search-result-item:hover {
+            background: #f8f9fa;
+        }
+        
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-radius: 8px 8px 0 0;
+            overflow: hidden;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 12px 20px;
+            background: #e9ecef;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .tab.active {
+            background: #007bff;
+            color: white;
+        }
+        
+        .tab:hover:not(.active) {
+            background: #dee2e6;
+        }
+        
+        .form-section {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .form-section-title {
+            background: #f8f9fa;
+            padding: 12px 16px;
+            border-bottom: 1px solid #dee2e6;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .form-section-body {
+            padding: 20px;
+        }
+        
+        .field-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="livewire-crud">
+        
+        <!-- Header -->
+        <div class="crud-header">
+            <h1><i class="fas fa-stethoscope me-3"></i>Sistema Livewire CRUD</h1>
+            <p class="mb-0">Gestión completa de consultas médicas con operaciones CRUD genéricas</p>
+        </div>
+        
+        <!-- Navegación de pestañas -->
+        <div class="crud-section">
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('list')">
+                    <i class="fas fa-list me-2"></i>Listar Consultas
+                </button>
+                <button class="tab" onclick="showTab('create')">
+                    <i class="fas fa-plus me-2"></i>Nueva Consulta
+                </button>
+                <button class="tab" onclick="showTab('search')">
+                    <i class="fas fa-search me-2"></i>Buscar
+                </button>
+                <button class="tab" onclick="showTab('patients')">
+                    <i class="fas fa-users me-2"></i>Pacientes
+                </button>
+            </div>
+        </div>
+        
+        <!-- Contenido de pestañas -->
+        
+        <!-- Tab: Listar Consultas -->
+        <div id="tab-list" class="tab-content crud-section">
+            <div class="crud-section-header">
+                <h3><i class="fas fa-list me-2"></i>Lista de Consultas</h3>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-primary btn-sm" onclick="loadConsultas()">
+                        <i class="fas fa-sync me-1"></i>Actualizar
+                    </button>
+                    <select class="form-select form-select-sm" style="width: auto;" onchange="changePageSize(this.value)">
+                        <option value="10">10 por página</option>
+                        <option value="20" selected>20 por página</option>
+                        <option value="50">50 por página</option>
+                    </select>
+                </div>
+            </div>
+            <div class="crud-section-body">
+                <div id="consultas-loading" class="loading">
+                    <div class="spinner"></div>Cargando consultas...
+                </div>
+                <div id="consultas-list"></div>
+                <div id="consultas-pagination"></div>
+            </div>
+        </div>
+        
+        <!-- Tab: Nueva Consulta -->
+        <div id="tab-create" class="tab-content crud-section" style="display: none;">
+            <div class="crud-section-header">
+                <h3><i class="fas fa-plus me-2"></i>Nueva Consulta</h3>
+            </div>
+            <div class="crud-section-body">
+                <form id="create-form">
+                    <div class="form-section">
+                        <h5 class="form-section-title">Datos del Paciente</h5>
+                        <div class="form-section-body">
+                            <div class="field-group">
+                                <div class="form-floating search-box">
+                                    <input type="text" class="form-control" id="patient-search" placeholder="Buscar paciente..." 
+                                           onkeyup="searchPatients(this.value)" autocomplete="off">
+                                    <label>Buscar Paciente *</label>
+                                    <div id="patient-results" class="search-results" style="display: none;"></div>
+                                </div>
+                                <input type="hidden" id="selected-patient-id" name="id_persona" required>
+                            </div>
+                            <div id="selected-patient-info" style="display: none;" class="alert alert-info">
+                                <strong>Paciente seleccionado:</strong> <span id="patient-info-text"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h5 class="form-section-title">Datos de la Consulta</h5>
+                        <div class="form-section-body">
+                            <div class="field-group">
+                                <div class="form-floating">
+                                    <textarea class="form-control" id="motivo" name="motivo" style="height: 100px;" required></textarea>
+                                    <label>Motivo de Consulta *</label>
+                                </div>
+                                <div class="form-floating">
+                                    <select class="form-select" id="tipo_formulario" name="tipo_formulario">
+                                        <option value="general">General</option>
+                                        <option value="anteojos">Anteojos</option>
+                                        <option value="estudios">Estudios</option>
+                                    </select>
+                                    <label>Tipo de Formulario</label>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control" id="vision_od" name="vision_od">
+                                        <label>Visión OD</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control" id="vision_oi" name="vision_oi">
+                                        <label>Visión OI</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control" id="tension_od" name="tension_od">
+                                        <label>Tensión OD</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control" id="tension_oi" name="tension_oi">
+                                        <label>Tensión OI</label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="field-group">
+                                <div class="form-floating">
+                                    <textarea class="form-control" id="consulta" name="consulta" style="height: 120px;"></textarea>
+                                    <label>Consulta</label>
+                                </div>
+                                <div class="form-floating">
+                                    <textarea class="form-control" id="receta" name="receta" style="height: 120px;"></textarea>
+                                    <label>Receta</label>
+                                </div>
+                            </div>
+                            
+                            <div class="field-group">
+                                <div class="form-floating">
+                                    <textarea class="form-control" id="nota" name="nota"></textarea>
+                                    <label>Notas</label>
+                                </div>
+                                <div class="form-floating">
+                                    <input type="date" class="form-control" id="proxima_consulta" name="proxima_consulta">
+                                    <label>Próxima Consulta</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Sección de Anteojos (se muestra condicionalmente) -->
+                    <div id="anteojos-section" class="form-section" style="display: none;">
+                        <h5 class="form-section-title">Datos de Anteojos</h5>
+                        <div class="form-section-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6 class="text-primary">Ojo Derecho (OD)</h6>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-floating">
+                                                <input type="number" class="form-control" id="od_esf" name="od_esf" step="0.25">
+                                                <label>Esfera</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-floating">
+                                                <input type="number" class="form-control" id="od_cil" name="od_cil" step="0.25">
+                                                <label>Cilindro</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-floating">
+                                                <input type="number" class="form-control" id="od_eje" name="od_eje" min="0" max="180">
+                                                <label>Eje</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-floating">
+                                                <input type="number" class="form-control" id="od_dnp" name="od_dnp">
+                                                <label>DNP</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-floating">
+                                                <input type="number" class="form-control" id="od_add" name="od_add" step="0.25">
+                                                <label>Adición</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-floating">
+                                                <input type="number" class="form-control" id="od_altura" name="od_altura">
+                                                <label>Altura</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-floating">
+                                        <textarea class="form-control" id="od_nota" name="od_nota"></textarea>
+                                        <label>Notas OD</label>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <h6 class="text-success">Ojo Izquierdo (OI)</h6>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-floating">
+                                                <input type="number" class="form-control" id="oi_esf" name="oi_esf" step="0.25">
+                                                <label>Esfera</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-floating">
+                                                <input type="number" class="form-control" id="oi_cil" name="oi_cil" step="0.25">
+                                                <label>Cilindro</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-floating">
+                                                <input type="number" class="form-control" id="oi_eje" name="oi_eje" min="0" max="180">
+                                                <label>Eje</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="form-floating">
+                                                <input type="number" class="form-control" id="oi_dnp" name="oi_dnp">
+                                                <label>DNP</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-floating">
+                                                <input type="number" class="form-control" id="oi_add" name="oi_add" step="0.25">
+                                                <label>Adición</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-floating">
+                                                <input type="number" class="form-control" id="oi_altura" name="oi_altura">
+                                                <label>Altura</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-floating">
+                                        <textarea class="form-control" id="oi_nota" name="oi_nota"></textarea>
+                                        <label>Notas OI</label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="number" class="form-control" id="dist_interpupilar" name="dist_interpupilar">
+                                        <label>Distancia Interpupilar</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <textarea class="form-control" id="anteojos_notas" name="anteojos_notas"></textarea>
+                                        <label>Notas Generales Anteojos</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex gap-2 justify-content-end">
+                        <button type="button" class="btn btn-secondary" onclick="resetForm()">
+                            <i class="fas fa-times me-2"></i>Limpiar
+                        </button>
+                        <button type="submit" class="btn btn-primary" id="create-btn">
+                            <i class="fas fa-save me-2"></i>Crear Consulta
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Tab: Buscar -->
+        <div id="tab-search" class="tab-content crud-section" style="display: none;">
+            <div class="crud-section-header">
+                <h3><i class="fas fa-search me-2"></i>Buscar Consultas</h3>
+            </div>
+            <div class="crud-section-body">
+                <div class="row mb-3">
+                    <div class="col-md-8">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="search-input" placeholder="Buscar...">
+                            <label>Buscar por paciente, motivo, consulta...</label>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <button class="btn btn-primary w-100 h-100" onclick="performSearch()">
+                            <i class="fas fa-search me-2"></i>Buscar
+                        </button>
+                    </div>
+                </div>
+                <div id="search-results"></div>
+            </div>
+        </div>
+        
+        <!-- Tab: Pacientes -->
+        <div id="tab-patients" class="tab-content crud-section" style="display: none;">
+            <div class="crud-section-header">
+                <h3><i class="fas fa-users me-2"></i>Lista de Pacientes</h3>
+            </div>
+            <div class="crud-section-body">
+                <div id="patients-list"></div>
+            </div>
+        </div>
+        
+    </div>
+    
+    <!-- Modal para Editar Consulta -->
+    <div class="modal fade" id="editModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-edit me-2"></i>Editar Consulta
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="edit-form-container">
+                        <!-- El formulario de edición se carga aquí dinámicamente -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="saveEdit()">
+                        <i class="fas fa-save me-2"></i>Guardar Cambios
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/alertifyjs/1.13.1/alertify.min.js"></script>
+
+    <script>
+        // Estado global de la aplicación
+        const appState = {
+            currentTab: 'list',
+            currentPage: 1,
+            pageSize: 20,
+            currentSearch: '',
+            editingRecord: null,
+            selectedPatient: null
+        };
+
+        // Configuración de la API
+        const API_BASE = 'modules/consultas/api/livewire-system.php';
+
+        // Helper functions para notificaciones
+        function showSuccess(message) {
+            if (typeof alertify !== 'undefined') {
+                alertify.success(message);
+            } else {
+                console.log('SUCCESS: ' + message);
+                // Fallback visual
+                const alert = document.createElement('div');
+                alert.className = 'alert alert-success position-fixed';
+                alert.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+                alert.innerHTML = message;
+                document.body.appendChild(alert);
+                setTimeout(() => alert.remove(), 3000);
+            }
+        }
+
+        function showError(message) {
+            if (typeof alertify !== 'undefined') {
+                alertify.error(message);
+            } else {
+                console.error('ERROR: ' + message);
+                // Fallback visual
+                const alert = document.createElement('div');
+                alert.className = 'alert alert-danger position-fixed';
+                alert.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+                alert.innerHTML = message;
+                document.body.appendChild(alert);
+                setTimeout(() => alert.remove(), 5000);
+            }
+        }
+
+        /**
+         * Funciones de navegación de pestañas
+         */
+        function showTab(tabName) {
+            // Actualizar pestañas
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelector(`button[onclick="showTab('${tabName}')"]`).classList.add('active');
+            
+            // Actualizar contenido
+            document.querySelectorAll('.tab-content').forEach(content => content.style.display = 'none');
+            document.getElementById(`tab-${tabName}`).style.display = 'block';
+            
+            appState.currentTab = tabName;
+            
+            // Cargar contenido específico de la pestaña
+            switch(tabName) {
+                case 'list':
+                    loadConsultas();
+                    break;
+                case 'create':
+                    resetForm();
+                    break;
+                case 'patients':
+                    loadPatients();
+                    break;
+            }
+        }
+
+        /**
+         * Funciones de API
+         */
+        async function callAPI(action, data = {}) {
+            const requestData = {
+                action: action,
+                ...data
+            };
+            
+            console.log('API Request:', requestData);
+            
+            try {
+                const response = await fetch(API_BASE, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+                const result = await response.json();
+                console.log('API Response:', result);
+                
+                if (!result.success) {
+                    throw new Error(result.message || 'Error en la operación');
+                }
+                
+                return result;
+                
+            } catch (error) {
+                console.error('API Error:', error);
+                showError('Error: ' + error.message);
+                throw error;
+            }
+        }
+
+        /**
+         * Cargar lista de consultas
+         */
+        async function loadConsultas(page = 1) {
+            const loadingEl = document.getElementById('consultas-loading');
+            const listEl = document.getElementById('consultas-list');
+            const paginationEl = document.getElementById('consultas-pagination');
+            
+            loadingEl.style.display = 'block';
+            listEl.innerHTML = '';
+            paginationEl.innerHTML = '';
+            
+            try {
+                // CORRECCIÓN: Agregar timestamp para evitar cache en lista
+                const result = await callAPI('list', {
+                    table: 'consultas',
+                    page: page,
+                    limit: appState.pageSize,
+                    search: appState.currentSearch,
+                    _t: Date.now() // Anti-cache timestamp
+                });
+                
+                loadingEl.style.display = 'none';
+                
+                if (result.data && result.data.length > 0) {
+                    listEl.innerHTML = result.data.map(consulta => createConsultaCard(consulta)).join('');
+                    paginationEl.innerHTML = createPagination(result.meta);
+                } else {
+                    listEl.innerHTML = '<div class="text-center text-muted py-4">No se encontraron consultas</div>';
+                }
+                
+            } catch (error) {
+                loadingEl.style.display = 'none';
+                listEl.innerHTML = '<div class="text-center text-danger py-4">Error al cargar consultas</div>';
+            }
+        }
+
+        /**
+         * Crear card de consulta
+         */
+        function createConsultaCard(consulta) {
+            const fechaFormatted = new Date(consulta.fecha_consulta).toLocaleString('es-ES');
+            const pacienteInfo = `${consulta.first_name || ''} ${consulta.last_name || ''}`.trim();
+            
+            return `
+                <div class="record-card">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="flex-grow-1">
+                            <div class="d-flex gap-3 mb-2">
+                                <span class="badge bg-primary">#${consulta.id_consulta}</span>
+                                <span class="badge bg-info">${consulta.tipo_formulario || 'general'}</span>
+                                <small class="text-muted">${fechaFormatted}</small>
+                            </div>
+                            
+                            <h6 class="mb-2">
+                                <i class="fas fa-user me-1"></i>
+                                ${pacienteInfo || 'Sin nombre'}
+                                ${consulta.document_number ? `(${consulta.document_number})` : ''}
+                            </h6>
+                            
+                            <p class="mb-2">
+                                <strong>Motivo:</strong> ${consulta.motivo || 'No especificado'}
+                            </p>
+                            
+                            ${consulta.consulta ? `
+                                <p class="mb-2">
+                                    <strong>Consulta:</strong> ${consulta.consulta.substring(0, 100)}...
+                                </p>
+                            ` : ''}
+                            
+                            ${consulta.vision_od || consulta.vision_oi ? `
+                                <div class="row">
+                                    <div class="col-6">
+                                        <small><strong>Visión OD:</strong> ${consulta.vision_od || '-'}</small>
+                                    </div>
+                                    <div class="col-6">
+                                        <small><strong>Visión OI:</strong> ${consulta.vision_oi || '-'}</small>
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
+                        
+                        <div class="record-actions">
+                            <button class="btn btn-sm btn-outline-primary btn-action" onclick="editConsulta(${consulta.id_consulta})" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-info btn-action" onclick="viewConsulta(${consulta.id_consulta})" title="Ver detalles">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger btn-action" onclick="deleteConsulta(${consulta.id_consulta})" title="Eliminar">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        /**
+         * Crear paginación
+         */
+        function createPagination(meta) {
+            if (meta.pages <= 1) return '';
+            
+            let html = '<nav><ul class="pagination justify-content-center">';
+            
+            // Botón anterior
+            html += `
+                <li class="page-item ${meta.page <= 1 ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="loadConsultas(${meta.page - 1})">Anterior</a>
+                </li>
+            `;
+            
+            // Páginas
+            const maxVisible = 5;
+            let start = Math.max(1, meta.page - Math.floor(maxVisible / 2));
+            let end = Math.min(meta.pages, start + maxVisible - 1);
+            
+            if (end - start + 1 < maxVisible) {
+                start = Math.max(1, end - maxVisible + 1);
+            }
+            
+            for (let i = start; i <= end; i++) {
+                html += `
+                    <li class="page-item ${i === meta.page ? 'active' : ''}">
+                        <a class="page-link" href="#" onclick="loadConsultas(${i})">${i}</a>
+                    </li>
+                `;
+            }
+            
+            // Botón siguiente
+            html += `
+                <li class="page-item ${meta.page >= meta.pages ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="loadConsultas(${meta.page + 1})">Siguiente</a>
+                </li>
+            `;
+            
+            html += '</ul></nav>';
+            html += `<div class="text-center text-muted mt-2">
+                Mostrando ${meta.page * meta.limit - meta.limit + 1} - ${Math.min(meta.page * meta.limit, meta.total)} de ${meta.total} registros
+            </div>`;
+            
+            return html;
+        }
+
+        /**
+         * Buscar pacientes para autocompletar
+         */
+        let searchTimeout;
+        async function searchPatients(query) {
+            const resultsEl = document.getElementById('patient-results');
+            
+            if (query.length < 2) {
+                resultsEl.style.display = 'none';
+                return;
+            }
+            
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(async () => {
+                try {
+                    const result = await callAPI('search', {
+                        table: 'rh_person',
+                        search: query,
+                        limit: 10
+                    });
+                    
+                    if (result.data && result.data.length > 0) {
+                        resultsEl.innerHTML = result.data.map(patient => `
+                            <div class="search-result-item" onclick="selectPatient(${patient.person_id}, '${patient.first_name}', '${patient.last_name}', '${patient.document_number}')">
+                                <strong>${patient.first_name} ${patient.last_name}</strong><br>
+                                <small class="text-muted">Documento: ${patient.document_number} | Tel: ${patient.phone_number || 'N/A'}</small>
+                            </div>
+                        `).join('');
+                        resultsEl.style.display = 'block';
+                    } else {
+                        resultsEl.innerHTML = '<div class="search-result-item text-muted">No se encontraron pacientes</div>';
+                        resultsEl.style.display = 'block';
+                    }
+                    
+                } catch (error) {
+                    resultsEl.style.display = 'none';
+                }
+            }, 300);
+        }
+
+        /**
+         * Seleccionar paciente
+         */
+        function selectPatient(id, firstName, lastName, documentNumber) {
+            document.getElementById('selected-patient-id').value = id;
+            document.getElementById('patient-search').value = `${firstName} ${lastName}`;
+            document.getElementById('patient-info-text').textContent = `${firstName} ${lastName} - ${documentNumber}`;
+            document.getElementById('selected-patient-info').style.display = 'block';
+            document.getElementById('patient-results').style.display = 'none';
+            
+            appState.selectedPatient = { id, firstName, lastName, documentNumber };
+        }
+
+        /**
+         * Manejar cambio de tipo de formulario
+         */
+        function handleFormTypeChange() {
+            const tipoFormulario = document.getElementById('tipo_formulario').value;
+            const anteojosSection = document.getElementById('anteojos-section');
+            
+            if (tipoFormulario === 'anteojos') {
+                anteojosSection.style.display = 'block';
+            } else {
+                anteojosSection.style.display = 'none';
+            }
+        }
+
+        /**
+         * Crear nueva consulta
+         */
+        async function createConsulta(event) {
+            event.preventDefault();
+            
+            const form = document.getElementById('create-form');
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+            
+            // CORRECCIÓN: Convertir fechas vacías a null para PostgreSQL
+            if (data.proxima_consulta === '') {
+                data.proxima_consulta = null;
+            }
+            
+            if (!data.person_id) {
+                showError('Debe seleccionar un paciente');
+                return;
+            }
+            
+            const btn = document.getElementById('create-btn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Creando...';
+            btn.disabled = true;
+            
+            try {
+                // Preparar datos relacionados de anteojos si corresponde
+                let related = null;
+                if (data.tipo_formulario === 'anteojos') {
+                    related = {
+                        anteojos: {
+                            esfera_od: data.od_esf,
+                            cilindro_od: data.od_cil,
+                            eje_od: data.od_eje,
+                            dnp_od: data.od_dnp,
+                            add_od: data.od_add,
+                            altura_od: data.od_altura,
+                            nota_od: data.od_nota,
+                            esfera_oi: data.oi_esf,
+                            cilindro_oi: data.oi_cil,
+                            eje_oi: data.oi_eje,
+                            dnp_oi: data.oi_dnp,
+                            add_oi: data.oi_add,
+                            altura_oi: data.oi_altura,
+                            nota_oi: data.oi_nota,
+                            dist_interpupilar: data.dist_interpupilar,
+                            notas: data.anteojos_notas
+                        }
+                    };
+                }
+                
+                const result = await callAPI('create', {
+                    table: 'consultas',
+                    data: data,
+                    related: related
+                });
+                
+                showSuccess('Consulta creada exitosamente');
+                resetForm();
+                showTab('list');
+                
+            } catch (error) {
+                // Error ya manejado en callAPI
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        /**
+         * Editar consulta
+         */
+        async function editConsulta(id) {
+            try {
+                // CORRECCIÓN: Agregar timestamp para evitar cache
+                const result = await callAPI('read', {
+                    table: 'consultas',
+                    id: id,
+                    with: ['anteojos'],
+                    _t: Date.now() // Anti-cache timestamp
+                });
+                
+                appState.editingRecord = result.data;
+                
+                // Generar formulario de edición dinámicamente
+                const formHtml = createEditForm(result.data);
+                document.getElementById('edit-form-container').innerHTML = formHtml;
+                
+                // Mostrar modal
+                const modal = new bootstrap.Modal(document.getElementById('editModal'));
+                modal.show();
+                
+            } catch (error) {
+                // Error ya manejado en callAPI
+            }
+        }
+
+        /**
+         * Crear formulario de edición dinámico
+         */
+        function createEditForm(data) {
+            return `
+                <form id="edit-form">
+                    <input type="hidden" name="id_consulta" value="${data.id_consulta}">
+                    <input type="hidden" name="id_persona" value="${data.id_persona || ''}">
+                    
+                    <div class="form-section">
+                        <h6 class="form-section-title">Información del Paciente</h6>
+                        <div class="form-section-body">
+                            <div class="alert alert-info">
+                                <strong>${data.first_name || ''} ${data.last_name || ''}</strong><br>
+                                Documento: ${data.document_number || 'N/A'}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h6 class="form-section-title">Datos de la Consulta</h6>
+                        <div class="form-section-body">
+                            <div class="field-group">
+                                <div class="form-floating">
+                                    <textarea class="form-control" name="txtmotivo" required style="height: 100px;">${data.txtmotivo || ''}</textarea>
+                                    <label>Motivo de Consulta *</label>
+                                </div>
+                                <div class="form-floating">
+                                    <select class="form-select" name="tipo_formulario" onchange="handleEditFormTypeChange()">
+                                        <option value="general" ${data.tipo_formulario === 'general' ? 'selected' : ''}>General</option>
+                                        <option value="anteojos" ${data.tipo_formulario === 'anteojos' ? 'selected' : ''}>Anteojos</option>
+                                        <option value="estudios" ${data.tipo_formulario === 'estudios' ? 'selected' : ''}>Estudios</option>
+                                    </select>
+                                    <label>Tipo de Formulario</label>
+                                </div>
+                            </div>
+                            
+                            <div class="field-group">
+                                <div class="form-floating">
+                                    <textarea class="form-control" name="motivoscomunes" style="height: 80px;">${data.motivoscomunes || ''}</textarea>
+                                    <label>Motivos Comunes</label>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control" name="visionod" value="${data.visionod || ''}">
+                                        <label>Visión OD</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control" name="visionoi" value="${data.visionoi || ''}">
+                                        <label>Visión OI</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control" name="tensionod" value="${data.tensionod || ''}">
+                                        <label>Tensión OD</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control" name="tensionoi" value="${data.tensionoi || ''}">
+                                        <label>Tensión OI</label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="field-group">
+                                <div class="form-floating">
+                                    <textarea class="form-control" name="consulta_textarea" style="height: 120px;">${data.consulta_textarea || ''}</textarea>
+                                    <label>Consulta</label>
+                                </div>
+                                <div class="form-floating">
+                                    <textarea class="form-control" name="receta_textarea" style="height: 120px;">${data.receta_textarea || ''}</textarea>
+                                    <label>Receta</label>
+                                </div>
+                            </div>
+                            
+                            <div class="field-group">
+                                <div class="form-floating">
+                                    <textarea class="form-control" name="txtnota">${data.txtnota || ''}</textarea>
+                                    <label>Notas</label>
+                                </div>
+                                <div class="form-floating">
+                                    <input type="date" class="form-control" name="proximaconsulta" value="${data.proximaconsulta || ''}">
+                                    <label>Próxima Consulta</label>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="text" class="form-control" name="whatsapptxt" value="${data.whatsapptxt || ''}">
+                                        <label>Mensaje WhatsApp</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input type="email" class="form-control" name="email" value="${data.email || ''}">
+                                        <label>Email</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${data.tipo_formulario === 'anteojos' && data.anteojos ? createAnteojosEditSection(data.anteojos) : ''}
+                </form>
+            `;
+        }
+
+        /**
+         * Crear sección de edición de anteojos
+         */
+        function createAnteojosEditSection(anteojos) {
+            return `
+                <div id="edit-anteojos-section" class="form-section">
+                    <h6 class="form-section-title">Datos de Anteojos</h6>
+                    <div class="form-section-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="text-primary">Ojo Derecho (OD)</h6>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-floating">
+                                            <input type="number" class="form-control" name="od_esf" step="0.25" value="${anteojos.esfera_od || ''}">
+                                            <label>Esfera</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-floating">
+                                            <input type="number" class="form-control" name="od_cil" step="0.25" value="${anteojos.cilindro_od || ''}">
+                                            <label>Cilindro</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-floating">
+                                            <input type="number" class="form-control" name="od_eje" min="0" max="180" value="${anteojos.eje_od || ''}">
+                                            <label>Eje</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-floating">
+                                            <input type="number" class="form-control" name="od_dnp" value="${anteojos.dnp_od || ''}">
+                                            <label>DNP</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-floating">
+                                            <input type="number" class="form-control" name="od_add" step="0.25" value="${anteojos.add_od || ''}">
+                                            <label>Adición</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-floating">
+                                            <input type="number" class="form-control" name="od_altura" value="${anteojos.altura_od || ''}">
+                                            <label>Altura</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-floating">
+                                    <textarea class="form-control" name="od_nota">${anteojos.nota_od || ''}</textarea>
+                                    <label>Notas OD</label>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <h6 class="text-success">Ojo Izquierdo (OI)</h6>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-floating">
+                                            <input type="number" class="form-control" name="oi_esf" step="0.25" value="${anteojos.esfera_oi || ''}">
+                                            <label>Esfera</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-floating">
+                                            <input type="number" class="form-control" name="oi_cil" step="0.25" value="${anteojos.cilindro_oi || ''}">
+                                            <label>Cilindro</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-floating">
+                                            <input type="number" class="form-control" name="oi_eje" min="0" max="180" value="${anteojos.eje_oi || ''}">
+                                            <label>Eje</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-floating">
+                                            <input type="number" class="form-control" name="oi_dnp" value="${anteojos.dnp_oi || ''}">
+                                            <label>DNP</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-floating">
+                                            <input type="number" class="form-control" name="oi_add" step="0.25" value="${anteojos.add_oi || ''}">
+                                            <label>Adición</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-floating">
+                                            <input type="number" class="form-control" name="oi_altura" value="${anteojos.altura_oi || ''}">
+                                            <label>Altura</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-floating">
+                                    <textarea class="form-control" name="oi_nota">${anteojos.nota_oi || ''}</textarea>
+                                    <label>Notas OI</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input type="number" class="form-control" name="dist_interpupilar" value="${anteojos.dist_interpupilar || ''}">
+                                    <label>Distancia Interpupilar</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <textarea class="form-control" name="anteojos_notas">${anteojos.notas || ''}</textarea>
+                                    <label>Notas Generales Anteojos</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        /**
+         * Guardar edición
+         */
+        async function saveEdit() {
+            const form = document.getElementById('edit-form');
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+            
+            // CORRECCIÓN: Convertir fechas vacías a null para PostgreSQL
+            if (data.proximaconsulta === '') {
+                data.proximaconsulta = null;
+            }
+            
+            try {
+                // Preparar datos relacionados de anteojos si corresponde
+                let related = null;
+                if (data.tipo_formulario === 'anteojos') {
+                    related = {
+                        anteojos: {
+                            esfera_od: data.od_esf,
+                            cilindro_od: data.od_cil,
+                            eje_od: data.od_eje,
+                            dnp_od: data.od_dnp,
+                            add_od: data.od_add,
+                            altura_od: data.od_altura,
+                            nota_od: data.od_nota,
+                            esfera_oi: data.oi_esf,
+                            cilindro_oi: data.oi_cil,
+                            eje_oi: data.oi_eje,
+                            dnp_oi: data.oi_dnp,
+                            add_oi: data.oi_add,
+                            altura_oi: data.oi_altura,
+                            nota_oi: data.oi_nota,
+                            dist_interpupilar: data.dist_interpupilar,
+                            notas: data.anteojos_notas
+                        }
+                    };
+                }
+                
+                const result = await callAPI('update', {
+                    table: 'consultas',
+                    id: data.id_consulta,
+                    data: data,
+                    related: related
+                });
+                
+                showSuccess('Consulta actualizada exitosamente');
+                
+                // Cerrar modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('editModal'));
+                modal.hide();
+                
+                // CORRECCIÓN: Recargar datos actualizados en la lista
+                loadConsultas(appState.currentPage);
+                
+                // CORRECCIÓN: Limpiar cualquier cache del registro editado
+                if (window.currentEditingRecord) {
+                    delete window.currentEditingRecord;
+                }
+                
+            } catch (error) {
+                // Error ya manejado en callAPI
+            }
+        }
+
+        /**
+         * Eliminar consulta
+         */
+        async function deleteConsulta(id) {
+            if (!confirm('¿Está seguro de que desea eliminar esta consulta?')) {
+                return;
+            }
+            
+            try {
+                const result = await callAPI('delete', {
+                    table: 'consultas',
+                    id: id
+                });
+                
+                showSuccess('Consulta eliminada exitosamente');
+                loadConsultas(appState.currentPage);
+                
+            } catch (error) {
+                // Error ya manejado en callAPI
+            }
+        }
+
+        /**
+         * Ver detalles de consulta
+         */
+        function viewConsulta(id) {
+            // Por ahora, redirigir a editar
+            editConsulta(id);
+        }
+
+        /**
+         * Realizar búsqueda
+         */
+        async function performSearch() {
+            const searchInput = document.getElementById('search-input');
+            const query = searchInput.value.trim();
+            const resultsEl = document.getElementById('search-results');
+            
+            if (!query) {
+                showError('Ingrese un término de búsqueda');
+                return;
+            }
+            
+            resultsEl.innerHTML = '<div class="loading"><div class="spinner"></div>Buscando...</div>';
+            
+            try {
+                const result = await callAPI('search', {
+                    table: 'consultas',
+                    search: query,
+                    limit: 50
+                });
+                
+                if (result.data && result.data.length > 0) {
+                    resultsEl.innerHTML = result.data.map(consulta => createConsultaCard(consulta)).join('');
+                } else {
+                    resultsEl.innerHTML = '<div class="text-center text-muted py-4">No se encontraron resultados</div>';
+                }
+                
+            } catch (error) {
+                resultsEl.innerHTML = '<div class="text-center text-danger py-4">Error en la búsqueda</div>';
+            }
+        }
+
+        /**
+         * Cargar pacientes
+         */
+        async function loadPatients() {
+            const listEl = document.getElementById('patients-list');
+            listEl.innerHTML = '<div class="loading"><div class="spinner"></div>Cargando pacientes...</div>';
+            
+            try {
+                const result = await callAPI('list', {
+                    table: 'rh_person',
+                    limit: 50
+                });
+                
+                if (result.data && result.data.length > 0) {
+                    listEl.innerHTML = result.data.map(patient => `
+                        <div class="record-card">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">${patient.first_name} ${patient.last_name}</h6>
+                                    <p class="mb-1"><strong>Documento:</strong> ${patient.document_number}</p>
+                                    <p class="mb-0 text-muted">
+                                        ${patient.phone_number ? `Tel: ${patient.phone_number}` : ''} 
+                                        ${patient.email ? `| Email: ${patient.email}` : ''}
+                                    </p>
+                                </div>
+                                <div class="record-actions">
+                                    <button class="btn btn-sm btn-outline-primary btn-action" onclick="createConsultaForPatient(${patient.person_id}, '${patient.first_name}', '${patient.last_name}', '${patient.document_number}')" title="Nueva consulta">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    listEl.innerHTML = '<div class="text-center text-muted py-4">No se encontraron pacientes</div>';
+                }
+                
+            } catch (error) {
+                listEl.innerHTML = '<div class="text-center text-danger py-4">Error al cargar pacientes</div>';
+            }
+        }
+
+        /**
+         * Crear consulta para paciente específico
+         */
+        function createConsultaForPatient(id, firstName, lastName, documentNumber) {
+            showTab('create');
+            selectPatient(id, firstName, lastName, documentNumber);
+        }
+
+        /**
+         * Cambiar tamaño de página
+         */
+        function changePageSize(size) {
+            appState.pageSize = parseInt(size);
+            appState.currentPage = 1;
+            loadConsultas();
+        }
+
+        /**
+         * Limpiar formulario
+         */
+        function resetForm() {
+            document.getElementById('create-form').reset();
+            document.getElementById('selected-patient-info').style.display = 'none';
+            document.getElementById('anteojos-section').style.display = 'none';
+            document.getElementById('patient-results').style.display = 'none';
+            appState.selectedPatient = null;
+        }
+
+        /**
+         * Manejar cambio de tipo en formulario de edición
+         */
+        function handleEditFormTypeChange() {
+            // Esta función se llamará dinámicamente desde el formulario de edición
+            // La implementación dependerá del contexto específico
+        }
+
+        /**
+         * Event listeners
+         */
+        document.addEventListener('DOMContentLoaded', function() {
+            // Configurar formulario de creación
+            document.getElementById('create-form').addEventListener('submit', createConsulta);
+            
+            // Configurar cambio de tipo de formulario
+            document.getElementById('tipo_formulario').addEventListener('change', handleFormTypeChange);
+            
+            // Configurar búsqueda con Enter
+            document.getElementById('search-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    performSearch();
+                }
+            });
+            
+            // Cerrar resultados de búsqueda al hacer clic fuera
+            document.addEventListener('click', function(e) {
+                const searchBox = document.querySelector('.search-box');
+                if (searchBox && !searchBox.contains(e.target)) {
+                    document.getElementById('patient-results').style.display = 'none';
+                }
+            });
+            
+            // Cargar datos iniciales
+            loadConsultas();
+            
+            console.log('Sistema Livewire CRUD iniciado exitosamente');
+        });
+    </script>
+</body>
+</html>

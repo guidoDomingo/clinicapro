@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Automático - Cambio Formularios</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-container { border: 2px solid #007bff; padding: 20px; margin: 10px 0; }
+        .formulario-especifico { 
+            display: none; 
+            padding: 20px; 
+            border: 1px solid #ccc; 
+            margin: 10px; 
+            background: #f8f9fa;
+        }
+        .formulario-especifico.active { 
+            display: block !important; 
+            background: #e7f3ff;
+            border: 2px solid #007bff;
+        }
+        .form-type-tab { 
+            padding: 10px; 
+            margin: 5px; 
+            background: #f0f0f0;
+            display: inline-block;
+            cursor: pointer;
+            border: 1px solid #ccc;
+        }
+        .form-type-tab.active { 
+            background: #007bff; 
+            color: white; 
+        }
+        .log { 
+            background: #000; 
+            color: #0f0; 
+            padding: 15px; 
+            font-family: monospace; 
+            height: 300px; 
+            overflow-y: auto;
+        }
+        .results { 
+            padding: 15px; 
+            margin: 10px 0; 
+            border-radius: 5px;
+        }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; border: 1px solid #f5c6cb; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test Automático - Cambio de Formularios</h1>
+    <div id="status">Inicializando...</div>
+    
+    <div class="test-container">
+        <h3>Pestañas de Formularios</h3>
+        <a class="form-type-tab" data-form-type="general" onclick="testCambiarFormulario('general')">General Tab</a>
+        <a class="form-type-tab" data-form-type="anteojos" onclick="testCambiarFormulario('anteojos')">Anteojos Tab</a>
+        <a class="form-type-tab" data-form-type="estudios" onclick="testCambiarFormulario('estudios')">Estudios Tab</a>
+    </div>
+    
+    <div class="test-container">
+        <h3>Formularios</h3>
+        <div class="formulario-especifico" id="formulario-general">
+            <h4>📋 Formulario General</h4>
+            <input type="text" placeholder="Motivo" style="margin: 5px;">
+            <textarea placeholder="Diagnóstico" style="margin: 5px;"></textarea>
+            <button id="btnGuardarConsulta-general">Guardar General</button>
+        </div>
+        
+        <div class="formulario-especifico" id="formulario-anteojos">
+            <h4>👓 Formulario Anteojos</h4>
+            <input type="text" placeholder="OD Esfera" style="margin: 5px;" id="od_esf">
+            <input type="text" placeholder="OI Esfera" style="margin: 5px;" id="oi_esf">
+            <textarea placeholder="Observaciones" style="margin: 5px;"></textarea>
+            <button id="btnGuardarConsulta-anteojos" style="background: #28a745; color: white; padding: 10px;">💾 Guardar Anteojos</button>
+        </div>
+        
+        <div class="formulario-especifico" id="formulario-estudios">
+            <h4>🔬 Formulario Estudios</h4>
+            <select style="margin: 5px;">
+                <option>Tomógrafo</option>
+                <option>Resonancia</option>
+            </select>
+            <textarea placeholder="Resultados" style="margin: 5px;"></textarea>
+            <button id="btnGuardarConsulta-estudios">Guardar Estudios</button>
+        </div>
+    </div>
+    
+    <div class="test-container">
+        <h3>🔧 Controles de Prueba</h3>
+        <button onclick="ejecutarTestCompleto()" style="background: #dc3545; color: white; padding: 10px; margin: 5px;">
+            🚀 EJECUTAR TEST COMPLETO
+        </button>
+        <button onclick="simularEdicionHistorial()" style="background: #ffc107; padding: 10px; margin: 5px;">
+            📝 Simular Edición Historial
+        </button>
+        <button onclick="verificarVisibilidad()" style="background: #17a2b8; color: white; padding: 10px; margin: 5px;">
+            👁️ Verificar Visibilidad
+        </button>
+        <button onclick="clearLog()" style="background: #6c757d; color: white; padding: 10px; margin: 5px;">
+            🗑️ Limpiar Log
+        </button>
+    </div>
+    
+    <div class="test-container">
+        <h3>📋 Log de Ejecución</h3>
+        <div id="log" class="log">Esperando ejecución de tests...\n</div>
+    </div>
+    
+    <div id="results"></div>
+    
+    <script>
+    // Variables globales
+    let testResults = [];
+    
+    // Función de logging
+    function log(message) {
+        const logDiv = document.getElementById('log');
+        const timestamp = new Date().toLocaleTimeString();
+        logDiv.textContent += `[${timestamp}] ${message}\n`;
+        logDiv.scrollTop = logDiv.scrollHeight;
+        console.log(message);
+    }
+    
+    // Función principal para cambiar formularios
+    function cambiarTipoFormulario(tipo) {
+        log(`🔄 === CAMBIANDO FORMULARIO A ${tipo.toUpperCase()} ===`);
+        
+        // 1. Desactivar todas las pestañas
+        const pestanas = document.querySelectorAll('.form-type-tab');
+        log(`📝 Desactivando ${pestanas.length} pestañas`);
+        pestanas.forEach(tab => {
+            tab.classList.remove('active');
+        });
+        
+        // 2. Activar pestaña seleccionada
+        const pestanaSeleccionada = document.querySelector(`[data-form-type="${tipo}"]`);
+        if (pestanaSeleccionada) {
+            pestanaSeleccionada.classList.add('active');
+            log(`🎯 Pestaña ${tipo} activada`);
+        } else {
+            log(`❌ Pestaña ${tipo} NO encontrada`);
+            return false;
+        }
+        
+        // 3. Ocultar todos los formularios
+        const formularios = document.querySelectorAll('.formulario-especifico');
+        log(`📋 Ocultando ${formularios.length} formularios`);
+        formularios.forEach((form, index) => {
+            form.classList.remove('active');
+            form.style.setProperty('display', 'none', 'important');
+            form.style.setProperty('opacity', '0', 'important');
+            form.style.setProperty('visibility', 'hidden', 'important');
+            form.style.setProperty('position', 'absolute', 'important');
+            form.style.setProperty('left', '-9999px', 'important');
+        });
+        
+        // 4. Mostrar formulario seleccionado
+        const formularioSeleccionado = document.getElementById(`formulario-${tipo}`);
+        if (formularioSeleccionado) {
+            log(`✅ Mostrando formulario: ${formularioSeleccionado.id}`);
+            formularioSeleccionado.classList.add('active');
+            
+            // Aplicar estilos de visibilidad
+            formularioSeleccionado.style.setProperty('display', 'block', 'important');
+            formularioSeleccionado.style.setProperty('opacity', '1', 'important');
+            formularioSeleccionado.style.setProperty('visibility', 'visible', 'important');
+            formularioSeleccionado.style.setProperty('position', 'relative', 'important');
+            formularioSeleccionado.style.setProperty('left', 'auto', 'important');
+            formularioSeleccionado.style.setProperty('top', 'auto', 'important');
+            formularioSeleccionado.style.setProperty('z-index', '1', 'important');
+            
+            // Debug específico para anteojos
+            if (tipo === 'anteojos') {
+                log(`👓 === DEBUG ESPECÍFICO ANTEOJOS ===`);
+                const btnGuardar = document.getElementById('btnGuardarConsulta-anteojos');
+                if (btnGuardar) {
+                    const computedStyle = window.getComputedStyle(btnGuardar);
+                    log(`👓 Botón encontrado - Display: ${computedStyle.display}, Visibility: ${computedStyle.visibility}`);
+                    log(`👓 Botón dimensiones: ${btnGuardar.offsetWidth}x${btnGuardar.offsetHeight}`);
+                    
+                    // Asegurar visibilidad del botón
+                    btnGuardar.style.setProperty('display', 'inline-block', 'important');
+                    btnGuardar.style.setProperty('visibility', 'visible', 'important');
+                    btnGuardar.style.setProperty('opacity', '1', 'important');
+                    
+                    const esVisible = btnGuardar.offsetWidth > 0 && btnGuardar.offsetHeight > 0;
+                    log(`👓 Botón visible después de cambios: ${esVisible}`);
+                    
+                    if (!esVisible) {
+                        log(`❌ ERROR: Botón de anteojos NO VISIBLE`);
+                        return false;
+                    }
+                } else {
+                    log(`❌ ERROR: Botón de anteojos NO ENCONTRADO`);
+                    return false;
+                }
+            }
+            
+            // Verificar visibilidad final del formulario
+            const esVisible = formularioSeleccionado.offsetWidth > 0 && formularioSeleccionado.offsetHeight > 0;
+            log(`📏 Formulario ${tipo} visible: ${esVisible} (${formularioSeleccionado.offsetWidth}x${formularioSeleccionado.offsetHeight})`);
+            
+            if (!esVisible) {
+                log(`❌ ERROR: Formulario ${tipo} NO VISIBLE`);
+                return false;
+            }
+            
+            log(`✅ Cambio a ${tipo} EXITOSO`);
+            return true;
+            
+        } else {
+            log(`❌ ERROR: Formulario ${tipo} NO ENCONTRADO`);
+            
+            // Debug: listar formularios disponibles
+            const todosLosFormularios = document.querySelectorAll('[id*="formulario"]');
+            log(`🔍 Formularios disponibles: ${todosLosFormularios.length}`);
+            todosLosFormularios.forEach((form, i) => {
+                log(`  ${i + 1}. ${form.id}`);
+            });
+            
+            return false;
+        }
+    }
+    
+    // Función de test individual
+    function testCambiarFormulario(tipo) {
+        log(`🧪 TEST: Cambio manual a ${tipo}`);
+        const resultado = cambiarTipoFormulario(tipo);
+        testResults.push({
+            test: `Cambio a ${tipo}`,
+            resultado: resultado,
+            timestamp: new Date()
+        });
+        actualizarEstado();
+        return resultado;
+    }
+    
+    // Función para simular edición desde historial
+    function simularEdicionHistorial() {
+        log(`🏥 === SIMULANDO EDICIÓN DESDE HISTORIAL ===`);
+        log(`🏥 Consulta ID: 161, Tipo: anteojos`);
+        
+        // Simular datos de consulta
+        const consultaSimulada = {
+            id: 161,
+            tipo_formulario: 'anteojos',
+            esfera_od: '-2.50',
+            esfera_oi: '-1.75',
+            txtmotivo: 'Control de anteojos',
+            diagnostico: 'Miopía bilateral'
+        };
+        
+        log(`🏥 Datos simulados: ${JSON.stringify(consultaSimulada)}`);
+        
+        // Ejecutar cambio de formulario
+        const cambioExitoso = cambiarTipoFormulario('anteojos');
+        
+        if (cambioExitoso) {
+            // Simular carga de datos
+            setTimeout(() => {
+                log(`📝 Cargando datos en formulario...`);
+                
+                const campoOD = document.getElementById('od_esf');
+                const campoOI = document.getElementById('oi_esf');
+                
+                if (campoOD) {
+                    campoOD.value = consultaSimulada.esfera_od;
+                    log(`✅ Campo OD cargado: ${consultaSimulada.esfera_od}`);
+                }
+                if (campoOI) {
+                    campoOI.value = consultaSimulada.esfera_oi;
+                    log(`✅ Campo OI cargado: ${consultaSimulada.esfera_oi}`);
+                }
+                
+                // Verificar estado final
+                const formularioVisible = document.getElementById('formulario-anteojos').offsetWidth > 0;
+                const botonVisible = document.getElementById('btnGuardarConsulta-anteojos').offsetWidth > 0;
+                
+                log(`🔍 Estado final - Formulario: ${formularioVisible}, Botón: ${botonVisible}`);
+                
+                const exito = formularioVisible && botonVisible;
+                log(`${exito ? '✅ ÉXITO' : '❌ FALLO'}: Simulación de edición desde historial`);
+                
+                testResults.push({
+                    test: 'Simulación Historial',
+                    resultado: exito,
+                    timestamp: new Date(),
+                    detalles: {
+                        formularioVisible,
+                        botonVisible
+                    }
+                });
+                
+                actualizarEstado();
+                
+            }, 500);
+        } else {
+            log(`❌ FALLO: No se pudo cambiar al formulario de anteojos`);
+            testResults.push({
+                test: 'Simulación Historial',
+                resultado: false,
+                timestamp: new Date(),
+                error: 'No se pudo cambiar formulario'
+            });
+            actualizarEstado();
+        }
+    }
+    
+    // Función para ejecutar test completo
+    function ejecutarTestCompleto() {
+        log(`🚀 === EJECUTANDO TEST COMPLETO ===`);
+        testResults = []; // Limpiar resultados anteriores
+        
+        const tests = [
+            () => testCambiarFormulario('general'),
+            () => testCambiarFormulario('anteojos'),
+            () => testCambiarFormulario('estudios'),
+            () => testCambiarFormulario('anteojos'), // Volver a anteojos
+            () => {
+                log(`🧪 TEST: Verificación de botón anteojos`);
+                const btn = document.getElementById('btnGuardarConsulta-anteojos');
+                const visible = btn && btn.offsetWidth > 0 && btn.offsetHeight > 0;
+                testResults.push({
+                    test: 'Botón Anteojos Visible',
+                    resultado: visible,
+                    timestamp: new Date()
+                });
+                log(`${visible ? '✅' : '❌'} Botón de anteojos visible: ${visible}`);
+                return visible;
+            }
+        ];
+        
+        // Ejecutar tests secuencialmente
+        let index = 0;
+        function ejecutarSiguiente() {
+            if (index < tests.length) {
+                setTimeout(() => {
+                    tests[index]();
+                    index++;
+                    ejecutarSiguiente();
+                }, 1000);
+            } else {
+                // Test final: simulación de historial
+                setTimeout(() => {
+                    simularEdicionHistorial();
+                }, 1000);
+            }
+        }
+        
+        ejecutarSiguiente();
+    }
+    
+    // Función para verificar visibilidad
+    function verificarVisibilidad() {
+        log(`🔍 === VERIFICACIÓN DE VISIBILIDAD ===`);
+        
+        const tipos = ['general', 'anteojos', 'estudios'];
+        tipos.forEach(tipo => {
+            const formulario = document.getElementById(`formulario-${tipo}`);
+            const boton = document.getElementById(`btnGuardarConsulta-${tipo}`);
+            
+            if (formulario) {
+                const visible = formulario.offsetWidth > 0 && formulario.offsetHeight > 0;
+                const activo = formulario.classList.contains('active');
+                const display = window.getComputedStyle(formulario).display;
+                
+                log(`📋 ${tipo}: Activo=${activo}, Visible=${visible}, Display=${display}`);
+                
+                if (boton) {
+                    const botonVisible = boton.offsetWidth > 0 && boton.offsetHeight > 0;
+                    log(`   Botón: Visible=${botonVisible}`);
+                }
+            }
+        });
+    }
+    
+    // Función para actualizar estado
+    function actualizarEstado() {
+        const statusDiv = document.getElementById('status');
+        const resultsDiv = document.getElementById('results');
+        
+        if (testResults.length === 0) {
+            statusDiv.innerHTML = '⏳ Sin tests ejecutados';
+            return;
+        }
+        
+        const exitosos = testResults.filter(r => r.resultado).length;
+        const total = testResults.length;
+        const porcentaje = Math.round((exitosos / total) * 100);
+        
+        statusDiv.innerHTML = `📊 Tests ejecutados: ${total} | Exitosos: ${exitosos} (${porcentaje}%)`;
+        
+        const esExito = porcentaje >= 80;
+        resultsDiv.innerHTML = `
+            <div class="results ${esExito ? 'success' : 'error'}">
+                <h3>${esExito ? '✅ TESTS EXITOSOS' : '❌ TESTS CON ERRORES'}</h3>
+                <p><strong>Total:</strong> ${total} tests</p>
+                <p><strong>Exitosos:</strong> ${exitosos}</p>
+                <p><strong>Porcentaje:</strong> ${porcentaje}%</p>
+                <details>
+                    <summary>Ver detalles de tests</summary>
+                    <ul>
+                        ${testResults.map(r => `
+                            <li>${r.resultado ? '✅' : '❌'} ${r.test} (${r.timestamp.toLocaleTimeString()})
+                                ${r.error ? `<br><small style="color: red;">Error: ${r.error}</small>` : ''}
+                                ${r.detalles ? `<br><small>Detalles: ${JSON.stringify(r.detalles)}</small>` : ''}
+                            </li>
+                        `).join('')}
+                    </ul>
+                </details>
+            </div>
+        `;
+    }
+    
+    // Función para limpiar log
+    function clearLog() {
+        document.getElementById('log').textContent = 'Log limpiado.\n';
+        testResults = [];
+        actualizarEstado();
+    }
+    
+    // Hacer funciones globales
+    window.cambiarFormulario = cambiarTipoFormulario;
+    window.cambiarFormularioDebug = function(tipo) {
+        log(`🏥 cambiarFormularioDebug llamada con: ${tipo}`);
+        return cambiarTipoFormulario(tipo);
+    };
+    
+    // Inicialización
+    document.addEventListener('DOMContentLoaded', function() {
+        log('🚀 Test automático iniciado');
+        log('✅ DOM cargado correctamente');
+        
+        // Mostrar formulario general por defecto
+        setTimeout(() => {
+            log('🔧 Configurando estado inicial...');
+            cambiarTipoFormulario('general');
+            actualizarEstado();
+        }, 100);
+        
+        log('⏳ Listo para ejecutar tests. Usa el botón "EJECUTAR TEST COMPLETO"');
+    });
+    </script>
+</body>
+</html>

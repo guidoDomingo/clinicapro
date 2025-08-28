@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Livewire CRUD - Demo Completa</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 80px 0;
+        }
+        .feature-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        .demo-section {
+            padding: 60px 0;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin: 5px;
+        }
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-info {
+            background: #cce7ff;
+            color: #004085;
+        }
+        .code-preview {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        .btn-demo {
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border-radius: 50px;
+            margin: 10px;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+        .btn-demo:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <h1 class="display-4 fw-bold mb-4">
+                        <i class="fas fa-cogs me-3"></i>
+                        Sistema Livewire CRUD
+                    </h1>
+                    <p class="lead mb-4">
+                        Sistema completo de gestión de datos construido desde cero con operaciones CRUD genéricas,
+                        interfaz moderna y integración completa con base de datos PostgreSQL.
+                    </p>
+                    <div class="d-flex flex-wrap">
+                        <span class="status-badge status-success">
+                            <i class="fas fa-check-circle me-1"></i>
+                            Sistema Operacional
+                        </span>
+                        <span class="status-badge status-info">
+                            <i class="fas fa-database me-1"></i>
+                            Datos Reales
+                        </span>
+                        <span class="status-badge status-info">
+                            <i class="fas fa-mobile-alt me-1"></i>
+                            Responsive
+                        </span>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="text-center">
+                        <i class="fas fa-rocket" style="font-size: 8rem; opacity: 0.8;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="demo-section bg-light">
+        <div class="container">
+            <h2 class="text-center mb-5">
+                <i class="fas fa-star text-warning me-2"></i>
+                Características del Sistema
+            </h2>
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="card feature-card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-magic text-primary mb-3" style="font-size: 3rem;"></i>
+                            <h5 class="card-title">CRUD Genérico</h5>
+                            <p class="card-text">
+                                Sistema genérico que funciona con cualquier tabla de la base de datos.
+                                Operaciones Create, Read, Update, Delete completamente automatizadas.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card feature-card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-search text-success mb-3" style="font-size: 3rem;"></i>
+                            <h5 class="card-title">Búsqueda Avanzada</h5>
+                            <p class="card-text">
+                                Búsqueda en tiempo real con filtros inteligentes, paginación automática
+                                y resultados instantáneos mientras escribes.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card feature-card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-shield-alt text-warning mb-3" style="font-size: 3rem;"></i>
+                            <h5 class="card-title">Validación Robusta</h5>
+                            <p class="card-text">
+                                Validación completa del lado servidor y cliente, con manejo de errores
+                                y feedback inmediato al usuario.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Demo Actions -->
+    <section class="demo-section">
+        <div class="container">
+            <h2 class="text-center mb-5">
+                <i class="fas fa-play-circle text-success me-2"></i>
+                Ejecutar Demostraciones
+            </h2>
+            <div class="row">
+                <div class="col-lg-6 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="fas fa-vial text-primary me-2"></i>
+                                Test del Sistema
+                            </h5>
+                            <p class="card-text">
+                                Ejecuta una prueba completa del sistema para verificar todas las funcionalidades.
+                            </p>
+                            <a href="test-livewire-system.php" class="btn btn-primary btn-demo">
+                                <i class="fas fa-flask me-2"></i>
+                                Ejecutar Tests
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="fas fa-cogs text-success me-2"></i>
+                                Sistema CRUD Completo
+                            </h5>
+                            <p class="card-text">
+                                Accede al sistema completo de gestión con todas las operaciones CRUD.
+                            </p>
+                            <a href="init-livewire-session.php" class="btn btn-success btn-demo">
+                                <i class="fas fa-rocket me-2"></i>
+                                Abrir Sistema
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mt-4">
+                <div class="col-lg-6 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="fas fa-database text-info me-2"></i>
+                                Análisis de Base de Datos
+                            </h5>
+                            <p class="card-text">
+                                Analiza la estructura de la base de datos y las tablas disponibles.
+                            </p>
+                            <a href="analizar_bd_livewire.php" class="btn btn-info btn-demo">
+                                <i class="fas fa-chart-bar me-2"></i>
+                                Analizar BD
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="fas fa-code text-warning me-2"></i>
+                                API Endpoint
+                            </h5>
+                            <p class="card-text">
+                                Acceso directo al endpoint de la API para pruebas y desarrollo.
+                            </p>
+                            <a href="modules/consultas/api/livewire-system.php" class="btn btn-warning btn-demo">
+                                <i class="fas fa-plug me-2"></i>
+                                Ver API
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Technical Details -->
+    <section class="demo-section bg-light">
+        <div class="container">
+            <h2 class="text-center mb-5">
+                <i class="fas fa-code text-dark me-2"></i>
+                Detalles Técnicos
+            </h2>
+            <div class="row">
+                <div class="col-lg-6">
+                    <h4 class="mb-3">
+                        <i class="fas fa-server text-primary me-2"></i>
+                        Backend
+                    </h4>
+                    <div class="code-preview">
+                        <strong>Arquitectura:</strong><br>
+                        • PHP 8.x con POO<br>
+                        • PostgreSQL con PDO<br>
+                        • API REST con JSON<br>
+                        • Validación robusta<br>
+                        • Manejo de transacciones<br>
+                        • Sistema de logging<br><br>
+                        
+                        <strong>Archivos principales:</strong><br>
+                        • livewire-system.php<br>
+                        • init-livewire-session.php<br>
+                        • analizar_bd_livewire.php
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <h4 class="mb-3">
+                        <i class="fas fa-paint-brush text-success me-2"></i>
+                        Frontend
+                    </h4>
+                    <div class="code-preview">
+                        <strong>Tecnologías:</strong><br>
+                        • Bootstrap 5.3.0<br>
+                        • JavaScript ES6+<br>
+                        • Font Awesome 6.0<br>
+                        • Alertify.js<br>
+                        • Fetch API<br>
+                        • Responsive Design<br><br>
+                        
+                        <strong>Características:</strong><br>
+                        • Interfaz con pestañas<br>
+                        • Modales para edición<br>
+                        • Búsqueda en tiempo real<br>
+                        • Paginación automática
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Start -->
+    <section class="demo-section">
+        <div class="container">
+            <h2 class="text-center mb-5">
+                <i class="fas fa-bolt text-warning me-2"></i>
+                Inicio Rápido
+            </h2>
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-body">
+                            <ol class="list-group list-group-numbered list-group-flush">
+                                <li class="list-group-item d-flex justify-content-between align-items-start">
+                                    <div class="ms-2 me-auto">
+                                        <div class="fw-bold">Inicializar Sesión</div>
+                                        Haz clic en "Abrir Sistema" para inicializar la sesión
+                                    </div>
+                                    <span class="badge bg-primary rounded-pill">1</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-start">
+                                    <div class="ms-2 me-auto">
+                                        <div class="fw-bold">Seleccionar Tabla</div>
+                                        Elige entre consultas, anteojos o personas
+                                    </div>
+                                    <span class="badge bg-primary rounded-pill">2</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-start">
+                                    <div class="ms-2 me-auto">
+                                        <div class="fw-bold">Gestionar Datos</div>
+                                        Crear, leer, actualizar y eliminar registros
+                                    </div>
+                                    <span class="badge bg-primary rounded-pill">3</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-start">
+                                    <div class="ms-2 me-auto">
+                                        <div class="fw-bold">Buscar y Filtrar</div>
+                                        Usar la búsqueda en tiempo real y filtros
+                                    </div>
+                                    <span class="badge bg-primary rounded-pill">4</span>
+                                </li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <p class="mb-0">
+                        <i class="fas fa-code text-primary me-2"></i>
+                        Sistema Livewire CRUD - Desarrollado con PHP, PostgreSQL y Bootstrap
+                    </p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <small class="text-muted">
+                        <i class="fas fa-clock me-1"></i>
+                        Construido desde cero - <?php echo date('Y'); ?>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

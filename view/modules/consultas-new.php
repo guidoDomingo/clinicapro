@@ -178,6 +178,141 @@ $userName = $_SESSION['username'] ?? 'Usuario';
             animation: fadeIn 0.8s ease-in;
         }
 
+        /* Estilos para las pestañas de tipos de formularios */
+        .form-type-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .form-type-tab {
+            background: linear-gradient(135deg, #6c7ae0, #7b68ee);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            text-align: center;
+            min-width: 120px;
+            position: relative;
+        }
+        
+        .form-type-tab:hover {
+            background: linear-gradient(135deg, #5a67d8, #6b46c1);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .form-type-tab.active {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            box-shadow: 0 4px 15px rgba(72, 187, 120, 0.3);
+            transform: scale(1.05);
+        }
+        
+        .form-type-tab i {
+            display: block;
+            font-size: 1.2em;
+            margin-bottom: 5px;
+        }
+        
+        .form-type-tab span {
+            display: block;
+            font-size: 0.9em;
+        }
+
+        /* Estilos para los formularios específicos - MÁS AGRESIVO */
+        .formulario-especifico {
+            display: none !important;
+            background: white !important;
+            padding: 20px !important;
+            border-radius: 10px !important;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1) !important;
+            margin-bottom: 20px !important;
+            opacity: 0 !important;
+            visibility: hidden !important;
+            transition: all 0.3s ease !important;
+            position: absolute !important;
+            left: -9999px !important;
+            top: -9999px !important;
+            width: 100% !important;
+            z-index: -1 !important;
+        }
+        
+        .formulario-especifico.active {
+            display: block !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            position: relative !important;
+            left: auto !important;
+            top: auto !important;
+            z-index: 1 !important;
+        }
+        
+        /* Estilos específicos para cada formulario - SUPER AGRESIVOS */
+        #formulario-general.active,
+        #formulario-anteojos.active, 
+        #formulario-estudios.active,
+        #formulario-informe-imagen.active {
+            display: block !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            position: relative !important;
+            left: auto !important;
+            top: auto !important;
+            z-index: 1 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            min-height: 300px !important;
+        }
+        
+        /* Asegurar que el contenido sea visible */
+        .formulario-especifico .form-section {
+            display: block !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+        
+        .formulario-especifico .form-section-header {
+            display: flex !important;
+            align-items: center !important;
+            gap: 10px !important;
+            margin-bottom: 20px !important;
+            padding-bottom: 10px !important;
+            border-bottom: 2px solid #f0f0f0 !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+        
+        .formulario-especifico .form-section-header i {
+            font-size: 1.5em !important;
+            color: #667eea !important;
+        }
+        
+        .formulario-especifico .form-section-header h4 {
+            margin: 0 !important;
+            color: #2c3e50 !important;
+            font-weight: 600 !important;
+        }
+        
+        /* Ocultar formularios no activos de manera agresiva */
+        .formulario-especifico:not(.active) {
+            display: none !important;
+            opacity: 0 !important;
+            visibility: hidden !important;
+            position: absolute !important;
+            left: -9999px !important;
+            top: -9999px !important;
+            z-index: -1 !important;
+        }
+
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -408,7 +543,7 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                         <i class="fas fa-x-ray"></i>
                         <span>Estudios</span>
                     </button>
-                    <button class="form-type-tab" data-form-type="informe_imagen">
+                    <button class="form-type-tab" data-form-type="informe-imagen">
                         <i class="fas fa-images"></i>
                         <span>Informe + Imagen</span>
                     </button>
@@ -594,7 +729,7 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                     </div>
 
                     <!-- Formulario Anteojos -->
-                    <div id="formulario-anteojos" class="formulario-especifico" style="display: none;">
+                    <div id="formulario-anteojos" class="formulario-especifico">
                         <div class="form-section">
                             <div class="form-section-header">
                                 <i class="fas fa-glasses"></i>
@@ -709,7 +844,7 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                                             </div>
                                             <div class="form-group col-md-6">
                                                 <label for="notaoi">Nota:</label>
-                                                <input type="text" class="form-control" id="notaoi" name="notaoi" placeholder="Nota para ojo izquierdo">
+                                                <input type="text" class="form-control" id="notaoi" name="notaoi" wire:model="oi_nota" placeholder="Nota para ojo izquierdo">
                                             </div>
                                         </div>
 
@@ -717,13 +852,13 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                                         <div class="form-row">
                                             <div class="form-group col-md-6">
                                                 <label for="dist_interpupilar">Distancia Interpupilar</label>
-                                                <input type="text" class="form-control" id="dist_interpupilar" name="dist_interpupilar" placeholder="Distancia interpupilar">
+                                                <input type="text" class="form-control" id="dist_interpupilar" name="dist_interpupilar" wire:model="dist_interpupilar" placeholder="Distancia interpupilar">
                                             </div>
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         <label for="consulta-textarea-anteojos">Descripción</label>
-                                        <textarea id="consulta-textarea-anteojos" name="consulta-textarea" class="form-control compose-textarea" style="height: 180px"></textarea>
+                                        <textarea id="consulta-textarea-anteojos" name="consulta-textarea" wire:model="consulta_textarea" class="form-control compose-textarea" style="height: 180px"></textarea>
                                     </div>
 
                                     <div class="form-group">
@@ -735,26 +870,26 @@ $userName = $_SESSION['username'] ?? 'Usuario';
 
                                     <div class="form-group">
                                         <label for="receta-textarea-anteojos">Receta</label>
-                                        <textarea id="receta-textarea-anteojos" name="receta-textarea" class="form-control compose-textarea" style="height: 180px"></textarea>
+                                        <textarea id="receta-textarea-anteojos" name="receta-textarea" wire:model="receta_textarea" class="form-control compose-textarea" style="height: 180px"></textarea>
                                     </div>
 
                                     <div class="form-group">
                                         <label for="txtnota">Nota</label>
-                                        <input type="text" class="form-control" id="txtnota" name="txtnota" placeholder="Nota">
+                                        <input type="text" class="form-control" id="txtnota" name="txtnota" wire:model="txtnota" placeholder="Nota">
                                     </div>
 
                                     <div class="form-row">
                                         <div class="form-group col-md-4">
                                             <label for="proximaconsulta">Próxima consulta</label>
-                                            <input type="date" class="form-control" id="proximaconsulta" name="proximaconsulta">
+                                            <input type="date" class="form-control" id="proximaconsulta" name="proximaconsulta" wire:model="proximaconsulta">
                                         </div>
                                         <div class="form-group col-md-3">
                                             <label for="whatsapptxt">Nro. WhatsApp</label>
-                                            <input type="text" class="form-control" id="whatsapptxt" name="whatsapptxt" placeholder="595983222999">
+                                            <input type="text" class="form-control" id="whatsapptxt" name="whatsapptxt" wire:model="whatsapptxt" placeholder="595983222999">
                                         </div>
                                         <div class="form-group col-md-5">
                                             <label for="email">Email del Paciente</label>
-                                            <input type="text" class="form-control" id="email" name="email" placeholder="jhondoe@gmail.com">
+                                            <input type="text" class="form-control" id="email" name="email" wire:model="email" placeholder="jhondoe@gmail.com">
                                         </div>
                                     </div>
 
@@ -769,12 +904,25 @@ $userName = $_SESSION['username'] ?? 'Usuario';
 
                                     <input type="hidden" id="id_user" name="id_user" value="<?php echo $userId; ?>">
                                     <input type="hidden" id="id_reserva" name="id_reserva" value="0">
+                                    <input type="hidden" id="medico_id" name="medico_id" value="<?php echo $userId; ?>" wire:model="medico_id">
+                                    <input type="hidden" id="id_consulta_actual" name="id_consulta_actual" value="" wire:model="id_consulta_actual">
+                                    <input type="hidden" id="form_type" name="form_type" value="anteojos" wire:model="form_type">
+
+                                    <!-- Botón de guardar específico para anteojos -->
+                                    <div class="form-group text-center mt-4">
+                                        <button type="button" class="btn btn-primary btn-lg" id="btnGuardarConsulta-anteojos" 
+                                                style="min-width: 200px; padding: 12px 30px; font-size: 16px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,123,255,0.3);">
+                                            <i class="fas fa-save mr-2"></i> 
+                                            <span class="btn-text">Actualizar Consulta</span>
+                                            <i class="fas fa-spinner fa-spin ml-2" style="display: none;"></i>
+                                        </button>
+                                    </div>
                             </form>
                         </div>
                     </div>
 
                     <!-- Formulario Estudios -->
-                    <div id="formulario-estudios" class="formulario-especifico" style="display: none;">
+                    <div id="formulario-estudios" class="formulario-especifico">
                         <div class="form-section">
                             <div class="form-section-header">
                                 <i class="fas fa-x-ray"></i>
@@ -1032,7 +1180,7 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                     </div>
 
                     <!-- Formulario Informe + Imagen -->
-                    <div id="formulario-informe_imagen" class="formulario-especifico" style="display: none;">
+                    <div id="formulario-informe-imagen" class="formulario-especifico">
                         <div class="form-section">
                             <div class="form-section-header">
                                 <i class="fas fa-images"></i>
@@ -1943,11 +2091,918 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                 activateTab('historial-panel');
             };
             
+            // Funcionalidad para guardar y editar formularios
+            function initFormHandlers() {
+                console.log('🔧 Inicializando manejadores de formularios...');
+                
+                // Verificar si los elementos básicos están disponibles
+                const pestanasContainer = document.getElementById('form-type-tabs');
+                if (!pestanasContainer) {
+                    console.error('❌ Container de pestañas no encontrado');
+                    return;
+                }
+                
+                // Manejador para el botón principal de guardar
+                const btnGuardarConsulta = document.getElementById('btnGuardarConsulta');
+                if (btnGuardarConsulta) {
+                    btnGuardarConsulta.addEventListener('click', function() {
+                        guardarConsultaActiva();
+                    });
+                } else {
+                    console.warn('⚠️ Botón guardar consulta no encontrado');
+                }
+                
+                // Manejador para limpiar formulario
+                const btnLimpiarFormulario = document.getElementById('btnLimpiarFormulario');
+                if (btnLimpiarFormulario) {
+                    btnLimpiarFormulario.addEventListener('click', function() {
+                        limpiarFormularioActivo();
+                    });
+                }
+                
+                // Manejadores para botones específicos de cada formulario
+                const formularios = [
+                    { id: 'btnGuardarConsulta-anteojos', form: 'anteojos' },
+                    { id: 'btnGuardarConsulta-estudios', form: 'estudios' },
+                    { id: 'btnGuardarConsulta-informe-imagen', form: 'informe-imagen' }
+                ];
+                
+                // Función para configurar event listeners con reintentos
+                function configurarEventListeners() {
+                    console.log('🔧 Configurando event listeners...');
+                    
+                    formularios.forEach(config => {
+                        const btn = document.getElementById(config.id);
+                        if (btn) {
+                            console.log(`✅ Configurando listener para: ${config.id}`);
+                            
+                            // Remover listeners anteriores si existen
+                            const newBtn = btn.cloneNode(true);
+                            btn.parentNode.replaceChild(newBtn, btn);
+                            
+                            newBtn.addEventListener('click', async function(e) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                
+                                console.log(`🚀 CLICK EN BOTÓN: ${config.id} → ${config.form}`);
+                                
+                                if (config.form === 'anteojos') {
+                                    // Función directa para anteojos
+                                    console.log('👓 Procesando guardado de anteojos...');
+                                    
+                                    // Obtener ID de consulta
+                                    const consultaIdInput = document.getElementById('id_consulta_actual');
+                                    const consultaId = consultaIdInput?.value;
+                                    const esActualizacion = consultaId && consultaId !== '' && consultaId !== '0';
+                                    
+                                    console.log(`📝 Consulta ID: ${consultaId}, Es actualización: ${esActualizacion}`);
+                                    
+                                    // Mostrar loading
+                                    newBtn.disabled = true;
+                                    const spinner = newBtn.querySelector('.fa-spinner');
+                                    const text = newBtn.querySelector('.btn-text');
+                                    if (spinner) spinner.style.display = 'inline-block';
+                                    if (text) text.textContent = 'Guardando...';
+                                    
+                                    // Recopilar datos del formulario
+                                    const formData = {
+                                        id_persona: document.getElementById('idPersona')?.value || '45',
+                                        txtmotivo: document.getElementById('txtmotivo-anteojos')?.value || '',
+                                        od_esf: document.getElementById('od_esf')?.value || '',
+                                        od_cil: document.getElementById('od_cil')?.value || '', 
+                                        od_eje: document.getElementById('ejeod')?.value || '',
+                                        od_dnp: document.getElementById('dnpod')?.value || '',
+                                        od_add: document.getElementById('od_adicion')?.value || '',
+                                        od_altura: document.getElementById('altura_od')?.value || '',
+                                        od_nota: document.getElementById('notaod')?.value || '',
+                                        oi_esf: document.getElementById('oi_esf')?.value || '',
+                                        oi_cil: document.getElementById('oi_cil')?.value || '',
+                                        oi_eje: document.getElementById('ejeoi')?.value || '',
+                                        oi_dnp: document.getElementById('dnpoi')?.value || '',
+                                        oi_add: document.getElementById('oi_adicion')?.value || '',
+                                        oi_altura: document.getElementById('altura_oi')?.value || '',
+                                        oi_nota: document.getElementById('notaoi')?.value || '',
+                                        dist_interpupilar: document.getElementById('dist_interpupilar')?.value || '',
+                                        consulta_textarea: document.getElementById('consulta-textarea-anteojos')?.value || '',
+                                        receta_textarea: document.getElementById('receta-textarea-anteojos')?.value || '',
+                                        txtnota: document.getElementById('txtnota')?.value || '',
+                                        proximaconsulta: document.getElementById('proximaconsulta')?.value || '',
+                                        whatsapptxt: document.getElementById('whatsapptxt')?.value || '',
+                                        email: document.getElementById('email')?.value || '',
+                                        medico_id: document.getElementById('id_user')?.value || '1'
+                                    };
+                                    
+                                    console.log('📤 Datos recopilados:', formData);
+                                    
+                                    // Enviar al endpoint (probar primero el simplificado, luego el completo)
+                                    let endpoints = [
+                                        'modules/consultas/api/save-simple.php',
+                                        'modules/consultas/api/livewire-crud.php'
+                                    ];
+                                    
+                                    let success = false;
+                                    let lastError = null;
+                                    
+                                    for (let endpoint of endpoints) {
+                                        try {
+                                            console.log(`🔄 Probando endpoint: ${endpoint}`);
+                                            
+                                            const response = await fetch(endpoint, {
+                                                method: 'POST',
+                                                headers: {
+                                                    'Content-Type': 'application/json',
+                                                },
+                                                body: JSON.stringify({
+                                                    action: 'save',
+                                                    formType: 'anteojos',
+                                                    consultaId: consultaId,
+                                                    state: formData
+                                                })
+                                            });
+                                            
+                                            const result = await response.json();
+                                            console.log(`📨 Respuesta de ${endpoint}:`, result);
+                                            
+                                            if (result.success) {
+                                                console.log('✅ ÉXITO con', endpoint);
+                                                alertify.success(esActualizacion ? 'Consulta actualizada exitosamente' : 'Consulta guardada exitosamente');
+                                                
+                                                // Recargar historial
+                                                setTimeout(() => {
+                                                    if (typeof actualizarHistorial === 'function') {
+                                                        actualizarHistorial();
+                                                    }
+                                                }, 1500);
+                                                
+                                                success = true;
+                                                break; // Salir del bucle si fue exitoso
+                                                
+                                            } else {
+                                                lastError = result.message || 'Error desconocido';
+                                                console.log(`❌ Error con ${endpoint}:`, lastError);
+                                            }
+                                            
+                                        } catch (error) {
+                                            lastError = error.message;
+                                            console.error(`❌ Error de conexión con ${endpoint}:`, error);
+                                        }
+                                    }
+                                    
+                                    if (!success) {
+                                        console.log('❌ TODOS LOS ENDPOINTS FALLARON');
+                                        alertify.error('Error al guardar la consulta: ' + lastError);
+                                    }
+                                    
+                                    // Restaurar botón siempre
+                                    newBtn.disabled = false;
+                                    if (spinner) spinner.style.display = 'none';
+                                    if (text) text.textContent = 'Actualizar Consulta';
+                                    
+                                } else {
+                                    guardarFormularioEspecifico(config.form);
+                                }
+                            });
+                            
+                            console.log(`✅ Event listener configurado para: ${config.id} → ${config.form}`);
+                        } else {
+                            console.warn(`❌ Botón no encontrado: ${config.id}`);
+                        }
+                    });
+                }
+                
+                // Configurar inmediatamente y también con retraso
+                configurarEventListeners();
+                setTimeout(configurarEventListeners, 1000);
+                setTimeout(configurarEventListeners, 3000);
+                
+                // Manejadores para botones de editar desde el historial
+                document.addEventListener('click', function(e) {
+                    if (e.target.classList.contains('btn-editar-consulta') || 
+                        e.target.closest('.btn-editar-consulta')) {
+                        const btn = e.target.closest('.btn-editar-consulta');
+                        const consultaId = btn.getAttribute('data-consulta-id');
+                        if (consultaId) {
+                            editarConsulta(consultaId);
+                        }
+                    }
+                });
+                
+                // Manejadores para pestañas de tipos de formularios
+                const pestanas = document.querySelectorAll('.form-type-tab');
+                console.log('🔍 Pestañas encontradas:', pestanas.length);
+                
+                pestanas.forEach((pestana, index) => {
+                    const tipo = pestana.getAttribute('data-form-type');
+                    console.log(`🏷️ Configurando pestaña ${index + 1}: ${tipo}`);
+                    
+                    pestana.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        console.log('👆 Click en pestaña:', tipo);
+                        cambiarTipoFormulario(tipo);
+                    });
+                });
+                
+                // Verificar que los formularios existen
+                const tiposFormularios = ['general', 'anteojos', 'estudios', 'informe-imagen'];
+                tiposFormularios.forEach(tipo => {
+                    const form = document.getElementById(`formulario-${tipo}`);
+                    console.log(`📋 Formulario ${tipo}:`, form ? 'Encontrado' : 'NO ENCONTRADO');
+                });
+                
+                console.log('✅ Manejadores de formularios inicializados');
+                
+                // Hacer función global para debugging
+                window.cambiarFormulario = cambiarTipoFormulario;
+                window.debugFormularios = function() {
+                    const pestanas = document.querySelectorAll('.form-type-tab');
+                    const formularios = document.querySelectorAll('.formulario-especifico');
+                    console.log('🔍 Debug - Pestañas:', pestanas.length);
+                    console.log('🔍 Debug - Formularios:', formularios.length);
+                    
+                    pestanas.forEach((pestana, i) => {
+                        console.log(`Pestaña ${i}:`, pestana.getAttribute('data-form-type'));
+                    });
+                    
+                    formularios.forEach((form, i) => {
+                        console.log(`Formulario ${i}:`, form.id, form.style.display);
+                    });
+                };
+            }
+            
+            // Función para cambiar tipo de formulario
+            function cambiarTipoFormulario(tipo) {
+                console.log('🔄 Cambiando a formulario:', tipo);
+                
+                // Desactivar todas las pestañas
+                const todasLasPestanas = document.querySelectorAll('.form-type-tab');
+                console.log('📝 Pestañas a desactivar:', todasLasPestanas.length);
+                todasLasPestanas.forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                
+                // Activar la pestaña seleccionada
+                const pestanaSeleccionada = document.querySelector(`[data-form-type="${tipo}"]`);
+                console.log('🎯 Pestaña seleccionada:', pestanaSeleccionada ? 'Encontrada' : 'NO ENCONTRADA');
+                if (pestanaSeleccionada) {
+                    pestanaSeleccionada.classList.add('active');
+                }
+                
+                // Ocultar todos los formularios
+                const todosLosFormularios = document.querySelectorAll('.formulario-especifico');
+                console.log('📋 Formularios a ocultar:', todosLosFormularios.length);
+                todosLosFormularios.forEach(form => {
+                    form.classList.remove('active');
+                    form.style.display = 'none';
+                });
+                
+                // Mostrar el formulario seleccionado
+                const formularioSeleccionado = document.getElementById(`formulario-${tipo}`);
+                console.log('📋 Formulario a mostrar:', formularioSeleccionado ? 'Encontrado' : 'NO ENCONTRADO');
+                if (formularioSeleccionado) {
+                    formularioSeleccionado.classList.add('active');
+                    formularioSeleccionado.style.display = 'block';
+                    console.log('✅ Formulario mostrado:', tipo);
+                } else {
+                    console.error('❌ No se pudo encontrar el formulario:', `formulario-${tipo}`);
+                }
+                
+                console.log('✅ Formulario cambiado a:', tipo);
+            }
+            
+            // Función para guardar la consulta activa
+            function guardarConsultaActiva() {
+                const formularioActivo = document.querySelector('.formulario-especifico.active');
+                if (!formularioActivo) {
+                    alertify.warning('No hay formulario activo para guardar');
+                    return;
+                }
+                
+                const formId = formularioActivo.id;
+                let tipoFormulario = 'general';
+                
+                if (formId.includes('anteojos')) {
+                    tipoFormulario = 'anteojos';
+                } else if (formId.includes('estudios')) {
+                    tipoFormulario = 'estudios';
+                } else if (formId.includes('informe-imagen')) {
+                    tipoFormulario = 'informe-imagen';
+                }
+                
+                console.log('💾 Guardando consulta tipo:', tipoFormulario);
+                guardarFormularioEspecifico(tipoFormulario);
+            }
+            
+            // Función específica para el botón de anteojos (global)
+            window.guardarConsultaConLivewire = async function(tipo) {
+                console.log(`🚀 Iniciando guardado con LivewireCRUD para tipo: ${tipo}`);
+                
+                // Verificar si hay una consulta activa (modo edición)
+                const consultaIdInput = document.getElementById('id_consulta_actual');
+                const consultaId = consultaIdInput?.value;
+                const esActualizacion = consultaId && consultaId !== '' && consultaId !== '0';
+                
+                console.log(`📝 Modo: ${esActualizacion ? 'actualizar' : 'crear'}, ID: ${consultaId}`);
+                
+                try {
+                    // Mostrar loading en el botón
+                    const btnGuardar = document.getElementById(`btnGuardarConsulta-${tipo}`);
+                    if (btnGuardar) {
+                        const spinner = btnGuardar.querySelector('.fa-spinner');
+                        const text = btnGuardar.querySelector('.btn-text');
+                        
+                        btnGuardar.disabled = true;
+                        if (spinner) spinner.style.display = 'inline-block';
+                        if (text) text.textContent = esActualizacion ? 'Actualizando...' : 'Guardando...';
+                    }
+                    
+                    // Verificar LivewireCRUD
+                    if (typeof window.Livewire !== 'undefined' && window.Livewire) {
+                        console.log('✅ Usando Livewire global');
+                        
+                        // Configurar datos básicos
+                        window.Livewire.find(window.Livewire.all()[0].id).set('form_type', tipo);
+                        if (esActualizacion) {
+                            window.Livewire.find(window.Livewire.all()[0].id).set('id_consulta_actual', consultaId);
+                        }
+                        
+                        // Llamar al método save de LivewireCRUD
+                        const result = await window.Livewire.find(window.Livewire.all()[0].id).call('save');
+                        
+                        console.log('✅ Guardado exitoso con Livewire global');
+                        alertify.success(esActualizacion ? 'Consulta actualizada exitosamente' : 'Consulta guardada exitosamente');
+                        
+                        // Recargar historial si es necesario
+                        if (typeof actualizarHistorial === 'function') {
+                            actualizarHistorial();
+                        }
+                        
+                    } else if (typeof window.livewireCRUD !== 'undefined' && window.livewireCRUD) {
+                        console.log('✅ Usando LivewireCRUD específico');
+                        
+                        // Usar el método existente
+                        const result = await window.livewireCRUD.callMethod('save', {
+                            formType: tipo,
+                            consultaId: consultaId
+                        });
+                        
+                        if (result.success) {
+                            console.log('✅ Guardado exitoso:', result);
+                            alertify.success(result.message || 'Consulta guardada exitosamente');
+                        } else {
+                            throw new Error(result.message || 'Error al guardar');
+                        }
+                        
+                    } else {
+                        console.warn('⚠️ No hay sistema LivewireCRUD disponible, usando método tradicional');
+                        // Fallback al método tradicional
+                        guardarConMetodoTradicional(tipo, esActualizacion, consultaId);
+                        return;
+                    }
+                    
+                } catch (error) {
+                    console.error('❌ Error al guardar:', error);
+                    alertify.error('Error al guardar la consulta: ' + (error.message || 'Error desconocido'));
+                    
+                } finally {
+                    // Restaurar botón
+                    const btnGuardar = document.getElementById(`btnGuardarConsulta-${tipo}`);
+                    if (btnGuardar) {
+                        const spinner = btnGuardar.querySelector('.fa-spinner');
+                        const text = btnGuardar.querySelector('.btn-text');
+                        
+                        btnGuardar.disabled = false;
+                        if (spinner) spinner.style.display = 'none';
+                        if (text) text.textContent = esActualizacion ? 'Actualizar Consulta' : 'Guardar Consulta';
+                    }
+                }
+            }
+
+            // Función para guardar formulario específico
+            function guardarFormularioEspecifico(tipo) {
+                const pacienteInput = document.getElementById('paciente');
+                if (!pacienteInput || !pacienteInput.value) {
+                    alertify.error('Debe seleccionar un paciente antes de guardar');
+                    return;
+                }
+                
+                // Verificar si es una actualización
+                const consultaIdInput = document.getElementById('consultaId');
+                const esActualizacion = consultaIdInput && consultaIdInput.value;
+                
+                console.log('💾 Modo:', esActualizacion ? 'ACTUALIZACIÓN' : 'NUEVA CONSULTA');
+                console.log('📋 Tipo de formulario:', tipo);
+                
+                // Intentar usar LivewireCRUD primero
+                if (typeof window.livewire !== 'undefined' && window.livewire) {
+                    console.log('🚀 Usando LivewireCRUD para guardar...');
+                    guardarConLivewireCRUD(tipo, esActualizacion, consultaIdInput?.value);
+                } else if (typeof window.livewireCRUD !== 'undefined' && window.livewireCRUD) {
+                    console.log('🚀 Usando LivewireCRUD específico para guardar...');
+                    guardarConLivewireCRUDEspecifico(tipo, esActualizacion, consultaIdInput?.value);
+                } else {
+                    console.log('⚠️ LivewireCRUD no disponible, usando método tradicional...');
+                    guardarConMetodoTradicional(tipo, esActualizacion, consultaIdInput?.value);
+                }
+            }
+            
+            // Función para guardar usando LivewireCRUD global
+            async function guardarConLivewireCRUD(tipo, esActualizacion, consultaId) {
+                try {
+                    // Mostrar loading
+                    const btnGuardar = document.getElementById(`btnGuardarConsulta${tipo !== 'general' ? '-' + tipo : ''}`);
+                    if (btnGuardar) {
+                        btnGuardar.disabled = true;
+                        btnGuardar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+                    }
+                    
+                    // Preparar datos para LivewireCRUD
+                    const formData = {
+                        // Datos básicos
+                        id_persona: document.getElementById('idPersona')?.value,
+                        form_type: tipo,
+                        modo: esActualizacion ? 'actualizar' : 'crear'
+                    };
+                    
+                    // Agregar ID si es actualización
+                    if (esActualizacion && consultaId) {
+                        formData.id_consulta = consultaId;
+                    }
+                    
+                    // Obtener datos del estado de Livewire
+                    const estadoLivewire = window.livewire.state.data || {};
+                    console.log('📊 Estado actual de Livewire:', estadoLivewire);
+                    
+                    // Combinar datos
+                    const datosCompletos = { ...formData, ...estadoLivewire };
+                    console.log('📋 Datos completos para guardar:', datosCompletos);
+                    
+                    // Llamar al método save de LivewireCRUD
+                    const response = await window.livewire.callMethod('save', datosCompletos, tipo);
+                    console.log('✅ Respuesta de LivewireCRUD:', response);
+                    
+                    // Restaurar botón
+                    if (btnGuardar) {
+                        btnGuardar.disabled = false;
+                        btnGuardar.innerHTML = esActualizacion ? 
+                            '<i class="fas fa-edit"></i> Actualizar Consulta' : 
+                            '<i class="fas fa-save"></i> Guardar Consulta';
+                    }
+                    
+                    if (response.success) {
+                        alertify.success(response.message || 'Consulta guardada exitosamente');
+                        
+                        // Si era nueva consulta, cambiar a modo edición
+                        if (!esActualizacion && response.data?.id_consulta) {
+                            let consultaIdInput = document.getElementById('consultaId');
+                            if (!consultaIdInput) {
+                                consultaIdInput = document.createElement('input');
+                                consultaIdInput.type = 'hidden';
+                                consultaIdInput.id = 'consultaId';
+                                document.body.appendChild(consultaIdInput);
+                            }
+                            consultaIdInput.value = response.data.id_consulta;
+                            
+                            // Cambiar botón a modo edición
+                            if (btnGuardar) {
+                                btnGuardar.innerHTML = '<i class="fas fa-edit"></i> Actualizar Consulta';
+                                btnGuardar.classList.add('btn-warning');
+                                btnGuardar.classList.remove('btn-success');
+                            }
+                        }
+                        
+                        // Actualizar historial
+                        const pacienteId = document.getElementById('idPersona')?.value;
+                        if (pacienteId && typeof recargarHistorialPaciente === 'function') {
+                            recargarHistorialPaciente(pacienteId);
+                        }
+                        
+                    } else {
+                        alertify.error(response.message || 'Error al guardar la consulta');
+                        console.error('❌ Error guardando con LivewireCRUD:', response);
+                    }
+                    
+                } catch (error) {
+                    console.error('❌ Error en guardarConLivewireCRUD:', error);
+                    
+                    // Restaurar botón
+                    const btnGuardar = document.getElementById(`btnGuardarConsulta${tipo !== 'general' ? '-' + tipo : ''}`);
+                    if (btnGuardar) {
+                        btnGuardar.disabled = false;
+                        btnGuardar.innerHTML = '<i class="fas fa-save"></i> Guardar Consulta';
+                    }
+                    
+                    alertify.error('Error al guardar la consulta: ' + error.message);
+                    
+                    // Fallback al método tradicional
+                    console.log('🔄 Fallback al método tradicional...');
+                    guardarConMetodoTradicional(tipo, esActualizacion, consultaId);
+                }
+            }
+            
+            // Función para guardar usando LivewireCRUD específico
+            async function guardarConLivewireCRUDEspecifico(tipo, esActualizacion, consultaId) {
+                try {
+                    console.log('🚀 Usando LivewireCRUD específico...');
+                    
+                    // Preparar datos
+                    const formData = recopilarDatosFormulario(tipo);
+                    if (esActualizacion && consultaId) {
+                        formData.id_consulta = consultaId;
+                        formData.modo = 'actualizar';
+                    }
+                    
+                    // Usar la función global de LivewireCRUD
+                    const response = await window.guardarConsultaLivewire(formData, tipo);
+                    
+                    if (response.success) {
+                        alertify.success(response.message || 'Consulta guardada exitosamente');
+                    } else {
+                        throw new Error(response.message || 'Error desconocido');
+                    }
+                    
+                } catch (error) {
+                    console.error('❌ Error en LivewireCRUD específico:', error);
+                    // Fallback al método tradicional
+                    guardarConMetodoTradicional(tipo, esActualizacion, consultaId);
+                }
+            }
+            
+            // Función de respaldo - método tradicional
+            function guardarConMetodoTradicional(tipo, esActualizacion, consultaId) {
+                const formData = recopilarDatosFormulario(tipo);
+                
+                // Agregar ID de consulta si es actualización
+                if (esActualizacion && consultaId) {
+                    formData.id_consulta = consultaId;
+                    formData.modo = 'actualizar';
+                } else {
+                    formData.modo = 'crear';
+                }
+                
+                console.log('📋 Datos a enviar (método tradicional):', formData);
+                if (!formData) {
+                    alertify.error('Error al recopilar los datos del formulario');
+                    return;
+                }
+                
+                // Mostrar loading
+                const btnGuardar = document.getElementById(`btnGuardarConsulta${tipo !== 'general' ? '-' + tipo : ''}`);
+                if (btnGuardar) {
+                    btnGuardar.disabled = true;
+                    btnGuardar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+                }
+                
+                // Determinar endpoint
+                let endpoint = 'ajax/guardar-consulta-simple.ajax.php';
+                if (tipo === 'anteojos') {
+                    endpoint = 'ajax/guardar-consulta-anteojos-simple.php';
+                } else if (tipo === 'estudios') {
+                    endpoint = 'ajax/guardar-consulta-estudios.php';
+                } else if (tipo === 'informe-imagen') {
+                    endpoint = 'ajax/guardar-consulta-informe-imagen.php';
+                }
+                
+                // Enviar datos
+                fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (btnGuardar) {
+                        btnGuardar.disabled = false;
+                        btnGuardar.innerHTML = '<i class="fas fa-save"></i> Guardar Consulta';
+                    }
+                    
+                    if (data.success) {
+                        alertify.success(data.message || 'Consulta guardada exitosamente');
+                        
+                        // Actualizar historial
+                        if (window.actualizarHistorial && window.ultimosDescargados?.historial) {
+                            // Recargar historial del paciente
+                            const pacienteId = document.getElementById('idPersona')?.value;
+                            if (pacienteId) {
+                                recargarHistorialPaciente(pacienteId);
+                            }
+                        }
+                    } else {
+                        alertify.error(data.message || 'Error al guardar la consulta');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    if (btnGuardar) {
+                        btnGuardar.disabled = false;
+                        btnGuardar.innerHTML = '<i class="fas fa-save"></i> Guardar Consulta';
+                    }
+                    alertify.error('Error de conexión al guardar la consulta');
+                });
+            }
+            
+            // Función para recopilar datos del formulario
+            function recopilarDatosFormulario(tipo) {
+                const datosBase = {
+                    id_persona: document.getElementById('idPersona')?.value,
+                    txtdocumento: document.getElementById('txtdocumento')?.value,
+                    txtficha: document.getElementById('txtficha')?.value,
+                    tipo_formulario: tipo
+                };
+                
+                if (tipo === 'general') {
+                    return {
+                        ...datosBase,
+                        txtmotivo: document.getElementById('txtmotivo')?.value,
+                        visionod: document.getElementById('visionod')?.value,
+                        visionoi: document.getElementById('visionoi')?.value,
+                        tensionod: document.getElementById('tensionod')?.value,
+                        tensionoi: document.getElementById('tensionoi')?.value,
+                        observaciones: document.getElementById('observaciones')?.value || ''
+                    };
+                } else if (tipo === 'anteojos') {
+                    return {
+                        ...datosBase,
+                        od_esfera: document.getElementById('od_esfera')?.value,
+                        od_cilindro: document.getElementById('od_cilindro')?.value,
+                        od_eje: document.getElementById('od_eje')?.value,
+                        oi_esfera: document.getElementById('oi_esfera')?.value,
+                        oi_cilindro: document.getElementById('oi_cilindro')?.value,
+                        oi_eje: document.getElementById('oi_eje')?.value,
+                        observaciones_anteojos: document.getElementById('observaciones-anteojos')?.value || ''
+                    };
+                } else if (tipo === 'estudios') {
+                    return {
+                        ...datosBase,
+                        descripcion_estudios: document.getElementById('descripcion-estudios')?.value,
+                        observaciones_estudios: document.getElementById('observaciones-estudios')?.value || ''
+                    };
+                } else if (tipo === 'informe-imagen') {
+                    return {
+                        ...datosBase,
+                        descripcion_informe: document.getElementById('descripcion-informe-imagen')?.value,
+                        observaciones_informe: document.getElementById('observaciones-informe-imagen')?.value || ''
+                    };
+                }
+                
+                return datosBase;
+            }
+            
+            // Función para limpiar formulario activo
+            function limpiarFormularioActivo() {
+                const formularioActivo = document.querySelector('.formulario-especifico.active');
+                if (!formularioActivo) {
+                    alertify.warning('No hay formulario activo para limpiar');
+                    return;
+                }
+                
+                alertify.confirm('Confirmar', '¿Está seguro de que desea limpiar el formulario?', function() {
+                    const inputs = formularioActivo.querySelectorAll('input, textarea, select');
+                    inputs.forEach(input => {
+                        if (input.type === 'checkbox' || input.type === 'radio') {
+                            input.checked = false;
+                        } else if (input.tagName === 'SELECT') {
+                            input.selectedIndex = 0;
+                        } else {
+                            input.value = '';
+                        }
+                    });
+                    
+                    // Limpiar también el modo edición
+                    limpiarModoEdicion();
+                    
+                    alertify.success('Formulario limpiado correctamente');
+                }, function() {
+                    // No hacer nada si cancela
+                });
+            }
+            
+            // Función para editar consulta
+            function editarConsulta(consultaId) {
+                console.log('✏️ Editando consulta:', consultaId);
+                
+                fetch(`ajax/obtener-consulta.php?id=${consultaId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.consulta) {
+                        // Primero cambiar al formulario correcto según el tipo
+                        const tipoFormulario = data.consulta.tipo_formulario || 'general';
+                        console.log('📋 Tipo de formulario:', tipoFormulario);
+                        
+                        // Cambiar al tipo de formulario correcto
+                        cambiarTipoFormulario(tipoFormulario);
+                        
+                        // Cargar los datos en el formulario después de un pequeño delay
+                        setTimeout(() => {
+                            cargarDatosEnFormulario(data.consulta);
+                            
+                            // Cambiar a la pestaña de Nueva Consulta
+                            activateTab('consulta-panel');
+                            
+                            alertify.success(`Consulta ${tipoFormulario} cargada para edición`);
+                        }, 300);
+                        
+                    } else {
+                        alertify.error(data.message || 'Error al cargar la consulta');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alertify.error('Error de conexión al cargar la consulta');
+                });
+            }
+            
+            // Función para cargar datos en el formulario
+            function cargarDatosEnFormulario(consulta) {
+                console.log('📝 Cargando datos en formulario:', consulta);
+                
+                const tipoFormulario = consulta.tipo_formulario || 'general';
+                
+                // Cargar datos básicos comunes a todos los formularios
+                const camposComunes = ['txtmotivo', 'motivoscomunes', 'observaciones'];
+                
+                camposComunes.forEach(campo => {
+                    // Buscar el campo en el formulario activo
+                    let elemento = document.getElementById(campo);
+                    
+                    // Si no lo encuentra, buscar con el sufijo del tipo de formulario
+                    if (!elemento && tipoFormulario !== 'general') {
+                        elemento = document.getElementById(`${campo}-${tipoFormulario}`);
+                    }
+                    
+                    if (elemento && consulta[campo]) {
+                        elemento.value = consulta[campo];
+                        console.log(`✅ Campo ${campo} cargado:`, consulta[campo]);
+                    }
+                });
+                
+                // Cargar datos específicos según el tipo de formulario
+                if (tipoFormulario === 'general') {
+                    const camposGenerales = ['visionod', 'visionoi', 'tensionod', 'tensionoi'];
+                    camposGenerales.forEach(campo => {
+                        const elemento = document.getElementById(campo);
+                        if (elemento && consulta[campo]) {
+                            elemento.value = consulta[campo];
+                            console.log(`✅ Campo general ${campo}:`, consulta[campo]);
+                        }
+                    });
+                    
+                } else if (tipoFormulario === 'anteojos') {
+                    const camposAnteojos = [
+                        'od_esfera', 'od_cilindro', 'od_eje', 
+                        'oi_esfera', 'oi_cilindro', 'oi_eje'
+                    ];
+                    
+                    camposAnteojos.forEach(campo => {
+                        const elemento = document.getElementById(campo);
+                        if (elemento && consulta[campo]) {
+                            elemento.value = consulta[campo];
+                            console.log(`✅ Campo anteojos ${campo}:`, consulta[campo]);
+                        }
+                    });
+                    
+                } else if (tipoFormulario === 'estudios') {
+                    const camposEstudios = [
+                        'descripcion-estudios', 'equipo_medico-estudios'
+                    ];
+                    
+                    camposEstudios.forEach(campo => {
+                        const elemento = document.getElementById(campo);
+                        if (elemento && consulta[campo.replace('-estudios', '')]) {
+                            elemento.value = consulta[campo.replace('-estudios', '')];
+                            console.log(`✅ Campo estudios ${campo}:`, consulta[campo.replace('-estudios', '')]);
+                        }
+                    });
+                    
+                } else if (tipoFormulario === 'informe-imagen') {
+                    const camposInforme = [
+                        'descripcion-informe-imagen', 'equipoMedico-informe-imagen'
+                    ];
+                    
+                    camposInforme.forEach(campo => {
+                        const elemento = document.getElementById(campo);
+                        if (elemento && consulta[campo.replace('-informe-imagen', '')]) {
+                            elemento.value = consulta[campo.replace('-informe-imagen', '')];
+                            console.log(`✅ Campo informe ${campo}:`, consulta[campo.replace('-informe-imagen', '')]);
+                        }
+                    });
+                }
+                
+                // Cargar datos específicos si existen (JSON)
+                if (consulta.datos_especificos) {
+                    try {
+                        const datosEspecificos = typeof consulta.datos_especificos === 'string' 
+                            ? JSON.parse(consulta.datos_especificos) 
+                            : consulta.datos_especificos;
+                            
+                        console.log('📊 Datos específicos encontrados:', datosEspecificos);
+                        
+                        // Cargar cada campo específico
+                        Object.keys(datosEspecificos).forEach(key => {
+                            const elemento = document.getElementById(key);
+                            if (elemento) {
+                                elemento.value = datosEspecificos[key];
+                                console.log(`✅ Campo específico ${key}:`, datosEspecificos[key]);
+                            }
+                        });
+                    } catch (e) {
+                        console.warn('⚠️ Error parsing datos específicos:', e);
+                    }
+                }
+                
+                // Marcar como edición y cambiar el botón
+                const btnGuardar = document.getElementById('btnGuardarConsulta');
+                if (btnGuardar) {
+                    btnGuardar.innerHTML = '<i class="fas fa-edit"></i> Actualizar Consulta';
+                    btnGuardar.classList.add('btn-warning');
+                    btnGuardar.classList.remove('btn-success');
+                }
+                
+                // Guardar ID para actualización
+                let consultaIdInput = document.getElementById('consultaId');
+                if (!consultaIdInput) {
+                    consultaIdInput = document.createElement('input');
+                    consultaIdInput.type = 'hidden';
+                    consultaIdInput.id = 'consultaId';
+                    const formularioActivo = document.querySelector('.formulario-especifico.active form');
+                    if (formularioActivo) {
+                        formularioActivo.appendChild(consultaIdInput);
+                    } else {
+                        document.body.appendChild(consultaIdInput);
+                    }
+                }
+                consultaIdInput.value = consulta.id || '';
+                
+                // Cargar información del paciente si no está ya cargada
+                if (consulta.id_persona) {
+                    const idPersonaInput = document.getElementById('idPersona');
+                    if (idPersonaInput) {
+                        idPersonaInput.value = consulta.id_persona;
+                    }
+                }
+                
+                console.log('✅ Datos cargados completamente en formulario', tipoFormulario);
+            }
+            
+            // Función para limpiar modo edición
+            function limpiarModoEdicion() {
+                const btnGuardar = document.getElementById('btnGuardarConsulta');
+                if (btnGuardar) {
+                    btnGuardar.innerHTML = '<i class="fas fa-save"></i> Guardar Consulta';
+                    btnGuardar.classList.remove('btn-warning');
+                    btnGuardar.classList.add('btn-success');
+                }
+                
+                const consultaIdInput = document.getElementById('consultaId');
+                if (consultaIdInput) {
+                    consultaIdInput.value = '';
+                }
+                
+                console.log('🧹 Modo edición limpiado');
+            }
+            
+            // Función para recargar historial del paciente
+            function recargarHistorialPaciente(pacienteId) {
+                fetch(`patient_history_api.php?patient_id=${pacienteId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && window.actualizarHistorial) {
+                        window.actualizarHistorial(data.data.consultas || []);
+                        console.log('✅ Historial actualizado después de guardar');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al recargar historial:', error);
+                });
+            }
+            
+            // Inicializar cuando el DOM esté listo
+            document.addEventListener('DOMContentLoaded', function() {
+                console.log('🚀 DOM cargado, inicializando sistema...');
+                
+                // Dar tiempo a que todo se renderice
+                setTimeout(() => {
+                    initFormHandlers();
+                    
+                    // Activar formulario general por defecto después de un pequeño delay
+                    setTimeout(() => {
+                        cambiarTipoFormulario('general');
+                    }, 100);
+                }, 500);
+            });
+            
             console.log('✅ Navegación de pestañas configurada');
         });
     </script>
 
     <!-- Buscador Ultra Simple -->
+    <!-- Scripts de LivewireCRUD -->
+    <script src="./modules/consultas/components/LivewireCRUD-v2.js"></script>
+    <script src="./livewire-v2-init.js"></script>
+    
+    <!-- Scripts principales -->
     <script src="simple_search.js"></script>
 
     <!-- Debug de Historial y Timeline -->
@@ -1958,6 +3013,465 @@ $userName = $_SESSION['username'] ?? 'Usuario';
 
     <!-- Manejador de archivos para informe e imagen -->
     <script src="../../file_handler_informe_imagen.js"></script>
+    
+    <!-- Manejador de formularios y pestañas -->
+    <script>
+        console.log('🚀 Cargando manejador de formularios...');
+        
+        // Función para cambiar tipo de formulario
+        function cambiarTipoFormulario(tipo) {
+            console.log('🔄 Cambiando a formulario:', tipo);
+            
+            // Desactivar todas las pestañas
+            const todasLasPestanas = document.querySelectorAll('.form-type-tab');
+            console.log('📝 Pestañas a desactivar:', todasLasPestanas.length);
+            todasLasPestanas.forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Activar la pestaña seleccionada
+            const pestanaSeleccionada = document.querySelector(`[data-form-type="${tipo}"]`);
+            console.log('🎯 Pestaña seleccionada:', pestanaSeleccionada ? 'Encontrada' : 'NO ENCONTRADA');
+            if (pestanaSeleccionada) {
+                pestanaSeleccionada.classList.add('active');
+            }
+            
+            // Ocultar todos los formularios de manera agresiva
+            const todosLosFormularios = document.querySelectorAll('.formulario-especifico');
+            console.log('📋 Formularios a ocultar:', todosLosFormularios.length);
+            todosLosFormularios.forEach(form => {
+                form.classList.remove('active');
+                // Aplicar múltiples formas de ocultar
+                form.style.setProperty('display', 'none', 'important');
+                form.style.setProperty('opacity', '0', 'important');
+                form.style.setProperty('visibility', 'hidden', 'important');
+                form.style.setProperty('position', 'absolute', 'important');
+                form.style.setProperty('left', '-9999px', 'important');
+                form.style.setProperty('top', '-9999px', 'important');
+                form.style.setProperty('z-index', '-1', 'important');
+            });
+            
+            // Mostrar el formulario seleccionado de manera agresiva
+            const formularioSeleccionado = document.getElementById(`formulario-${tipo}`);
+            console.log('📋 Formulario a mostrar:', formularioSeleccionado ? 'Encontrado' : 'NO ENCONTRADO');
+            if (formularioSeleccionado) {
+                formularioSeleccionado.classList.add('active');
+                // Aplicar múltiples formas de mostrar
+                formularioSeleccionado.style.setProperty('display', 'block', 'important');
+                formularioSeleccionado.style.setProperty('opacity', '1', 'important');
+                formularioSeleccionado.style.setProperty('visibility', 'visible', 'important');
+                formularioSeleccionado.style.setProperty('position', 'relative', 'important');
+                formularioSeleccionado.style.setProperty('left', 'auto', 'important');
+                formularioSeleccionado.style.setProperty('top', 'auto', 'important');
+                formularioSeleccionado.style.setProperty('z-index', '1', 'important');
+                formularioSeleccionado.style.setProperty('width', '100%', 'important');
+                formularioSeleccionado.style.setProperty('height', 'auto', 'important');
+                formularioSeleccionado.style.setProperty('min-height', '300px', 'important');
+                
+                // Asegurar que el contenido interno también sea visible
+                const formSection = formularioSeleccionado.querySelector('.form-section');
+                if (formSection) {
+                    formSection.style.setProperty('display', 'block', 'important');
+                    formSection.style.setProperty('opacity', '1', 'important');
+                    formSection.style.setProperty('visibility', 'visible', 'important');
+                }
+                
+                // Forzar el reflow para asegurar que los cambios se apliquen
+                formularioSeleccionado.offsetHeight;
+                
+                // Debug específico para anteojos
+                if (tipo === 'anteojos') {
+                    console.log('👓 === DEBUG FORMULARIO ANTEOJOS ===');
+                    const btnGuardar = document.getElementById('btnGuardarConsulta-anteojos');
+                    console.log('👓 Botón guardar encontrado:', btnGuardar ? '✅ SÍ' : '❌ NO');
+                    
+                    if (btnGuardar) {
+                        console.log('👓 Propiedades del botón:');
+                        console.log('  - Display:', window.getComputedStyle(btnGuardar).display);
+                        console.log('  - Visibility:', window.getComputedStyle(btnGuardar).visibility);
+                        console.log('  - Opacity:', window.getComputedStyle(btnGuardar).opacity);
+                        console.log('  - Position:', window.getComputedStyle(btnGuardar).position);
+                        console.log('  - Z-index:', window.getComputedStyle(btnGuardar).zIndex);
+                        console.log('  - Width:', btnGuardar.offsetWidth, 'px');
+                        console.log('  - Height:', btnGuardar.offsetHeight, 'px');
+                        
+                        // Asegurar visibilidad del botón
+                        btnGuardar.style.setProperty('display', 'inline-block', 'important');
+                        btnGuardar.style.setProperty('visibility', 'visible', 'important');
+                        btnGuardar.style.setProperty('opacity', '1', 'important');
+                        btnGuardar.style.setProperty('position', 'relative', 'important');
+                        btnGuardar.style.setProperty('z-index', '10', 'important');
+                        
+                        console.log('👓 Después de aplicar estilos:');
+                        console.log('  - Visible:', btnGuardar.offsetWidth > 0 && btnGuardar.offsetHeight > 0);
+                    }
+                    
+                    // Verificar todos los elementos del formulario de anteojos
+                    const elementos = formularioSeleccionado.querySelectorAll('input, select, textarea, button');
+                    console.log(`👓 Total elementos en formulario: ${elementos.length}`);
+                    
+                    const botones = Array.from(elementos).filter(el => el.type === 'button' || el.tagName === 'BUTTON' || el.id.includes('btn') || el.id.includes('Btn'));
+                    console.log(`👓 Botones encontrados: ${botones.length}`);
+                    
+                    botones.forEach((btn, i) => {
+                        console.log(`  Botón ${i + 1}: ID="${btn.id}" Text="${btn.textContent?.trim()}" Visible=${btn.offsetWidth > 0}`);
+                    });
+                }
+                
+                console.log('✅ Formulario mostrado:', tipo);
+                console.log('📏 Altura del formulario:', formularioSeleccionado.offsetHeight, 'px');
+                console.log('📐 Dimensiones:', formularioSeleccionado.getBoundingClientRect());
+            } else {
+                console.error('❌ No se pudo encontrar el formulario:', `formulario-${tipo}`);
+                
+                // Debug adicional
+                const todosLosIds = document.querySelectorAll('[id^="formulario-"]');
+                console.log('🔍 Formularios encontrados por ID:');
+                todosLosIds.forEach(el => console.log('  -', el.id));
+            }
+            
+            console.log('✅ Formulario cambiado a:', tipo);
+        }
+        
+        // Función para configurar event listeners
+        function initFormularioTabs() {
+            console.log('🔧 Inicializando pestañas de formularios...');
+            
+            const pestanas = document.querySelectorAll('.form-type-tab');
+            console.log('🔍 Pestañas encontradas:', pestanas.length);
+            
+            pestanas.forEach((pestana, index) => {
+                const tipo = pestana.getAttribute('data-form-type');
+                console.log(`🏷️ Configurando pestaña ${index + 1}: ${tipo}`);
+                
+                pestana.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    console.log('👆 Click en pestaña:', tipo);
+                    cambiarTipoFormulario(tipo);
+                });
+            });
+            
+            // Verificar que los formularios existen
+            const tiposFormularios = ['general', 'anteojos', 'estudios', 'informe-imagen'];
+            tiposFormularios.forEach(tipo => {
+                const form = document.getElementById(`formulario-${tipo}`);
+                console.log(`📋 Formulario ${tipo}:`, form ? 'Encontrado' : 'NO ENCONTRADO');
+            });
+            
+            // Hacer función global para debugging
+            window.cambiarFormulario = cambiarTipoFormulario;
+            
+            // Debug específico para cambio de formulario desde historial
+            window.cambiarFormularioDebug = function(tipo) {
+                console.log('🏥 === CAMBIO FORMULARIO DESDE HISTORIAL ===');
+                console.log('🏥 Tipo solicitado:', tipo);
+                console.log('🏥 Función cambiarTipoFormulario definida:', typeof cambiarTipoFormulario);
+                
+                // Verificar estado actual antes del cambio
+                const formularioActual = document.querySelector('.formulario-especifico.active');
+                console.log('🏥 Formulario actualmente activo:', formularioActual ? formularioActual.id : 'NINGUNO');
+                
+                // Verificar que existe el formulario destino
+                const formularioDestino = document.getElementById(`formulario-${tipo}`);
+                console.log('🏥 Formulario destino existe:', formularioDestino ? '✅ SÍ' : '❌ NO');
+                
+                if (formularioDestino) {
+                    console.log('🏥 Estado del formulario destino ANTES:');
+                    console.log('  - Display:', window.getComputedStyle(formularioDestino).display);
+                    console.log('  - Visibility:', window.getComputedStyle(formularioDestino).visibility);
+                    console.log('  - Opacity:', window.getComputedStyle(formularioDestino).opacity);
+                }
+                
+                // Ejecutar el cambio
+                console.log('🏥 Ejecutando cambiarTipoFormulario...');
+                cambiarTipoFormulario(tipo);
+                
+                // Verificar estado después del cambio
+                setTimeout(() => {
+                    console.log('🏥 === VERIFICACIÓN POST-CAMBIO ===');
+                    const formularioMostrado = document.querySelector('.formulario-especifico.active');
+                    console.log('🏥 Formulario ahora activo:', formularioMostrado ? formularioMostrado.id : 'NINGUNO');
+                    
+                    if (formularioDestino) {
+                        console.log('🏥 Estado del formulario destino DESPUÉS:');
+                        console.log('  - Display:', window.getComputedStyle(formularioDestino).display);
+                        console.log('  - Visibility:', window.getComputedStyle(formularioDestino).visibility);
+                        console.log('  - Opacity:', window.getComputedStyle(formularioDestino).opacity);
+                        console.log('  - Height:', formularioDestino.offsetHeight, 'px');
+                        console.log('  - Visible en pantalla:', formularioDestino.offsetWidth > 0 && formularioDestino.offsetHeight > 0);
+                        
+                        if (tipo === 'anteojos') {
+                            const btnGuardar = document.getElementById('btnGuardarConsulta-anteojos');
+                            console.log('👓 Botón guardar visible:', btnGuardar && btnGuardar.offsetWidth > 0);
+                        }
+                    }
+                }, 100);
+                
+                return true;
+            };
+            
+            window.debugFormularios = function() {
+                const pestanas = document.querySelectorAll('.form-type-tab');
+                const formularios = document.querySelectorAll('.formulario-especifico');
+                console.log('🔍 Debug - Pestañas:', pestanas.length);
+                console.log('🔍 Debug - Formularios:', formularios.length);
+                
+                pestanas.forEach((pestana, i) => {
+                    console.log(`Pestaña ${i}:`, pestana.getAttribute('data-form-type'));
+                });
+                
+                formularios.forEach((form, i) => {
+                    console.log(`Formulario ${i}:`, form.id, form.style.display);
+                });
+            };
+            
+            console.log('✅ Pestañas de formularios inicializadas');
+        }
+        
+        // Inicializar cuando el DOM esté listo
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                console.log('🚀 DOM cargado, inicializando pestañas...');
+                setTimeout(() => {
+                    initFormularioTabs();
+                    cambiarTipoFormulario('general');
+                }, 1000);
+            });
+        } else {
+            console.log('🚀 DOM ya cargado, inicializando pestañas inmediatamente...');
+            setTimeout(() => {
+                initFormularioTabs();
+                cambiarTipoFormulario('general');
+                
+                // Debug: Verificar que las funciones estén disponibles
+                console.log('🔧 === DEBUG FUNCIONES ===');
+                console.log('guardarConsultaConLivewire:', typeof window.guardarConsultaConLivewire);
+                console.log('Livewire global:', typeof window.Livewire);
+                console.log('livewireCRUD:', typeof window.livewireCRUD);
+                
+                // Verificar botón de anteojos
+                const btnAnteojos = document.getElementById('btnGuardarConsulta-anteojos');
+                if (btnAnteojos) {
+                    console.log('✅ Botón anteojos encontrado');
+                    console.log('📋 Event listeners:', btnAnteojos._eventListeners || 'No disponible');
+                } else {
+                    console.warn('❌ Botón anteojos NO encontrado');
+                }
+                
+                // Debug adicional después de 2 segundos
+                setTimeout(() => {
+                    console.log('🔧 === DEBUG DETALLADO BOTÓN ===');
+                    const btn = document.getElementById('btnGuardarConsulta-anteojos');
+                    if (btn) {
+                        console.log('✅ Botón existe:', btn);
+                        console.log('📍 Visible:', btn.offsetWidth > 0 && btn.offsetHeight > 0);
+                        console.log('📍 Habilitado:', !btn.disabled);
+                        console.log('📍 Padre:', btn.parentElement);
+                        console.log('📍 HTML completo:', btn.outerHTML);
+                        
+                        // Agregar un click listener directo para testing
+                        btn.addEventListener('click', function(e) {
+                            console.log('🎯 ¡CLICK DIRECTO DETECTADO!', e);
+                            alert('¡Botón clickeado! Revisa la consola.');
+                        });
+                        
+                        console.log('✅ Listener de prueba agregado');
+                    } else {
+                        console.error('❌ Botón NO encontrado en segundo intento');
+                        
+                        // Buscar botones alternativos
+                        const allBtns = document.querySelectorAll('button');
+                        console.log('🔍 Todos los botones encontrados:', allBtns.length);
+                        allBtns.forEach((b, i) => {
+                            if (b.id.includes('Guardar') || b.textContent.includes('Actualizar')) {
+                                console.log(`  ${i}: ${b.id} - "${b.textContent.trim()}"`);
+                            }
+                        });
+                    }
+                }, 2000);
+            }, 1000);
+        }
+        
+        // === CORRECCIÓN FINAL DEFINITIVA ===
+        // Esta función sobrescribe cualquier función conflictiva y asegura que el cambio de formularios funcione
+        console.log('🔧 === APLICANDO CORRECCIÓN FINAL ===');
+        
+        function cambiarTipoFormularioFinal(tipo) {
+            console.log(`🔄 === FUNCIÓN FINAL: CAMBIANDO A ${tipo.toUpperCase()} ===`);
+            
+            try {
+                // 1. Ocultar todos los formularios agresivamente
+                const todosLosFormularios = document.querySelectorAll('.formulario-especifico');
+                console.log(`📋 Ocultando ${todosLosFormularios.length} formularios`);
+                
+                todosLosFormularios.forEach((form, i) => {
+                    console.log(`  ${i + 1}. Ocultando: ${form.id}`);
+                    form.classList.remove('active');
+                    
+                    // Métodos múltiples de ocultación
+                    const estilosOcultar = {
+                        'display': 'none',
+                        'opacity': '0',
+                        'visibility': 'hidden',
+                        'position': 'absolute',
+                        'left': '-9999px',
+                        'top': '-9999px',
+                        'z-index': '-1',
+                        'width': '0',
+                        'height': '0'
+                    };
+                    
+                    Object.entries(estilosOcultar).forEach(([prop, val]) => {
+                        form.style.setProperty(prop, val, 'important');
+                    });
+                });
+                
+                // 2. Desactivar pestañas
+                const pestanas = document.querySelectorAll('.form-type-tab');
+                pestanas.forEach(p => p.classList.remove('active'));
+                
+                // 3. Activar pestaña seleccionada
+                const pestanaSeleccionada = document.querySelector(`[data-form-type="${tipo}"]`);
+                if (pestanaSeleccionada) {
+                    pestanaSeleccionada.classList.add('active');
+                    console.log(`🎯 Pestaña activada: ${tipo}`);
+                }
+                
+                // 4. Mostrar formulario seleccionado
+                const formularioSeleccionado = document.getElementById(`formulario-${tipo}`);
+                
+                if (!formularioSeleccionado) {
+                    console.error(`❌ CRÍTICO: formulario-${tipo} no existe`);
+                    return false;
+                }
+                
+                console.log(`✅ Mostrando formulario: ${formularioSeleccionado.id}`);
+                formularioSeleccionado.classList.add('active');
+                
+                // Métodos múltiples de mostrar
+                const estilosMostrar = {
+                    'display': 'block',
+                    'opacity': '1',
+                    'visibility': 'visible',
+                    'position': 'relative',
+                    'left': 'auto',
+                    'top': 'auto',
+                    'z-index': '1',
+                    'width': '100%',
+                    'height': 'auto',
+                    'min-height': '300px'
+                };
+                
+                Object.entries(estilosMostrar).forEach(([prop, val]) => {
+                    formularioSeleccionado.style.setProperty(prop, val, 'important');
+                });
+                
+                // 5. Procesar específicamente anteojos
+                if (tipo === 'anteojos') {
+                    console.log(`👓 === PROCESAMIENTO ESPECÍFICO ANTEOJOS ===`);
+                    
+                    // Buscar botón con múltiples estrategias
+                    let btnGuardar = document.getElementById('btnGuardarConsulta-anteojos');
+                    
+                    if (!btnGuardar) {
+                        // Estrategia alternativa 1: buscar en el formulario
+                        btnGuardar = formularioSeleccionado.querySelector('[id*="btnGuardarConsulta"]');
+                        console.log(`👓 Búsqueda alternativa 1: ${btnGuardar ? '✅ encontrado' : '❌ no'}`);
+                    }
+                    
+                    if (!btnGuardar) {
+                        // Estrategia alternativa 2: buscar por texto
+                        const botones = formularioSeleccionado.querySelectorAll('button');
+                        for (let btn of botones) {
+                            if (btn.textContent.includes('Guardar') || btn.textContent.includes('Actualizar')) {
+                                btnGuardar = btn;
+                                console.log(`👓 Encontrado por texto: "${btn.textContent.trim()}"`);
+                                break;
+                            }
+                        }
+                    }
+                    
+                    if (btnGuardar) {
+                        console.log(`👓 Botón encontrado: ${btnGuardar.id || 'sin-id'}`);
+                        
+                        // Asegurar visibilidad del botón agresivamente
+                        const estilosBoton = {
+                            'display': 'inline-block',
+                            'opacity': '1',
+                            'visibility': 'visible',
+                            'position': 'relative',
+                            'z-index': '10',
+                            'pointer-events': 'auto',
+                            'min-width': '120px',
+                            'min-height': '35px'
+                        };
+                        
+                        Object.entries(estilosBoton).forEach(([prop, val]) => {
+                            btnGuardar.style.setProperty(prop, val, 'important');
+                        });
+                        
+                        // Verificar visibilidad
+                        setTimeout(() => {
+                            const visible = btnGuardar.offsetWidth > 0 && btnGuardar.offsetHeight > 0;
+                            console.log(`👓 Botón visible final: ${visible} (${btnGuardar.offsetWidth}x${btnGuardar.offsetHeight})`);
+                            
+                            if (!visible) {
+                                console.error(`❌ BOTÓN ANTEOJOS SIGUE INVISIBLE`);
+                                
+                                // Último intento: remover todos los estilos CSS que puedan estar ocultando
+                                btnGuardar.style.cssText = '';
+                                btnGuardar.style.setProperty('display', 'inline-block', 'important');
+                                btnGuardar.style.setProperty('visibility', 'visible', 'important');
+                                
+                                console.log(`👓 Último intento aplicado`);
+                            } else {
+                                console.log(`✅ BOTÓN ANTEOJOS VISIBLE CORRECTAMENTE`);
+                            }
+                        }, 100);
+                        
+                    } else {
+                        console.error(`❌ CRÍTICO: No se pudo encontrar botón de anteojos con ninguna estrategia`);
+                        
+                        // Debug: mostrar todos los elementos del formulario
+                        const elementos = formularioSeleccionado.querySelectorAll('*');
+                        console.log(`🔍 Elementos en formulario anteojos: ${elementos.length}`);
+                        const botones = Array.from(elementos).filter(el => el.tagName === 'BUTTON' || el.type === 'button');
+                        console.log(`🔍 Botones encontrados: ${botones.length}`);
+                        botones.forEach((btn, i) => {
+                            console.log(`  ${i}: ${btn.id || 'sin-id'} - "${btn.textContent?.trim() || 'sin-texto'}"`);
+                        });
+                    }
+                }
+                
+                // 6. Verificación final
+                formularioSeleccionado.offsetHeight; // Forzar reflow
+                
+                const formularioVisible = formularioSeleccionado.offsetWidth > 0 && formularioSeleccionado.offsetHeight > 0;
+                console.log(`📏 Formulario ${tipo} finalmente visible: ${formularioVisible} (${formularioSeleccionado.offsetWidth}x${formularioSeleccionado.offsetHeight})`);
+                
+                if (formularioVisible) {
+                    console.log(`🎉 ÉXITO: Formulario ${tipo} mostrado correctamente`);
+                    return true;
+                } else {
+                    console.error(`❌ FALLO: Formulario ${tipo} no se pudo mostrar`);
+                    return false;
+                }
+                
+            } catch (error) {
+                console.error(`💥 EXCEPCIÓN en cambiarTipoFormularioFinal:`, error);
+                return false;
+            }
+        }
+        
+        // Sobrescribir todas las funciones relacionadas
+        window.cambiarFormulario = cambiarTipoFormularioFinal;
+        window.cambiarTipoFormulario = cambiarTipoFormularioFinal;
+        window.cambiarFormularioDebug = cambiarTipoFormularioFinal;
+        
+        console.log('✅ CORRECCIÓN FINAL APLICADA - Todas las funciones sobrescritas');
+        console.log('🎯 Usar: cambiarFormulario("anteojos") para probar');
+        
+    </script>
 </body>
 
 </html>

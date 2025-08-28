@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Final - Botón Actualizar</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/alertifyjs/1.13.1/css/alertify.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/alertifyjs/1.13.1/css/themes/default.min.css" rel="stylesheet">
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .test-section { margin: 30px 0; padding: 20px; border-left: 4px solid #007bff; background: #f8f9fa; }
+        .test-section h3 { margin-top: 0; color: #495057; }
+        .btn { padding: 12px 24px; margin: 5px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .btn:hover { background: #218838; }
+        .btn:disabled { background: #6c757d; cursor: not-allowed; }
+        .response-box { background: #1a1a1a; color: #00ff00; padding: 15px; font-family: 'Courier New', monospace; white-space: pre-wrap; border-radius: 6px; margin-top: 15px; max-height: 400px; overflow-y: auto; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 4px; font-weight: bold; }
+        .status.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .status.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .status.info { background: #cce7ff; color: #004085; border: 1px solid #b6d4fe; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test Final: Botón Actualizar Consulta</h1>
+        <p><strong>Objetivo:</strong> Verificar que el botón "Actualizar Consulta" funciona correctamente después de los cambios realizados.</p>
+        
+        <div class="test-section">
+            <h3>📝 Simulación Exacta del Botón</h3>
+            <p>Este test simula exactamente el comportamiento del botón "btnGuardarConsulta-anteojos" en consultas-new.php</p>
+            
+            <!-- Inputs simulados como en el formulario real -->
+            <input type="hidden" id="id_consulta_actual" value="1">
+            <input type="hidden" id="idPersona" value="45">
+            <input type="hidden" id="id_user" value="1">
+            
+            <button class="btn" onclick="ejecutarTestCompleto()">
+                <span class="btn-text">🚀 Ejecutar Test Completo</span>
+                <i class="fa-spinner" style="display: none;"></i>
+            </button>
+            
+            <div id="test-results" class="response-box" style="display: none;"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🔍 Diagnóstico del Sistema</h3>
+            <button class="btn" onclick="diagnosticoCompleto()" style="background: #fd7e14;">🔧 Ejecutar Diagnóstico</button>
+            <div id="diagnostico-results" class="response-box" style="display: none;"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>📊 Estado del Sistema</h3>
+            <div id="system-status">
+                <div class="status info">⏳ Presiona "Ejecutar Test" para verificar el sistema</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/alertifyjs/1.13.1/alertify.min.js"></script>
+    <script>
+        // Simular exactamente el evento del botón
+        async function ejecutarTestCompleto() {
+            const resultsDiv = document.getElementById('test-results');
+            const statusDiv = document.getElementById('system-status');
+            const btn = event.target.closest('button');
+            
+            // Mostrar resultados
+            resultsDiv.style.display = 'block';
+            resultsDiv.textContent = '🚀 Iniciando test...\n\n';
+            
+            // Deshabilitar botón y mostrar loading
+            btn.disabled = true;
+            const spinner = btn.querySelector('.fa-spinner');
+            const text = btn.querySelector('.btn-text');
+            if (spinner) spinner.style.display = 'inline-block';
+            if (text) text.textContent = '⏳ Ejecutando...';
+            
+            try {
+                // PASO 1: Obtener datos del formulario (simulados)
+                const consultaIdInput = document.getElementById('id_consulta_actual');
+                const consultaId = consultaIdInput?.value;
+                const esActualizacion = consultaId && consultaId !== '' && consultaId !== '0';
+                
+                resultsDiv.textContent += `📋 PASO 1: Configuración\n`;
+                resultsDiv.textContent += `  - Consulta ID: ${consultaId}\n`;
+                resultsDiv.textContent += `  - Es actualización: ${esActualizacion}\n`;
+                resultsDiv.textContent += `  - Modo: ${esActualizacion ? 'ACTUALIZAR' : 'CREAR'}\n\n`;
+                
+                // PASO 2: Recopilar datos exactos como en el código real
+                const formData = {
+                    id_persona: document.getElementById('idPersona')?.value || '45',
+                    txtmotivo: 'Test de actualización desde debug',
+                    od_esf: '-1.50',
+                    od_cil: '-0.75', 
+                    od_eje: '85',
+                    od_dnp: '32',
+                    od_add: '+1.25',
+                    od_altura: '21',
+                    od_nota: 'Test OD actualizado',
+                    oi_esf: '-1.75',
+                    oi_cil: '-0.50',
+                    oi_eje: '90',
+                    oi_dnp: '31',
+                    oi_add: '+1.25',
+                    oi_altura: '21',
+                    oi_nota: 'Test OI actualizado',
+                    dist_interpupilar: '64',
+                    consulta_textarea: 'Consulta test actualizada',
+                    receta_textarea: 'Receta test actualizada',
+                    txtnota: 'Notas test actualizadas',
+                    proximaconsulta: '2024-12-31',
+                    whatsapptxt: 'WhatsApp test',
+                    email: 'test@clinica.com',
+                    medico_id: document.getElementById('id_user')?.value || '1'
+                };
+                
+                resultsDiv.textContent += `📤 PASO 2: Datos preparados\n`;
+                resultsDiv.textContent += `  - Cantidad de campos: ${Object.keys(formData).length}\n`;
+                resultsDiv.textContent += `  - Paciente ID: ${formData.id_persona}\n`;
+                resultsDiv.textContent += `  - Motivo: ${formData.txtmotivo}\n\n`;
+                
+                // PASO 3: Enviar petición exactamente como el código real
+                resultsDiv.textContent += `🌐 PASO 3: Enviando petición al endpoint...\n`;
+                
+                const response = await fetch('modules/consultas/api/livewire-crud.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'save',
+                        formType: 'anteojos',
+                        consultaId: consultaId,
+                        state: formData
+                    })
+                });
+                
+                resultsDiv.textContent += `  - Status HTTP: ${response.status}\n`;
+                resultsDiv.textContent += `  - Status Text: ${response.statusText}\n\n`;
+                
+                // PASO 4: Procesar respuesta
+                const result = await response.json();
+                
+                resultsDiv.textContent += `📨 PASO 4: Respuesta recibida\n`;
+                resultsDiv.textContent += JSON.stringify(result, null, 2) + '\n\n';
+                
+                // PASO 5: Mostrar resultado final
+                if (result.success) {
+                    statusDiv.innerHTML = '<div class="status success">✅ TEST EXITOSO: El botón de actualizar funciona correctamente!</div>';
+                    alertify.success('✅ Test completado exitosamente!');
+                } else {
+                    statusDiv.innerHTML = '<div class="status error">❌ ERROR: ' + (result.message || 'Error desconocido') + '</div>';
+                    alertify.error('❌ Test falló: ' + result.message);
+                }
+                
+            } catch (error) {
+                resultsDiv.textContent += `❌ ERROR FATAL: ${error.message}\n`;
+                statusDiv.innerHTML = '<div class="status error">💥 ERROR DE CONEXIÓN: ' + error.message + '</div>';
+                alertify.error('💥 Error de conexión: ' + error.message);
+                
+            } finally {
+                // Restaurar botón
+                btn.disabled = false;
+                if (spinner) spinner.style.display = 'none';
+                if (text) text.textContent = '🚀 Ejecutar Test Completo';
+            }
+        }
+        
+        // Diagnóstico del sistema
+        async function diagnosticoCompleto() {
+            const resultsDiv = document.getElementById('diagnostico-results');
+            resultsDiv.style.display = 'block';
+            resultsDiv.textContent = '🔧 Ejecutando diagnóstico completo...\n\n';
+            
+            // Test 1: Conectividad del endpoint
+            resultsDiv.textContent += '1️⃣ Probando conectividad del endpoint...\n';
+            try {
+                const response = await fetch('modules/consultas/api/livewire-crud.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'refresh', formType: 'test', state: {} })
+                });
+                resultsDiv.textContent += `   ✅ Endpoint accesible (HTTP ${response.status})\n`;
+            } catch (error) {
+                resultsDiv.textContent += `   ❌ Endpoint inaccesible: ${error.message}\n`;
+            }
+            
+            // Test 2: Verificar autenticación
+            resultsDiv.textContent += '\n2️⃣ Verificando autenticación...\n';
+            try {
+                const response = await fetch('modules/consultas/api/livewire-crud.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'save', formType: 'anteojos', state: { id_persona: '1' } })
+                });
+                const result = await response.json();
+                if (response.status === 401) {
+                    resultsDiv.textContent += '   ❌ No autenticado\n';
+                } else {
+                    resultsDiv.textContent += '   ✅ Autenticación OK\n';
+                }
+            } catch (error) {
+                resultsDiv.textContent += `   ⚠️ Error verificando auth: ${error.message}\n`;
+            }
+            
+            // Test 3: Probar con datos mínimos
+            resultsDiv.textContent += '\n3️⃣ Probando guardado con datos mínimos...\n';
+            try {
+                const response = await fetch('modules/consultas/api/livewire-crud.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'save',
+                        formType: 'anteojos',
+                        state: {
+                            id_persona: '45',
+                            txtmotivo: 'Test mínimo',
+                            od_esf: '-1.00',
+                            oi_esf: '-1.00'
+                        }
+                    })
+                });
+                const result = await response.json();
+                resultsDiv.textContent += `   Respuesta: ${JSON.stringify(result)}\n`;
+            } catch (error) {
+                resultsDiv.textContent += `   ❌ Error en test mínimo: ${error.message}\n`;
+            }
+            
+            resultsDiv.textContent += '\n🏁 Diagnóstico completado.\n';
+        }
+        
+        // Auto-ejecutar diagnóstico al cargar
+        setTimeout(diagnosticoCompleto, 1000);
+    </script>
+</body>
+</html>

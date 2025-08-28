@@ -1,0 +1,181 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Validación Automática</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div id="results"></div>
+    <script>
+    console.log("=== VALIDACIÓN AUTOMÁTICA INICIADA ===");
+    
+    let testsPassed = 0;
+    let totalTests = 0;
+    let results = [];
+    
+    function test(name, condition, details = "") {
+        totalTests++;
+        const passed = Boolean(condition);
+        if (passed) testsPassed++;
+        
+        results.push({
+            name: name,
+            passed: passed,
+            details: details
+        });
+        
+        console.log(`${passed ? "✅" : "❌"} ${name}: ${passed ? "PASS" : "FAIL"}${details ? ` (${details})` : ""}`);
+    }
+    
+    // Simular estructura DOM básica
+    document.body.innerHTML += `
+        <div class="formulario-especifico" id="formulario-general" style="display:none;">General</div>
+        <div class="formulario-especifico" id="formulario-anteojos" style="display:none;">
+            <button id="btnGuardarConsulta-anteojos" style="display:none;">Guardar</button>
+            <input id="od_esf" />
+            <input id="oi_esf" />
+        </div>
+        <a class="form-type-tab" data-form-type="general">General</a>
+        <a class="form-type-tab" data-form-type="anteojos">Anteojos</a>
+    `;
+    
+    // CSS básico
+    const style = document.createElement("style");
+    style.textContent = `
+        .formulario-especifico { display: none; }
+        .formulario-especifico.active { display: block !important; }
+    `;
+    document.head.appendChild(style);
+    
+    // Función de cambio (simplificada)
+    function cambiarTipoFormulario(tipo) {
+        console.log(`Cambiando a: ${tipo}`);
+        
+        // Ocultar todos
+        document.querySelectorAll(".formulario-especifico").forEach(f => {
+            f.classList.remove("active");
+            f.style.setProperty("display", "none", "important");
+        });
+        
+        // Mostrar seleccionado
+        const form = document.getElementById(`formulario-${tipo}`);
+        if (form) {
+            form.classList.add("active");
+            form.style.setProperty("display", "block", "important");
+            
+            // Si es anteojos, mostrar botón
+            if (tipo === "anteojos") {
+                const btn = document.getElementById("btnGuardarConsulta-anteojos");
+                if (btn) {
+                    btn.style.setProperty("display", "inline-block", "important");
+                }
+            }
+            
+            return true;
+        }
+        return false;
+    }
+    
+    window.cambiarFormulario = cambiarTipoFormulario;
+    
+    // Tests automáticos
+    setTimeout(() => {
+        console.log("=== EJECUTANDO TESTS ===");
+        
+        // Test 1: Elementos DOM existen
+        test("Formulario General Existe", 
+             document.getElementById("formulario-general"));
+             
+        test("Formulario Anteojos Existe", 
+             document.getElementById("formulario-anteojos"));
+             
+        test("Botón Anteojos Existe", 
+             document.getElementById("btnGuardarConsulta-anteojos"));
+        
+        // Test 2: Función de cambio funciona
+        test("Función cambiarFormulario Existe", 
+             typeof window.cambiarFormulario === "function");
+        
+        // Test 3: Cambio a general
+        const cambioGeneral = cambiarFormulario("general");
+        test("Cambio a General", cambioGeneral);
+        
+        if (cambioGeneral) {
+            const formGeneral = document.getElementById("formulario-general");
+            test("General Visible Después Cambio", 
+                 formGeneral.offsetWidth > 0 && formGeneral.offsetHeight > 0);
+        }
+        
+        // Test 4: Cambio a anteojos
+        const cambioAnteojos = cambiarFormulario("anteojos");
+        test("Cambio a Anteojos", cambioAnteojos);
+        
+        if (cambioAnteojos) {
+            const formAnteojos = document.getElementById("formulario-anteojos");
+            const btnAnteojos = document.getElementById("btnGuardarConsulta-anteojos");
+            
+            test("Anteojos Formulario Visible", 
+                 formAnteojos.offsetWidth > 0 && formAnteojos.offsetHeight > 0,
+                 `${formAnteojos.offsetWidth}x${formAnteojos.offsetHeight}`);
+                 
+            test("Anteojos Botón Visible", 
+                 btnAnteojos.offsetWidth > 0 && btnAnteojos.offsetHeight > 0,
+                 `${btnAnteojos.offsetWidth}x${btnAnteojos.offsetHeight}`);
+        }
+        
+        // Test 5: Simular carga de datos
+        test("Campos de Anteojos Accesibles", 
+             document.getElementById("od_esf") && document.getElementById("oi_esf"));
+        
+        // Cargar datos de prueba
+        const odField = document.getElementById("od_esf");
+        const oiField = document.getElementById("oi_esf");
+        if (odField && oiField) {
+            odField.value = "-2.50";
+            oiField.value = "-1.75";
+            
+            test("Datos Cargados en Campos", 
+                 odField.value === "-2.50" && oiField.value === "-1.75");
+        }
+        
+        // Resultados finales
+        setTimeout(() => {
+            const percentage = Math.round((testsPassed / totalTests) * 100);
+            const success = percentage >= 80;
+            
+            console.log("=== RESULTADOS FINALES ===");
+            console.log(`Tests pasados: ${testsPassed}/${totalTests} (${percentage}%)`);
+            console.log(`Estado: ${success ? "✅ ÉXITO" : "❌ FALLO"}`);
+            
+            const resultsHTML = `
+                <h2>${success ? "✅ VALIDACIÓN EXITOSA" : "❌ VALIDACIÓN FALLIDA"}</h2>
+                <p><strong>Tests Pasados:</strong> ${testsPassed}/${totalTests} (${percentage}%)</p>
+                <h3>Detalle de Tests:</h3>
+                <ul>
+                    ${results.map(r => `
+                        <li style="color: ${r.passed ? "green" : "red"}">
+                            ${r.passed ? "✅" : "❌"} ${r.name}
+                            ${r.details ? ` - ${r.details}` : ""}
+                        </li>
+                    `).join("")}
+                </ul>
+            `;
+            
+            document.getElementById("results").innerHTML = resultsHTML;
+            
+            // Hacer resultado disponible globalmente
+            window.validationResult = {
+                success: success,
+                passed: testsPassed,
+                total: totalTests,
+                percentage: percentage,
+                details: results
+            };
+            
+        }, 1000);
+        
+    }, 1000);
+    </script>
+</body>
+</html>

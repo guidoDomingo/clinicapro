@@ -28,6 +28,7 @@ if (!isset($_SESSION['user_id'])) {
 
 // Cargar configuración de base de datos
 require_once '../../../config/config.php';
+require_once '../../../model/conexion.php';
 require_once '../../../controller/consultas.controller.php';
 require_once '../../../model/personas.model.php';
 
@@ -39,8 +40,10 @@ class LivewireCRUDHandler {
     private $personasModel;
     
     public function __construct() {
-        global $pdo;
-        $this->db = $pdo;
+        $this->db = Conexion::conectar();
+        if (!$this->db) {
+            throw new Exception('Error de conexión a la base de datos');
+        }
         $this->userId = $_SESSION['user_id'];
         $this->consultasController = new ControllerConsulta();
         $this->personasModel = new ModelPersonas();
@@ -53,21 +56,31 @@ class LivewireCRUDHandler {
         try {
             $input = json_decode(file_get_contents('php://input'), true);
             
-            if (!$input || !isset($input['method'])) {
+            // Registrar datos de entrada para debugging
+            error_log('LIVEWIRE-CRUD INPUT: ' . json_encode($input));
+            
+            // Soportar tanto 'method' como 'action' para compatibilidad
+            $method = $input['method'] ?? $input['action'] ?? null;
+            
+            if (!$input || !$method) {
                 throw new Exception('Método no especificado');
             }
             
-            $method = $input['method'];
             $args = $input['args'] ?? [];
             $state = $input['state'] ?? [];
             $formType = $input['formType'] ?? 'general';
+            $consultaId = $input['consultaId'] ?? null;
             
             // Validar método
             if (!method_exists($this, $method)) {
                 throw new Exception("Método '{$method}' no existe");
             }
             
-            // Ejecutar método
+            // Ejecutar método - agregar consultaId al state si existe
+            if ($consultaId) {
+                $state['id_consulta'] = $consultaId;
+            }
+            
             $result = $this->$method($state, $formType, ...$args);
             
             echo json_encode([
@@ -80,10 +93,16 @@ class LivewireCRUDHandler {
             
         } catch (Exception $e) {
             http_response_code(400);
+            error_log('LIVEWIRE-CRUD ERROR: ' . $e->getMessage());
+            error_log('LIVEWIRE-CRUD TRACE: ' . $e->getTraceAsString());
             echo json_encode([
                 'success' => false,
                 'message' => $e->getMessage(),
-                'errors' => ['general' => [$e->getMessage()]]
+                'errors' => ['general' => [$e->getMessage()]],
+                'debug' => [
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine()
+                ]
             ]);
         }
     }
@@ -234,22 +253,29 @@ class LivewireCRUDHandler {
     private function saveAnteojos($idConsulta, $state) {
         $anteojos = [
             'id_consulta' => $idConsulta,
-            'od_esf' => $state['od_esf'] ?? null,
-            'od_cil' => $state['od_cil'] ?? null,
-            'od_eje' => $state['od_eje'] ?? null,
-            'od_add' => $state['od_add'] ?? null,
-            'od_av' => $state['od_av'] ?? null,
-            'oi_esf' => $state['oi_esf'] ?? null,
-            'oi_cil' => $state['oi_cil'] ?? null,
-            'oi_eje' => $state['oi_eje'] ?? null,
-            'oi_add' => $state['oi_add'] ?? null,
-            'oi_av' => $state['oi_av'] ?? null,
-            'observaciones' => $state['observaciones_anteojos'] ?? null
+            'esfera_od' => $state['od_esf'] ?? null,
+            'cilindro_od' => $state['od_cil'] ?? null,
+            'eje_od' => $state['od_eje'] ?? null,
+            'dnp_od' => $state['od_dnp'] ?? null,
+            'add_od' => $state['od_add'] ?? null,
+            'altura_od' => $state['od_altura'] ?? null,
+            'nota_od' => $state['od_nota'] ?? null,
+            'esfera_oi' => $state['oi_esf'] ?? null,
+            'cilindro_oi' => $state['oi_cil'] ?? null,
+            'eje_oi' => $state['oi_eje'] ?? null,
+            'dnp_oi' => $state['oi_dnp'] ?? null,
+            'add_oi' => $state['oi_add'] ?? null,
+            'altura_oi' => $state['oi_altura'] ?? null,
+            'nota_oi' => $state['oi_nota'] ?? null,
+            'dist_interpupilar' => $state['dist_interpupilar'] ?? null,
+            'notas' => $state['txtnota'] ?? null // Mapear txtnota a notas
         ];
         
-        $sql = "INSERT INTO consulta_anteojos (id_consulta, od_esf, od_cil, od_eje, od_add, od_av,
-                                             oi_esf, oi_cil, oi_eje, oi_add, oi_av, observaciones)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO consulta_anteojos (
+                    id_consulta, esfera_od, cilindro_od, eje_od, dnp_od, add_od, altura_od, nota_od,
+                    esfera_oi, cilindro_oi, eje_oi, dnp_oi, add_oi, altura_oi, nota_oi,
+                    dist_interpupilar, notas
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         
         $stmt = $this->db->prepare($sql);
         $stmt->execute(array_values($anteojos));
@@ -260,9 +286,9 @@ class LivewireCRUDHandler {
      */
     private function updateAnteojos($idConsulta, $state) {
         $sql = "UPDATE consulta_anteojos SET 
-                    od_esf = ?, od_cil = ?, od_eje = ?, od_add = ?, od_av = ?,
-                    oi_esf = ?, oi_cil = ?, oi_eje = ?, oi_add = ?, oi_av = ?,
-                    observaciones = ?
+                    esfera_od = ?, cilindro_od = ?, eje_od = ?, dnp_od = ?, add_od = ?, altura_od = ?, nota_od = ?,
+                    esfera_oi = ?, cilindro_oi = ?, eje_oi = ?, dnp_oi = ?, add_oi = ?, altura_oi = ?, nota_oi = ?,
+                    dist_interpupilar = ?, notas = ?
                 WHERE id_consulta = ?";
         
         $stmt = $this->db->prepare($sql);
@@ -270,14 +296,19 @@ class LivewireCRUDHandler {
             $state['od_esf'] ?? null,
             $state['od_cil'] ?? null,
             $state['od_eje'] ?? null,
+            $state['od_dnp'] ?? null,
             $state['od_add'] ?? null,
-            $state['od_av'] ?? null,
+            $state['od_altura'] ?? null,
+            $state['od_nota'] ?? null,
             $state['oi_esf'] ?? null,
             $state['oi_cil'] ?? null,
             $state['oi_eje'] ?? null,
+            $state['oi_dnp'] ?? null,
             $state['oi_add'] ?? null,
-            $state['oi_av'] ?? null,
-            $state['observaciones_anteojos'] ?? null,
+            $state['oi_altura'] ?? null,
+            $state['oi_nota'] ?? null,
+            $state['dist_interpupilar'] ?? null,
+            $state['txtnota'] ?? null, // Mapear txtnota a notas
             $idConsulta
         ]);
     }

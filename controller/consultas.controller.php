@@ -57,5 +57,9 @@ class ControllerConsulta {
     public static function ctrGetAllConsultas() {
         return ModelConsulta::mdlGetAllConsultas();
     }
+    
+    public static function ctrGetDetalleConsulta($id) {
+        return ModelConsulta::mdlGetDetalleConsulta($id);
+    }
 }
 ?>

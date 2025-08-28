@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>🧪 Test Completo - Edición desde Historial</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f8f9fa; }
+        .test-container { 
+            background: white; 
+            border-radius: 8px; 
+            padding: 20px; 
+            margin: 15px 0; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .formulario-especifico { 
+            display: none; 
+            padding: 20px; 
+            border: 2px solid #dee2e6; 
+            margin: 10px 0; 
+            background: #f8f9fa;
+            border-radius: 8px;
+            min-height: 200px;
+        }
+        .formulario-especifico.active { 
+            display: block !important; 
+            background: #e3f2fd;
+            border-color: #2196f3;
+        }
+        .form-type-tab { 
+            padding: 12px 20px; 
+            margin: 5px; 
+            background: #e9ecef;
+            display: inline-block;
+            cursor: pointer;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            text-decoration: none;
+            color: #495057;
+            transition: all 0.3s;
+        }
+        .form-type-tab:hover { 
+            background: #dee2e6; 
+            text-decoration: none;
+            color: #495057;
+        }
+        .form-type-tab.active { 
+            background: #007bff; 
+            color: white; 
+            border-color: #007bff;
+        }
+        .log { 
+            background: #1a1a1a; 
+            color: #00ff00; 
+            padding: 15px; 
+            font-family: 'Courier New', monospace; 
+            height: 350px; 
+            overflow-y: auto;
+            border-radius: 6px;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+        .results { 
+            padding: 20px; 
+            margin: 15px 0; 
+            border-radius: 8px;
+            border: 2px solid;
+        }
+        .success { 
+            background: #d4edda; 
+            border-color: #c3e6cb; 
+            color: #155724;
+        }
+        .error { 
+            background: #f8d7da; 
+            border-color: #f5c6cb; 
+            color: #721c24;
+        }
+        .status-badge { 
+            display: inline-block; 
+            padding: 6px 12px; 
+            border-radius: 20px; 
+            font-size: 12px; 
+            font-weight: bold;
+            margin: 2px;
+        }
+        .status-success { background: #28a745; color: white; }
+        .status-error { background: #dc3545; color: white; }
+        .status-warning { background: #ffc107; color: #212529; }
+        .form-section { 
+            background: white; 
+            padding: 15px; 
+            border-radius: 6px; 
+            margin: 10px 0;
+            border: 1px solid #e9ecef;
+        }
+        .field-group { margin-bottom: 15px; }
+        .form-row { display: flex; gap: 15px; }
+        .form-row .form-group { flex: 1; }
+        #btnGuardarConsulta-anteojos {
+            background: #28a745;
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        #btnGuardarConsulta-anteojos:hover {
+            background: #218838;
+            transform: translateY(-1px);
+        }
+        .test-controls {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .btn-test {
+            margin: 5px;
+            min-width: 200px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="text-center mb-4">
+                    <i class="fas fa-bug text-primary"></i> 
+                    Test Completo - Edición desde Historial
+                </h1>
+                <div class="alert alert-info">
+                    <strong><i class="fas fa-info-circle"></i> Objetivo:</strong> 
+                    Reproducir y solucionar el problema donde el formulario de anteojos no se muestra 
+                    correctamente cuando se edita una consulta desde el historial.
+                </div>
+            </div>
+        </div>
+
+        <!-- Controles de Test -->
+        <div class="row">
+            <div class="col-12">
+                <div class="test-controls">
+                    <h4><i class="fas fa-play-circle text-success"></i> Controles de Test</h4>
+                    <div class="mb-3">
+                        <button id="btnTestCompleto" class="btn btn-danger btn-test" onclick="ejecutarTestCompleto()">
+                            🚀 EJECUTAR TEST COMPLETO
+                        </button>
+                        <button class="btn btn-warning btn-test" onclick="simularEdicionHistorial()">
+                            📝 Simular Edición Historial #161
+                        </button>
+                        <button class="btn btn-info btn-test" onclick="verificarEstadoFormularios()">
+                            🔍 Verificar Estado
+                        </button>
+                    </div>
+                    <div>
+                        <button class="btn btn-secondary" onclick="limpiarLog()">
+                            🗑️ Limpiar Log
+                        </button>
+                        <button class="btn btn-success" onclick="reiniciarTest()">
+                            🔄 Reiniciar Test
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Estado del Sistema -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="test-container">
+                    <h4><i class="fas fa-chart-line"></i> Estado del Sistema</h4>
+                    <div id="estadoSistema">
+                        <div id="estadoFormularios"></div>
+                        <div id="estadoBotones"></div>
+                        <div id="estadoGeneral"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="test-container">
+                    <h4><i class="fas fa-terminal"></i> Log de Ejecución</h4>
+                    <div id="log" class="log">
+                        [SISTEMA] Esperando inicio de tests...\n
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Simulación de Pestañas y Formularios -->
+        <div class="row">
+            <div class="col-12">
+                <div class="test-container">
+                    <h4><i class="fas fa-forms"></i> Simulación del Sistema de Formularios</h4>
+                    
+                    <!-- Pestañas -->
+                    <div class="mb-3">
+                        <a class="form-type-tab" data-form-type="general" onclick="cambiarFormulario('general'); return false;">
+                            <i class="fas fa-stethoscope"></i> General
+                        </a>
+                        <a class="form-type-tab" data-form-type="anteojos" onclick="cambiarFormulario('anteojos'); return false;">
+                            <i class="fas fa-glasses"></i> Anteojos
+                        </a>
+                        <a class="form-type-tab" data-form-type="estudios" onclick="cambiarFormulario('estudios'); return false;">
+                            <i class="fas fa-x-ray"></i> Estudios
+                        </a>
+                    </div>
+                    
+                    <!-- Formularios -->
+                    <div class="formulario-especifico" id="formulario-general">
+                        <h5><i class="fas fa-stethoscope"></i> Formulario General</h5>
+                        <div class="form-section">
+                            <div class="field-group">
+                                <label>Motivo de Consulta</label>
+                                <input type="text" class="form-control" id="txtmotivo-general" placeholder="Ingrese el motivo">
+                            </div>
+                            <div class="field-group">
+                                <label>Diagnóstico</label>
+                                <textarea class="form-control" id="diagnostico-general" rows="3"></textarea>
+                            </div>
+                            <button id="btnGuardarConsulta-general" class="btn btn-success">
+                                <i class="fas fa-save"></i> Guardar General
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="formulario-especifico" id="formulario-anteojos">
+                        <h5><i class="fas fa-glasses"></i> Formulario de Anteojos</h5>
+                        <div class="form-section">
+                            <div class="field-group">
+                                <label>Motivo de Consulta</label>
+                                <input type="text" class="form-control" id="txtmotivo-anteojos" placeholder="Motivo específico para anteojos">
+                            </div>
+                            
+                            <h6 class="mt-4 mb-3">
+                                <i class="fas fa-eye"></i> Ojo Derecho (OD)
+                            </h6>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Esfera</label>
+                                    <input type="text" class="form-control" id="od_esf" placeholder="0.00">
+                                </div>
+                                <div class="form-group">
+                                    <label>Cilindro</label>
+                                    <input type="text" class="form-control" id="od_cil" placeholder="0.00">
+                                </div>
+                                <div class="form-group">
+                                    <label>Eje</label>
+                                    <input type="text" class="form-control" id="ejeod" placeholder="0">
+                                </div>
+                                <div class="form-group">
+                                    <label>DNP</label>
+                                    <input type="text" class="form-control" id="dnpod" placeholder="32">
+                                </div>
+                            </div>
+                            
+                            <h6 class="mt-4 mb-3">
+                                <i class="fas fa-eye"></i> Ojo Izquierdo (OI)
+                            </h6>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Esfera</label>
+                                    <input type="text" class="form-control" id="oi_esf" placeholder="0.00">
+                                </div>
+                                <div class="form-group">
+                                    <label>Cilindro</label>
+                                    <input type="text" class="form-control" id="oi_cil" placeholder="0.00">
+                                </div>
+                                <div class="form-group">
+                                    <label>Eje</label>
+                                    <input type="text" class="form-control" id="ejeoi" placeholder="0">
+                                </div>
+                                <div class="form-group">
+                                    <label>DNP</label>
+                                    <input type="text" class="form-control" id="dnpoi" placeholder="30">
+                                </div>
+                            </div>
+                            
+                            <div class="field-group">
+                                <label>Observaciones</label>
+                                <textarea class="form-control" id="observaciones-anteojos" rows="3"></textarea>
+                            </div>
+                            
+                            <button id="btnGuardarConsulta-anteojos">
+                                <i class="fas fa-save"></i> Guardar Anteojos
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="formulario-especifico" id="formulario-estudios">
+                        <h5><i class="fas fa-x-ray"></i> Formulario de Estudios</h5>
+                        <div class="form-section">
+                            <div class="field-group">
+                                <label>Equipo Médico</label>
+                                <select class="form-control" id="equipo-medico">
+                                    <option>Seleccionar equipo</option>
+                                    <option>Tomógrafo</option>
+                                    <option>Resonancia Magnética</option>
+                                    <option>Ecógrafo</option>
+                                </select>
+                            </div>
+                            <div class="field-group">
+                                <label>Resultados</label>
+                                <textarea class="form-control" id="resultados-estudios" rows="4"></textarea>
+                            </div>
+                            <button id="btnGuardarConsulta-estudios" class="btn btn-success">
+                                <i class="fas fa-save"></i> Guardar Estudios
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resultados del Test -->
+        <div class="row">
+            <div class="col-12">
+                <div id="resultadosTest"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // Variables globales
+    let testResults = [];
+    let currentTest = '';
+    
+    // Función de logging mejorada
+    function log(message, type = 'INFO') {
+        const logDiv = document.getElementById('log');
+        const timestamp = new Date().toLocaleTimeString();
+        const color = {
+            'INFO': '#00ff00',
+            'SUCCESS': '#00ff00', 
+            'ERROR': '#ff4444',
+            'WARNING': '#ffaa00',
+            'DEBUG': '#00aaff'
+        }[type] || '#00ff00';
+        
+        logDiv.innerHTML += `<span style="color: ${color}">[${timestamp}] [${type}] ${message}</span>\n`;
+        logDiv.scrollTop = logDiv.scrollHeight;
+        console.log(`[${type}] ${message}`);
+    }
+
+    // Función principal para cambiar formularios (copia exacta del original pero mejorada)
+    function cambiarTipoFormulario(tipo) {
+        log(`🔄 === INICIANDO CAMBIO DE FORMULARIO ===`, 'INFO');
+        log(`🔄 Tipo solicitado: ${tipo}`, 'DEBUG');
+        
+        try {
+            // 1. Desactivar todas las pestañas
+            const todasLasPestanas = document.querySelectorAll('.form-type-tab');
+            log(`📝 Pestañas encontradas: ${todasLasPestanas.length}`, 'DEBUG');
+            todasLasPestanas.forEach((tab, index) => {
+                tab.classList.remove('active');
+                log(`  - Pestaña ${index + 1} desactivada: ${tab.dataset.formType}`, 'DEBUG');
+            });
+            
+            // 2. Activar la pestaña seleccionada
+            const pestanaSeleccionada = document.querySelector(`[data-form-type="${tipo}"]`);
+            if (pestanaSeleccionada) {
+                pestanaSeleccionada.classList.add('active');
+                log(`🎯 Pestaña "${tipo}" activada exitosamente`, 'SUCCESS');
+            } else {
+                log(`❌ ERROR: Pestaña "${tipo}" NO encontrada`, 'ERROR');
+                return false;
+            }
+            
+            // 3. Ocultar todos los formularios de manera agresiva
+            const todosLosFormularios = document.querySelectorAll('.formulario-especifico');
+            log(`📋 Formularios encontrados: ${todosLosFormularios.length}`, 'DEBUG');
+            
+            todosLosFormularios.forEach((form, index) => {
+                const formId = form.id || `formulario-${index}`;
+                log(`  - Ocultando: ${formId}`, 'DEBUG');
+                
+                form.classList.remove('active');
+                
+                // Aplicar múltiples métodos de ocultación
+                form.style.setProperty('display', 'none', 'important');
+                form.style.setProperty('opacity', '0', 'important');
+                form.style.setProperty('visibility', 'hidden', 'important');
+                form.style.setProperty('position', 'absolute', 'important');
+                form.style.setProperty('left', '-9999px', 'important');
+                form.style.setProperty('top', '-9999px', 'important');
+                form.style.setProperty('z-index', '-1', 'important');
+            });
+            
+            // 4. Mostrar el formulario seleccionado
+            const formularioSeleccionado = document.getElementById(`formulario-${tipo}`);
+            
+            if (!formularioSeleccionado) {
+                log(`❌ CRÍTICO: Formulario "formulario-${tipo}" NO EXISTE`, 'ERROR');
+                
+                // Debug: listar formularios disponibles
+                const disponibles = document.querySelectorAll('[id*="formulario"]');
+                log(`🔍 Formularios disponibles:`, 'DEBUG');
+                disponibles.forEach((form, i) => {
+                    log(`  ${i + 1}. ${form.id}`, 'DEBUG');
+                });
+                
+                return false;
+            }
+            
+            log(`✅ Formulario encontrado: ${formularioSeleccionado.id}`, 'SUCCESS');
+            
+            // 5. Aplicar estilos de visibilidad de forma agresiva
+            formularioSeleccionado.classList.add('active');
+            
+            const estilosVisibilidad = {
+                'display': 'block',
+                'opacity': '1', 
+                'visibility': 'visible',
+                'position': 'relative',
+                'left': 'auto',
+                'top': 'auto',
+                'z-index': '1',
+                'width': '100%',
+                'height': 'auto',
+                'min-height': '200px'
+            };
+            
+            Object.entries(estilosVisibilidad).forEach(([propiedad, valor]) => {
+                formularioSeleccionado.style.setProperty(propiedad, valor, 'important');
+                log(`  - ${propiedad}: ${valor}`, 'DEBUG');
+            });
+            
+            // 6. Debug específico para anteojos
+            if (tipo === 'anteojos') {
+                log(`👓 === DEBUG ESPECÍFICO PARA ANTEOJOS ===`, 'INFO');
+                
+                const btnGuardar = document.getElementById('btnGuardarConsulta-anteojos');
+                
+                if (!btnGuardar) {
+                    log(`❌ CRÍTICO: Botón "btnGuardarConsulta-anteojos" NO EXISTE`, 'ERROR');
+                    return false;
+                }
+                
+                // Obtener estilos computados del botón ANTES de modificar
+                const estilosAntes = window.getComputedStyle(btnGuardar);
+                log(`👓 Estado ANTES - Display: ${estilosAntes.display}, Visibility: ${estilosAntes.visibility}`, 'DEBUG');
+                log(`👓 Dimensiones ANTES: ${btnGuardar.offsetWidth}x${btnGuardar.offsetHeight}`, 'DEBUG');
+                
+                // Asegurar visibilidad del botón
+                const estilosBoton = {
+                    'display': 'inline-block',
+                    'visibility': 'visible', 
+                    'opacity': '1',
+                    'position': 'relative',
+                    'z-index': '10',
+                    'pointer-events': 'auto'
+                };
+                
+                Object.entries(estilosBoton).forEach(([prop, val]) => {
+                    btnGuardar.style.setProperty(prop, val, 'important');
+                });
+                
+                // Verificar estilos DESPUÉS de modificar
+                const estilosDespues = window.getComputedStyle(btnGuardar);
+                log(`👓 Estado DESPUÉS - Display: ${estilosDespues.display}, Visibility: ${estilosDespues.visibility}`, 'DEBUG');
+                log(`👓 Dimensiones DESPUÉS: ${btnGuardar.offsetWidth}x${btnGuardar.offsetHeight}`, 'DEBUG');
+                
+                const botonEsVisible = btnGuardar.offsetWidth > 0 && btnGuardar.offsetHeight > 0;
+                log(`👓 Botón es visible: ${botonEsVisible ? '✅ SÍ' : '❌ NO'}`, botonEsVisible ? 'SUCCESS' : 'ERROR');
+                
+                if (!botonEsVisible) {
+                    log(`❌ FALLO: Botón de anteojos NO VISIBLE después de aplicar estilos`, 'ERROR');
+                    return false;
+                }
+                
+                // Verificar elementos del formulario
+                const elementosFormulario = formularioSeleccionado.querySelectorAll('input, select, textarea, button');
+                log(`👓 Elementos en formulario: ${elementosFormulario.length}`, 'DEBUG');
+                
+                const botonesEncontrados = Array.from(elementosFormulario).filter(el => 
+                    el.type === 'button' || el.tagName === 'BUTTON'
+                );
+                log(`👓 Botones encontrados: ${botonesEncontrados.length}`, 'DEBUG');
+                
+                botonesEncontrados.forEach((btn, i) => {
+                    const visible = btn.offsetWidth > 0 && btn.offsetHeight > 0;
+                    log(`  Botón ${i + 1}: "${btn.id}" - Visible: ${visible}`, 'DEBUG');
+                });
+            }
+            
+            // 7. Forzar reflow y verificación final
+            formularioSeleccionado.offsetHeight; // Forzar reflow
+            
+            const formularioVisible = formularioSeleccionado.offsetWidth > 0 && formularioSeleccionado.offsetHeight > 0;
+            log(`📏 Verificación final - Formulario visible: ${formularioVisible}`, 'DEBUG');
+            log(`📐 Dimensiones: ${formularioSeleccionado.offsetWidth}x${formularioSeleccionado.offsetHeight}`, 'DEBUG');
+            
+            if (!formularioVisible) {
+                log(`❌ FALLO: Formulario "${tipo}" NO VISIBLE después de todos los cambios`, 'ERROR');
+                return false;
+            }
+            
+            // 8. Scroll suave al formulario
+            formularioSeleccionado.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'nearest' 
+            });
+            
+            log(`✅ ÉXITO: Cambio a formulario "${tipo}" completado`, 'SUCCESS');
+            return true;
+            
+        } catch (error) {
+            log(`❌ EXCEPCIÓN: ${error.message}`, 'ERROR');
+            console.error('Error en cambiarTipoFormulario:', error);
+            return false;
+        }
+    }
+
+    // Función wrapper para compatibilidad
+    function cambiarFormulario(tipo) {
+        log(`🔄 cambiarFormulario llamada con: ${tipo}`, 'INFO');
+        return cambiarTipoFormulario(tipo);
+    }
+
+    // Función debug para compatibilidad con historial
+    window.cambiarFormularioDebug = function(tipo) {
+        log(`🏥 cambiarFormularioDebug llamada con: ${tipo}`, 'INFO');
+        log(`🏥 Función cambiarTipoFormulario disponible: ${typeof cambiarTipoFormulario}`, 'DEBUG');
+        
+        return cambiarTipoFormulario(tipo);
+    };
+
+    // Función para simular edición desde historial
+    function simularEdicionHistorial() {
+        log(`🏥 === SIMULANDO EDICIÓN DESDE HISTORIAL ===`, 'INFO');
+        currentTest = 'Edición Historial';
+        
+        const consultaId = 161;
+        log(`🏥 Consultad ID: ${consultaId}`, 'DEBUG');
+        
+        // 1. Simular petición AJAX
+        log(`📡 Simulando petición AJAX...`, 'INFO');
+        
+        fetch(`ajax/obtener-consulta-test.php?id=${consultaId}`)
+            .then(response => {
+                log(`📡 Respuesta HTTP: ${response.status}`, 'DEBUG');
+                return response.json();
+            })
+            .then(data => {
+                log(`📨 Datos recibidos: ${JSON.stringify(data, null, 2)}`, 'DEBUG');
+                
+                if (data.success && data.consulta) {
+                    const consulta = data.consulta;
+                    const tipoFormulario = consulta.tipo_formulario;
+                    
+                    log(`✅ Consulta obtenida - Tipo: ${tipoFormulario}`, 'SUCCESS');
+                    
+                    // 2. Cambiar al formulario correcto
+                    log(`🔄 Cambiando al formulario: ${tipoFormulario}`, 'INFO');
+                    
+                    const cambioExitoso = cambiarTipoFormulario(tipoFormulario);
+                    
+                    if (cambioExitoso) {
+                        // 3. Cargar datos en el formulario
+                        setTimeout(() => {
+                            log(`📝 Cargando datos en formulario...`, 'INFO');
+                            cargarDatosEnFormulario(consulta, tipoFormulario);
+                            
+                            // 4. Verificación final
+                            setTimeout(() => {
+                                verificarResultadoEdicion(tipoFormulario);
+                            }, 500);
+                        }, 300);
+                    } else {
+                        log(`❌ FALLO: No se pudo cambiar al formulario ${tipoFormulario}`, 'ERROR');
+                        registrarResultado('Cambio Formulario', false, 'No se pudo cambiar formulario');
+                    }
+                    
+                } else {
+                    log(`❌ ERROR: ${data.message || 'Error desconocido'}`, 'ERROR');
+                    registrarResultado('Petición AJAX', false, data.message);
+                }
+            })
+            .catch(error => {
+                log(`❌ ERROR DE RED: ${error.message}`, 'ERROR');
+                registrarResultado('Petición AJAX', false, error.message);
+            });
+    }
+
+    // Función para cargar datos en el formulario
+    function cargarDatosEnFormulario(consulta, tipoFormulario) {
+        log(`📝 === CARGANDO DATOS EN FORMULARIO ===`, 'INFO');
+        
+        try {
+            // Datos comunes
+            const camposComunes = [
+                { id: `txtmotivo-${tipoFormulario}`, valor: consulta.txtmotivo }
+            ];
+            
+            // Datos específicos por tipo
+            if (tipoFormulario === 'anteojos') {
+                const camposAnteojos = [
+                    { id: 'od_esf', valor: consulta.esfera_od },
+                    { id: 'oi_esf', valor: consulta.esfera_oi },
+                    { id: 'od_cil', valor: consulta.cilindro_od },
+                    { id: 'oi_cil', valor: consulta.cilindro_oi },
+                    { id: 'ejeod', valor: consulta.eje_od },
+                    { id: 'ejeoi', valor: consulta.eje_oi },
+                    { id: 'dnpod', valor: consulta.dnp_od },
+                    { id: 'dnpoi', valor: consulta.dnp_oi }
+                ];
+                camposComunes.push(...camposAnteojos);
+            }
+            
+            // Cargar cada campo
+            let camposCargados = 0;
+            camposComunes.forEach(({ id, valor }) => {
+                const elemento = document.getElementById(id);
+                if (elemento && valor) {
+                    elemento.value = valor;
+                    camposCargados++;
+                    log(`  ✅ ${id}: "${valor}"`, 'DEBUG');
+                } else if (!elemento) {
+                    log(`  ⚠️ Campo "${id}" no encontrado`, 'WARNING');
+                } else {
+                    log(`  ⚠️ Campo "${id}" sin valor`, 'WARNING');
+                }
+            });
+            
+            log(`📝 Campos cargados: ${camposCargados}/${camposComunes.length}`, 'INFO');
+            
+            // Cambiar botón a modo edición
+            const btnGuardar = document.getElementById(`btnGuardarConsulta-${tipoFormulario}`);
+            if (btnGuardar) {
+                btnGuardar.innerHTML = '<i class="fas fa-edit"></i> Actualizar Consulta';
+                btnGuardar.className = btnGuardar.className.replace('btn-success', 'btn-warning');
+                log(`🔧 Botón cambiado a modo edición`, 'SUCCESS');
+            }
+            
+        } catch (error) {
+            log(`❌ ERROR cargando datos: ${error.message}`, 'ERROR');
+        }
+    }
+
+    // Función para verificar resultado de la edición
+    function verificarResultadoEdicion(tipoFormulario) {
+        log(`🔍 === VERIFICACIÓN RESULTADO EDICIÓN ===`, 'INFO');
+        
+        const formulario = document.getElementById(`formulario-${tipoFormulario}`);
+        const boton = document.getElementById(`btnGuardarConsulta-${tipoFormulario}`);
+        
+        const formularioVisible = formulario && formulario.offsetWidth > 0 && formulario.offsetHeight > 0;
+        const botonVisible = boton && boton.offsetWidth > 0 && boton.offsetHeight > 0;
+        
+        log(`📋 Formulario "${tipoFormulario}" visible: ${formularioVisible}`, formularioVisible ? 'SUCCESS' : 'ERROR');
+        log(`🔘 Botón visible: ${botonVisible}`, botonVisible ? 'SUCCESS' : 'ERROR');
+        
+        const exito = formularioVisible && botonVisible;
+        
+        if (exito) {
+            log(`🎉 ÉXITO TOTAL: Edición desde historial funciona correctamente`, 'SUCCESS');
+            if (typeof alertify !== 'undefined') {
+                alertify.success('✅ Edición desde historial exitosa!');
+            }
+        } else {
+            log(`❌ FALLO: Problemas en la edición desde historial`, 'ERROR');
+            if (typeof alertify !== 'undefined') {
+                alertify.error('❌ Fallo en edición desde historial');
+            }
+        }
+        
+        registrarResultado('Edición Completa', exito, exito ? 'Todo funcionando' : 'Formulario o botón no visible');
+        actualizarEstadoSistema();
+    }
+
+    // Función para ejecutar test completo
+    function ejecutarTestCompleto() {
+        log(`🚀 === INICIANDO TEST COMPLETO ===`, 'INFO');
+        testResults = [];
+        currentTest = 'Test Completo';
+        
+        document.getElementById('btnTestCompleto').disabled = true;
+        document.getElementById('btnTestCompleto').innerHTML = '⏳ Ejecutando...';
+        
+        const secuenciaTests = [
+            { nombre: 'Cambio a General', accion: () => cambiarFormulario('general') },
+            { nombre: 'Cambio a Anteojos', accion: () => cambiarFormulario('anteojos') },
+            { nombre: 'Cambio a Estudios', accion: () => cambiarFormulario('estudios') },
+            { nombre: 'Vuelta a Anteojos', accion: () => cambiarFormulario('anteojos') },
+            { nombre: 'Verificar Botón Anteojos', accion: () => verificarBotonAnteojos() },
+            { nombre: 'Simulación Historial', accion: () => new Promise(resolve => {
+                simularEdicionHistorial();
+                setTimeout(resolve, 3000);
+            })}
+        ];
+        
+        ejecutarSecuenciaTests(secuenciaTests, 0);
+    }
+
+    // Función para ejecutar secuencia de tests
+    function ejecutarSecuenciaTests(tests, index) {
+        if (index >= tests.length) {
+            finalizarTestCompleto();
+            return;
+        }
+        
+        const test = tests[index];
+        log(`🧪 Ejecutando: ${test.nombre}`, 'INFO');
+        
+        setTimeout(() => {
+            try {
+                const resultado = test.accion();
+                
+                if (resultado instanceof Promise) {
+                    resultado.then(() => {
+                        ejecutarSecuenciaTests(tests, index + 1);
+                    });
+                } else {
+                    registrarResultado(test.nombre, resultado);
+                    ejecutarSecuenciaTests(tests, index + 1);
+                }
+            } catch (error) {
+                log(`❌ Error en ${test.nombre}: ${error.message}`, 'ERROR');
+                registrarResultado(test.nombre, false, error.message);
+                ejecutarSecuenciaTests(tests, index + 1);
+            }
+        }, 1500);
+    }
+
+    // Función para verificar botón de anteojos específicamente
+    function verificarBotonAnteojos() {
+        const btn = document.getElementById('btnGuardarConsulta-anteojos');
+        const visible = btn && btn.offsetWidth > 0 && btn.offsetHeight > 0;
+        
+        log(`👓 Verificación botón anteojos: ${visible}`, visible ? 'SUCCESS' : 'ERROR');
+        return visible;
+    }
+
+    // Función para registrar resultado de test
+    function registrarResultado(nombre, exito, error = null) {
+        testResults.push({
+            nombre,
+            exito,
+            error,
+            timestamp: new Date()
+        });
+        
+        log(`📊 Resultado ${nombre}: ${exito ? '✅ PASS' : '❌ FAIL'}${error ? ` (${error})` : ''}`, exito ? 'SUCCESS' : 'ERROR');
+    }
+
+    // Función para finalizar test completo
+    function finalizarTestCompleto() {
+        log(`🏁 === TEST COMPLETO FINALIZADO ===`, 'INFO');
+        
+        const exitosos = testResults.filter(r => r.exito).length;
+        const total = testResults.length;
+        const porcentaje = Math.round((exitosos / total) * 100);
+        
+        log(`📊 Resultados: ${exitosos}/${total} (${porcentaje}%)`, 'INFO');
+        
+        document.getElementById('btnTestCompleto').disabled = false;
+        document.getElementById('btnTestCompleto').innerHTML = '🚀 EJECUTAR TEST COMPLETO';
+        
+        mostrarResultadosFinales();
+        actualizarEstadoSistema();
+    }
+
+    // Función para mostrar resultados finales
+    function mostrarResultadosFinales() {
+        const exitosos = testResults.filter(r => r.exito).length;
+        const total = testResults.length;
+        const porcentaje = Math.round((exitosos / total) * 100);
+        const esExito = porcentaje >= 80;
+        
+        const resultadosHTML = `
+            <div class="test-container">
+                <div class="results ${esExito ? 'success' : 'error'}">
+                    <h4>
+                        <i class="fas ${esExito ? 'fa-check-circle' : 'fa-times-circle'}"></i>
+                        ${esExito ? 'TESTS EXITOSOS' : 'TESTS CON ERRORES'}
+                    </h4>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Total de Tests:</strong> ${total}</p>
+                            <p><strong>Exitosos:</strong> ${exitosos}</p>
+                            <p><strong>Fallidos:</strong> ${total - exitosos}</p>
+                            <p><strong>Porcentaje de Éxito:</strong> ${porcentaje}%</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Detalles por Test:</h6>
+                            <ul class="list-unstyled">
+                                ${testResults.map(r => `
+                                    <li>
+                                        <span class="status-badge ${r.exito ? 'status-success' : 'status-error'}">
+                                            ${r.exito ? '✅' : '❌'} ${r.nombre}
+                                        </span>
+                                        ${r.error ? `<br><small class="text-muted">${r.error}</small>` : ''}
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.getElementById('resultadosTest').innerHTML = resultadosHTML;
+    }
+
+    // Función para verificar estado de formularios
+    function verificarEstadoFormularios() {
+        log(`🔍 === VERIFICANDO ESTADO DE FORMULARIOS ===`, 'INFO');
+        
+        const tipos = ['general', 'anteojos', 'estudios'];
+        
+        tipos.forEach(tipo => {
+            const formulario = document.getElementById(`formulario-${tipo}`);
+            const boton = document.getElementById(`btnGuardarConsulta-${tipo}`);
+            const pestana = document.querySelector(`[data-form-type="${tipo}"]`);
+            
+            if (formulario) {
+                const visible = formulario.offsetWidth > 0 && formulario.offsetHeight > 0;
+                const activo = formulario.classList.contains('active');
+                const display = window.getComputedStyle(formulario).display;
+                
+                log(`📋 ${tipo.toUpperCase()}:`, 'INFO');
+                log(`  - Activo: ${activo}`, 'DEBUG');
+                log(`  - Visible: ${visible}`, 'DEBUG');
+                log(`  - Display: ${display}`, 'DEBUG');
+                
+                if (pestana) {
+                    log(`  - Pestaña activa: ${pestana.classList.contains('active')}`, 'DEBUG');
+                }
+                
+                if (boton) {
+                    const botonVisible = boton.offsetWidth > 0 && boton.offsetHeight > 0;
+                    log(`  - Botón visible: ${botonVisible}`, 'DEBUG');
+                }
+            } else {
+                log(`❌ Formulario ${tipo} NO ENCONTRADO`, 'ERROR');
+            }
+        });
+        
+        actualizarEstadoSistema();
+    }
+
+    // Función para actualizar estado del sistema en tiempo real
+    function actualizarEstadoSistema() {
+        const tipos = ['general', 'anteojos', 'estudios'];
+        let estadoFormularios = '<h6>Estado de Formularios:</h6>';
+        let estadoBotones = '<h6>Estado de Botones:</h6>';
+        
+        tipos.forEach(tipo => {
+            const formulario = document.getElementById(`formulario-${tipo}`);
+            const boton = document.getElementById(`btnGuardarConsulta-${tipo}`);
+            
+            const formVisible = formulario && formulario.offsetWidth > 0 && formulario.offsetHeight > 0;
+            const formActivo = formulario && formulario.classList.contains('active');
+            const btnVisible = boton && boton.offsetWidth > 0 && boton.offsetHeight > 0;
+            
+            const estadoForm = formVisible && formActivo ? 'success' : (formActivo ? 'warning' : 'error');
+            const estadoBtn = btnVisible ? 'success' : 'error';
+            
+            estadoFormularios += `<span class="status-badge status-${estadoForm}">${tipo}: ${formVisible && formActivo ? 'OK' : (formActivo ? 'Activo/No Visible' : 'Oculto')}</span>`;
+            estadoBotones += `<span class="status-badge status-${estadoBtn}">${tipo}: ${btnVisible ? 'Visible' : 'Oculto'}</span>`;
+        });
+        
+        const exitosos = testResults.filter(r => r.exito).length;
+        const total = testResults.length;
+        
+        let estadoGeneral = '<h6>Estado General:</h6>';
+        if (total > 0) {
+            const porcentaje = Math.round((exitosos / total) * 100);
+            estadoGeneral += `<span class="status-badge ${porcentaje >= 80 ? 'status-success' : 'status-error'}">Tests: ${exitosos}/${total} (${porcentaje}%)</span>`;
+        } else {
+            estadoGeneral += '<span class="status-badge status-warning">Sin tests ejecutados</span>';
+        }
+        
+        document.getElementById('estadoFormularios').innerHTML = estadoFormularios;
+        document.getElementById('estadoBotones').innerHTML = estadoBotones;
+        document.getElementById('estadoGeneral').innerHTML = estadoGeneral;
+    }
+
+    // Función para limpiar log
+    function limpiarLog() {
+        document.getElementById('log').innerHTML = '[SISTEMA] Log limpiado.\n';
+        log('Log reiniciado', 'INFO');
+    }
+
+    // Función para reiniciar test
+    function reiniciarTest() {
+        testResults = [];
+        currentTest = '';
+        limpiarLog();
+        document.getElementById('resultadosTest').innerHTML = '';
+        cambiarFormulario('general');
+        actualizarEstadoSistema();
+        log('Sistema reiniciado', 'SUCCESS');
+    }
+
+    // Hacer funciones globales
+    window.cambiarFormulario = cambiarFormulario;
+    window.cambiarTipoFormulario = cambiarTipoFormulario;
+
+    // Inicialización del sistema
+    document.addEventListener('DOMContentLoaded', function() {
+        log('🚀 Sistema de test iniciado', 'SUCCESS');
+        log('✅ DOM completamente cargado', 'SUCCESS');
+        
+        // Estado inicial
+        setTimeout(() => {
+            log('🔧 Configurando estado inicial...', 'INFO');
+            cambiarFormulario('general');
+            actualizarEstadoSistema();
+            
+            // Auto-actualización del estado cada 3 segundos
+            setInterval(actualizarEstadoSistema, 3000);
+            
+            log('⏳ Sistema listo. Usa "EJECUTAR TEST COMPLETO" para comenzar', 'SUCCESS');
+        }, 500);
+    });
+    
+    </script>
+</body>
+</html>

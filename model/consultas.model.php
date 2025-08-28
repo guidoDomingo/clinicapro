@@ -499,20 +499,64 @@ class ModelConsulta {
                     'message' => 'No se encontró la consulta solicitada.'
                 ]);
             } else {
-                // Verificar si existe una entrada en la tabla de anteojos para esta consulta
+                // Obtener datos específicos para consultas de anteojos
                 if ($consulta['tipo_formulario'] == 'anteojos') {
                     try {
-                        $stmtAnteojos = Conexion::conectar()->prepare("SELECT COUNT(*) as tiene_anteojos FROM consulta_anteojos WHERE id_consulta = :id_consulta");
+                        $stmtAnteojos = Conexion::conectar()->prepare("
+                            SELECT 
+                                esfera_od, cilindro_od, eje_od, dnp_od,
+                                esfera_oi, cilindro_oi, eje_oi, dnp_oi,
+                                add_od, add_oi, altura_od, altura_oi,
+                                dist_interpupilar, notas, nota_od, nota_oi
+                            FROM consulta_anteojos 
+                            WHERE id_consulta = :id_consulta
+                        ");
                         $stmtAnteojos->bindParam(":id_consulta", $idConsulta, PDO::PARAM_INT);
                         $stmtAnteojos->execute();
-                        $resultAnteojos = $stmtAnteojos->fetch(PDO::FETCH_ASSOC);
+                        $datosAnteojos = $stmtAnteojos->fetch(PDO::FETCH_ASSOC);
                         
-                        // Agregar información sobre la disponibilidad de datos de anteojos
-                        $consulta['tiene_datos_anteojos'] = ($resultAnteojos && $resultAnteojos['tiene_anteojos'] > 0);
+                        if ($datosAnteojos) {
+                            // Agregar datos específicos de anteojos al resultado
+                            $consulta = array_merge($consulta, $datosAnteojos);
+                            $consulta['tiene_datos_anteojos'] = true;
+                        } else {
+                            $consulta['tiene_datos_anteojos'] = false;
+                        }
                     } catch (Exception $e) {
                         // Si hay un error, asumir que no tiene datos de anteojos
                         $consulta['tiene_datos_anteojos'] = false;
-                        error_log("Error al verificar datos de anteojos: " . $e->getMessage());
+                        error_log("Error al obtener datos de anteojos: " . $e->getMessage());
+                    }
+                }
+                
+                // Obtener datos específicos para consultas de estudios
+                if ($consulta['tipo_formulario'] == 'estudios') {
+                    try {
+                        $stmtEstudios = Conexion::conectar()->prepare("
+                            SELECT 
+                                equipo_medico,
+                                otro_equipo,
+                                resultados,
+                                emails_compartir,
+                                compartir_activo
+                            FROM consulta_estudios 
+                            WHERE id_consulta = :id_consulta
+                        ");
+                        $stmtEstudios->bindParam(":id_consulta", $idConsulta, PDO::PARAM_INT);
+                        $stmtEstudios->execute();
+                        $datosEstudios = $stmtEstudios->fetch(PDO::FETCH_ASSOC);
+                        
+                        if ($datosEstudios) {
+                            // Agregar datos específicos de estudios al resultado
+                            $consulta = array_merge($consulta, $datosEstudios);
+                            $consulta['tiene_datos_estudios'] = true;
+                        } else {
+                            $consulta['tiene_datos_estudios'] = false;
+                        }
+                    } catch (Exception $e) {
+                        // Si hay un error, asumir que no tiene datos de estudios
+                        $consulta['tiene_datos_estudios'] = false;
+                        error_log("Error al obtener datos de estudios: " . $e->getMessage());
                     }
                 }
                 
