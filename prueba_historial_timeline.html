@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba de Historial y Timeline</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="plugins/bootstrap/css/bootstrap.min.css">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
+    <!-- Estilos personalizados -->
+    <link rel="stylesheet" href="historial_timeline_styles.css">
+    <style>
+        body { background-color: #f4f4f4; padding: 20px; }
+        .test-container { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .btn-test { margin: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🧪 Prueba de Historial y Timeline</h1>
+    
+    <div class="test-container">
+        <h3>🎛️ Controles de Prueba</h3>
+        <button class="btn btn-primary btn-test" onclick="probarHistorialManual()">
+            🔬 Probar Historial Manual
+        </button>
+        <button class="btn btn-info btn-test" onclick="debugElementos()">
+            🔍 Debug Elementos
+        </button>
+        <button class="btn btn-success btn-test" onclick="simularBusquedaPaciente()">
+            👤 Simular Búsqueda Paciente
+        </button>
+        <button class="btn btn-warning btn-test" onclick="limpiarTodo()">
+            🧹 Limpiar Todo
+        </button>
+    </div>
+
+    <!-- Navegación por pestañas -->
+    <div class="test-container">
+        <ul class="nav nav-pills nav-fill" id="pills-tab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <a class="nav-link active" id="historial-tab" data-toggle="pill" href="#historial-panel" role="tab">
+                    <i class="fas fa-list"></i> Historial
+                    <span class="badge badge-primary">0</span>
+                </a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" id="timeline-tab" data-toggle="pill" href="#timeline-panel" role="tab">
+                    <i class="fas fa-clock"></i> Timeline
+                    <span class="badge badge-info">0</span>
+                </a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" id="archivos-tab" data-toggle="pill" href="#archivos-panel" role="tab">
+                    <i class="fas fa-folder"></i> Archivos
+                    <span class="badge badge-secondary">0</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Contenido de las pestañas -->
+    <div class="test-container">
+        <div class="tab-content" id="pills-tabContent">
+            
+            <!-- Panel de Historial -->
+            <div class="tab-pane fade show active" id="historial-panel" role="tabpanel">
+                <div class="consultas-table-container">
+                    <div class="consultas-table-header">
+                        <h4><i class="fas fa-list"></i> Historial de Consultas</h4>
+                    </div>
+                    <div class="table-responsive-enhanced">
+                        <table id="tabla-consultas" class="table table-enhanced table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Paciente</th>
+                                    <th>Tipo</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted py-4">
+                                        <i class="fas fa-info-circle fa-2x mb-2"></i>
+                                        <div>Presiona "Probar Historial Manual" para cargar datos de prueba</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel de Timeline -->
+            <div class="tab-pane fade" id="timeline-panel" role="tabpanel">
+                <div id="timeline-container" class="timeline-enhanced">
+                    <div id="timeline" class="timeline-content">
+                        <div class="alert alert-info text-center">
+                            <i class="fas fa-info-circle"></i>
+                            Presiona "Probar Historial Manual" para cargar timeline de prueba
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel de Archivos -->
+            <div class="tab-pane fade" id="archivos-panel" role="tabpanel">
+                <div id="archivos-container" class="archivos-list">
+                    <div class="alert alert-info text-center">
+                        <i class="fas fa-info-circle"></i>
+                        Panel de archivos funcionando
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Área de log -->
+    <div class="test-container">
+        <h4>📜 Log de Debug</h4>
+        <div id="debug-log" style="background: #f8f9fa; padding: 10px; border-radius: 4px; max-height: 400px; overflow-y: auto; font-family: monospace; font-size: 12px;">
+            Log de debug aparecerá aquí...
+        </div>
+    </div>
+</div>
+
+<!-- jQuery -->
+<script src="plugins/jquery/jquery.min.js"></script>
+<!-- Bootstrap -->
+<script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- Debug script -->
+<script src="debug_historial_timeline.js"></script>
+
+<script>
+// Capturar logs de console y mostrarlos en la página
+const originalConsoleLog = console.log;
+const debugLogEl = document.getElementById('debug-log');
+
+console.log = function(...args) {
+    originalConsoleLog.apply(console, args);
+    
+    const message = args.map(arg => {
+        if (typeof arg === 'object') {
+            return JSON.stringify(arg, null, 2);
+        }
+        return String(arg);
+    }).join(' ');
+    
+    const logEntry = document.createElement('div');
+    logEntry.innerHTML = `<span style="color: #666">[${new Date().toLocaleTimeString()}]</span> ${message}`;
+    debugLogEl.appendChild(logEntry);
+    debugLogEl.scrollTop = debugLogEl.scrollHeight;
+};
+
+// Función para simular búsqueda de paciente
+function simularBusquedaPaciente() {
+    console.log('🎭 Simulando búsqueda de paciente...');
+    
+    // Datos realistas de alejandro visconte
+    const historialReal = [
+        {
+            id_consulta: 1,
+            fecha_registro: '2024-08-27 10:30:00',
+            motivo: 'Consulta oftalmológica de rutina',
+            tipo_formulario: 'Consulta General',
+            diagnostico: 'Miopía leve'
+        },
+        {
+            id_consulta: 2,
+            fecha_registro: '2024-08-15 14:15:00',
+            motivo: 'Control post-operatorio',
+            tipo_formulario: 'Control',
+            diagnostico: 'Evolución satisfactoria'
+        },
+        {
+            id_consulta: 3,
+            fecha_registro: '2024-07-30 09:45:00',
+            motivo: 'Dolor ocular agudo',
+            tipo_formulario: 'Emergencia',
+            diagnostico: 'Conjuntivitis aguda'
+        },
+        {
+            id_consulta: 4,
+            fecha_registro: '2024-07-10 16:20:00',
+            motivo: 'Examen de agudeza visual',
+            tipo_formulario: 'Estudio',
+            diagnostico: 'Agudeza visual normal'
+        }
+    ];
+    
+    const timelineReal = [
+        {
+            fecha: '2024-08-27 10:30',
+            tipo: 'Consulta',
+            descripcion: 'Consulta oftalmológica de rutina - Miopía leve detectada',
+            id: 1
+        },
+        {
+            fecha: '2024-08-15 14:15',
+            tipo: 'Control',
+            descripcion: 'Control post-operatorio - Evolución satisfactoria',
+            id: 2
+        },
+        {
+            fecha: '2024-07-30 09:45',
+            tipo: 'Emergencia',
+            descripcion: 'Dolor ocular agudo tratado - Conjuntivitis aguda',
+            id: 3
+        },
+        {
+            fecha: '2024-07-10 16:20',
+            tipo: 'Estudio',
+            descripción: 'Examen de agudeza visual - Resultados normales',
+            id: 4
+        }
+    ];
+    
+    // Actualizar contadores
+    const historialBadge = document.querySelector('#historial-tab .badge');
+    const timelineBadge = document.querySelector('#timeline-tab .badge');
+    
+    if (historialBadge) historialBadge.textContent = historialReal.length;
+    if (timelineBadge) timelineBadge.textContent = timelineReal.length;
+    
+    // Llamar las funciones de actualización
+    actualizarHistorialDebug(historialReal);
+    actualizarTimelineDebug(timelineReal);
+    
+    console.log('✅ Simulación de búsqueda completada');
+}
+
+// Función para limpiar todo
+function limpiarTodo() {
+    console.log('🧹 Limpiando historial y timeline...');
+    
+    const tablaBody = document.querySelector('#tabla-consultas tbody');
+    const timeline = document.querySelector('#timeline');
+    
+    if (tablaBody) {
+        tablaBody.innerHTML = `
+            <tr>
+                <td colspan="4" class="text-center text-muted py-4">
+                    <i class="fas fa-info-circle fa-2x mb-2"></i>
+                    <div>Tabla limpiada</div>
+                </td>
+            </tr>
+        `;
+    }
+    
+    if (timeline) {
+        timeline.innerHTML = `
+            <div class="alert alert-info text-center">
+                <i class="fas fa-info-circle"></i>
+                Timeline limpiado
+            </div>
+        `;
+    }
+    
+    // Limpiar badges
+    const badges = document.querySelectorAll('.nav-link .badge');
+    badges.forEach(badge => badge.textContent = '0');
+    
+    console.log('✅ Limpieza completada');
+}
+
+// Auto debug al cargar
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Página de prueba cargada');
+    setTimeout(() => {
+        console.log('🔍 Ejecutando debug automático...');
+        if (typeof debugElementos === 'function') {
+            debugElementos();
+        } else {
+            console.log('⚠️ Función debugElementos no disponible');
+        }
+    }, 1000);
+});
+</script>
+
+</body>
+</html>

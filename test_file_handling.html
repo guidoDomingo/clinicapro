@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test de Manejo de Archivos</title>
+    <link rel="stylesheet" href="plugins/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="plugins/fontawesome-free/css/all.min.css">
+    <style>
+        body { padding: 20px; background: #f4f4f4; }
+        .test-container { background: white; padding: 20px; margin: 10px 0; border-radius: 8px; }
+        .file-info { font-size: 0.9em; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🧪 Test de Manejo de Archivos - Informe e Imagen</h1>
+    
+    <div class="test-container">
+        <h3>📁 Subida de Archivos OD (Ojo Derecho)</h3>
+        <div class="form-group">
+            <input type="file" name="archivo_od[]" id="archivo_od-informe-imagen" class="form-control" multiple accept="image/*,.pdf" onchange="handleFileUpload('od', event)">
+            <label for="archivo_od-informe-imagen" class="btn btn-primary btn-sm mt-2">
+                <i class="fas fa-upload"></i> Seleccionar archivos OD
+            </label>
+        </div>
+        
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Archivo</th>
+                    <th>Ver</th>
+                    <th>Quitar</th>
+                </tr>
+            </thead>
+            <tbody id="tabla-archivos-od-informe-imagen">
+                <!-- Los archivos se agregarán aquí -->
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="test-container">
+        <h3>📁 Subida de Archivos OI (Ojo Izquierdo)</h3>
+        <div class="form-group">
+            <input type="file" name="archivo_oi[]" id="archivo_oi-informe-imagen" class="form-control" multiple accept="image/*,.pdf" onchange="handleFileUpload('oi', event)">
+            <label for="archivo_oi-informe-imagen" class="btn btn-primary btn-sm mt-2">
+                <i class="fas fa-upload"></i> Seleccionar archivos OI
+            </label>
+        </div>
+        
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Archivo</th>
+                    <th>Ver</th>
+                    <th>Quitar</th>
+                </tr>
+            </thead>
+            <tbody id="tabla-archivos-oi-informe-imagen">
+                <!-- Los archivos se agregarán aquí -->
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="test-container">
+        <h3>🔧 Herramientas de Debug</h3>
+        <button class="btn btn-info" onclick="testFileHandling()">🧪 Test Manual</button>
+        <button class="btn btn-secondary" onclick="clearAllTables()">🧹 Limpiar Todo</button>
+        
+        <div id="debug-log" class="mt-3 p-3" style="background: #f8f9fa; border-radius: 4px; min-height: 100px;">
+            <strong>Log de debug:</strong><br>
+            Selecciona archivos para ver el funcionamiento...
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="plugins/jquery/jquery.min.js"></script>
+<script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="file_handler_informe_imagen.js"></script>
+
+<script>
+// Capturar console.log y mostrarlo en la página
+const originalConsoleLog = console.log;
+const debugLogEl = document.getElementById('debug-log');
+
+console.log = function(...args) {
+    originalConsoleLog.apply(console, args);
+    
+    const message = args.join(' ');
+    const timestamp = new Date().toLocaleTimeString();
+    debugLogEl.innerHTML += `<div><span style="color: #666">[${timestamp}]</span> ${message}</div>`;
+    debugLogEl.scrollTop = debugLogEl.scrollHeight;
+};
+
+// Test manual
+function testFileHandling() {
+    console.log('🧪 Iniciando test manual del manejo de archivos...');
+    
+    // Verificar que las funciones existan
+    const functions = ['handleFileUpload', 'previewFile', 'removeFile', 'validateFiles'];
+    functions.forEach(func => {
+        if (typeof window[func] === 'function') {
+            console.log(`✅ Función ${func} disponible`);
+        } else {
+            console.log(`❌ Función ${func} NO disponible`);
+        }
+    });
+    
+    // Verificar elementos DOM
+    const elements = ['archivo_od-informe-imagen', 'archivo_oi-informe-imagen', 'tabla-archivos-od-informe-imagen', 'tabla-archivos-oi-informe-imagen'];
+    elements.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            console.log(`✅ Elemento ${id} encontrado`);
+        } else {
+            console.log(`❌ Elemento ${id} NO encontrado`);
+        }
+    });
+    
+    console.log('✅ Test manual completado');
+}
+
+// Limpiar todas las tablas
+function clearAllTables() {
+    console.log('🧹 Limpiando todas las tablas...');
+    
+    document.getElementById('tabla-archivos-od-informe-imagen').innerHTML = '';
+    document.getElementById('tabla-archivos-oi-informe-imagen').innerHTML = '';
+    document.getElementById('archivo_od-informe-imagen').value = '';
+    document.getElementById('archivo_oi-informe-imagen').value = '';
+    
+    console.log('✅ Tablas limpiadas');
+}
+
+// Auto-test al cargar
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Página de test de archivos cargada');
+    setTimeout(() => {
+        console.log('🔍 Ejecutando test automático...');
+        testFileHandling();
+    }, 1000);
+});
+</script>
+
+</body>
+</html>

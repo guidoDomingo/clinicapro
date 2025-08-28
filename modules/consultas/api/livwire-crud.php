@@ -18,16 +18,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 // Cargar configuración de base de datos
-require_once '../../../config/config.php';
+$connection_path = __DIR__ . '/../../../model/conexion.php';
+error_log("Intentando cargar conexión desde: $connection_path");
+error_log("¿Archivo existe? " . (file_exists($connection_path) ? 'SÍ' : 'NO'));
 
-// Configurar conexión a PostgreSQL
+if (!file_exists($connection_path)) {
+    // Intentar rutas alternativas
+    $alt_paths = [
+        __DIR__ . '/../../model/conexion.php',
+        __DIR__ . '/../model/conexion.php',
+        dirname(__DIR__, 3) . '/model/conexion.php',
+    ];
+    
+    foreach ($alt_paths as $path) {
+        error_log("Probando ruta alternativa: $path - " . (file_exists($path) ? 'EXISTE' : 'NO EXISTE'));
+        if (file_exists($path)) {
+            $connection_path = $path;
+            break;
+        }
+    }
+}
+
+require_once $connection_path;
+
+// Configurar conexión usando la clase Conexion que funciona
 try {
-    $dsn = "pgsql:host=" . $_ENV['DB_HOST'] . ";port=" . $_ENV['DB_PORT'] . ";dbname=" . $_ENV['DB_DATABASE'];
-    $pdo = new PDO($dsn, $_ENV['DB_USERNAME'], $_ENV['DB_PASSWORD'], [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        PDO::ATTR_EMULATE_PREPARES => false,
-    ]);
+    $pdo = Conexion::conectar();
+    error_log("✅ Conexión establecida usando Conexion::conectar()");
 } catch (PDOException $e) {
     error_log("Database connection error: " . $e->getMessage());
     $pdo = null;
@@ -126,6 +143,113 @@ function cargarDatosPacienteReal($pdo, $id) {
     } catch (Exception $e) {
         error_log("Error loading patient: " . $e->getMessage());
         return null;
+    }
+}
+
+// Load patient historical data (consultas, timeline, archivos, etc.)
+function cargarDatosHistoricosPaciente($pdo, $patientId) {
+    try {
+        // DEBUG
+        error_log("cargarDatosHistoricosPaciente called with ID: $patientId");
+        
+        $result = [
+            'consultas' => 0,
+            'cuota_mb' => 0,
+            'historial' => [],
+            'timeline' => [],
+            'archivos' => []
+        ];
+        
+        // Contar consultas del paciente
+        $sql = "SELECT COUNT(*) as total FROM consultas WHERE id_persona = :patient_id";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute(['patient_id' => $patientId]);
+        $result['consultas'] = (int) $stmt->fetchColumn();
+        
+        // DEBUG
+        error_log("Consultas found: " . $result['consultas']);
+        
+        // Calcular cuota MB (ejemplo basado en archivos si existe la tabla)
+        try {
+            $sql = "SELECT COALESCE(SUM(CASE WHEN archivo_tamaño IS NOT NULL THEN archivo_tamaño ELSE 0 END), 0) as total_mb 
+                    FROM consultas_archivos 
+                    WHERE id_persona = :patient_id";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute(['patient_id' => $patientId]);
+            $totalBytes = $stmt->fetchColumn() ?: 0;
+            $result['cuota_mb'] = round($totalBytes / (1024 * 1024), 2); // Convert to MB
+        } catch (Exception $e) {
+            // Tabla de archivos no existe, usar 0
+            $result['cuota_mb'] = 0;
+            error_log("Archivos table error: " . $e->getMessage());
+        }
+        
+        // Cargar historial reciente (últimas 10 consultas)
+        $sql = "SELECT 
+                    c.id_consulta,
+                    c.fecha_registro,
+                    c.txtmotivo as motivo_consulta,
+                    c.consulta_textarea as diagnostico,
+                    c.receta_textarea as tratamiento,
+                    c.tipo_formulario,
+                    u.nombre as medico_nombre
+                FROM consultas c
+                LEFT JOIN usuarios u ON c.id_user = u.id_usuario
+                WHERE c.id_persona = :patient_id 
+                ORDER BY c.fecha_registro DESC 
+                LIMIT 10";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute(['patient_id' => $patientId]);
+        $result['historial'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Cargar timeline (actividades recientes de consultas)
+        $sql = "SELECT 
+                    'consulta' as tipo,
+                    fecha_registro as fecha,
+                    CONCAT('Consulta: ', COALESCE(LEFT(txtmotivo, 50), 'Sin motivo'), 
+                           CASE WHEN LENGTH(txtmotivo) > 50 THEN '...' ELSE '' END) as descripcion,
+                    id_consulta as referencia_id,
+                    tipo_formulario
+                FROM consultas 
+                WHERE id_persona = :patient_id
+                ORDER BY fecha_registro DESC 
+                LIMIT 15";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute(['patient_id' => $patientId]);
+        $result['timeline'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Intentar cargar archivos si la tabla existe
+        try {
+            $sql = "SELECT 
+                        id,
+                        nombre_archivo,
+                        tipo_archivo,
+                        archivo_tamaño,
+                        fecha_subida,
+                        descripcion
+                    FROM consultas_archivos 
+                    WHERE id_persona = :patient_id 
+                    ORDER BY fecha_subida DESC 
+                    LIMIT 20";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute(['patient_id' => $patientId]);
+            $result['archivos'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            // Tabla de archivos no existe
+            $result['archivos'] = [];
+        }
+        
+        return $result;
+        
+    } catch (Exception $e) {
+        error_log("Error loading patient history: " . $e->getMessage());
+        return [
+            'consultas' => 0,
+            'cuota_mb' => 0,
+            'historial' => [],
+            'timeline' => [],
+            'archivos' => []
+        ];
     }
 }
 
@@ -244,6 +368,32 @@ try {
                 'success' => true,
                 'data' => ['patients' => []],
                 'message' => 'Búsqueda completada (mock)'
+            ];
+            break;
+            
+        case 'loadPatientHistory':
+            $id = $data['id'] ?? 0;
+            
+            // DEBUG: Log the request
+            error_log("=== LOAD PATIENT HISTORY DEBUG ===");
+            error_log("Patient ID: " . $id);
+            
+            // Load patient historical data
+            $historyData = cargarDatosHistoricosPaciente($pdo, $id);
+            
+            // DEBUG: Log the result
+            error_log("History data consultas: " . $historyData['consultas']);
+            error_log("History data historial count: " . count($historyData['historial']));
+            
+            $response = [
+                'success' => true,
+                'data' => $historyData,
+                'message' => 'Datos históricos del paciente cargados exitosamente',
+                'debug' => [
+                    'patient_id' => $id,
+                    'consultas_count' => $historyData['consultas'],
+                    'historial_count' => count($historyData['historial'])
+                ]
             ];
             break;
             

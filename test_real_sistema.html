@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Real del Sistema</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f4f4f4; }
+        .test-box { background: white; padding: 15px; margin: 10px 0; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .success { border-left: 4px solid #28a745; }
+        .error { border-left: 4px solid #dc3545; }
+        .info { border-left: 4px solid #17a2b8; }
+        button { background: #007bff; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; margin: 2px; }
+        button:hover { background: #0056b3; }
+        #console { background: #000; color: #00ff00; padding: 10px; border-radius: 4px; font-family: monospace; height: 200px; overflow-y: scroll; }
+    </style>
+</head>
+<body>
+
+<h1>🧪 Test Real del Sistema de Consultas</h1>
+
+<div class="test-box info">
+    <h3>📋 Instrucciones</h3>
+    <p>1. Abrir en otra pestaña: <a href="view/modules/consultas-new.php" target="_blank">Módulo de Consultas</a></p>
+    <p>2. Buscar paciente: "alejandro visconte" o "vis"</p>
+    <p>3. Ver si aparecen datos en Historial y Timeline</p>
+    <p>4. Si no aparecen, usar los botones de abajo para debuggear</p>
+</div>
+
+<div class="test-box">
+    <h3>🛠️ Herramientas de Debug</h3>
+    <button onclick="testAPI()">🔍 Test API</button>
+    <button onclick="testElementos()">🎯 Test Elementos</button>
+    <button onclick="simularDatos()">📊 Simular Datos</button>
+    <button onclick="testCompleto()">🚀 Test Completo</button>
+    <button onclick="limpiarConsola()">🧹 Limpiar</button>
+</div>
+
+<div class="test-box">
+    <h3>🖥️ Consola de Debug</h3>
+    <div id="console"></div>
+</div>
+
+<div class="test-box">
+    <h3>📊 Resultados del Test</h3>
+    <div id="resultados">Esperando test...</div>
+</div>
+
+<script>
+// Consola personalizada
+const consoleEl = document.getElementById('console');
+const resultadosEl = document.getElementById('resultados');
+
+function log(mensaje, tipo = 'info') {
+    const timestamp = new Date().toLocaleTimeString();
+    const colored = tipo === 'error' ? '#ff0000' : tipo === 'success' ? '#00ff00' : '#00ffff';
+    consoleEl.innerHTML += `<div style="color: ${colored}">[${timestamp}] ${mensaje}</div>`;
+    consoleEl.scrollTop = consoleEl.scrollHeight;
+}
+
+function limpiarConsola() {
+    consoleEl.innerHTML = '';
+}
+
+// Test de la API
+async function testAPI() {
+    log('🔍 Probando API de búsqueda...');
+    
+    try {
+        const response = await fetch('../../patient_history_api.php?action=buscar&query=alejandro');
+        const data = await response.json();
+        
+        if (data.success) {
+            log(`✅ API responde correctamente: ${data.data.length} resultados`, 'success');
+            log(`📊 Primer resultado: ${data.data[0].nombre} ${data.data[0].apellido}`);
+            
+            // Test de datos históricos
+            if (data.data[0]) {
+                const historyResponse = await fetch(`../../patient_history_api.php?action=historial&paciente_id=${data.data[0].id}`);
+                const historyData = await historyResponse.json();
+                
+                if (historyData.success) {
+                    log(`✅ Datos históricos: ${historyData.data.consultas} consultas`, 'success');
+                } else {
+                    log('❌ Error obteniendo datos históricos', 'error');
+                }
+            }
+        } else {
+            log('❌ Error en API: ' + data.message, 'error');
+        }
+    } catch (error) {
+        log('❌ Error de conexión: ' + error.message, 'error');
+    }
+}
+
+// Test de elementos DOM
+function testElementos() {
+    log('🎯 Probando elementos DOM...');
+    
+    const elementos = [
+        '#tabla-consultas',
+        '#tabla-consultas tbody',
+        '#timeline',
+        '#timeline-container', 
+        '#archivos-container',
+        '.nav-pills',
+        'a[href="#historial-panel"]',
+        'a[href="#timeline-panel"]'
+    ];
+    
+    let encontrados = 0;
+    elementos.forEach(selector => {
+        // Intentar encontrar en esta ventana primero
+        let elemento = document.querySelector(selector);
+        
+        if (elemento) {
+            log(`✅ Encontrado aquí: ${selector}`, 'success');
+            encontrados++;
+        } else {
+            log(`❌ No encontrado aquí: ${selector}`, 'error');
+            
+            // Intentar en la ventana padre o opener
+            try {
+                if (window.opener && window.opener.document) {
+                    elemento = window.opener.document.querySelector(selector);
+                    if (elemento) {
+                        log(`✅ Encontrado en ventana padre: ${selector}`, 'success');
+                        encontrados++;
+                    }
+                }
+            } catch (e) {
+                // Error de cross-origin, ignorar
+            }
+        }
+    });
+    
+    log(`📊 Resumen: ${encontrados}/${elementos.length} elementos encontrados`);
+}
+
+// Simular datos de prueba
+function simularDatos() {
+    log('📊 Simulando datos de prueba...');
+    
+    const historialPrueba = [
+        {
+            id_consulta: 1,
+            fecha_registro: '2024-08-27 10:30:00',
+            motivo: 'Consulta oftalmológica',
+            tipo_formulario: 'Consulta General'
+        },
+        {
+            id_consulta: 2,
+            fecha_registro: '2024-08-15 14:15:00',
+            motivo: 'Control post-operatorio',
+            tipo_formulario: 'Control'
+        }
+    ];
+    
+    const timelinePrueba = [
+        {
+            fecha: '2024-08-27 10:30',
+            tipo: 'Consulta',
+            descripcion: 'Consulta oftalmológica realizada',
+            id: 1
+        }
+    ];
+    
+    // Intentar ejecutar las funciones si existen
+    try {
+        if (typeof window.actualizarHistorial === 'function') {
+            window.actualizarHistorial(historialPrueba);
+            log('✅ actualizarHistorial ejecutada', 'success');
+        } else {
+            log('❌ actualizarHistorial no disponible', 'error');
+        }
+        
+        if (typeof window.actualizarTimeline === 'function') {
+            window.actualizarTimeline(timelinePrueba);
+            log('✅ actualizarTimeline ejecutada', 'success');
+        } else {
+            log('❌ actualizarTimeline no disponible', 'error');
+        }
+    } catch (error) {
+        log('❌ Error ejecutando funciones: ' + error.message, 'error');
+    }
+}
+
+// Test completo
+async function testCompleto() {
+    log('🚀 Ejecutando test completo...');
+    
+    await testAPI();
+    testElementos();
+    simularDatos();
+    
+    log('✅ Test completo terminado', 'success');
+    
+    // Mostrar resumen en resultados
+    resultadosEl.innerHTML = `
+        <div class="info">
+            <h4>📋 Resumen del Test Completo</h4>
+            <p>✅ Test de API ejecutado</p>
+            <p>✅ Test de elementos DOM ejecutado</p>
+            <p>✅ Simulación de datos ejecutada</p>
+            <p><strong>Ver detalles en la consola de debug arriba</strong></p>
+            <hr>
+            <p><strong>Si el historial y timeline NO aparecen en la página real:</strong></p>
+            <ol>
+                <li>Abrir DevTools (F12) en la página de consultas</li>
+                <li>Ir a Console y ejecutar: <code>debugElementos()</code></li>
+                <li>Buscar un paciente y ver si hay errores</li>
+                <li>Ejecutar manualmente: <code>probarHistorialManual()</code></li>
+            </ol>
+        </div>
+    `;
+}
+
+// Auto-ejecutar al cargar
+document.addEventListener('DOMContentLoaded', function() {
+    log('🚀 Página de test cargada');
+    log('💡 Usar los botones de arriba para hacer debug');
+});
+</script>
+
+</body>
+</html>

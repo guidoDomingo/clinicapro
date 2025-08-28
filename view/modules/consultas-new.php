@@ -1,23 +1,18 @@
 <?php
+
 /**
- * MÓDULO DE CONSULTAS REFAC    <!-- CSS específico del módulo (se carga después de AdminLTE) -->
-    <link rel="stylesheet" href="./modules/consultas/assets/css/consultas-enhanced.css">
-    <!-- CSS específico para formularios -->
-    <link rel="stylesheet" href="./view/css/fileupload.css">
-    <!-- Select2 -->
-    <link rel="stylesheet" href="./plugins/select2/css/select2.min.css">
-    <link rel="stylesheet" href="./plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">RIZADO
- * 
- * Este archivo es el punto de entrada para el nuevo sistema de consultas
- * sin recargas de página. Incluye toda la estructura HTML y enlaces a
- * los componentes JavaScript modulares.
- * 
- * Características:
- * - SPA (Single Page Application)
- * - Sin recargas entre formularios
- * - Arquitectura modular
- * - Compatible con base de datos existente
+ * MÓDULO DE CONSULTAS REFAC
  */
+?>
+<!-- CSS específico del módulo (se carga después de AdminLTE) -->
+<link rel="stylesheet" href="./modules/consultas/assets/css/consultas-enhanced.css">
+<!-- CSS específico para formularios -->
+<link rel="stylesheet" href="view/css/fileupload.css">
+<!-- Select2 -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@1.5.2/dist/select2-bootstrap4.min.css">
+<?php
+
 
 // Verificar sesión activa
 if (!isset($_SESSION['user_id'])) {
@@ -39,16 +34,19 @@ $userName = $_SESSION['username'] ?? 'Usuario';
 
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Consultas Médicas - Sistema Refactorizado</title>
-    
+
     <!-- CSS específico del módulo (se carga después de AdminLTE) -->
     <link rel="stylesheet" href="modules/consultas/assets/css/consultas-enhanced.css">
+    <!-- CSS específico para historial, timeline y archivos -->
+    <link rel="stylesheet" href="../../historial_timeline_styles.css">
     <!-- CSS para modo de edición -->
     <link rel="stylesheet" href="modules/consultas/css/editing-mode.css">
-    
+
     <style>
         /* CSS crítico inline para evitar FOUC */
         .consultas-app {
@@ -58,7 +56,7 @@ $userName = $_SESSION['username'] ?? 'Usuario';
             padding: 0;
             margin: 0;
         }
-        
+
         /* Patient suggestions dropdown */
         .suggestions-dropdown {
             position: absolute;
@@ -69,70 +67,70 @@ $userName = $_SESSION['username'] ?? 'Usuario';
             border: 1px solid #ddd;
             border-top: none;
             border-radius: 0 0 4px 4px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
             z-index: 1000;
             max-height: 200px;
             overflow-y: auto;
             display: none;
         }
-        
+
         .suggestion-item {
             padding: 10px 15px;
             cursor: pointer;
             border-bottom: 1px solid #f0f0f0;
             transition: background-color 0.2s;
         }
-        
+
         .suggestion-item:hover {
             background-color: #f8f9fa;
         }
-        
+
         .suggestion-item:last-child {
             border-bottom: none;
         }
-        
+
         /* Make the search input container relative for positioning */
         .form-group:has([wire\:model="search_nombre"]) {
             position: relative;
         }
-        
+
         .app-container {
             max-width: 1400px;
             margin: 0 auto;
             padding: 15px;
             background: none;
         }
-        
+
         .app-header {
             background: white;
             border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             padding: 20px 30px;
             margin-bottom: 25px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        
+
         .app-title {
             display: flex;
             align-items: center;
             gap: 15px;
             margin: 0;
         }
-        
+
         .app-title i {
             font-size: 32px;
             color: #667eea;
         }
-        
+
         .app-title h1 {
             margin: 0;
             font-size: 28px;
             color: #2c3e50;
             font-weight: 600;
         }
-        
+
         .app-version {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
@@ -141,12 +139,12 @@ $userName = $_SESSION['username'] ?? 'Usuario';
             font-size: 12px;
             font-weight: 600;
         }
-        
+
         .main-content {
             display: grid;
             gap: 25px;
         }
-        
+
         /* Loading inicial */
         .initial-loading {
             display: flex;
@@ -156,7 +154,7 @@ $userName = $_SESSION['username'] ?? 'Usuario';
             flex-direction: column;
             gap: 20px;
         }
-        
+
         .loading-spinner-large {
             width: 60px;
             height: 60px;
@@ -165,27 +163,39 @@ $userName = $_SESSION['username'] ?? 'Usuario';
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
-        
+
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
-        
+
         .fade-in {
             animation: fadeIn 0.8s ease-in;
         }
-        
+
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-        
+
         /* Ocultar secciones duplicadas de pacientes en formularios */
         .formulario-especifico .form-row.fx,
         .formulario-especifico #fx {
             display: none !important;
         }
-        
+
         /* Estilos específicos para formularios de anteojos */
         .anteojos-eye-section {
             background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
@@ -194,7 +204,7 @@ $userName = $_SESSION['username'] ?? 'Usuario';
             margin-bottom: 20px;
             border-left: 4px solid #2196F3;
         }
-        
+
         .anteojos-eye-section h5 {
             color: #1976D2;
             font-weight: 600;
@@ -203,11 +213,11 @@ $userName = $_SESSION['username'] ?? 'Usuario';
             align-items: center;
             gap: 8px;
         }
-        
+
         .anteojos-eye-section h5 i {
             font-size: 18px;
         }
-        
+
         /* Sección específica para imágenes */
         .imagen-section {
             background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
@@ -216,7 +226,7 @@ $userName = $_SESSION['username'] ?? 'Usuario';
             margin-bottom: 20px;
             border-left: 4px solid #9c27b0;
         }
-        
+
         .imagen-section h5 {
             color: #7b1fa2;
             font-weight: 600;
@@ -227,14 +237,15 @@ $userName = $_SESSION['username'] ?? 'Usuario';
         }
     </style>
 </head>
+
 <body class="consultas-app consultas-page" data-user-id="<?php echo $userId; ?>">
 
     <!-- Configuración e inicialización simple -->
     <?php include 'simple_init.php'; ?>
-    
+
     <!-- Contenedor Principal -->
     <div class="app-container">
-        
+
         <!-- Header de la Aplicación -->
         <header class="app-header">
             <div class="app-title">
@@ -248,17 +259,17 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                 </span>
             </div>
         </header>
-        
-        <!-- Loading Inicial -->
-        <div id="initial-loading" class="initial-loading">
+
+        <!-- Loading Inicial (oculto para debug) -->
+        <div id="initial-loading" class="initial-loading" style="display: none;">
             <div class="loading-spinner-large"></div>
             <p>Inicializando sistema de consultas...</p>
             <small class="text-muted">Cargando componentes modulares</small>
         </div>
-        
-        <!-- Contenido Principal (oculto inicialmente) -->
-        <main id="main-content" class="main-content" style="display: none;">
-            
+
+        <!-- Contenido Principal (visible para debug - temporalmente) -->
+        <main id="main-content" class="main-content" style="display: block;">
+
             <!-- Selector de Tipo de Formulario -->
             <section class="form-type-selector">
                 <div class="form-type-tabs" id="form-type-tabs">
@@ -280,7 +291,7 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                     </button>
                 </div>
             </section>
-            
+
             <!-- Panel de Información del Paciente -->
             <section class="patient-info-panel">
                 <div class="patient-search">
@@ -298,7 +309,7 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                         <!-- Dropdown de sugerencias (se genera dinámicamente via JavaScript) -->
                     </div>
                     <button id="btnBuscarPersona" class="btn-enhanced btn-primary" wire:click="searchPatients">
-                        <i class="fas fa-search"></i> 
+                        <i class="fas fa-search"></i>
                         <span wire:loading.remove wire:target="searchPatients">Buscar</span>
                         <span wire:loading wire:target="searchPatients">Buscando...</span>
                     </button>
@@ -306,7 +317,7 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                         <i class="fas fa-eraser"></i> Limpiar
                     </button>
                 </div>
-                
+
                 <div class="patient-info-display" id="patient-info-display" style="display: none;">
                     <div class="patient-details">
                         <h5 id="profile-username">Seleccione un paciente</h5>
@@ -323,12 +334,12 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Campos ocultos para compatibilidad -->
                 <input type="hidden" id="idPersona" wire:model="id_persona">
                 <input type="hidden" id="id_persona_file" wire:model="id_persona">
             </section>
-            
+
             <!-- Navegación de Pestañas -->
             <div class="nav-pills-enhanced">
                 <ul class="nav nav-pills" id="main-tabs" role="tablist">
@@ -354,13 +365,13 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                     </li>
                 </ul>
             </div>
-            
+
             <!-- Contenido de las Pestañas -->
             <div class="tab-content" id="main-tab-content">
-                
+
                 <!-- Panel de Nueva Consulta -->
                 <div class="tab-pane fade show active" id="consulta-panel" role="tabpanel">
-                    
+
                     <!-- Formulario General -->
                     <div id="formulario-general" class="formulario-especifico active">
                         <div class="form-section">
@@ -368,7 +379,7 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                                 <i class="fas fa-notes-medical"></i>
                                 <h4>Consulta General</h4>
                             </div>
-                            
+
                             <form id="form-general">
                                 <div class="form-row-enhanced">
                                     <div class="form-group-enhanced">
@@ -385,7 +396,7 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                                         </select>
                                     </div>
                                 </div>
-                                
+
                                 <div class="form-row-enhanced">
                                     <div class="form-group-enhanced">
                                         <label for="visionod">Visión OD</label>
@@ -404,7 +415,7 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                                         <input type="text" id="tensionoi" class="form-control" wire:model="tensionoi" placeholder="Tensión ojo izquierdo">
                                     </div>
                                 </div>
-                                
+
                                 <div class="form-row-enhanced">
                                     <div class="form-group-enhanced">
                                         <label for="formatoConsulta">Preformato de Consulta</label>
@@ -413,7 +424,7 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                                         </select>
                                     </div>
                                 </div>
-                                
+
                                 <div class="form-group-enhanced">
                                     <label for="consulta-textarea">Diagnóstico</label>
                                     <textarea id="consulta-textarea" class="form-control summernote" wire:model="consulta_textarea" rows="6" placeholder="Escriba el diagnóstico..."></textarea>
@@ -421,7 +432,7 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                                         <span wire:text="errors.consulta_textarea[0]"></span>
                                     </div>
                                 </div>
-                                
+
                                 <div class="form-row-enhanced">
                                     <div class="form-group-enhanced">
                                         <label for="formatoreceta">Preformato de Receta</label>
@@ -430,17 +441,17 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                                         </select>
                                     </div>
                                 </div>
-                                
+
                                 <div class="form-group-enhanced">
                                     <label for="receta-textarea">Receta</label>
                                     <textarea id="receta-textarea" class="form-control summernote" wire:model="receta_textarea" rows="6" placeholder="Escriba la receta..."></textarea>
                                 </div>
-                                
+
                                 <div class="form-group-enhanced">
                                     <label for="txtnota">Nota</label>
                                     <textarea id="txtnota" class="form-control" wire:model="txtnota" rows="3" placeholder="Nota adicional (opcional)..."></textarea>
                                 </div>
-                                
+
                                 <div class="form-row-enhanced">
                                     <div class="form-group-enhanced">
                                         <label for="proximaconsulta">Próxima Consulta</label>
@@ -458,7 +469,7 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                             </form>
                         </div>
                     </div>
-                    
+
                     <!-- Formulario Anteojos -->
                     <div id="formulario-anteojos" class="formulario-especifico" style="display: none;">
                         <div class="form-section">
@@ -466,7 +477,7 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                                 <i class="fas fa-glasses"></i>
                                 <h4>Prescripción de Anteojos</h4>
                             </div>
-                            
+
                             <form id="tblConsulta" method="post" enctype="multipart/form-data" wire:submit="save">
                                 <!-- Campo oculto para identificar que es un formulario de anteojos -->
                                 <input type="hidden" id="form_type" name="form_type" value="anteojos">
@@ -573,72 +584,72 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                                                 <label for="altura_oi">Altura</label>
                                                 <input type="text" class="form-control" id="altura_oi" name="altura_oi" wire:model="oi_altura" placeholder="Altura OI">
                                             </div>
-                                        <div class="form-group col-md-6">
-                                            <label for="notaoi">Nota:</label>
-                                            <input type="text" class="form-control" id="notaoi" name="notaoi" placeholder="Nota para ojo izquierdo">
+                                            <div class="form-group col-md-6">
+                                                <label for="notaoi">Nota:</label>
+                                                <input type="text" class="form-control" id="notaoi" name="notaoi" placeholder="Nota para ojo izquierdo">
+                                            </div>
+                                        </div>
+
+                                        <h5>Información Adicional</h5>
+                                        <div class="form-row">
+                                            <div class="form-group col-md-6">
+                                                <label for="dist_interpupilar">Distancia Interpupilar</label>
+                                                <input type="text" class="form-control" id="dist_interpupilar" name="dist_interpupilar" placeholder="Distancia interpupilar">
+                                            </div>
                                         </div>
                                     </div>
-                                    
-                                    <h5>Información Adicional</h5>
+                                    <div class="form-group">
+                                        <label for="consulta-textarea-anteojos">Descripción</label>
+                                        <textarea id="consulta-textarea-anteojos" name="consulta-textarea" class="form-control compose-textarea" style="height: 180px"></textarea>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="formatoreceta-anteojos">Preformato de receta</label>
+                                        <select class="form-control select2bs4" id="formatoreceta-anteojos" name="formatoreceta" style="width: 100%;">
+                                            <option selected="selected">Seleccionar</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="receta-textarea-anteojos">Receta</label>
+                                        <textarea id="receta-textarea-anteojos" name="receta-textarea" class="form-control compose-textarea" style="height: 180px"></textarea>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="txtnota">Nota</label>
+                                        <input type="text" class="form-control" id="txtnota" name="txtnota" placeholder="Nota">
+                                    </div>
+
                                     <div class="form-row">
-                                        <div class="form-group col-md-6">
-                                            <label for="dist_interpupilar">Distancia Interpupilar</label>
-                                            <input type="text" class="form-control" id="dist_interpupilar" name="dist_interpupilar" placeholder="Distancia interpupilar">
+                                        <div class="form-group col-md-4">
+                                            <label for="proximaconsulta">Próxima consulta</label>
+                                            <input type="date" class="form-control" id="proximaconsulta" name="proximaconsulta">
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <label for="whatsapptxt">Nro. WhatsApp</label>
+                                            <input type="text" class="form-control" id="whatsapptxt" name="whatsapptxt" placeholder="595983222999">
+                                        </div>
+                                        <div class="form-group col-md-5">
+                                            <label for="email">Email del Paciente</label>
+                                            <input type="text" class="form-control" id="email" name="email" placeholder="jhondoe@gmail.com">
                                         </div>
                                     </div>
-                                </div>
-                                <div class="form-group">
-                                    <label for="consulta-textarea-anteojos">Descripción</label>
-                                    <textarea id="consulta-textarea-anteojos" name="consulta-textarea" class="form-control compose-textarea" style="height: 180px"></textarea>
-                                </div>
 
-                                <div class="form-group">
-                                    <label for="formatoreceta-anteojos">Preformato de receta</label>
-                                    <select class="form-control select2bs4" id="formatoreceta-anteojos" name="formatoreceta" style="width: 100%;">
-                                        <option selected="selected">Seleccionar</option>
-                                    </select>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="receta-textarea-anteojos">Receta</label>
-                                    <textarea id="receta-textarea-anteojos" name="receta-textarea" class="form-control compose-textarea" style="height: 180px"></textarea>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="txtnota">Nota</label>
-                                    <input type="text" class="form-control" id="txtnota" name="txtnota" placeholder="Nota">
-                                </div>
-
-                                <div class="form-row">
-                                    <div class="form-group col-md-4">
-                                        <label for="proximaconsulta">Próxima consulta</label>
-                                        <input type="date" class="form-control" id="proximaconsulta" name="proximaconsulta">
+                                    <div class="form-group">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="gridCheck">
+                                            <label class="form-check-label" for="gridCheck">
+                                                Enviar informe
+                                            </label>
+                                        </div>
                                     </div>
-                                    <div class="form-group col-md-3">
-                                        <label for="whatsapptxt">Nro. WhatsApp</label>
-                                        <input type="text" class="form-control" id="whatsapptxt" name="whatsapptxt" placeholder="595983222999">
-                                    </div>
-                                    <div class="form-group col-md-5">
-                                        <label for="email">Email del Paciente</label>
-                                        <input type="text" class="form-control" id="email" name="email" placeholder="jhondoe@gmail.com">
-                                    </div>
-                                </div>
 
-                                <div class="form-group">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="gridCheck">
-                                        <label class="form-check-label" for="gridCheck">
-                                            Enviar informe
-                                        </label>
-                                    </div>
-                                </div>
-
-                                <input type="hidden" id="id_user" name="id_user" value="<?php echo $userId; ?>">
-                                <input type="hidden" id="id_reserva" name="id_reserva" value="0">
+                                    <input type="hidden" id="id_user" name="id_user" value="<?php echo $userId; ?>">
+                                    <input type="hidden" id="id_reserva" name="id_reserva" value="0">
                             </form>
                         </div>
                     </div>
-                    
+
                     <!-- Formulario Estudios -->
                     <div id="formulario-estudios" class="formulario-especifico" style="display: none;">
                         <div class="form-section">
@@ -646,14 +657,14 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                                 <i class="fas fa-x-ray"></i>
                                 <h4>Estudios Médicos</h4>
                             </div>
-                            
+
                             <!-- Incluir CSS para la carga de archivos -->
                             <link rel="stylesheet" href="view/css/fileupload.css">
 
                             <form id="tblConsulta-estudios" method="post" enctype="multipart/form-data" wire:submit="save">
                                 <!-- Campo oculto para identificar que es un formulario de estudios -->
                                 <input type="hidden" id="form_type-estudios" name="form_type" value="estudios">
-                                
+
                                 <!-- Campos de paciente (ocultos por duplicación) -->
                                 <input type="hidden" id="idPersona-estudios" name="idPersona" wire:model="id_persona" required>
 
@@ -693,8 +704,8 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                                 <!-- Descripción del estudio -->
                                 <div class="form-group">
                                     <label for="consulta-textarea-estudios">Descripción <span class="text-danger">*</span></label>
-                                    <textarea id="consulta-textarea-estudios" name="consulta-textarea" class="form-control summernote" wire:model="descripcion_estudio" 
-                                              style="height: 200px" placeholder="Descripción del estudio..."></textarea>
+                                    <textarea id="consulta-textarea-estudios" name="consulta-textarea" class="form-control summernote" wire:model="descripcion_estudio"
+                                        style="height: 200px" placeholder="Descripción del estudio..."></textarea>
                                     <div class="invalid-feedback" wire:if="errors.descripcion_estudio">
                                         <span wire:text="errors.descripcion_estudio[0]"></span>
                                     </div>
@@ -703,8 +714,8 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                                 <!-- Resultado del estudio -->
                                 <div class="form-group">
                                     <label for="resultado-textarea-estudios">Resultado</label>
-                                    <textarea id="resultado-textarea-estudios" name="resultado-textarea" class="form-control summernote" wire:model="resultado_estudio" 
-                                              style="height: 150px" placeholder="Resultado del estudio..."></textarea>
+                                    <textarea id="resultado-textarea-estudios" name="resultado-textarea" class="form-control summernote" wire:model="resultado_estudio"
+                                        style="height: 150px" placeholder="Resultado del estudio..."></textarea>
                                 </div>
 
                                 <!-- Nota adicional -->
@@ -717,11 +728,11 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                                 <div class="form-group">
                                     <label for="txtEmailShare-estudios">Compartir por correo electrónico</label>
                                     <div class="input-group">
-                                        <input type="text" class="form-control" id="txtEmailShare-estudios" name="txtEmailShare" wire:model="email" 
-                                               placeholder="Ej: email1@email.com,email2@email.com,email3@email.com">
+                                        <input type="text" class="form-control" id="txtEmailShare-estudios" name="txtEmailShare" wire:model="email"
+                                            placeholder="Ej: email1@email.com,email2@email.com,email3@email.com">
                                         <div class="input-group-append">
                                             <button type="button" class="btn btn-info" id="btnValidarEmails-estudios" wire:click="validateEmails" title="Validar emails"
-                                                    wire:loading.attr="disabled" wire:loading.class="btn-secondary">
+                                                wire:loading.attr="disabled" wire:loading.class="btn-secondary">
                                                 <span wire:loading.remove wire:target="validateEmails">
                                                     <i class="fas fa-check"></i> Validar
                                                 </span>
@@ -729,7 +740,7 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                                                     <i class="fas fa-spinner fa-spin"></i> Validando...
                                                 </span>
                                             </button>
-                                                <i class="fas fa-check"></i>
+                                            <i class="fas fa-check"></i>
                                             </button>
                                             <button type="button" class="btn btn-success" id="btnEnviarEmails-estudios" title="Debe guardar la consulta antes de enviar" disabled>
                                                 <i class="fas fa-paper-plane"></i> Enviar
@@ -776,8 +787,8 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                                 <input type="hidden" id="form_type_hidden-estudios" name="form_type" wire:model="form_type" value="estudios">
 
                                 <!-- Botón de acción -->
-                                <button type="button" class="btn btn-primary" id="btnGuardarConsulta-estudios" wire:click="save" 
-                                        wire:loading.attr="disabled" wire:loading.class="btn-secondary">
+                                <button type="button" class="btn btn-primary" id="btnGuardarConsulta-estudios" wire:click="save"
+                                    wire:loading.attr="disabled" wire:loading.class="btn-secondary">
                                     <span wire:loading.remove wire:target="save">
                                         <i class="fas fa-save"></i> Guardar
                                     </span>
@@ -802,7 +813,7 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                                     <input type="hidden" id="id_persona_file-estudios" name="id_persona_file">
                                     <input type="hidden" id="id_usuario-estudios" name="id_usuario" value="1">
                                     <input type="hidden" id="id_consulta_file-estudios" name="id_consulta_file">
-                                    
+
                                     <div class="file-upload-container">
                                         <div class="file-drop-area" id="dropArea-estudios">
                                             <span class="file-message">Examinar... No se han seleccionado archivos</span>
@@ -815,87 +826,88 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                             </div>
 
                             <script>
-                            function toggleFormularioEstudios(btn) {
-                                const form = document.getElementById("formOpciones-estudios");
-                                const icon = btn.querySelector("i");
+                                function toggleFormularioEstudios(btn) {
+                                    const form = document.getElementById("formOpciones-estudios");
+                                    const icon = btn.querySelector("i");
 
-                                if (form.style.display === "none") {
-                                    form.style.display = "flex";
-                                    icon.classList.remove("bi-eye");
-                                    icon.classList.add("bi-eye-slash");
-                                    btn.innerHTML = '<i class="bi bi-eye-slash"></i> Ocultar';
-                                } else {
-                                    form.style.display = "none";
-                                    icon.classList.remove("bi-eye-slash");
-                                    icon.classList.add("bi-eye");
-                                    btn.innerHTML = '<i class="bi bi-eye"></i> Mostrar';
+                                    if (form.style.display === "none") {
+                                        form.style.display = "flex";
+                                        icon.classList.remove("bi-eye");
+                                        icon.classList.add("bi-eye-slash");
+                                        btn.innerHTML = '<i class="bi bi-eye-slash"></i> Ocultar';
+                                    } else {
+                                        form.style.display = "none";
+                                        icon.classList.remove("bi-eye-slash");
+                                        icon.classList.add("bi-eye");
+                                        btn.innerHTML = '<i class="bi bi-eye"></i> Mostrar';
+                                    }
                                 }
-                            }
                             </script>
 
-                            <!-- Script específico para envío de emails en estudios -->
+
                             <script src="view/js/envio-emails-estudios.js"></script>
 
                             <style>
-                            /* Estilos específicos para la funcionalidad de emails en estudios */
-                            #emailValidationFeedback-estudios .alert {
-                                padding: 8px 12px;
-                                margin: 0;
-                                border-radius: 4px;
-                                font-size: 0.875rem;
-            
+                                /* Estilos específicos para la funcionalidad de emails en estudios */
+                                #emailValidationFeedback-estudios .alert {
+                                    padding: 8px 12px;
+                                    margin: 0;
+                                    border-radius: 4px;
+                                    font-size: 0.875rem;
+                                }
 
-                            #btnValidarEmails-estudios, #btnEnviarEmails-estudios {
-                                border-radius: 0;
-            
+                                #btnValidarEmails-estudios,
+                                #btnEnviarEmails-estudios {
+                                    border-radius: 0;
+                                }
 
-                            #btnValidarEmails-estudios {
-                                border-top-right-radius: 0;
-                                border-bottom-right-radius: 0;
-            
+                                #btnValidarEmails-estudios {
+                                    border-top-right-radius: 0;
+                                    border-bottom-right-radius: 0;
+                                }
 
-                            #btnEnviarEmails-estudios {
-                                border-top-right-radius: 0.25rem;
-                                border-bottom-right-radius: 0.25rem;
-            
+                                #btnEnviarEmails-estudios {
+                                    border-top-right-radius: 0.25rem;
+                                    border-bottom-right-radius: 0.25rem;
+                                }
 
-                            #btnEnviarEmails-estudios:disabled {
-                                opacity: 0.6;
-                                cursor: not-allowed;
-                                background-color: #6c757d !important;
-                                border-color: #6c757d !important;
-            
+                                #btnEnviarEmails-estudios:disabled {
+                                    opacity: 0.6;
+                                    cursor: not-allowed;
+                                    background-color: #6c757d !important;
+                                    border-color: #6c757d !important;
+                                }
 
-                            #btnEnviarEmails-estudios:disabled:hover {
-                                background-color: #6c757d !important;
-                                border-color: #6c757d !important;
-                                transform: none;
-            
+                                #btnEnviarEmails-estudios:disabled:hover {
+                                    background-color: #6c757d !important;
+                                    border-color: #6c757d !important;
+                                    transform: none;
+                                }
 
-                            .input-group-append .btn + .btn {
-                                margin-left: -1px;
-            
+                                .input-group-append .btn+.btn {
+                                    margin-left: -1px;
+                                }
 
-                            /* Tooltip personalizado para botón deshabilitado */
-                            #btnEnviarEmails-estudios[disabled][title]:hover::after {
-                                content: attr(title);
-                                position: absolute;
-                                bottom: 100%;
-                                left: 50%;
-                                transform: translateX(-50%);
-                                background-color: #333;
-                                color: white;
-                                padding: 5px 8px;
-                                border-radius: 4px;
-                                font-size: 12px;
-                                white-space: nowrap;
-                                z-index: 1000;
-                                margin-bottom: 5px;
-            
+                                /* Tooltip personalizado para botón deshabilitado */
+                                #btnEnviarEmails-estudios[disabled][title]:hover::after {
+                                    content: attr(title);
+                                    position: absolute;
+                                    bottom: 100%;
+                                    left: 50%;
+                                    transform: translateX(-50%);
+                                    background-color: #333;
+                                    color: white;
+                                    padding: 5px 8px;
+                                    border-radius: 4px;
+                                    font-size: 12px;
+                                    white-space: nowrap;
+                                    z-index: 1000;
+                                    margin-bottom: 5px;
+                                }
                             </style>
                         </div>
                     </div>
-                    
+
                     <!-- Formulario Informe + Imagen -->
                     <div id="formulario-informe_imagen" class="formulario-especifico" style="display: none;">
                         <div class="form-section">
@@ -903,7 +915,7 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                                 <i class="fas fa-images"></i>
                                 <h4>Informe de Imagen</h4>
                             </div>
-                            
+
                             <!-- Incluir CSS para la carga de archivos -->
                             <link rel="stylesheet" href="view/css/fileupload.css">
                             <!-- Incluir Tagify para emails -->
@@ -913,7 +925,7 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                             <form id="tblConsulta-informe-imagen" method="post" enctype="multipart/form-data" wire:submit="save">
                                 <!-- Campo oculto para identificar que es un formulario de informe con imagen -->
                                 <input type="hidden" id="form_type-informe-imagen" name="form_type" value="informe_imagen">
-                                
+
                                 <!-- Campos de paciente (ocultos por duplicación) -->
                                 <input type="hidden" id="idPersona-informe-imagen" name="idPersona" wire:model="id_persona" required>
 
@@ -935,15 +947,15 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                                 </div>
 
                                 <div class="form-row">
-                                     <div class="form-group col-md-6">
-                                            <label for="equipoMedico-informe-imagen">Equipo médico</label>
-                                            <select class="form-control select2bs4 " id="equipoMedico-informe-imagen" name="equipoMedico" wire:model="equipo_medico" style="width: 100%;">
-                                                <option selected="selected">Seleccionar</option>
-                                                <option>Cirrus 700</option>
-                                                <option>Cirrus 500c</option>
-                                            </select>
-                                        </div>
-                                        <div class="form-group col-md-6">
+                                    <div class="form-group col-md-6">
+                                        <label for="equipoMedico-informe-imagen">Equipo médico</label>
+                                        <select class="form-control select2bs4 " id="equipoMedico-informe-imagen" name="equipoMedico" wire:model="equipo_medico" style="width: 100%;">
+                                            <option selected="selected">Seleccionar</option>
+                                            <option>Cirrus 700</option>
+                                            <option>Cirrus 500c</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-6">
                                         <label for="formatoConsulta-informe-imagen">Preformato</label>
                                         <select class="form-control select2bs4" id="formatoConsulta-informe-imagen" name="formatoConsulta" wire:model="formatoConsulta" wire:change="fillFromPreformat" style="width: 100%;">
                                             <option selected="selected">Seleccionar</option>
@@ -952,20 +964,20 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                                 </div>
 
                                 <div class="form-row formfile">
-                                     <div class="form-group col-md-6">
+                                    <div class="form-group col-md-6">
                                         <h5><i class="bi bi-eye"></i> Archivos OD (Ojo Derecho)</h5>
-                                        <input type="file" name="archivo_od[]" id="archivo_od-informe-imagen" class="form-control" multiple accept="image/*,.pdf" wire:change="handleFileUpload('od', $event)">
+                                        <input type="file" name="archivo_od[]" id="archivo_od-informe-imagen" class="form-control" multiple accept="image/*, .pdf" onchange="handleFileUpload('od', event)">
                                         <label for="archivo_od-informe-imagen" class="btn btn-primary btn-sm label-file">
                                             <i class="bi bi-upload"></i> Seleccionar archivos OD
                                         </label>
-                                        
+
                                         <table class="table table-sm">
                                             <thead>
                                                 <tr>
                                                     <th scope="col">#</th>
                                                     <th scope="col">Archivo</th>
                                                     <th scope="col">Ver</th>
-                                                    <th scope="col">Quitar</th> 
+                                                    <th scope="col">Quitar</th>
                                                 </tr>
                                             </thead>
                                             <tbody id="tabla-archivos-od-informe-imagen">
@@ -973,21 +985,21 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                                             </tbody>
                                         </table>
                                     </div>
-                                    
+
                                     <div class="form-group col-md-6">
                                         <h5><i class="bi bi-eye"></i> Archivos OI (Ojo Izquierdo)</h5>
-                                        <input type="file" name="archivo_oi[]" id="archivo_oi-informe-imagen" class="form-control" multiple accept="image/*,.pdf" wire:change="handleFileUpload('oi', $event)">
+                                        <input type="file" name="archivo_oi[]" id="archivo_oi-informe-imagen" class="form-control" multiple accept="image/*, .pdf" onchange="handleFileUpload('oi', event)">
                                         <label for="archivo_oi-informe-imagen" class="btn btn-primary btn-sm label-file">
                                             <i class="bi bi-upload"></i> Seleccionar archivos OI
                                         </label>
-                                        
+
                                         <table class="table table-sm">
                                             <thead>
                                                 <tr>
                                                     <th scope="col">#</th>
                                                     <th scope="col">Archivo</th>
                                                     <th scope="col">Ver</th>
-                                                    <th scope="col">Quitar</th> 
+                                                    <th scope="col">Quitar</th>
                                                 </tr>
                                             </thead>
                                             <tbody id="tabla-archivos-oi-informe-imagen">
@@ -995,21 +1007,21 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                                             </tbody>
                                         </table>
                                     </div>
-                                        
-                                    </div>
+
+                                </div>
 
                                 <div class="form-row">
-                                     <div class="form-group col-md-6">
-                                            <div class="form-group">
-                                                <label for="descripcion-od-textarea-informe-imagen">Descripción OD</label>
-                                                <textarea id="descripcion-od-textarea-informe-imagen" name="descripcion-od-textarea" class="form-control summernote" wire:model="descripcion_od" style="height: 280px"></textarea>
-                                            </div>
+                                    <div class="form-group col-md-6">
+                                        <div class="form-group">
+                                            <label for="descripcion-od-textarea-informe-imagen">Descripción OD</label>
+                                            <textarea id="descripcion-od-textarea-informe-imagen" name="descripcion-od-textarea" class="form-control summernote" wire:model="descripcion_od" style="height: 280px"></textarea>
                                         </div>
-                                        <div class="form-group col-md-6">
-                                            <div class="form-group">
-                                                <label for="descripcion-oi-textarea-informe-imagen">Descripción OI</label>
-                                                <textarea id="descripcion-oi-textarea-informe-imagen" name="descripcion-oi-textarea" class="form-control summernote" wire:model="descripcion_oi" style="height: 280px"></textarea>
-                                            </div>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <div class="form-group">
+                                            <label for="descripcion-oi-textarea-informe-imagen">Descripción OI</label>
+                                            <textarea id="descripcion-oi-textarea-informe-imagen" name="descripcion-oi-textarea" class="form-control summernote" wire:model="descripcion_oi" style="height: 280px"></textarea>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -1034,9 +1046,9 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                                     <input type="text" class="form-control" id="txtnota-informe-imagen" name="txtnota" wire:model="txtnota" placeholder="Nota">
                                 </div>
                                 <div class="form-group">
-                                <label for="txtEmailShare-informe-imagen">Compartir: Ej: email1@email.com,email2@email.com</label>
-                                <input type="text" class="form-control" id="txtEmailShare-informe-imagen" name="txtEmailShare" wire:model="email" placeholder="Agregar correos...">
-                            </div>
+                                    <label for="txtEmailShare-informe-imagen">Compartir: Ej: email1@email.com,email2@email.com</label>
+                                    <input type="text" class="form-control" id="txtEmailShare-informe-imagen" name="txtEmailShare" wire:model="email" placeholder="Agregar correos...">
+                                </div>
 
                                 <div class="form-row">
                                     <div class="form-group col-md-4">
@@ -1071,7 +1083,7 @@ $userName = $_SESSION['username'] ?? 'Usuario';
 
                                 <!-- Botón de acción -->
                                 <button type="button" class="btn btn-primary" id="btnGuardarConsulta-informe-imagen" wire:click="save"
-                                        wire:loading.attr="disabled" wire:loading.class="btn-secondary">
+                                    wire:loading.attr="disabled" wire:loading.class="btn-secondary">
                                     <span wire:loading.remove wire:target="save">
                                         <i class="fas fa-save"></i> Guardar
                                     </span>
@@ -1093,68 +1105,68 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                             </div>
 
                             <script>
-                            function toggleFormularioInformeImagen(btn) {
-                                const form = document.getElementById("formOpciones-informe-imagen");
-                                const icon = btn.querySelector("i");
+                                function toggleFormularioInformeImagen(btn) {
+                                    const form = document.getElementById("formOpciones-informe-imagen");
+                                    const icon = btn.querySelector("i");
 
-                                if (form.style.display === "none") {
-                                    form.style.display = "flex";
-                                    icon.classList.remove("bi-eye");
-                                    icon.classList.add("bi-eye-slash");
-                                    btn.innerHTML = '<i class="bi bi-eye-slash"></i> Ocultar';
-                                } else {
-                                    form.style.display = "none";
-                                    icon.classList.remove("bi-eye-slash");
-                                    icon.classList.add("bi-eye");
-                                    btn.innerHTML = '<i class="bi bi-eye"></i> Mostrar';
+                                    if (form.style.display === "none") {
+                                        form.style.display = "flex";
+                                        icon.classList.remove("bi-eye");
+                                        icon.classList.add("bi-eye-slash");
+                                        btn.innerHTML = '<i class="bi bi-eye-slash"></i> Ocultar';
+                                    } else {
+                                        form.style.display = "none";
+                                        icon.classList.remove("bi-eye-slash");
+                                        icon.classList.add("bi-eye");
+                                        btn.innerHTML = '<i class="bi bi-eye"></i> Mostrar';
+                                    }
                                 }
-                            }
 
-                            // Configuración específica del formulario de informe+imagen
-                            document.addEventListener('DOMContentLoaded', function() {
-                                console.log('Inicializando formulario de informe+imagen...');
-                                
-                                // Inicializar Tagify para emails
-                                const emailInput = document.getElementById('txtEmailShare-informe-imagen');
-                                if (emailInput && typeof Tagify !== 'undefined') {
-                                    const emailTagify = new Tagify(emailInput, {
-                                        delimiters: ", ",
-                                        pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                                        whitelist: [],
-                                        dropdown: {
-                                            enabled: 0
-                                        },
-                                        placeholder: "Agregar emails...",
-                                        maxTags: 10
-                                    });
-                                    console.log('Tagify inicializado para emails');
-                                }
-                                
-                                console.log('Formulario de informe+imagen inicializado, usando handler general');
-                                
-                                // Inicializar select2 si está disponible
-                                if (typeof $.fn.select2 !== 'undefined') {
-                                    $('.select2bs4').select2({
-                                        theme: 'bootstrap4',
-                                        width: '100%'
-                                    });
-                                }
-                                
-                                // Sincronizar id_persona con id_persona_file
-                                const idPersonaInput = document.getElementById('idPersona-informe-imagen');
-                                if (idPersonaInput) {
-                                    idPersonaInput.addEventListener('change', function() {
-                                        const idPersonaFile = document.getElementById('id_persona_file-informe-imagen');
-                                        if (idPersonaFile) {
-                                            idPersonaFile.value = this.value;
-                                        }
-                                    });
-                                }
-                            });
+                                // Configuración específica del formulario de informe+imagen
+                                document.addEventListener('DOMContentLoaded', function() {
+                                    console.log('Inicializando formulario de informe+imagen...');
+
+                                    // Inicializar Tagify para emails
+                                    const emailInput = document.getElementById('txtEmailShare-informe-imagen');
+                                    if (emailInput && typeof Tagify !== 'undefined') {
+                                        const emailTagify = new Tagify(emailInput, {
+                                            delimiters: ", ",
+                                            pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                                            whitelist: [],
+                                            dropdown: {
+                                                enabled: 0
+                                            },
+                                            placeholder: "Agregar emails...",
+                                            maxTags: 10
+                                        });
+                                        console.log('Tagify inicializado para emails');
+                                    }
+
+                                    console.log('Formulario de informe+imagen inicializado, usando handler general');
+
+                                    // Inicializar select2 si está disponible
+                                    if (typeof $.fn.select2 !== 'undefined') {
+                                        $('.select2bs4').select2({
+                                            theme: 'bootstrap4',
+                                            width: '100%'
+                                        });
+                                    }
+
+                                    // Sincronizar id_persona con id_persona_file
+                                    const idPersonaInput = document.getElementById('idPersona-informe-imagen');
+                                    if (idPersonaInput) {
+                                        idPersonaInput.addEventListener('change', function() {
+                                            const idPersonaFile = document.getElementById('id_persona_file-informe-imagen');
+                                            if (idPersonaFile) {
+                                                idPersonaFile.value = this.value;
+                                            }
+                                        });
+                                    }
+                                });
                             </script>
                         </div>
                     </div>
-                    
+
                     <!-- Botones de Acción -->
                     <div class="form-actions" style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #f0f0f0;">
                         <button id="btnGuardarConsulta" class="btn-enhanced btn-success" type="button">
@@ -1171,7 +1183,7 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                         </button>
                     </div>
                 </div>
-                
+
                 <!-- Panel de Historial -->
                 <div class="tab-pane fade" id="historial-panel" role="tabpanel">
                     <div class="consultas-table-container">
@@ -1198,17 +1210,19 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Panel de Timeline -->
                 <div class="tab-pane fade" id="timeline-panel" role="tabpanel">
-                    <div id="timeline" class="timeline-enhanced">
-                        <div class="alert alert-info text-center">
-                            <i class="fas fa-info-circle"></i>
-                            Seleccione un paciente para ver su timeline de consultas
+                    <div id="timeline-container" class="timeline-enhanced">
+                        <div id="timeline" class="timeline-content">
+                            <div class="alert alert-info text-center">
+                                <i class="fas fa-info-circle"></i>
+                                Seleccione un paciente para ver su timeline de consultas
+                            </div>
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Panel de Archivos -->
                 <div class="tab-pane fade" id="archivos-panel" role="tabpanel">
                     <div class="form-section">
@@ -1216,7 +1230,7 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                             <i class="fas fa-file-medical"></i>
                             <h4>Gestión de Archivos</h4>
                         </div>
-                        
+
                         <!-- Zona de drop para archivos -->
                         <div id="dropArea" class="drop-area">
                             <div class="drop-area-content">
@@ -1229,12 +1243,20 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                                 </button>
                             </div>
                         </div>
-                        
+
                         <!-- Preview de archivos -->
                         <div id="filePreviewContainer" class="file-preview-container">
                             <!-- Se llena dinámicamente -->
                         </div>
-                        
+
+                        <!-- Lista de archivos existentes -->
+                        <div id="archivos-container" class="archivos-list mt-4">
+                            <div class="alert alert-info text-center">
+                                <i class="fas fa-info-circle"></i>
+                                Seleccione un paciente para ver sus archivos
+                            </div>
+                        </div>
+
                         <!-- Botón de subir -->
                         <div class="file-actions">
                             <button id="btnSubirArchivos" class="btn-enhanced btn-success" type="button">
@@ -1243,36 +1265,36 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                         </div>
                     </div>
                 </div>
-                
+
             </div>
         </main>
     </div>
-    
+
     <!-- Select2 (solo si no está ya cargado) -->
     <script>
         // Verificar si Select2 ya está cargado
         if (typeof jQuery !== 'undefined' && !jQuery.fn.select2) {
             const select2Script = document.createElement('script');
-            select2Script.src = './plugins/select2/js/select2.full.min.js';
-            select2Script.onload = () => console.log('✅ Select2 cargado dinámicamente');
+            select2Script.src = 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js';
+            select2Script.onload = () => console.log('✅ Select2 cargado dinámicamente desde CDN');
             document.head.appendChild(select2Script);
         } else if (jQuery && jQuery.fn.select2) {
             console.log('✅ Select2 ya estaba disponible');
         }
     </script>
-    
+
     <!-- Scripts del Sistema Livewire CRUD -->
     <!-- IMPORTANTE: Cargar en este orden específico -->
-    
+
     <!-- Script para corrección de footer -->
     <script src="./modules/consultas/assets/js/footer-fix.js"></script>
-    
+
     <script>
         // Detectar la ruta base correcta
         const basePath = window.location.pathname.includes('index.php') ? './' : '';
         console.log('🔍 Base path detectado:', basePath);
     </script>
-    
+
     <script>
         // Configuración global del sistema Livewire CRUD
         window.APP_CONFIG = {
@@ -1290,15 +1312,15 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                 preformatos: 'ajax/consultas.php?action=get_preformatos'
             }
         };
-        
+
         // Variables globales para el sistema
         let livewireCRUD = null;
         let formIntegrator = null;
-        
+
         // Auto-inicialización del sistema Livewire cuando esté listo
         const initializeLivewireSystem = async () => {
             console.log('🚀 Iniciando sistema Livewire CRUD v2.1.0');
-            
+
             try {
                 // Esperar a que las clases estén disponibles
                 if (typeof LivewireCRUD === 'undefined' || typeof LivewireFormIntegrator === 'undefined') {
@@ -1306,9 +1328,9 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                     setTimeout(initializeLivewireSystem, 500);
                     return;
                 }
-                
+
                 console.log('✅ Clases Livewire disponibles, inicializando...');
-                
+
                 // Crear instancia del sistema CRUD
                 livewireCRUD = new LivewireCRUD({
                     endpoint: window.APP_CONFIG.endpoints.livewireCrud,
@@ -1316,13 +1338,13 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                     autoSave: false, // Guardado manual por defecto
                     saveDelay: 1000
                 });
-                
+
                 // Crear integrador de formularios
                 formIntegrator = new LivewireFormIntegrator(livewireCRUD);
-                
+
                 // Configurar notificaciones
                 formIntegrator.setupNotifications();
-                
+
                 // Exponer API global para compatibilidad
                 window.livewireAPI = {
                     crud: livewireCRUD.getPublicAPI(),
@@ -1333,25 +1355,25 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                     guardarConsulta: () => livewireCRUD.callMethod('save'),
                     limpiarFormulario: () => livewireCRUD.reset()
                 };
-                
+
                 // Funciones globales para compatibilidad
                 window.editarConsultaGenerico = window.livewireAPI.editConsulta;
                 window.cambiarFormulario = window.livwireAPI.cambiarFormulario;
                 window.guardarConsultaLivewire = window.livewireAPI.guardarConsulta;
-                
+
                 console.log('🎉 Sistema Livwire CRUD inicializado correctamente');
-                
+
                 // Mostrar info de usuario en consola (solo debug)
                 if (window.APP_CONFIG.debug) {
                     console.log('👤 Usuario:', window.APP_CONFIG.userName, '(ID:', window.APP_CONFIG.userId + ')');
                     console.log('🔧 API Livewire disponible en window.livewireAPI');
                 }
-                
+
                 // Ocultar loading y mostrar contenido
                 setTimeout(() => {
                     const loadingEl = document.getElementById('initial-loading');
                     const mainContent = document.getElementById('main-content');
-                    
+
                     if (loadingEl) {
                         loadingEl.style.display = 'none';
                     }
@@ -1360,10 +1382,10 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                         mainContent.classList.add('fade-in');
                     }
                 }, 500);
-                
+
             } catch (error) {
                 console.error('❌ Error durante inicialización Livwire:', error);
-                
+
                 // Mostrar error al usuario
                 const loadingEl = document.getElementById('initial-loading');
                 if (loadingEl) {
@@ -1379,7 +1401,7 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                 }
             }
         };
-        
+
         // Inicializar cuando el DOM esté listo y los scripts cargados
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => {
@@ -1389,16 +1411,16 @@ $userName = $_SESSION['username'] ?? 'Usuario';
             // DOM ya está listo, pero esperamos a que los scripts estén cargados
             window.addEventListener('livewireScriptsLoaded', initializeLivewireSystem);
         }
-        
+
         // Sistema de carga de scripts mejorado
         const scriptPaths = [
             './view/js/preformatos_sin_duplicados.js',
             './view/js/motivos-comunes-unificado.js'
         ];
-        
+
         let scriptsLoaded = 0;
         const totalScripts = scriptPaths.length;
-        
+
         function loadLivewireScript(src) {
             return new Promise((resolve, reject) => {
                 const script = document.createElement('script');
@@ -1412,7 +1434,7 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                         setTimeout(() => {
                             const loadingEl = document.getElementById('initial-loading');
                             const mainContent = document.getElementById('main-content');
-                            
+
                             if (loadingEl) {
                                 loadingEl.style.display = 'none';
                             }
@@ -1431,13 +1453,22 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                 document.head.appendChild(script);
             });
         }
-        
+
         // Cargar todos los scripts necesarios
         scriptPaths.forEach(loadLivewireScript);
-        
     </script>
 
     <!-- Buscador Ultra Simple -->
     <script src="simple_search.js"></script>
+
+    <!-- Debug de Historial y Timeline -->
+    <script src="debug_historial_timeline.js"></script>
+
+    <!-- Parche para Historial y Timeline -->
+    <script src="../../parche_historial_timeline.js"></script>
+
+    <!-- Manejador de archivos para informe e imagen -->
+    <script src="../../file_handler_informe_imagen.js"></script>
 </body>
+
 </html>
