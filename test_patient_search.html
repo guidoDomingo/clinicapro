@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test de Búsqueda de Pacientes</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-container { max-width: 600px; margin: 0 auto; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        button { background: #007bff; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .results { margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 4px; }
+        .patient-item { padding: 10px; border-bottom: 1px solid #ddd; cursor: pointer; }
+        .patient-item:hover { background: #e9ecef; }
+        .selected-patient { margin-top: 20px; padding: 15px; background: #d4edda; border: 1px solid #c3e6cb; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 Test de Búsqueda de Pacientes</h1>
+        
+        <div class="form-group">
+            <label for="search-input">Buscar paciente por nombre:</label>
+            <input type="text" id="search-input" placeholder="Escribe al menos 2 caracteres...">
+        </div>
+        
+        <button onclick="buscarPacientes()">Buscar</button>
+        
+        <div id="results" class="results" style="display: none;">
+            <h3>Resultados:</h3>
+            <div id="results-list"></div>
+        </div>
+        
+        <div id="selected-patient" class="selected-patient" style="display: none;">
+            <h3>Paciente seleccionado:</h3>
+            <div id="patient-details"></div>
+        </div>
+    </div>
+    
+    <script>
+        let searchTimeout;
+        
+        // Auto-búsqueda al escribir
+        document.getElementById('search-input').addEventListener('input', function(e) {
+            clearTimeout(searchTimeout);
+            const query = e.target.value.trim();
+            
+            if (query.length >= 2) {
+                searchTimeout = setTimeout(() => buscarPacientes(), 500);
+            } else {
+                document.getElementById('results').style.display = 'none';
+            }
+        });
+        
+        async function buscarPacientes() {
+            const query = document.getElementById('search-input').value.trim();
+            
+            if (query.length < 2) {
+                alert('Escribe al menos 2 caracteres para buscar');
+                return;
+            }
+            
+            try {
+                console.log('🔍 Buscando:', query);
+                
+                const response = await fetch('/clinica/modules/consultas/api/livwire-crud.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'validateField',
+                        data: {
+                            property: 'search_nombre',
+                            value: query,
+                            formType: 'general'
+                        }
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const result = await response.json();
+                console.log('✅ Respuesta:', result);
+                
+                mostrarResultados(result.data?.patients || []);
+                
+            } catch (error) {
+                console.error('❌ Error:', error);
+                alert('Error en la búsqueda: ' + error.message);
+            }
+        }
+        
+        function mostrarResultados(pacientes) {
+            const resultsDiv = document.getElementById('results');
+            const resultsList = document.getElementById('results-list');
+            
+            if (pacientes.length > 0) {
+                resultsList.innerHTML = pacientes.map((paciente, index) => 
+                    `<div class="patient-item" onclick="seleccionarPaciente(${paciente.id}, '${paciente.nombre}', '${paciente.dni}', '${paciente.ficha}')">
+                        <strong>${paciente.nombre}</strong><br>
+                        <small>DNI: ${paciente.dni} - Ficha: ${paciente.ficha}</small>
+                    </div>`
+                ).join('');
+                resultsDiv.style.display = 'block';
+            } else {
+                resultsList.innerHTML = '<p>No se encontraron pacientes</p>';
+                resultsDiv.style.display = 'block';
+            }
+        }
+        
+        async function seleccionarPaciente(id, nombre, dni, ficha) {
+            try {
+                console.log('✅ Seleccionando paciente:', nombre);
+                
+                const response = await fetch('/clinica/modules/consultas/api/livwire-crud.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'loadPatient',
+                        data: { id: id }
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const result = await response.json();
+                console.log('📋 Datos completos:', result);
+                
+                if (result.success && result.data) {
+                    mostrarPacienteSeleccionado(result.data);
+                }
+                
+            } catch (error) {
+                console.error('❌ Error cargando paciente:', error);
+                alert('Error cargando datos del paciente: ' + error.message);
+            }
+        }
+        
+        function mostrarPacienteSeleccionado(paciente) {
+            const selectedDiv = document.getElementById('selected-patient');
+            const detailsDiv = document.getElementById('patient-details');
+            
+            detailsDiv.innerHTML = `
+                <p><strong>ID:</strong> ${paciente.id}</p>
+                <p><strong>Nombre:</strong> ${paciente.nombre}</p>
+                <p><strong>Documento:</strong> ${paciente.documento || 'No disponible'}</p>
+                <p><strong>Ficha:</strong> ${paciente.ficha || 'No disponible'}</p>
+                <p><strong>Email:</strong> ${paciente.email || 'No disponible'}</p>
+                <p><strong>WhatsApp:</strong> ${paciente.whatsapp || 'No disponible'}</p>
+                <p><strong>Dirección:</strong> ${paciente.direccion || 'No disponible'}</p>
+            `;
+            
+            selectedDiv.style.display = 'block';
+            document.getElementById('results').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

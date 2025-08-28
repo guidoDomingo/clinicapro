@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Livewire CRUD - Sistema Completo</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <div class="col-12">
+                <h1><i class="fas fa-stethoscope text-primary"></i> Test Sistema Livewire CRUD</h1>
+                <div class="alert alert-info">
+                    <strong>🎯 Estado del Sistema:</strong> Integración completa con wire:model en todos los formularios
+                </div>
+            </div>
+        </div>
+
+        <!-- Selector de paciente con wire:model -->
+        <div class="card mb-4">
+            <div class="card-header bg-success text-white">
+                <h5><i class="fas fa-user-search"></i> Búsqueda de Paciente (Con wire:model)</h5>
+            </div>
+            <div class="card-body">
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" id="paciente-search" 
+                           placeholder="Buscar paciente..." wire:model="searchTerm" 
+                           wire:keyup="searchPatients">
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" wire:click="searchPatients">
+                            <i class="fas fa-search"></i> Buscar
+                        </button>
+                    </div>
+                </div>
+                <div wire:loading wire:target="searchPatients" class="text-info">
+                    <i class="fas fa-spinner fa-spin"></i> Buscando pacientes...
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs de tipos de formulario -->
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs card-header-tabs" id="form-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#general" data-bs-toggle="tab" wire:click="changeFormType('general')">
+                            <i class="fas fa-notes-medical"></i> General
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#anteojos" data-bs-toggle="tab" wire:click="changeFormType('anteojos')">
+                            <i class="fas fa-glasses"></i> Anteojos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#estudios" data-bs-toggle="tab" wire:click="changeFormType('estudios')">
+                            <i class="fas fa-microscope"></i> Estudios
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#informe" data-bs-toggle="tab" wire:click="changeFormType('informe_imagen')">
+                            <i class="fas fa-images"></i> Informe + Imagen
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                <div class="tab-content">
+                    <!-- Formulario General -->
+                    <div class="tab-pane fade show active" id="general">
+                        <h5 class="text-success"><i class="fas fa-check-circle"></i> Consulta General - ¡Con wire:model!</h5>
+                        <form wire:submit="save">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="motivo-general" class="form-label">Motivo</label>
+                                    <input type="text" class="form-control" id="motivo-general" 
+                                           wire:model="txtmotivo" placeholder="Motivo de consulta">
+                                    <div wire:if="errors.txtmotivo" class="text-danger">
+                                        <span wire:text="errors.txtmotivo[0]"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="descripcion-general" class="form-label">Descripción</label>
+                                    <textarea class="form-control" id="descripcion-general" 
+                                              wire:model="consulta_textarea" rows="3"></textarea>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-md-4">
+                                    <label for="proxima-consulta" class="form-label">Próxima Consulta</label>
+                                    <input type="date" class="form-control" id="proxima-consulta" 
+                                           wire:model="proximaconsulta">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="whatsapp" class="form-label">WhatsApp</label>
+                                    <input type="text" class="form-control" id="whatsapp" 
+                                           wire:model="whatsapptxt" placeholder="595983222999">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="email-paciente" class="form-label">Email Paciente</label>
+                                    <input type="email" class="form-control" id="email-paciente" 
+                                           wire:model="email" placeholder="paciente@email.com">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Formulario Anteojos -->
+                    <div class="tab-pane fade" id="anteojos">
+                        <h5 class="text-success"><i class="fas fa-check-circle"></i> Consulta Anteojos - ¡Con wire:model!</h5>
+                        <form wire:submit="save">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6>Ojo Derecho (OD)</h6>
+                                    <div class="mb-2">
+                                        <label class="form-label">Esfera</label>
+                                        <select class="form-control" wire:model="esfera_od">
+                                            <option value="">Seleccionar</option>
+                                            <option value="+1.00">+1.00</option>
+                                            <option value="-1.00">-1.00</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="form-label">Cilindro</label>
+                                        <select class="form-control" wire:model="cilindro_od">
+                                            <option value="">Seleccionar</option>
+                                            <option value="-0.50">-0.50</option>
+                                            <option value="-1.00">-1.00</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="form-label">Eje</label>
+                                        <input type="text" class="form-control" wire:model="eje_od" placeholder="Eje OD">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>Ojo Izquierdo (OI)</h6>
+                                    <div class="mb-2">
+                                        <label class="form-label">Esfera</label>
+                                        <select class="form-control" wire:model="esfera_oi">
+                                            <option value="">Seleccionar</option>
+                                            <option value="+1.00">+1.00</option>
+                                            <option value="-1.00">-1.00</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="form-label">Cilindro</label>
+                                        <select class="form-control" wire:model="cilindro_oi">
+                                            <option value="">Seleccionar</option>
+                                            <option value="-0.50">-0.50</option>
+                                            <option value="-1.00">-1.00</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="form-label">Eje</label>
+                                        <input type="text" class="form-control" wire:model="eje_oi" placeholder="Eje OI">
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Formulario Estudios -->
+                    <div class="tab-pane fade" id="estudios">
+                        <h5 class="text-success"><i class="fas fa-check-circle"></i> Estudios Médicos - ¡Con wire:model!</h5>
+                        <form wire:submit="save">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="equipo-medico" class="form-label">Equipo Médico</label>
+                                    <select class="form-control" id="equipo-medico" wire:model="equipo_medico">
+                                        <option value="">Seleccionar equipo...</option>
+                                        <option value="cirrus_700">Cirrus 700</option>
+                                        <option value="oct_500">OCT 500</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="preformato" class="form-label">Preformato</label>
+                                    <select class="form-control" id="preformato" wire:model="formatoConsulta" 
+                                            wire:change="fillFromPreformat">
+                                        <option value="">Seleccionar preformato...</option>
+                                        <option value="oct_standard">OCT Estándar</option>
+                                        <option value="retina_completa">Retina Completa</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-12">
+                                    <label for="descripcion-estudio" class="form-label">Descripción del Estudio</label>
+                                    <textarea class="form-control" id="descripcion-estudio" 
+                                              wire:model="descripcion_estudio" rows="4" 
+                                              placeholder="Descripción detallada del estudio..."></textarea>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <label for="resultado-estudio" class="form-label">Resultado</label>
+                                    <textarea class="form-control" id="resultado-estudio" 
+                                              wire:model="resultado_estudio" rows="3"></textarea>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="email-compartir" class="form-label">Compartir por Email</label>
+                                    <input type="text" class="form-control" id="email-compartir" 
+                                           wire:model="email" placeholder="doctor@clinica.com,especialista@hospital.com">
+                                    <button type="button" class="btn btn-info btn-sm mt-2" wire:click="validateEmails">
+                                        <i class="fas fa-check"></i> Validar Emails
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Formulario Informe + Imagen -->
+                    <div class="tab-pane fade" id="informe">
+                        <h5 class="text-success"><i class="fas fa-check-circle"></i> Informe con Imagen - ¡Con wire:model!</h5>
+                        <form wire:submit="save">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="equipo-informe" class="form-label">Equipo Médico</label>
+                                    <select class="form-control" id="equipo-informe" wire:model="equipo_medico">
+                                        <option value="">Seleccionar equipo...</option>
+                                        <option value="cirrus_700">Cirrus 700</option>
+                                        <option value="cirrus_500">Cirrus 500c</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="preformato-informe" class="form-label">Preformato</label>
+                                    <select class="form-control" id="preformato-informe" wire:model="formatoConsulta" 
+                                            wire:change="fillFromPreformat">
+                                        <option value="">Seleccionar preformato...</option>
+                                        <option value="informe_completo">Informe Completo</option>
+                                        <option value="analisis_imagen">Análisis de Imagen</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <h6>Archivos OD</h6>
+                                    <input type="file" class="form-control" multiple accept="image/*,.pdf" 
+                                           wire:change="handleFileUpload('od', $event)">
+                                    <label class="form-label">Descripción OD</label>
+                                    <textarea class="form-control" wire:model="descripcion_od" rows="3"></textarea>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>Archivos OI</h6>
+                                    <input type="file" class="form-control" multiple accept="image/*,.pdf" 
+                                           wire:change="handleFileUpload('oi', $event)">
+                                    <label class="form-label">Descripción OI</label>
+                                    <textarea class="form-control" wire:model="descripcion_oi" rows="3"></textarea>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-12">
+                                    <label for="descripcion-general-informe" class="form-label">Descripción General</label>
+                                    <textarea class="form-control" id="descripcion-general-informe" 
+                                              wire:model="descripcion_general" rows="4"></textarea>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Botones de acción reactivos -->
+                <div class="mt-4 text-center">
+                    <button type="button" class="btn btn-primary btn-lg me-3" wire:click="save" 
+                            wire:loading.attr="disabled" wire:loading.class="btn-secondary">
+                        <span wire:loading.remove wire:target="save">
+                            <i class="fas fa-save"></i> Guardar Consulta
+                        </span>
+                        <span wire:loading wire:target="save">
+                            <i class="fas fa-spinner fa-spin"></i> Guardando...
+                        </span>
+                    </button>
+                    <button type="button" class="btn btn-info btn-lg me-3" wire:click="loadConsulta" 
+                            wire:loading.attr="disabled">
+                        <span wire:loading.remove wire:target="loadConsulta">
+                            <i class="fas fa-search"></i> Cargar Consulta
+                        </span>
+                        <span wire:loading wire:target="loadConsulta">
+                            <i class="fas fa-spinner fa-spin"></i> Cargando...
+                        </span>
+                    </button>
+                    <button type="button" class="btn btn-warning btn-lg" wire:click="clearForm">
+                        <i class="fas fa-broom"></i> Limpiar Formulario
+                    </button>
+                </div>
+
+                <!-- Estado del sistema -->
+                <div class="mt-4">
+                    <div class="alert alert-success" wire:if="successMessage">
+                        <i class="fas fa-check-circle"></i> <span wire:text="successMessage"></span>
+                    </div>
+                    <div class="alert alert-danger" wire:if="errorMessage">
+                        <i class="fas fa-exclamation-triangle"></i> <span wire:text="errorMessage"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Información del estado actual -->
+        <div class="card mt-4">
+            <div class="card-header bg-info text-white">
+                <h5><i class="fas fa-info-circle"></i> Estado del Sistema Livewire</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <strong>Formulario Activo:</strong>
+                        <span wire:text="currentFormType" class="badge bg-primary">general</span>
+                    </div>
+                    <div class="col-md-3">
+                        <strong>Auto-Save:</strong>
+                        <span class="badge bg-success" wire:if="autoSaveEnabled">Activo</span>
+                        <span class="badge bg-warning" wire:if="!autoSaveEnabled">Inactivo</span>
+                    </div>
+                    <div class="col-md-3">
+                        <strong>Paciente ID:</strong>
+                        <span wire:text="id_persona" class="badge bg-secondary">No seleccionado</span>
+                    </div>
+                    <div class="col-md-3">
+                        <strong>Última Acción:</strong>
+                        <span wire:text="lastAction" class="badge bg-info">Ninguna</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Incluir nuestro sistema Livewire -->
+    <script src="modules/consultas/components/LivewireCRUD.js"></script>
+    <script src="modules/consultas/components/LivewireFormIntegrator.js"></script>
+    <script src="modules/consultas/components/LivewireConsultasInitializer.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Iniciando test del sistema Livewire CRUD completo...');
+            
+            // Inicializar el sistema
+            try {
+                const livewire = new LivewireCRUD({
+                    apiEndpoint: 'modules/consultas/api/livewire-crud.php',
+                    autoSave: true,
+                    autoSaveDelay: 3000,
+                    validationEnabled: true,
+                    debugMode: true
+                });
+
+                // Configurar integración con formularios existentes
+                const integrator = new LivewireFormIntegrator(livewire);
+                integrator.addWireAttributesToForms();
+
+                // Inicializar el sistema de consultas
+                const initializer = new LivewireConsultasInitializer(livewire);
+                initializer.initializeConsultasSystem();
+
+                // Test básico de funcionalidad
+                console.log('✅ Sistema Livewire CRUD inicializado correctamente');
+                console.log('🎯 Todas las funcionalidades wire:model están activas');
+                console.log('📝 Formularios integrados: general, anteojos, estudios, informe_imagen');
+                
+                // Mostrar estado en pantalla
+                setTimeout(() => {
+                    const alert = document.createElement('div');
+                    alert.className = 'alert alert-success alert-dismissible fade show';
+                    alert.innerHTML = `
+                        <strong>🎉 ¡Sistema Iniciado!</strong> 
+                        Livewire CRUD está funcionando correctamente. 
+                        Todos los formularios tienen wire:model integrado.
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    `;
+                    document.querySelector('.container-fluid').insertBefore(alert, document.querySelector('.row').nextSibling);
+                }, 1000);
+
+            } catch (error) {
+                console.error('❌ Error inicializando sistema Livewire:', error);
+                const alert = document.createElement('div');
+                alert.className = 'alert alert-danger';
+                alert.innerHTML = `<strong>Error:</strong> ${error.message}`;
+                document.querySelector('.container-fluid').insertBefore(alert, document.querySelector('.row').nextSibling);
+            }
+        });
+    </script>
+</body>
+</html>

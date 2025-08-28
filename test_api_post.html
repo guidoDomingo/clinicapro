@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test API Livwire POST</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>🧪 Test POST al API Livwire</h1>
+    
+    <div id="results" style="background: #f5f5f5; padding: 20px; margin: 20px 0; border-radius: 5px;">
+        <h3>📋 Resultados:</h3>
+    </div>
+    
+    <button onclick="testAPI()" style="padding: 10px 20px; font-size: 16px;">🚀 Probar API</button>
+    <button onclick="testAuth()" style="padding: 10px 20px; font-size: 16px;">🔐 Probar Autenticación</button>
+    <button onclick="testSearch()" style="padding: 10px 20px; font-size: 16px;">🔍 Buscar Pacientes</button>
+    
+    <script>
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const time = new Date().toLocaleTimeString();
+            const color = type === 'error' ? 'red' : type === 'success' ? 'green' : 'blue';
+            results.innerHTML += `<div style="color: ${color}; margin: 5px 0;">[${time}] ${message}</div>`;
+        }
+        
+        function clearResults() {
+            document.getElementById('results').innerHTML = '<h3>📋 Resultados:</h3>';
+        }
+        
+        async function testAPI() {
+            clearResults();
+            log('🔍 Probando conexión básica al API...');
+            
+            try {
+                const response = await fetch('./modules/consultas/api/livewire-crud.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({
+                        action: 'test',
+                        data: {}
+                    })
+                });
+                
+                log(`📡 Status: ${response.status} ${response.statusText}`);
+                
+                const responseText = await response.text();
+                log(`📄 Respuesta raw: ${responseText.substring(0, 200)}${responseText.length > 200 ? '...' : ''}`);
+                
+                if (responseText.startsWith('{')) {
+                    try {
+                        const data = JSON.parse(responseText);
+                        log(`✅ JSON válido: ${JSON.stringify(data, null, 2)}`, 'success');
+                    } catch (e) {
+                        log(`❌ Error parseando JSON: ${e.message}`, 'error');
+                    }
+                } else {
+                    log(`❌ Respuesta no es JSON, parece HTML/PHP error`, 'error');
+                }
+                
+            } catch (error) {
+                log(`❌ Error de red: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testAuth() {
+            clearResults();
+            log('🔐 Probando estado de autenticación...');
+            
+            try {
+                // Primero verificar si estamos logueados
+                const authResponse = await fetch('./index.php?ruta=dashboard', {
+                    method: 'GET'
+                });
+                
+                if (authResponse.ok) {
+                    log('✅ Sesión parece estar activa', 'success');
+                    
+                    // Ahora probar el API
+                    const response = await fetch('./modules/consultas/api/livewire-crud.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify({
+                            action: 'test',
+                            data: {}
+                        })
+                    });
+                    
+                    const responseText = await response.text();
+                    log(`📡 Respuesta del API: ${responseText}`, response.ok ? 'success' : 'error');
+                    
+                } else {
+                    log('❌ Sin sesión activa', 'error');
+                }
+                
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testSearch() {
+            clearResults();
+            log('🔍 Probando búsqueda de pacientes...');
+            
+            try {
+                const response = await fetch('./modules/consultas/api/livewire-crud.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({
+                        action: 'searchPatients',
+                        data: {
+                            query: 'test'
+                        }
+                    })
+                });
+                
+                const responseText = await response.text();
+                log(`📡 Status: ${response.status} ${response.statusText}`);
+                log(`📄 Respuesta: ${responseText}`);
+                
+                if (response.ok && responseText.startsWith('{')) {
+                    try {
+                        const data = JSON.parse(responseText);
+                        log(`✅ Búsqueda exitosa: ${JSON.stringify(data, null, 2)}`, 'success');
+                    } catch (e) {
+                        log(`❌ Error parseando JSON: ${e.message}`, 'error');
+                    }
+                }
+                
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+        
+        // Test automático al cargar
+        window.addEventListener('load', () => {
+            log('🚀 Página cargada, ejecutando test automático...', 'info');
+            setTimeout(() => testAPI(), 1000);
+        });
+    </script>
+</body>
+</html>

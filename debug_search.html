@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug - Scripts de Búsqueda</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-field { margin: 20px 0; }
+        input { padding: 10px; width: 300px; }
+        .suggestions-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            z-index: 1000;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+        }
+        .suggestion-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background-color 0.2s;
+        }
+        .suggestion-item:hover {
+            background-color: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 Debug - Sistema de Búsqueda de Pacientes</h1>
+    
+    <div class="test-field" style="position: relative;">
+        <label for="paciente">Nombre del paciente:</label><br>
+        <input type="text" id="paciente" placeholder="Escribe para buscar..." />
+    </div>
+    
+    <div class="test-field">
+        <button id="btnBuscarPersona">Buscar</button>
+        <button id="btnLimpiarPersona">Limpiar</button>
+    </div>
+    
+    <div id="debug-info">
+        <h3>Debug Info:</h3>
+        <div id="debug-messages"></div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="fix_patient_search.js"></script>
+    
+    <script>
+        // Debug adicional
+        function addDebugMessage(message) {
+            const debugDiv = document.getElementById('debug-messages');
+            const p = document.createElement('p');
+            p.textContent = new Date().toLocaleTimeString() + ': ' + message;
+            debugDiv.appendChild(p);
+            console.log('DEBUG:', message);
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            addDebugMessage('DOM cargado');
+            
+            // Verificar si nuestro script se cargó
+            if (window.livewirePatient) {
+                addDebugMessage('✅ Script de búsqueda cargado correctamente');
+            } else {
+                addDebugMessage('❌ Script de búsqueda NO se cargó');
+            }
+            
+            // Listener adicional para debug
+            const inputField = document.getElementById('paciente');
+            if (inputField) {
+                inputField.addEventListener('input', function(e) {
+                    addDebugMessage(`Input detectado: "${e.target.value}"`);
+                });
+            }
+        });
+        
+        // Override console.log para mostrar en la página también
+        const originalLog = console.log;
+        console.log = function(...args) {
+            originalLog(...args);
+            if (args[0] && typeof args[0] === 'string' && args[0].includes('🔍')) {
+                addDebugMessage(args.join(' '));
+            }
+        };
+    </script>
+</body>
+</html>

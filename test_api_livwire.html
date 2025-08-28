@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test API Livwire</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>🧪 Test del API Livwire</h1>
+    
+    <div id="results"></div>
+    
+    <button onclick="testAPI()">🚀 Probar API</button>
+    <button onclick="testPatientSearch()">👤 Buscar Pacientes</button>
+    
+    <script>
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const time = new Date().toLocaleTimeString();
+            const color = type === 'error' ? 'red' : type === 'success' ? 'green' : 'black';
+            results.innerHTML += `<p style="color: ${color};">[${time}] ${message}</p>`;
+        }
+        
+        async function testAPI() {
+            log('🔍 Iniciando test del API...');
+            
+            try {
+                const response = await fetch('./modules/consultas/api/livewire-crud.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({
+                        action: 'test',
+                        data: {}
+                    })
+                });
+                
+                const responseText = await response.text();
+                log(`📡 Respuesta del servidor: ${responseText}`);
+                
+                if (response.ok) {
+                    try {
+                        const data = JSON.parse(responseText);
+                        log(`✅ JSON válido recibido: ${JSON.stringify(data)}`, 'success');
+                    } catch (e) {
+                        log(`❌ Respuesta no es JSON válido: ${e.message}`, 'error');
+                    }
+                } else {
+                    log(`❌ Error HTTP ${response.status}: ${response.statusText}`, 'error');
+                }
+                
+            } catch (error) {
+                log(`❌ Error en petición: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testPatientSearch() {
+            log('👤 Probando búsqueda de pacientes...');
+            
+            try {
+                const response = await fetch('./modules/consultas/api/livewire-crud.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({
+                        action: 'searchPatients',
+                        data: {
+                            query: 'test'
+                        }
+                    })
+                });
+                
+                const responseText = await response.text();
+                log(`📡 Respuesta búsqueda: ${responseText}`);
+                
+                if (response.ok) {
+                    try {
+                        const data = JSON.parse(responseText);
+                        log(`✅ Búsqueda exitosa: ${data.data ? data.data.length : 0} resultados`, 'success');
+                    } catch (e) {
+                        log(`❌ Error parseando JSON: ${e.message}`, 'error');
+                    }
+                } else {
+                    log(`❌ Error HTTP ${response.status}`, 'error');
+                }
+                
+            } catch (error) {
+                log(`❌ Error en búsqueda: ${error.message}`, 'error');
+            }
+        }
+        
+        // Test automático al cargar
+        document.addEventListener('DOMContentLoaded', () => {
+            log('🚀 Página de test cargada');
+            setTimeout(testAPI, 1000);
+        });
+    </script>
+</body>
+</html>

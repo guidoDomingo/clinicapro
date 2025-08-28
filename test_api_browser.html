@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Livewire API</title>
+</head>
+<body>
+    <h1>🔧 Test Livewire CRUD API</h1>
+    <div id="result"></div>
+    
+    <script>
+    console.log('🔧 Starting API test...');
+    
+    // Test data
+    const testData = {
+        action: 'validateField',
+        data: {
+            property: 'search_nombre',
+            value: 'leo',
+            formType: 'general'
+        }
+    };
+    
+    // Test the API endpoint
+    fetch('http://localhost/clinica/modules/consultas/api/livwire-crud.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(testData)
+    })
+    .then(async response => {
+        console.log('📡 Response status:', response.status);
+        console.log('📡 Response headers:', response.headers);
+        
+        const text = await response.text();
+        console.log('📡 Raw response:', text);
+        
+        // Try to parse as JSON
+        try {
+            const json = JSON.parse(text);
+            console.log('✅ JSON parsed:', json);
+            document.getElementById('result').innerHTML = '<pre>' + JSON.stringify(json, null, 2) + '</pre>';
+        } catch (e) {
+            console.error('❌ JSON parse error:', e);
+            console.log('📄 Raw text (first 500 chars):', text.substring(0, 500));
+            document.getElementById('result').innerHTML = '<pre>JSON Parse Error:\n' + e.message + '\n\nRaw Response:\n' + text.substring(0, 500) + '</pre>';
+        }
+    })
+    .catch(error => {
+        console.error('❌ Fetch error:', error);
+        document.getElementById('result').innerHTML = '<pre>Fetch Error: ' + error.message + '</pre>';
+    });
+    </script>
+</body>
+</html>
