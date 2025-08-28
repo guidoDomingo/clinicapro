@@ -196,6 +196,129 @@ $userName = $_SESSION['username'] ?? 'Usuario';
             display: none !important;
         }
 
+        /* CSS para navegación de pestañas mejorada */
+        .tab-pane {
+            display: none !important;
+            opacity: 0;
+            visibility: hidden;
+        }
+        
+        .tab-pane.show.active {
+            display: block !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            transition: all 0.3s ease-in-out;
+        }
+        
+        /* Forzar visualización específica para historial */
+        #historial-panel.show.active {
+            display: block !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+        
+        /* Asegurar que el contenido sea visible */
+        .tab-content {
+            position: relative;
+            min-height: 400px;
+        }
+        
+        /* Override de Bootstrap fade */
+        .tab-pane.fade {
+            transition: opacity 0.15s linear;
+        }
+        
+        .tab-pane.fade.show {
+            opacity: 1;
+        }
+        
+        /* Asegurar que el historial sea siempre visible cuando esté activo */
+        #historial-panel.show.active {
+            display: block !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            position: relative !important;
+            z-index: 1 !important;
+            min-height: 500px !important;
+            background: white !important;
+            padding: 20px !important;
+            margin-top: 20px !important;
+        }
+        
+        /* Forzar visibilidad del contenido de la tabla */
+        #historial-panel .table-responsive-enhanced {
+            display: block !important;
+            width: 100% !important;
+            min-height: 300px !important;
+        }
+        
+        #historial-panel #tabla-consultas {
+            display: table !important;
+            width: 100% !important;
+        }
+        
+        #historial-panel #tabla-consultas tbody tr {
+            display: table-row !important;
+        }
+        
+        #historial-panel #tabla-consultas tbody td {
+            display: table-cell !important;
+            padding: 8px !important;
+            border-bottom: 1px solid #ddd !important;
+        }
+        
+        /* Evitar que otros elementos se superpongan */
+        .tab-content > .tab-pane:not(.show) {
+            position: absolute !important;
+            left: -9999px !important;
+        }
+        
+        .tab-content > .tab-pane.show {
+            position: relative !important;
+            left: auto !important;
+        }
+        
+        /* Asegurar que el contenedor de pestañas tenga altura */
+        .tab-content {
+            min-height: 600px !important;
+            background: #f8f9fa !important;
+            padding: 0 !important;
+        }
+
+        .nav-pills-enhanced {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            position: sticky;
+            top: 20px;
+            z-index: 100;
+        }
+
+        .nav-pills-enhanced .nav-pills {
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .nav-pills-enhanced .nav-link {
+            border-radius: 25px;
+            padding: 12px 24px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .nav-pills-enhanced .nav-link:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .nav-pills-enhanced .nav-link.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
         /* Estilos específicos para formularios de anteojos */
         .anteojos-eye-section {
             background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
@@ -1183,6 +1306,8 @@ $userName = $_SESSION['username'] ?? 'Usuario';
                         </button>
                     </div>
                 </div>
+                </div>
+                <!-- FIN Panel de Nueva Consulta -->
 
                 <!-- Panel de Historial -->
                 <div class="tab-pane fade" id="historial-panel" role="tabpanel">
@@ -1456,6 +1581,370 @@ $userName = $_SESSION['username'] ?? 'Usuario';
 
         // Cargar todos los scripts necesarios
         scriptPaths.forEach(loadLivewireScript);
+    </script>
+
+    <!-- Script para manejar navegación de pestañas -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🔧 Configurando navegación de pestañas...');
+            
+            // Obtener todos los enlaces de pestañas y paneles
+            const tabLinks = document.querySelectorAll('#main-tabs .nav-link');
+            const tabPanes = document.querySelectorAll('.tab-content .tab-pane');
+            
+            console.log(`📋 Encontrados ${tabLinks.length} enlaces de pestaña`);
+            console.log(`📋 Encontrados ${tabPanes.length} paneles de pestaña`);
+            
+            // Función para activar una pestaña
+            function activateTab(targetId) {
+                console.log(`🎯 Activando pestaña: ${targetId}`);
+                
+                // Remover active/show de todos los enlaces y paneles
+                tabLinks.forEach(link => link.classList.remove('active'));
+                tabPanes.forEach(pane => {
+                    pane.classList.remove('show', 'active');
+                    // Ocultar explícitamente todos los paneles
+                    pane.style.display = 'none';
+                });
+                
+                // Activar el enlace correspondiente
+                const targetLink = document.querySelector(`a[href="#${targetId}"]`);
+                if (targetLink) {
+                    targetLink.classList.add('active');
+                }
+                
+                // Activar el panel correspondiente
+                const targetPane = document.getElementById(targetId);
+                if (targetPane) {
+                    targetPane.classList.add('show', 'active');
+                    targetPane.style.display = 'block';
+                    targetPane.style.opacity = '1';
+                    targetPane.style.visibility = 'visible';
+                    
+                    console.log(`✅ Panel ${targetId} activado`);
+                    
+                    // Si es el historial, hacer scroll suave hacia arriba y verificar contenido
+                    if (targetId === 'historial-panel') {
+                        setTimeout(() => {
+                            // Forzar la visualización del historial
+                            const historialPanel = document.getElementById('historial-panel');
+                            if (historialPanel) {
+                                historialPanel.style.display = 'block !important';
+                                historialPanel.style.opacity = '1 !important';
+                                historialPanel.style.visibility = 'visible !important';
+                                
+                                // Verificar si la tabla tiene contenido
+                                const tbody = historialPanel.querySelector('#tabla-consultas tbody');
+                                if (tbody && tbody.children.length === 0) {
+                                    console.log('⚠️ Tabla de historial vacía, intentando recargar...');
+                                    // Disparar evento para recargar historial
+                                    if (window.actualizarHistorial && typeof window.actualizarHistorial === 'function') {
+                                        window.actualizarHistorial();
+                                    }
+                                }
+                            }
+                            
+                            const navPills = document.querySelector('.nav-pills-enhanced');
+                            if (navPills) {
+                                navPills.scrollIntoView({ 
+                                    behavior: 'smooth', 
+                                    block: 'start' 
+                                });
+                            }
+                        }, 100);
+                    }
+                } else {
+                    console.error(`❌ Panel ${targetId} no encontrado`);
+                }
+            }
+            
+            // Configurar event listeners para todos los enlaces de pestañas
+            tabLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href').substring(1);
+                    activateTab(targetId);
+                });
+            });
+            
+            // Función global para debugging
+            window.debugTabs = function() {
+                console.log('🔍 Estado actual de pestañas:');
+                tabLinks.forEach((link, i) => {
+                    console.log(`Link ${i}: ${link.getAttribute('href')} - Active: ${link.classList.contains('active')}`);
+                });
+                tabPanes.forEach((pane, i) => {
+                    const computedStyle = window.getComputedStyle(pane);
+                    console.log(`Panel ${i} (${pane.id}): 
+                        - Classes: ${pane.className}
+                        - Display: ${computedStyle.display}
+                        - Opacity: ${computedStyle.opacity}
+                        - Visibility: ${computedStyle.visibility}`);
+                });
+            };
+            
+            // Función específica para debug del historial
+            window.debugHistorial = function() {
+                const historial = document.getElementById('historial-panel');
+                if (historial) {
+                    const computedStyle = window.getComputedStyle(historial);
+                    console.log('🔍 Debug del panel de historial:');
+                    console.log('- Classes:', historial.className);
+                    console.log('- Display:', computedStyle.display);
+                    console.log('- Opacity:', computedStyle.opacity);
+                    console.log('- Visibility:', computedStyle.visibility);
+                    console.log('- Position:', computedStyle.position);
+                    console.log('- Z-index:', computedStyle.zIndex);
+                    
+                    const tbody = historial.querySelector('#tabla-consultas tbody');
+                    if (tbody) {
+                        console.log('- Filas en tabla:', tbody.children.length);
+                    }
+                } else {
+                    console.error('❌ Panel historial no encontrado');
+                }
+            };
+            
+            // Función para forzar mostrar historial
+            window.forzarHistorial = function() {
+                const historial = document.getElementById('historial-panel');
+                if (historial) {
+                    // Ocultar otros paneles
+                    tabPanes.forEach(pane => {
+                        if (pane.id !== 'historial-panel') {
+                            pane.style.display = 'none';
+                            pane.classList.remove('show', 'active');
+                        }
+                    });
+                    
+                    // Forzar mostrar historial
+                    historial.className = 'tab-pane show active';
+                    historial.style.display = 'block';
+                    historial.style.opacity = '1';
+                    historial.style.visibility = 'visible';
+                    historial.style.position = 'relative';
+                    historial.style.zIndex = '1000';
+                    historial.style.minHeight = '500px';
+                    historial.style.background = 'white';
+                    historial.style.padding = '20px';
+                    historial.style.marginTop = '20px';
+                    
+                    // Forzar mostrar el contenido de la tabla
+                    const tableContainer = historial.querySelector('.table-responsive-enhanced');
+                    const tabla = historial.querySelector('#tabla-consultas');
+                    const tbody = historial.querySelector('#tabla-consultas tbody');
+                    
+                    if (tableContainer) {
+                        tableContainer.style.display = 'block';
+                        tableContainer.style.width = '100%';
+                        tableContainer.style.minHeight = '300px';
+                    }
+                    
+                    if (tabla) {
+                        tabla.style.display = 'table';
+                        tabla.style.width = '100%';
+                    }
+                    
+                    if (tbody) {
+                        tbody.style.display = 'table-row-group';
+                        // Forzar visibilidad de todas las filas
+                        Array.from(tbody.children).forEach(row => {
+                            row.style.display = 'table-row';
+                        });
+                    }
+                    
+                    console.log('🔧 Historial forzado a mostrar con estilos específicos');
+                } else {
+                    console.error('❌ Panel historial no encontrado');
+                }
+            };
+            
+            // Función para verificar superposiciones
+            window.verificarSuperposiciones = function() {
+                const historial = document.getElementById('historial-panel');
+                const consulta = document.getElementById('consulta-panel');
+                
+                if (historial && consulta) {
+                    const historialRect = historial.getBoundingClientRect();
+                    const consultaRect = consulta.getBoundingClientRect();
+                    
+                    console.log('📏 Posiciones de los paneles:');
+                    console.log('Historial:', {
+                        display: window.getComputedStyle(historial).display,
+                        zIndex: window.getComputedStyle(historial).zIndex,
+                        position: historialRect,
+                        classes: historial.className
+                    });
+                    console.log('Consulta:', {
+                        display: window.getComputedStyle(consulta).display,
+                        zIndex: window.getComputedStyle(consulta).zIndex,
+                        position: consultaRect,
+                        classes: consulta.className
+                    });
+                }
+            };
+            
+            // Función para hacer scroll al historial
+            window.scrollToHistorial = function() {
+                const historial = document.getElementById('historial-panel');
+                if (historial) {
+                    historial.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'start' 
+                    });
+                    console.log('📜 Scroll al historial ejecutado');
+                }
+            };
+            
+            // Función para verificar y rellenar la tabla manualmente
+            window.verificarTablaHistorial = function() {
+                const tabla = document.getElementById('tabla-consultas');
+                const tbody = document.querySelector('#tabla-consultas tbody');
+                
+                console.log('🔍 Verificación de tabla de historial:');
+                console.log('- Tabla encontrada:', tabla ? 'SÍ' : 'NO');
+                console.log('- Tbody encontrado:', tbody ? 'SÍ' : 'NO');
+                
+                if (tbody) {
+                    console.log('- Filas actuales en tbody:', tbody.children.length);
+                    console.log('- Contenido HTML actual:', tbody.innerHTML.length > 0 ? 'TIENE CONTENIDO' : 'VACÍO');
+                    
+                    // Verificar si el parche interceptó datos
+                    if (window.ultimosDescargados && window.ultimosDescargados.historial) {
+                        console.log('- Datos interceptados disponibles:', window.ultimosDescargados.historial.length, 'consultas');
+                        
+                        // Rellenar manualmente la tabla
+                        const consultas = window.ultimosDescargados.historial.slice(0, 10);
+                        const html = consultas.map((consulta, index) => `
+                            <tr>
+                                <td>${consulta.fecha_registro || 'Sin fecha'}</td>
+                                <td><strong>Consulta #${consulta.id_consulta || index + 1}</strong><br><small>${consulta.motivo || 'Sin motivo'}</small></td>
+                                <td><span class="badge badge-primary">${consulta.tipo_formulario || 'Consulta'}</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-info">Ver</button>
+                                    <button class="btn btn-sm btn-warning">Editar</button>
+                                </td>
+                            </tr>
+                        `).join('');
+                        
+                        tbody.innerHTML = html;
+                        console.log('✅ Tabla rellenada manualmente con', consultas.length, 'filas');
+                    } else {
+                        console.log('❌ No hay datos interceptados disponibles');
+                    }
+                } else {
+                    console.error('❌ No se pudo encontrar el tbody de la tabla');
+                }
+            };
+            
+            // Función para solucionar el problema de estructura DOM
+            window.solucionarEstructuraHistorial = function() {
+                const historialPanel = document.getElementById('historial-panel');
+                const consultaPanel = document.getElementById('consulta-panel');
+                const tabContent = document.getElementById('main-tab-content');
+                
+                console.log('🔧 Solucionando estructura del historial...');
+                
+                if (historialPanel && tabContent && consultaPanel) {
+                    // Remover historial del consulta-panel
+                    historialPanel.remove();
+                    
+                    // Agregar historial como hermano del consulta-panel
+                    tabContent.appendChild(historialPanel);
+                    
+                    // Asegurar que historial tenga las clases correctas
+                    historialPanel.className = 'tab-pane fade';
+                    
+                    // Aplicar estilos
+                    historialPanel.style.cssText = `
+                        display: none !important;
+                        opacity: 0 !important;
+                        visibility: hidden !important;
+                    `;
+                    
+                    console.log('✅ Historial movido al nivel correcto');
+                    
+                    // Ahora activar el historial correctamente
+                    setTimeout(() => {
+                        this.forzarHistorial();
+                    }, 100);
+                } else {
+                    console.error('❌ No se pudieron encontrar los elementos necesarios');
+                }
+            };
+                const historial = document.getElementById('historial-panel');
+                const tabContent = document.querySelector('.tab-content');
+                
+                if (historial) {
+                    // Remover cualquier estilo que pueda estar causando altura 0
+                    historial.style.cssText = `
+                        display: block !important;
+                        opacity: 1 !important;
+                        visibility: visible !important;
+                        position: relative !important;
+                        z-index: 1000 !important;
+                        min-height: 600px !important;
+                        height: auto !important;
+                        max-height: none !important;
+                        overflow: visible !important;
+                        background: white !important;
+                        padding: 30px !important;
+                        margin: 20px 0 !important;
+                        border: 2px solid #007bff !important;
+                        border-radius: 10px !important;
+                        box-shadow: 0 4px 20px rgba(0,0,0,0.1) !important;
+                    `;
+                    
+                    // Forzar contenedor padre
+                    if (tabContent) {
+                        tabContent.style.cssText = `
+                            min-height: 700px !important;
+                            height: auto !important;
+                            overflow: visible !important;
+                            background: #f8f9fa !important;
+                            padding: 20px !important;
+                        `;
+                    }
+                    
+                    // Forzar tabla y contenido
+                    const tableContainer = historial.querySelector('.table-responsive-enhanced');
+                    const tabla = historial.querySelector('#tabla-consultas');
+                    
+                    if (tableContainer) {
+                        tableContainer.style.cssText = `
+                            display: block !important;
+                            width: 100% !important;
+                            min-height: 400px !important;
+                            overflow: auto !important;
+                            background: white !important;
+                            border: 1px solid #ddd !important;
+                            border-radius: 5px !important;
+                        `;
+                    }
+                    
+                    if (tabla) {
+                        tabla.style.cssText = `
+                            display: table !important;
+                            width: 100% !important;
+                            margin: 0 !important;
+                            background: white !important;
+                        `;
+                    }
+                    
+                    console.log('🔧 Historial solucionado con estilos agresivos');
+                    console.log('📏 Nueva altura:', historial.getBoundingClientRect().height, 'px');
+                } else {
+                    console.error('❌ Panel historial no encontrado');
+                }
+          
+            
+            // Función global para activar historial
+            window.showHistorial = function() {
+                activateTab('historial-panel');
+            };
+            
+            console.log('✅ Navegación de pestañas configurada');
+        });
     </script>
 
     <!-- Buscador Ultra Simple -->

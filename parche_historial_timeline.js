@@ -56,6 +56,10 @@ function interceptarFuncionesOriginales() {
         console.log('🔄 === HISTORIAL INTERCEPTADO ===');
         console.log('📊 Datos recibidos:', historial);
         
+        // Guardar datos globalmente para debugging
+        window.ultimosDescargados = window.ultimosDescargados || {};
+        window.ultimosDescargados.historial = historial;
+        
         if (!historial || historial.length === 0) {
             console.log('⚠️ No hay datos de historial');
             return;
