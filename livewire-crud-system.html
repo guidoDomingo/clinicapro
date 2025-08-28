@@ -262,6 +262,7 @@
                                     <select class="form-select" id="tipo_formulario" name="tipo_formulario">
                                         <option value="general">General</option>
                                         <option value="anteojos">Anteojos</option>
+                                        <option value="informe_imagen">Informe con Imagen</option>
                                         <option value="estudios">Estudios</option>
                                     </select>
                                     <label>Tipo de Formulario</label>
@@ -843,12 +844,15 @@
             
             const form = document.getElementById('create-form');
             const formData = new FormData(form);
-            const data = Object.fromEntries(formData.entries());
+            let data = Object.fromEntries(formData.entries());
             
             // CORRECCIÓN: Convertir fechas vacías a null para PostgreSQL
             if (data.proxima_consulta === '') {
                 data.proxima_consulta = null;
             }
+            
+            // CORRECCIÓN: Procesar campos booleanos
+            data = processBooleanFields(data);
             
             if (!data.person_id) {
                 showError('Debe seleccionar un paciente');
@@ -861,7 +865,7 @@
             btn.disabled = true;
             
             try {
-                // Preparar datos relacionados de anteojos si corresponde
+                // Preparar datos relacionados según el tipo de formulario
                 let related = null;
                 if (data.tipo_formulario === 'anteojos') {
                     related = {
@@ -882,6 +886,27 @@
                             nota_oi: data.oi_nota,
                             dist_interpupilar: data.dist_interpupilar,
                             notas: data.anteojos_notas
+                        }
+                    };
+                } else if (data.tipo_formulario === 'informe_imagen') {
+                    related = {
+                        informe_imagen: {
+                            equipo_medico: data.equipo_medico,
+                            descripcion_od: data.descripcion_od,
+                            descripcion_oi: data.descripcion_oi,
+                            emails_compartir: data.emails_compartir,
+                            compartir_activo: data.compartir_activo
+                        }
+                    };
+                } else if (data.tipo_formulario === 'estudios') {
+                    related = {
+                        estudios: {
+                            equipo_medico: data.equipo_medico,
+                            otro_equipo: data.otro_equipo,
+                            descripcion_estudio: data.descripcion_estudio,
+                            observaciones: data.observaciones,
+                            resultados: data.resultados,
+                            fecha_estudio: data.fecha_estudio || null
                         }
                     };
                 }
@@ -913,7 +938,7 @@
                 const result = await callAPI('read', {
                     table: 'consultas',
                     id: id,
-                    with: ['anteojos'],
+                    with: ['anteojos', 'informe_imagen', 'estudios'],
                     _t: Date.now() // Anti-cache timestamp
                 });
                 
@@ -963,6 +988,7 @@
                                     <select class="form-select" name="tipo_formulario" onchange="handleEditFormTypeChange()">
                                         <option value="general" ${data.tipo_formulario === 'general' ? 'selected' : ''}>General</option>
                                         <option value="anteojos" ${data.tipo_formulario === 'anteojos' ? 'selected' : ''}>Anteojos</option>
+                                        <option value="informe_imagen" ${data.tipo_formulario === 'informe_imagen' ? 'selected' : ''}>Informe con Imagen</option>
                                         <option value="estudios" ${data.tipo_formulario === 'estudios' ? 'selected' : ''}>Estudios</option>
                                     </select>
                                     <label>Tipo de Formulario</label>
@@ -1043,6 +1069,8 @@
                     </div>
                     
                     ${data.tipo_formulario === 'anteojos' && data.anteojos ? createAnteojosEditSection(data.anteojos) : ''}
+                    ${data.tipo_formulario === 'informe_imagen' && data.informe_imagen ? createInformeImagenEditSection(data.informe_imagen) : ''}
+                    ${data.tipo_formulario === 'estudios' && data.estudios ? createEstudiosEditSection(data.estudios) : ''}
                 </form>
             `;
         }
@@ -1173,20 +1201,149 @@
         }
 
         /**
+         * Crear sección de edición de informe con imagen
+         */
+        function createInformeImagenEditSection(informe_imagen) {
+            return `
+                <div id="edit-informe-imagen-section" class="form-section">
+                    <h6 class="form-section-title">Datos de Informe con Imagen</h6>
+                    <div class="form-section-body">
+                        <div class="form-floating mb-3">
+                            <select class="form-select" name="equipo_medico">
+                                <option value="">Seleccionar equipo</option>
+                                <option value="Cirrus 700" ${informe_imagen.equipo_medico === 'Cirrus 700' ? 'selected' : ''}>Cirrus 700</option>
+                                <option value="Stratus" ${informe_imagen.equipo_medico === 'Stratus' ? 'selected' : ''}>Stratus</option>
+                                <option value="Pentacam" ${informe_imagen.equipo_medico === 'Pentacam' ? 'selected' : ''}>Pentacam</option>
+                                <option value="Campo Visual" ${informe_imagen.equipo_medico === 'Campo Visual' ? 'selected' : ''}>Campo Visual</option>
+                                <option value="Otro" ${informe_imagen.equipo_medico === 'Otro' ? 'selected' : ''}>Otro</option>
+                            </select>
+                            <label>Equipo Médico</label>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <textarea class="form-control" name="descripcion_od" style="height: 150px;">${informe_imagen.descripcion_od || ''}</textarea>
+                                    <label>Descripción Ojo Derecho (OD)</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <textarea class="form-control" name="descripcion_oi" style="height: 150px;">${informe_imagen.descripcion_oi || ''}</textarea>
+                                    <label>Descripción Ojo Izquierdo (OI)</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" name="emails_compartir" value="${informe_imagen.emails_compartir || ''}">
+                                    <label>Emails para Compartir</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check mt-3">
+                                    <input class="form-check-input" type="checkbox" name="compartir_activo" ${informe_imagen.compartir_activo ? 'checked' : ''}>
+                                    <label class="form-check-label">Compartir Activo</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        /**
+         * Crear sección de edición de estudios
+         */
+        function createEstudiosEditSection(estudios) {
+            return `
+                <div id="edit-estudios-section" class="form-section">
+                    <h6 class="form-section-title">Datos de Estudios Médicos</h6>
+                    <div class="form-section-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <select class="form-select" name="equipo_medico">
+                                        <option value="">Seleccionar equipo</option>
+                                        <option value="Cirrus 700" ${estudios.equipo_medico === 'Cirrus 700' ? 'selected' : ''}>Cirrus 700</option>
+                                        <option value="Stratus" ${estudios.equipo_medico === 'Stratus' ? 'selected' : ''}>Stratus</option>
+                                        <option value="Pentacam" ${estudios.equipo_medico === 'Pentacam' ? 'selected' : ''}>Pentacam</option>
+                                        <option value="Campo Visual" ${estudios.equipo_medico === 'Campo Visual' ? 'selected' : ''}>Campo Visual</option>
+                                        <option value="Otro" ${estudios.equipo_medico === 'Otro' ? 'selected' : ''}>Otro</option>
+                                    </select>
+                                    <label>Equipo Médico</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" name="otro_equipo" value="${estudios.otro_equipo || ''}">
+                                    <label>Otro Equipo</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-floating mb-3">
+                            <textarea class="form-control" name="descripcion_estudio" style="height: 120px;">${estudios.descripcion_estudio || ''}</textarea>
+                            <label>Descripción del Estudio</label>
+                        </div>
+                        
+                        <div class="form-floating mb-3">
+                            <textarea class="form-control" name="observaciones" style="height: 100px;">${estudios.observaciones || ''}</textarea>
+                            <label>Observaciones</label>
+                        </div>
+                        
+                        <div class="form-floating mb-3">
+                            <textarea class="form-control" name="resultados" style="height: 120px;">${estudios.resultados || ''}</textarea>
+                            <label>Resultados</label>
+                        </div>
+                        
+                        <div class="form-floating">
+                            <input type="date" class="form-control" name="fecha_estudio" value="${estudios.fecha_estudio || ''}">
+                            <label>Fecha del Estudio</label>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        /**
+         * Procesar datos booleanos para evitar problemas con PostgreSQL
+         */
+        function processBooleanFields(data) {
+            // Convertir campos booleanos que pueden estar undefined/empty string
+            const booleanFields = ['compartir_activo'];
+            
+            booleanFields.forEach(field => {
+                if (data[field] === undefined || data[field] === '' || data[field] === null) {
+                    data[field] = false;
+                } else {
+                    data[field] = !!data[field];
+                }
+            });
+            
+            return data;
+        }
+
+        /**
          * Guardar edición
          */
         async function saveEdit() {
             const form = document.getElementById('edit-form');
             const formData = new FormData(form);
-            const data = Object.fromEntries(formData.entries());
+            let data = Object.fromEntries(formData.entries());
             
             // CORRECCIÓN: Convertir fechas vacías a null para PostgreSQL
             if (data.proximaconsulta === '') {
                 data.proximaconsulta = null;
             }
             
+            // CORRECCIÓN: Procesar campos booleanos
+            data = processBooleanFields(data);
+            
             try {
-                // Preparar datos relacionados de anteojos si corresponde
+                // Preparar datos relacionados según el tipo de formulario
                 let related = null;
                 if (data.tipo_formulario === 'anteojos') {
                     related = {
@@ -1207,6 +1364,27 @@
                             nota_oi: data.oi_nota,
                             dist_interpupilar: data.dist_interpupilar,
                             notas: data.anteojos_notas
+                        }
+                    };
+                } else if (data.tipo_formulario === 'informe_imagen') {
+                    related = {
+                        informe_imagen: {
+                            equipo_medico: data.equipo_medico,
+                            descripcion_od: data.descripcion_od,
+                            descripcion_oi: data.descripcion_oi,
+                            emails_compartir: data.emails_compartir,
+                            compartir_activo: data.compartir_activo
+                        }
+                    };
+                } else if (data.tipo_formulario === 'estudios') {
+                    related = {
+                        estudios: {
+                            equipo_medico: data.equipo_medico,
+                            otro_equipo: data.otro_equipo,
+                            descripcion_estudio: data.descripcion_estudio,
+                            observaciones: data.observaciones,
+                            resultados: data.resultados,
+                            fecha_estudio: data.fecha_estudio || null
                         }
                     };
                 }

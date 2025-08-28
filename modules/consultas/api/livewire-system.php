@@ -74,7 +74,9 @@ class LivewireCRUDSystem {
             ],
             'relations' => [
                 'persona' => 'rh_person.person_id',
-                'anteojos' => 'consulta_anteojos.id_consulta'
+                'anteojos' => 'consulta_anteojos.id_consulta',
+                'informe_imagen' => 'consulta_informe_imagen.id_consulta',
+                'estudios' => 'consulta_estudios.id_consulta'
             ]
         ],
         
@@ -101,6 +103,42 @@ class LivewireCRUDSystem {
                 'dist_interpupilar' => ['type' => 'varchar', 'label' => 'Distancia Interpupilar'],
                 'notas' => ['type' => 'text', 'label' => 'Notas Generales'],
                 'fecha_creacion' => ['type' => 'timestamp', 'auto' => true, 'default' => 'CURRENT_TIMESTAMP']
+            ]
+        ],
+        
+        'consulta_informe_imagen' => [
+            'primaryKey' => 'id_consulta_informe_imagen',
+            'displayName' => 'Informe con Imagen',
+            'fields' => [
+                'id_consulta_informe_imagen' => ['type' => 'int', 'primary' => true, 'auto' => true],
+                'id_consulta' => ['type' => 'int', 'required' => true, 'foreign' => 'consultas.id_consulta'],
+                'equipo_medico' => ['type' => 'varchar', 'label' => 'Equipo Médico'],
+                'descripcion_od' => ['type' => 'text', 'label' => 'Descripción OD'],
+                'descripcion_oi' => ['type' => 'text', 'label' => 'Descripción OI'],
+                'archivos_od' => ['type' => 'json', 'label' => 'Archivos OD'],
+                'archivos_oi' => ['type' => 'json', 'label' => 'Archivos OI'],
+                'emails_compartir' => ['type' => 'varchar', 'label' => 'Emails para Compartir'],
+                'compartir_activo' => ['type' => 'bool', 'default' => false, 'label' => 'Compartir Activo'],
+                'fecha_creacion' => ['type' => 'timestamp', 'auto' => true, 'default' => 'CURRENT_TIMESTAMP'],
+                'fecha_actualizacion' => ['type' => 'timestamp', 'auto' => true, 'default' => 'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP']
+            ]
+        ],
+        
+        'consulta_estudios' => [
+            'primaryKey' => 'id_consulta_estudios',
+            'displayName' => 'Estudios Médicos',
+            'fields' => [
+                'id_consulta_estudios' => ['type' => 'int', 'primary' => true, 'auto' => true],
+                'id_consulta' => ['type' => 'int', 'required' => true, 'foreign' => 'consultas.id_consulta'],
+                'equipo_medico' => ['type' => 'varchar', 'label' => 'Equipo Médico'],
+                'otro_equipo' => ['type' => 'varchar', 'label' => 'Otro Equipo'],
+                'descripcion_estudio' => ['type' => 'text', 'label' => 'Descripción del Estudio'],
+                'observaciones' => ['type' => 'text', 'label' => 'Observaciones'],
+                'resultados' => ['type' => 'text', 'label' => 'Resultados'],
+                'archivos_adjuntos' => ['type' => 'json', 'label' => 'Archivos Adjuntos'],
+                'fecha_estudio' => ['type' => 'date', 'label' => 'Fecha del Estudio'],
+                'fecha_creacion' => ['type' => 'timestamp', 'auto' => true, 'default' => 'CURRENT_TIMESTAMP'],
+                'fecha_actualizacion' => ['type' => 'timestamp', 'auto' => true, 'default' => 'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP']
             ]
         ],
         
@@ -262,7 +300,12 @@ class LivewireCRUDSystem {
             
             // Bind parameters
             foreach ($insertData as $field => $value) {
-                $stmt->bindValue(":$field", $value);
+                // Convertir booleanos para PostgreSQL
+                if (is_bool($value)) {
+                    $stmt->bindValue(":$field", $value, PDO::PARAM_BOOL);
+                } else {
+                    $stmt->bindValue(":$field", $value);
+                }
             }
             
             $stmt->execute();
@@ -389,7 +432,12 @@ class LivewireCRUDSystem {
             
             // Bind parameters
             foreach ($updateData as $field => $value) {
-                $stmt->bindValue(":$field", $value);
+                // Convertir booleanos para PostgreSQL
+                if (is_bool($value)) {
+                    $stmt->bindValue(":$field", $value, PDO::PARAM_BOOL);
+                } else {
+                    $stmt->bindValue(":$field", $value);
+                }
             }
             $stmt->bindValue(':id', $id);
             
@@ -464,7 +512,8 @@ class LivewireCRUDSystem {
             // Eliminar registros relacionados primero (CASCADE manual)
             if ($table === 'consultas') {
                 $this->db->prepare("DELETE FROM consulta_anteojos WHERE id_consulta = ?")->execute([$id]);
-                // Agregar otras tablas relacionadas aquí
+                $this->db->prepare("DELETE FROM consulta_informe_imagen WHERE id_consulta = ?")->execute([$id]);
+                $this->db->prepare("DELETE FROM consulta_estudios WHERE id_consulta = ?")->execute([$id]);
             }
             
             // Eliminar registro principal
@@ -663,6 +712,24 @@ class LivewireCRUDSystem {
             }
         }
         
+        if ($table === 'consultas' && (empty($with) || in_array('informe_imagen', $with))) {
+            $stmt = $this->db->prepare("SELECT * FROM consulta_informe_imagen WHERE id_consulta = ?");
+            $stmt->execute([$id]);
+            $informe_imagen = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($informe_imagen) {
+                $record['informe_imagen'] = $informe_imagen;
+            }
+        }
+        
+        if ($table === 'consultas' && (empty($with) || in_array('estudios', $with))) {
+            $stmt = $this->db->prepare("SELECT * FROM consulta_estudios WHERE id_consulta = ?");
+            $stmt->execute([$id]);
+            $estudios = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($estudios) {
+                $record['estudios'] = $estudios;
+            }
+        }
+        
         return $this->processRecord($table, $record);
     }
     
@@ -696,7 +763,7 @@ class LivewireCRUDSystem {
             
             // Valor del input
             if (isset($data[$field])) {
-                $insertData[$field] = $data[$field];
+                $insertData[$field] = $this->processFieldValue($data[$field], $fieldConfig);
             }
             
             // Campos requeridos
@@ -722,11 +789,44 @@ class LivewireCRUDSystem {
                     continue;
                 }
                 
-                $updateData[$field] = $value;
+                // Procesar según el tipo de campo
+                $processedValue = $this->processFieldValue($value, $fieldConfig);
+                $updateData[$field] = $processedValue;
             }
         }
         
         return $updateData;
+    }
+    
+    /**
+     * Procesar valor según el tipo de campo
+     */
+    private function processFieldValue($value, $fieldConfig) {
+        $type = $fieldConfig['type'] ?? 'varchar';
+        
+        switch ($type) {
+            case 'bool':
+            case 'boolean':
+                // Convertir valores booleanos
+                if ($value === '' || $value === null || $value === 'false' || $value === false) {
+                    $result = false;
+                } else {
+                    $result = (bool) $value;
+                }
+                
+                return $result;
+                
+            case 'int':
+            case 'integer':
+                return $value === '' || $value === null ? null : (int) $value;
+                
+            case 'date':
+            case 'timestamp':
+                return $value === '' ? null : $value;
+                
+            default:
+                return $value;
+        }
     }
     
     private function validateData($table, $data, $operation) {
@@ -793,6 +893,48 @@ class LivewireCRUDSystem {
                 } else {
                     // Usar método interno sin transacción
                     $this->createInternal('consulta_anteojos', $anteojosData);
+                }
+            }
+        }
+        
+        // Manejar datos de informe con imagen
+        if (isset($relatedData['informe_imagen'])) {
+            $informeData = $relatedData['informe_imagen'];
+            $informeData['id_consulta'] = $parentId;
+            
+            if ($operation === 'create') {
+                $this->createInternal('consulta_informe_imagen', $informeData);
+            } else {
+                // Verificar si existe registro de informe imagen
+                $stmt = $this->db->prepare("SELECT id_consulta_informe_imagen FROM consulta_informe_imagen WHERE id_consulta = ?");
+                $stmt->execute([$parentId]);
+                $existing = $stmt->fetch();
+                
+                if ($existing) {
+                    $this->updateInternal('consulta_informe_imagen', $existing['id_consulta_informe_imagen'], $informeData);
+                } else {
+                    $this->createInternal('consulta_informe_imagen', $informeData);
+                }
+            }
+        }
+        
+        // Manejar datos de estudios
+        if (isset($relatedData['estudios'])) {
+            $estudiosData = $relatedData['estudios'];
+            $estudiosData['id_consulta'] = $parentId;
+            
+            if ($operation === 'create') {
+                $this->createInternal('consulta_estudios', $estudiosData);
+            } else {
+                // Verificar si existe registro de estudios
+                $stmt = $this->db->prepare("SELECT id_consulta_estudios FROM consulta_estudios WHERE id_consulta = ?");
+                $stmt->execute([$parentId]);
+                $existing = $stmt->fetch();
+                
+                if ($existing) {
+                    $this->updateInternal('consulta_estudios', $existing['id_consulta_estudios'], $estudiosData);
+                } else {
+                    $this->createInternal('consulta_estudios', $estudiosData);
                 }
             }
         }
@@ -890,7 +1032,12 @@ class LivewireCRUDSystem {
         
         // Bind parameters
         foreach ($insertData as $field => $value) {
-            $stmt->bindValue(":$field", $value);
+            // Convertir booleanos para PostgreSQL
+            if (is_bool($value)) {
+                $stmt->bindValue(":$field", $value, PDO::PARAM_BOOL);
+            } else {
+                $stmt->bindValue(":$field", $value);
+            }
         }
         
         $stmt->execute();
@@ -936,7 +1083,12 @@ class LivewireCRUDSystem {
         
         // Bind parameters
         foreach ($updateData as $field => $value) {
-            $stmt->bindValue(":$field", $value);
+            // Convertir booleanos para PostgreSQL
+            if (is_bool($value)) {
+                $stmt->bindValue(":$field", $value, PDO::PARAM_BOOL);
+            } else {
+                $stmt->bindValue(":$field", $value);
+            }
         }
         $stmt->bindValue(':id', $id);
         
