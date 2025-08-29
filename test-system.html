@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Sistema CRUD</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { 
+            color: #333; 
+            text-align: center;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 2px solid #007bff;
+            border-radius: 8px;
+        }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏥 Sistema de Consultas Médicas - Test</h1>
+        
+        <div class="test-section">
+            <h3>📋 Estado del Sistema</h3>
+            <div id="system-status">
+                <div class="loading">⏳ Verificando sistema...</div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔗 Test de API</h3>
+            <div id="api-status">
+                <div class="loading">⏳ Probando conexión API...</div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔍 Test de Búsqueda</h3>
+            <div style="margin: 10px 0;">
+                <input type="text" id="test-search" placeholder="Escriba para probar búsqueda..." 
+                       style="width: 300px; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                <button onclick="testSearch()" style="padding: 8px 16px; margin-left: 10px;">Buscar</button>
+            </div>
+            <div id="search-results" style="margin-top: 10px;"></div>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        let isSystemReady = false;
+        
+        // Test del sistema al cargar
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Iniciando tests del sistema...');
+            runSystemTests();
+        });
+        
+        async function runSystemTests() {
+            // Test 1: Verificar que JavaScript funciona
+            document.getElementById('system-status').innerHTML = 
+                '<div class="success">✅ JavaScript: OK</div>';
+            
+            // Test 2: Probar la función callAPI
+            await testAPIConnection();
+            
+            // Test 3: Marcar sistema como listo
+            isSystemReady = true;
+            console.log('✅ Tests completados');
+        }
+        
+        async function testAPIConnection() {
+            try {
+                console.log('🔗 Probando conexión API...');
+                
+                // Función callAPI simplificada para test
+                const response = await fetch('modules/consultas/api/livewire-system.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'search',
+                        table: 'rh_person',
+                        search: 'test',
+                        limit: 1
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('HTTP ' + response.status);
+                }
+                
+                const data = await response.text();
+                console.log('📡 Respuesta API:', data);
+                
+                document.getElementById('api-status').innerHTML = 
+                    '<div class="success">✅ API: Conectada (Status: ' + response.status + ')</div>';
+                
+            } catch (error) {
+                console.error('❌ Error API:', error);
+                document.getElementById('api-status').innerHTML = 
+                    '<div class="error">❌ API: Error - ' + error.message + '</div>';
+            }
+        }
+        
+        async function testSearch() {
+            const query = document.getElementById('test-search').value;
+            const resultsDiv = document.getElementById('search-results');
+            
+            if (!query || query.length < 3) {
+                resultsDiv.innerHTML = '<div class="error">⚠️ Ingrese al menos 3 caracteres</div>';
+                return;
+            }
+            
+            resultsDiv.innerHTML = '<div>🔍 Buscando...</div>';
+            
+            try {
+                const response = await fetch('modules/consultas/api/livewire-system.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        action: 'search',
+                        table: 'rh_person',
+                        search: query,
+                        limit: 5
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('HTTP ' + response.status);
+                }
+                
+                const text = await response.text();
+                console.log('📝 Respuesta búsqueda:', text);
+                
+                try {
+                    const data = JSON.parse(text);
+                    
+                    if (data.data && data.data.length > 0) {
+                        resultsDiv.innerHTML = '<div class="success">✅ Encontrados ' + 
+                            data.data.length + ' resultados:<br>' + 
+                            data.data.map(p => '• ' + (p.first_name || '') + ' ' + (p.last_name || '')).join('<br>') + 
+                            '</div>';
+                    } else {
+                        resultsDiv.innerHTML = '<div>ℹ️ No se encontraron resultados</div>';
+                    }
+                    
+                } catch (parseError) {
+                    resultsDiv.innerHTML = '<div class="error">❌ Respuesta no válida: ' + text.substring(0, 100) + '...</div>';
+                }
+                
+            } catch (error) {
+                console.error('❌ Error en búsqueda:', error);
+                resultsDiv.innerHTML = '<div class="error">❌ Error: ' + error.message + '</div>';
+            }
+        }
+        
+        // Función para cargar el sistema completo si los tests pasan
+        function loadFullSystem() {
+            window.location.href = 'livewire-crud-system.html';
+        }
+        
+        console.log('🔧 Sistema de tests cargado');
+    </script>
+</body>
+</html>

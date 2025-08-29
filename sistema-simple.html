@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema CRUD - Local</title>
+    
+    <!-- CSS inline básico -->
+    <style>
+        * { box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0; 
+            padding: 20px; 
+            background: #f8f9fa; 
+            line-height: 1.6;
+        }
+        .container { 
+            max-width: 1400px; 
+            margin: 0 auto; 
+            background: white; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #dee2e6;
+            background: #f8f9fa;
+        }
+        .tab {
+            padding: 15px 25px;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+        .tab.active {
+            background: white;
+            border-bottom-color: #007bff;
+            color: #007bff;
+        }
+        .tab:hover {
+            background: #e9ecef;
+        }
+        .content {
+            padding: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #333;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .btn-danger {
+            background: #dc3545;
+        }
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        .search-box {
+            position: relative;
+        }
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #007bff;
+            border-top: none;
+            max-height: 250px;
+            overflow-y: auto;
+            z-index: 1000;
+            border-radius: 0 0 8px 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .search-result-item {
+            padding: 12px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.2s;
+        }
+        .search-result-item:hover {
+            background-color: #f8f9fa;
+            border-left: 4px solid #007bff;
+        }
+        .search-result-item.selected {
+            background-color: #007bff;
+            color: white;
+        }
+        .alert {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+        .hidden {
+            display: none !important;
+        }
+        
+        /* Grid simple */
+        .row { display: flex; flex-wrap: wrap; margin: -10px; }
+        .col { flex: 1; padding: 10px; min-width: 300px; }
+        .col-12 { flex: 0 0 100%; }
+        .col-6 { flex: 0 0 50%; }
+        .col-4 { flex: 0 0 33.333%; }
+        .col-3 { flex: 0 0 25%; }
+        
+        @media (max-width: 768px) {
+            .col { flex: 0 0 100%; }
+            .tabs { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏥 Sistema de Consultas Médicas</h1>
+            <p>Interfaz profesional para gestión de consultas</p>
+        </div>
+        
+        <!-- Navegación por tabs -->
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('busqueda')">🔍 Búsqueda</button>
+            <button class="tab" onclick="showTab('nueva')">➕ Nueva Consulta</button>
+            <button class="tab" onclick="showTab('lista')">📋 Lista</button>
+        </div>
+        
+        <!-- Contenido de búsqueda -->
+        <div id="tab-busqueda" class="content">
+            <h2>🔍 Búsqueda de Paciente</h2>
+            
+            <div class="row">
+                <div class="col-4">
+                    <div class="form-group">
+                        <label>Nombres</label>
+                        <div class="search-box">
+                            <input type="text" id="patient-search" 
+                                   placeholder="Escriba al menos 3 letras..." 
+                                   onkeyup="handlePatientSearchKeyup(event)"
+                                   onkeydown="handlePatientSearchKeydown(event)">
+                            <div id="patient-results" class="search-results hidden"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="form-group">
+                        <label>Apellidos</label>
+                        <input type="text" placeholder="Ingrese apellidos del paciente">
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="form-group">
+                        <label>CI</label>
+                        <input type="text" placeholder="Ingrese cédula de identidad">
+                    </div>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin: 30px 0;">
+                <button onclick="testSearch()">🔍 Buscar</button>
+                <button class="btn-danger" onclick="clearSearch()">🗑️ Limpiar</button>
+            </div>
+            
+            <div id="search-status" class="alert alert-success hidden">
+                Sistema funcionando correctamente
+            </div>
+        </div>
+        
+        <!-- Contenido nueva consulta -->
+        <div id="tab-nueva" class="content hidden">
+            <h2>➕ Nueva Consulta</h2>
+            <p>Formulario para nueva consulta (en desarrollo)</p>
+        </div>
+        
+        <!-- Contenido lista -->
+        <div id="tab-lista" class="content hidden">
+            <h2>📋 Lista de Consultas</h2>
+            <div class="loading" id="lista-loading">Cargando consultas...</div>
+            <div id="lista-content" class="hidden">
+                <p>Lista de consultas aparecerá aquí</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        let selectedResultIndex = -1;
+        let searchTimeout;
+        let isSystemReady = false;
+        
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Sistema inicializado');
+            testAPIConnection();
+        });
+        
+        // Navegación por tabs
+        function showTab(tabName) {
+            // Ocultar todos los tabs
+            const tabs = document.querySelectorAll('[id^="tab-"]');
+            tabs.forEach(tab => tab.classList.add('hidden'));
+            
+            // Desactivar todos los botones
+            const buttons = document.querySelectorAll('.tab');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            // Mostrar tab seleccionado
+            document.getElementById('tab-' + tabName).classList.remove('hidden');
+            event.target.classList.add('active');
+            
+            console.log('📋 Tab cambiado a:', tabName);
+        }
+        
+        // Test de conexión API
+        async function testAPIConnection() {
+            try {
+                const response = await fetch('modules/consultas/api/livewire-system.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'search',
+                        table: 'rh_person',
+                        search: 'test',
+                        limit: 1
+                    })
+                });
+                
+                if (response.ok) {
+                    isSystemReady = true;
+                    document.getElementById('search-status').classList.remove('hidden');
+                    console.log('✅ API conectada correctamente');
+                } else {
+                    throw new Error('HTTP ' + response.status);
+                }
+            } catch (error) {
+                console.error('❌ Error API:', error);
+                const status = document.getElementById('search-status');
+                status.className = 'alert alert-error';
+                status.textContent = 'Error de conexión con API: ' + error.message;
+                status.classList.remove('hidden');
+            }
+        }
+        
+        // Función de búsqueda simplificada
+        function handlePatientSearchKeyup(event) {
+            if (['ArrowDown', 'ArrowUp', 'Enter', 'Escape'].includes(event.key)) {
+                return;
+            }
+            
+            const query = event.target.value;
+            if (query.length >= 3) {
+                searchPatients(query);
+            } else {
+                hideResults();
+            }
+        }
+        
+        function handlePatientSearchKeydown(event) {
+            const resultsEl = document.getElementById('patient-results');
+            const items = resultsEl.querySelectorAll('.search-result-item');
+            
+            if (event.key === 'ArrowDown') {
+                event.preventDefault();
+                selectedResultIndex = Math.min(selectedResultIndex + 1, items.length - 1);
+                updateSelection(items);
+            } else if (event.key === 'ArrowUp') {
+                event.preventDefault();
+                selectedResultIndex = Math.max(selectedResultIndex - 1, -1);
+                updateSelection(items);
+            } else if (event.key === 'Enter') {
+                event.preventDefault();
+                if (selectedResultIndex >= 0 && items[selectedResultIndex]) {
+                    items[selectedResultIndex].click();
+                }
+            } else if (event.key === 'Escape') {
+                hideResults();
+            }
+        }
+        
+        async function searchPatients(query) {
+            if (!isSystemReady) {
+                console.log('⏳ Sistema no está listo');
+                return;
+            }
+            
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(async () => {
+                try {
+                    console.log('🔍 Buscando:', query);
+                    
+                    const response = await fetch('modules/consultas/api/livewire-system.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            action: 'search',
+                            table: 'rh_person',
+                            search: query,
+                            limit: 10
+                        })
+                    });
+                    
+                    if (!response.ok) throw new Error('HTTP ' + response.status);
+                    
+                    const text = await response.text();
+                    const data = JSON.parse(text);
+                    
+                    displayResults(data.data || []);
+                    
+                } catch (error) {
+                    console.error('❌ Error búsqueda:', error);
+                    displayError('Error en la búsqueda: ' + error.message);
+                }
+            }, 300);
+        }
+        
+        function displayResults(patients) {
+            const resultsEl = document.getElementById('patient-results');
+            selectedResultIndex = -1;
+            
+            if (patients.length === 0) {
+                resultsEl.innerHTML = '<div class="search-result-item">No se encontraron pacientes</div>';
+            } else {
+                resultsEl.innerHTML = patients.map(patient => {
+                    const firstName = patient.first_name || '';
+                    const lastName = patient.last_name || '';
+                    const documentNumber = patient.document_number || '';
+                    const personId = patient.person_id || '';
+                    
+                    return `
+                        <div class="search-result-item" onclick="selectPatient(${personId}, '${firstName}', '${lastName}', '${documentNumber}')">
+                            <strong>${firstName} ${lastName}</strong><br>
+                            <small>Doc: ${documentNumber}</small>
+                        </div>
+                    `;
+                }).join('');
+            }
+            
+            resultsEl.classList.remove('hidden');
+        }
+        
+        function displayError(message) {
+            const resultsEl = document.getElementById('patient-results');
+            resultsEl.innerHTML = `<div class="search-result-item" style="color: #dc3545;">${message}</div>`;
+            resultsEl.classList.remove('hidden');
+        }
+        
+        function hideResults() {
+            document.getElementById('patient-results').classList.add('hidden');
+            selectedResultIndex = -1;
+        }
+        
+        function updateSelection(items) {
+            items.forEach(item => item.classList.remove('selected'));
+            if (selectedResultIndex >= 0 && items[selectedResultIndex]) {
+                items[selectedResultIndex].classList.add('selected');
+            }
+        }
+        
+        function selectPatient(id, firstName, lastName, documentNumber) {
+            console.log('👤 Paciente seleccionado:', { id, firstName, lastName, documentNumber });
+            document.getElementById('patient-search').value = `${firstName} ${lastName}`;
+            hideResults();
+            
+            // Aquí puedes agregar lógica adicional
+            const status = document.getElementById('search-status');
+            status.className = 'alert alert-success';
+            status.textContent = `Paciente seleccionado: ${firstName} ${lastName} (${documentNumber})`;
+            status.classList.remove('hidden');
+        }
+        
+        function testSearch() {
+            const query = document.getElementById('patient-search').value;
+            if (query.length >= 3) {
+                searchPatients(query);
+            } else {
+                alert('Ingrese al menos 3 caracteres para buscar');
+            }
+        }
+        
+        function clearSearch() {
+            document.getElementById('patient-search').value = '';
+            hideResults();
+            document.getElementById('search-status').classList.add('hidden');
+        }
+        
+        // Click fuera para cerrar
+        document.addEventListener('click', function(event) {
+            const searchBox = document.querySelector('.search-box');
+            if (searchBox && !searchBox.contains(event.target)) {
+                hideResults();
+            }
+        });
+        
+        console.log('✅ JavaScript cargado correctamente');
+    </script>
+</body>
+</html>

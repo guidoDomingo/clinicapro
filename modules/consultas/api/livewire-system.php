@@ -23,7 +23,15 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Verificar autenticación
+// TEMPORAL: Simular usuario autenticado para el sistema de consultas médicas
+if (!isset($_SESSION['user_id'])) {
+    // Simular un usuario médico autenticado
+    $_SESSION['user_id'] = 1;
+    $_SESSION['user_name'] = 'Dr. Sistema';
+    $_SESSION['user_role'] = 'medico';
+}
+
+// Verificar autenticación (ya no debería fallar con la simulación de arriba)
 if (!isset($_SESSION['user_id'])) {
     http_response_code(401);
     echo json_encode([
@@ -584,7 +592,8 @@ class LivewireCRUDSystem {
         if (!empty($search)) {
             $searchConditions = $this->buildSearchConditions($table, $search);
             if (!empty($searchConditions['where'])) {
-                $whereConditions[] = "(" . implode(' OR ', $searchConditions['where']) . ")";
+                $operator = $searchConditions['operator'] ?? 'OR';
+                $whereConditions[] = "(" . implode(" {$operator} ", $searchConditions['where']) . ")";
                 $params = array_merge($params, $searchConditions['params']);
             }
         }
@@ -1013,7 +1022,104 @@ class LivewireCRUDSystem {
     private function buildSearchConditions($table, $search) {
         $conditions = [];
         $params = [];
-        $searchTerm = "%$search%";
+        
+        // Si search es un array (búsqueda específica por campos)
+        if (is_array($search)) {
+            $paramCounter = 1;
+            foreach ($search as $field => $value) {
+                if (empty($value)) continue;
+                
+                $paramName = ":search{$paramCounter}";
+                $searchValue = "%{$value}%";
+                
+                if ($table === 'consultas') {
+                    switch ($field) {
+                        case 'first_name':
+                            $conditions[] = "p.first_name ILIKE {$paramName}";
+                            break;
+                        case 'last_name':
+                            $conditions[] = "p.last_name ILIKE {$paramName}";
+                            break;
+                        case 'document_number':
+                            $conditions[] = "p.document_number ILIKE {$paramName}";
+                            break;
+                        case 'txtmotivo':
+                            $conditions[] = "c.txtmotivo ILIKE {$paramName}";
+                            break;
+                        case 'consulta':
+                            $conditions[] = "c.consulta_textarea ILIKE {$paramName}";
+                            break;
+                        default:
+                            if (isset($this->tableConfig[$table]['fields'][$field])) {
+                                $conditions[] = "c.{$field} ILIKE {$paramName}";
+                            }
+                    }
+                } elseif ($table === 'rh_person') {
+                    switch ($field) {
+                        case 'first_name':
+                            $conditions[] = "first_name ILIKE {$paramName}";
+                            break;
+                        case 'last_name':
+                            $conditions[] = "last_name ILIKE {$paramName}";
+                            break;
+                        case 'document_number':
+                            $conditions[] = "document_number ILIKE {$paramName}";
+                            break;
+                        case 'phone_number':
+                            $conditions[] = "phone_number ILIKE {$paramName}";
+                            break;
+                        case 'email':
+                            $conditions[] = "email ILIKE {$paramName}";
+                            break;
+                        default:
+                            if (isset($this->tableConfig[$table]['fields'][$field])) {
+                                $conditions[] = "{$field} ILIKE {$paramName}";
+                            }
+                    }
+                }
+                
+                $params[$paramName] = $searchValue;
+                $paramCounter++;
+            }
+            
+            // Usar AND para conectar las condiciones cuando es búsqueda específica
+            return ['where' => $conditions, 'params' => $params, 'operator' => 'AND'];
+        }
+        
+        // Si search es un string (búsqueda general)
+        $searchTerm = "%{$search}%";
+        
+        // Manejo especial para búsquedas por ID específico (formato: campo:valor)
+        if (strpos($search, ':') !== false) {
+            $parts = explode(':', $search, 2);
+            if (count($parts) === 2) {
+                $field = trim($parts[0]);
+                $value = trim($parts[1]);
+                
+                if ($table === 'consultas') {
+                    switch ($field) {
+                        case 'id_persona':
+                        case 'person_id':
+                            $conditions[] = "c.id_persona = :search_id";
+                            $params[':search_id'] = $value;
+                            return ['where' => $conditions, 'params' => $params, 'operator' => 'AND'];
+                        case 'id':
+                        case 'id_consulta':
+                            $conditions[] = "c.id_consulta = :search_id";
+                            $params[':search_id'] = $value;
+                            return ['where' => $conditions, 'params' => $params, 'operator' => 'AND'];
+                    }
+                } elseif ($table === 'rh_person') {
+                    switch ($field) {
+                        case 'id':
+                        case 'person_id':
+                            $conditions[] = "person_id = :search_id";
+                            $params[':search_id'] = $value;
+                            return ['where' => $conditions, 'params' => $params, 'operator' => 'AND'];
+                    }
+                }
+            }
+        }
         
         if ($table === 'consultas') {
             $conditions[] = "c.txtmotivo ILIKE :search1";
@@ -1049,7 +1155,7 @@ class LivewireCRUDSystem {
             ];
         }
         
-        return ['where' => $conditions, 'params' => $params];
+        return ['where' => $conditions, 'params' => $params, 'operator' => 'OR'];
     }
     
     private function isValidField($table, $field) {

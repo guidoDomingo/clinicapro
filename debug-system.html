@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Debug - Paso a Paso</title>
+</head>
+<body>
+    <div style="padding: 20px; font-family: Arial, sans-serif;">
+        <h1>🔍 Debug: Sistema Paso a Paso</h1>
+        
+        <div id="progress" style="background: #f0f0f0; padding: 20px; margin: 20px 0; border-radius: 8px;">
+            <h3>📋 Progreso de Carga:</h3>
+            <div id="status-list"></div>
+        </div>
+        
+        <div id="console-output" style="background: #000; color: #0f0; padding: 15px; font-family: monospace; height: 300px; overflow-y: auto; border-radius: 8px;">
+            <div>🚀 Iniciando debug del sistema...</div>
+        </div>
+        
+        <button onclick="startFullSystem()" style="margin: 20px 0; padding: 10px 20px; font-size: 16px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+            ▶️ Cargar Sistema Completo
+        </button>
+    </div>
+
+    <script>
+        const statusList = document.getElementById('status-list');
+        const consoleOutput = document.getElementById('console-output');
+        let stepCount = 0;
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? '#f00' : type === 'success' ? '#0f0' : '#0ff';
+            consoleOutput.innerHTML += `<div style="color: ${color};">[${timestamp}] ${message}</div>`;
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        }
+        
+        function addStatus(text, success = null) {
+            stepCount++;
+            const icon = success === true ? '✅' : success === false ? '❌' : '⏳';
+            statusList.innerHTML += `<div id="step-${stepCount}">${icon} ${text}</div>`;
+            return stepCount;
+        }
+        
+        function updateStatus(stepId, text, success) {
+            const icon = success ? '✅' : '❌';
+            document.getElementById(`step-${stepId}`).innerHTML = `${icon} ${text}`;
+        }
+        
+        // Ejecutar debug al cargar
+        document.addEventListener('DOMContentLoaded', function() {
+            runDebugSequence();
+        });
+        
+        async function runDebugSequence() {
+            log('🔧 Iniciando secuencia de debug...', 'info');
+            
+            // Paso 1: Verificar JavaScript básico
+            const step1 = addStatus('JavaScript básico');
+            try {
+                log('Test: Variables y funciones básicas');
+                const test = { a: 1, b: 2 };
+                if (test.a + test.b === 3) {
+                    updateStatus(step1, 'JavaScript básico', true);
+                    log('✅ JavaScript básico: OK', 'success');
+                } else {
+                    throw new Error('Operación matemática falló');
+                }
+            } catch (e) {
+                updateStatus(step1, 'JavaScript básico', false);
+                log('❌ JavaScript básico: ' + e.message, 'error');
+            }
+            
+            // Paso 2: Verificar fetch API
+            const step2 = addStatus('Fetch API');
+            try {
+                log('Test: Disponibilidad de fetch API');
+                if (typeof fetch !== 'undefined') {
+                    updateStatus(step2, 'Fetch API disponible', true);
+                    log('✅ Fetch API: Disponible', 'success');
+                } else {
+                    throw new Error('Fetch API no disponible');
+                }
+            } catch (e) {
+                updateStatus(step2, 'Fetch API', false);
+                log('❌ Fetch API: ' + e.message, 'error');
+            }
+            
+            // Paso 3: Test de conectividad con API
+            const step3 = addStatus('Conectividad API');
+            try {
+                log('Test: Conectando con API backend...');
+                const response = await fetch('modules/consultas/api/livewire-system.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'search', table: 'rh_person', search: 'test', limit: 1 })
+                });
+                
+                log(`Respuesta HTTP: ${response.status} ${response.statusText}`);
+                
+                if (response.ok) {
+                    const text = await response.text();
+                    log(`Respuesta recibida: ${text.length} caracteres`);
+                    
+                    try {
+                        const data = JSON.parse(text);
+                        updateStatus(step3, 'API responde correctamente', true);
+                        log('✅ API: Respuesta JSON válida', 'success');
+                    } catch (parseError) {
+                        updateStatus(step3, 'API responde (JSON inválido)', false);
+                        log('⚠️ API: Respuesta no es JSON válido: ' + text.substring(0, 100), 'error');
+                    }
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (e) {
+                updateStatus(step3, 'Error conectando API', false);
+                log('❌ API: ' + e.message, 'error');
+            }
+            
+            // Paso 4: Test de dependencias CDN
+            const step4 = addStatus('Dependencias CDN');
+            try {
+                log('Test: Cargando Bootstrap CSS...');
+                const link = document.createElement('link');
+                link.rel = 'stylesheet';
+                link.href = 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css';
+                link.onload = function() {
+                    updateStatus(step4, 'Bootstrap CSS cargado', true);
+                    log('✅ Bootstrap CSS: Cargado correctamente', 'success');
+                };
+                link.onerror = function() {
+                    updateStatus(step4, 'Error cargando Bootstrap', false);
+                    log('❌ Bootstrap CSS: Error al cargar', 'error');
+                };
+                document.head.appendChild(link);
+            } catch (e) {
+                updateStatus(step4, 'Error con CDN', false);
+                log('❌ CDN: ' + e.message, 'error');
+            }
+            
+            log('🏁 Debug completado. Revisa los resultados arriba.', 'info');
+        }
+        
+        function startFullSystem() {
+            log('🚀 Redirigiendo al sistema completo...', 'info');
+            window.open('livewire-crud-system.html', '_blank');
+        }
+        
+        log('🔧 Sistema de debug inicializado');
+    </script>
+</body>
+</html>
