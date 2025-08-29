@@ -11,6 +11,13 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/alertifyjs/1.13.1/css/alertify.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/alertifyjs/1.13.1/css/themes/bootstrap.min.css" rel="stylesheet">
     
+    <!-- Select2 -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@1.5.2/dist/select2-bootstrap4.min.css" rel="stylesheet">
+    
+    <!-- Summernote CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.css" rel="stylesheet">
+    
     <style>
         .livewire-crud {
             max-width: 1400px;
@@ -170,6 +177,143 @@
             gap: 15px;
             margin-bottom: 20px;
         }
+        
+        /* Layout especial para textareas grandes */
+        .field-group:has(.large-textarea-container) {
+            display: block;
+        }
+        
+        .field-group .large-textarea-container {
+            grid-column: 1 / -1; /* Ocupa todo el ancho disponible */
+        }
+        
+        /* Cuando hay dos textareas en el mismo field-group, dividir en columnas */
+        .field-group:has(.large-textarea-container:nth-child(1)):has(.large-textarea-container:nth-child(2)) {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .field-group:has(.large-textarea-container:nth-child(1)):has(.large-textarea-container:nth-child(2)) .large-textarea-container {
+            grid-column: auto;
+        }
+        
+        /* Estilos para Select2 */
+        .select2-container--bootstrap4 .select2-selection {
+            border: 1px solid #ced4da;
+            border-radius: 0.375rem;
+            min-height: calc(1.5em + 0.75rem + 2px);
+        }
+        
+        .select2-container--bootstrap4 .select2-selection--single .select2-selection__rendered {
+            padding: 0.375rem 0.75rem;
+            line-height: 1.5;
+        }
+        
+        .select2-container--bootstrap4 .select2-selection--single .select2-selection__arrow {
+            height: calc(1.5em + 0.75rem + 2px);
+            right: 12px;
+        }
+        
+        .select2-container--bootstrap4.select2-container--focus .select2-selection {
+            border-color: #80bdff;
+            outline: 0;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+        
+        .select2-dropdown {
+            border: 1px solid #ced4da;
+            border-top: none;
+        }
+        
+        /* Estilos para Summernote */
+        .note-editor {
+            border: 1px solid #ced4da;
+            border-radius: 0.375rem;
+        }
+        
+        .note-editor.note-frame {
+            border-radius: 0.375rem;
+            overflow: hidden;
+        }
+        
+        .note-toolbar {
+            background: #f8f9fa;
+            border-bottom: 1px solid #ced4da;
+            padding: 8px;
+        }
+        
+        .note-editable {
+            padding: 12px;
+            min-height: 120px;
+            font-family: inherit;
+            line-height: 1.5;
+        }
+        
+        .note-statusbar {
+            background: #f8f9fa;
+            border-top: 1px solid #ced4da;
+            border-radius: 0 0 0.375rem 0.375rem;
+        }
+        
+        /* Mejorar la apariencia de los formularios con editores */
+        .form-floating:has(.summernote) {
+            position: relative;
+        }
+        
+        .form-floating:has(.summernote) label {
+            display: none;
+        }
+        
+        /* Mejorar layout de textareas con Summernote */
+        .textarea-group {
+            margin-bottom: 20px;
+        }
+        
+        .textarea-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #495057;
+            font-size: 0.95rem;
+        }
+        
+        .textarea-group .note-editor {
+            min-height: 200px;
+            border-radius: 0.375rem;
+        }
+        
+        .textarea-group .note-editable {
+            min-height: 160px;
+            padding: 15px;
+        }
+        
+        /* Mejorar espaciado de las secciones de formulario */
+        .form-section-body {
+            padding: 25px;
+        }
+        
+        /* Mejor espaciado para campos de texto grandes */
+        .large-textarea-container {
+            margin-bottom: 25px;
+        }
+        
+        .large-textarea-container label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #495057;
+            font-size: 1rem;
+        }
+        
+        /* Ajustar z-index para modales */
+        .select2-container {
+            z-index: 1056;
+        }
+        
+        .note-editor {
+            z-index: 1055;
+        }
     </style>
 </head>
 <body>
@@ -255,17 +399,17 @@
                         <div class="form-section-body">
                             <div class="field-group">
                                 <div class="form-floating">
-                                    <select class="form-select" id="motivos_comunes" name="motivoscomunes">
+                                    <select class="form-select select2bs4" id="motivos_comunes" name="motivoscomunes">
                                         <option value="">Seleccionar motivo común...</option>
                                     </select>
                                     <label>Motivos Comunes</label>
                                 </div>
-                                <div class="form-floating">
-                                    <textarea class="form-control" id="motivo" name="txtmotivo" style="height: 100px;" required></textarea>
-                                    <label>Motivo de Consulta *</label>
+                                <div class="large-textarea-container">
+                                    <label for="motivo">Motivo de Consulta *</label>
+                                    <textarea class="form-control summernote" id="motivo" name="txtmotivo" required></textarea>
                                 </div>
                                 <div class="form-floating">
-                                    <select class="form-select" id="tipo_formulario" name="tipo_formulario" onchange="handleFormTypeChange()">
+                                    <select class="form-select select2bs4" id="tipo_formulario" name="tipo_formulario" onchange="handleFormTypeChange()">
                                         <option value="general">General</option>
                                         <option value="anteojos">Anteojos</option>
                                         <option value="informe_imagen">Informe con Imagen</option>
@@ -304,31 +448,31 @@
                             
                             <div class="field-group">
                                 <div class="form-floating">
-                                    <select class="form-select" id="preformatos_consulta">
+                                    <select class="form-select select2bs4" id="preformatos_consulta">
                                         <option value="">Seleccionar preformato para consulta...</option>
                                     </select>
                                     <label>Preformatos - Consulta</label>
                                 </div>
-                                <div class="form-floating">
-                                    <textarea class="form-control" id="consulta" name="consulta_textarea" style="height: 120px;"></textarea>
-                                    <label>Consulta</label>
+                                <div class="large-textarea-container">
+                                    <label for="consulta">Consulta</label>
+                                    <textarea class="form-control summernote" id="consulta" name="consulta_textarea"></textarea>
                                 </div>
                                 <div class="form-floating">
-                                    <select class="form-select" id="preformatos_receta">
+                                    <select class="form-select select2bs4" id="preformatos_receta">
                                         <option value="">Seleccionar preformato para receta...</option>
                                     </select>
                                     <label>Preformatos - Receta</label>
                                 </div>
-                                <div class="form-floating">
-                                    <textarea class="form-control" id="receta" name="receta_textarea" style="height: 120px;"></textarea>
-                                    <label>Receta</label>
+                                <div class="large-textarea-container">
+                                    <label for="receta">Receta</label>
+                                    <textarea class="form-control summernote" id="receta" name="receta_textarea"></textarea>
                                 </div>
                             </div>
                             
                             <div class="field-group">
-                                <div class="form-floating">
-                                    <textarea class="form-control" id="nota" name="nota"></textarea>
-                                    <label>Notas</label>
+                                <div class="large-textarea-container">
+                                    <label for="nota">Notas</label>
+                                    <textarea class="form-control summernote" id="nota" name="nota"></textarea>
                                 </div>
                                 <div class="form-floating">
                                     <input type="date" class="form-control" id="proxima_consulta" name="proxima_consulta">
@@ -901,6 +1045,13 @@
             // Cargar motivos comunes y preformatos para el nuevo tipo
             loadMotivosComunes(tipoFormulario);
             loadPreformatos(tipoFormulario);
+            
+            // Reinicializar componentes después del cambio
+            setTimeout(function() {
+                if (typeof reinitializeComponents === 'function') {
+                    reinitializeComponents();
+                }
+            }, 100);
         }
 
         /**
@@ -987,21 +1138,69 @@
             const select = document.getElementById('motivos_comunes');
             const textarea = document.getElementById('motivo');
             
-            if (select.value) {
+            console.log('aplicarMotivoComun called');
+            console.log('Select value:', select.value);
+            console.log('Textarea element:', textarea);
+            
+            if (select.value && textarea) {
                 const selectedOption = select.options[select.selectedIndex];
                 const motivoTexto = selectedOption.textContent;
                 const descripcion = selectedOption.dataset.descripcion;
                 
-                // Si el textarea está vacío, usar el motivo completo
-                if (!textarea.value.trim()) {
-                    textarea.value = descripcion || motivoTexto;
+                console.log('Selected option:', selectedOption);
+                console.log('Descripcion:', descripcion);
+                console.log('MotivoTexto:', motivoTexto);
+                
+                // Verificar si el textarea tiene Summernote inicializado
+                const isSummernote = $(textarea).hasClass('summernote') && $(textarea).next('.note-editor').length > 0;
+                console.log('Is Summernote:', isSummernote);
+                console.log('Has summernote class:', $(textarea).hasClass('summernote'));
+                console.log('Has note-editor sibling:', $(textarea).next('.note-editor').length > 0);
+                
+                const content = descripcion || motivoTexto;
+                
+                if (isSummernote) {
+                    try {
+                        // Obtener contenido actual de Summernote
+                        const currentContent = $(textarea).summernote('code');
+                        console.log('Current Summernote content:', currentContent);
+                        
+                        // Si está vacío o solo tiene <p><br></p>, usar el nuevo contenido
+                        if (!currentContent || currentContent === '<p><br></p>' || currentContent.trim() === '') {
+                            $(textarea).summernote('code', '<p>' + content + '</p>');
+                            console.log('Set new content in Summernote');
+                        } else {
+                            // Agregar al contenido existente
+                            $(textarea).summernote('code', currentContent + '<p>' + content + '</p>');
+                            console.log('Added to existing Summernote content');
+                        }
+                    } catch (error) {
+                        console.error('Error working with Summernote:', error);
+                        // Fallback to regular textarea
+                        if (!textarea.value.trim()) {
+                            textarea.value = content;
+                        } else {
+                            textarea.value += (textarea.value.trim() ? '\n' : '') + content;
+                        }
+                    }
                 } else {
-                    // Si ya tiene contenido, agregar el nuevo motivo
-                    textarea.value += (textarea.value.trim() ? '\n' : '') + (descripcion || motivoTexto);
+                    // Comportamiento normal para textarea sin Summernote
+                    console.log('Using regular textarea');
+                    if (!textarea.value.trim()) {
+                        textarea.value = content;
+                    } else {
+                        textarea.value += (textarea.value.trim() ? '\n' : '') + content;
+                    }
                 }
                 
                 // Limpiar selección
                 select.value = '';
+                if ($(select).hasClass('select2bs4')) {
+                    $(select).val(null).trigger('change');
+                }
+                console.log('Selection cleared');
+            } else {
+                console.log('No value selected or textarea not found');
             }
         }
 
@@ -1015,22 +1214,67 @@
             const select = document.getElementById(selectId);
             const textarea = document.getElementById(textareaId);
             
-            if (select.value) {
+            console.log('aplicarPreformato called for tipo:', tipo);
+            console.log('Select ID:', selectId, 'Select element:', select);
+            console.log('Textarea ID:', textareaId, 'Textarea element:', textarea);
+            
+            if (select && select.value && textarea) {
                 const selectedOption = select.options[select.selectedIndex];
                 const contenido = selectedOption.dataset.contenido;
                 
+                console.log('Selected option:', selectedOption);
+                console.log('Contenido:', contenido);
+                
                 if (contenido) {
-                    // Si el textarea está vacío, usar el preformato completo
-                    if (!textarea.value.trim()) {
-                        textarea.value = contenido;
+                    // Verificar si el textarea tiene Summernote inicializado
+                    const isSummernote = $(textarea).hasClass('summernote') && $(textarea).next('.note-editor').length > 0;
+                    console.log('Is Summernote:', isSummernote);
+                    
+                    if (isSummernote) {
+                        try {
+                            // Obtener contenido actual de Summernote
+                            const currentContent = $(textarea).summernote('code');
+                            console.log('Current Summernote content:', currentContent);
+                            
+                            // Si está vacío o solo tiene <p><br></p>, usar el nuevo contenido
+                            if (!currentContent || currentContent === '<p><br></p>' || currentContent.trim() === '') {
+                                $(textarea).summernote('code', '<p>' + contenido.replace(/\n/g, '</p><p>') + '</p>');
+                                console.log('Set new preformato content in Summernote');
+                            } else {
+                                // Agregar al contenido existente
+                                $(textarea).summernote('code', currentContent + '<p><br></p><p>' + contenido.replace(/\n/g, '</p><p>') + '</p>');
+                                console.log('Added preformato to existing Summernote content');
+                            }
+                        } catch (error) {
+                            console.error('Error working with Summernote preformato:', error);
+                            // Fallback to regular textarea
+                            if (!textarea.value.trim()) {
+                                textarea.value = contenido;
+                            } else {
+                                textarea.value += (textarea.value.trim() ? '\n\n' : '') + contenido;
+                            }
+                        }
                     } else {
-                        // Si ya tiene contenido, agregar el nuevo preformato
-                        textarea.value += (textarea.value.trim() ? '\n\n' : '') + contenido;
+                        // Comportamiento normal para textarea sin Summernote
+                        console.log('Using regular textarea for preformato');
+                        if (!textarea.value.trim()) {
+                            textarea.value = contenido;
+                        } else {
+                            textarea.value += (textarea.value.trim() ? '\n\n' : '') + contenido;
+                        }
                     }
                 }
                 
                 // Limpiar selección
                 select.value = '';
+                if ($(select).hasClass('select2bs4')) {
+                    $(select).val(null).trigger('change');
+                }
+                console.log('Preformato selection cleared');
+            } else {
+                console.log('No value selected, or elements not found');
+                console.log('Select exists:', !!select, 'has value:', select?.value);
+                console.log('Textarea exists:', !!textarea);
             }
         }
 
@@ -1043,6 +1287,15 @@
             const form = document.getElementById('create-form');
             const formData = new FormData(form);
             let data = Object.fromEntries(formData.entries());
+            
+            // Extraer contenido de editores Summernote si están inicializados
+            $('textarea.summernote', form).each(function() {
+                const textarea = $(this);
+                if (textarea.next('.note-editor').length > 0) {
+                    const fieldName = textarea.attr('name');
+                    data[fieldName] = textarea.summernote('code');
+                }
+            });
             
             console.log('Form data before processing:', data);
             
@@ -1156,6 +1409,13 @@
                 const modal = new bootstrap.Modal(document.getElementById('editModal'));
                 modal.show();
                 
+                // Reinicializar componentes después de mostrar el modal
+                setTimeout(function() {
+                    if (typeof reinitializeComponents === 'function') {
+                        reinitializeComponents();
+                    }
+                }, 200);
+                
             } catch (error) {
                 // Error ya manejado en callAPI
             }
@@ -1184,12 +1444,12 @@
                         <h6 class="form-section-title">Datos de la Consulta</h6>
                         <div class="form-section-body">
                             <div class="field-group">
-                                <div class="form-floating">
-                                    <textarea class="form-control" name="txtmotivo" required style="height: 100px;">${data.txtmotivo || ''}</textarea>
+                                <div class="large-textarea-container">
                                     <label>Motivo de Consulta *</label>
+                                    <textarea class="form-control summernote" name="txtmotivo" required>${data.txtmotivo || ''}</textarea>
                                 </div>
                                 <div class="form-floating">
-                                    <select class="form-select" name="tipo_formulario" onchange="handleEditFormTypeChange()">
+                                    <select class="form-select select2bs4" name="tipo_formulario" onchange="handleEditFormTypeChange()">
                                         <option value="general" ${data.tipo_formulario === 'general' ? 'selected' : ''}>General</option>
                                         <option value="anteojos" ${data.tipo_formulario === 'anteojos' ? 'selected' : ''}>Anteojos</option>
                                         <option value="informe_imagen" ${data.tipo_formulario === 'informe_imagen' ? 'selected' : ''}>Informe con Imagen</option>
@@ -1234,20 +1494,20 @@
                             </div>
                             
                             <div class="field-group">
-                                <div class="form-floating">
-                                    <textarea class="form-control" name="consulta_textarea" style="height: 120px;">${data.consulta_textarea || ''}</textarea>
+                                <div class="large-textarea-container">
                                     <label>Consulta</label>
+                                    <textarea class="form-control summernote" name="consulta_textarea">${data.consulta_textarea || ''}</textarea>
                                 </div>
-                                <div class="form-floating">
-                                    <textarea class="form-control" name="receta_textarea" style="height: 120px;">${data.receta_textarea || ''}</textarea>
+                                <div class="large-textarea-container">
                                     <label>Receta</label>
+                                    <textarea class="form-control summernote" name="receta_textarea">${data.receta_textarea || ''}</textarea>
                                 </div>
                             </div>
                             
                             <div class="field-group">
-                                <div class="form-floating">
-                                    <textarea class="form-control" name="txtnota">${data.txtnota || ''}</textarea>
+                                <div class="large-textarea-container">
                                     <label>Notas</label>
+                                    <textarea class="form-control summernote" name="txtnota">${data.txtnota || ''}</textarea>
                                 </div>
                                 <div class="form-floating">
                                     <input type="date" class="form-control" name="proximaconsulta" value="${data.proximaconsulta || ''}">
@@ -1413,7 +1673,7 @@
                     <h6 class="form-section-title">Datos de Informe con Imagen</h6>
                     <div class="form-section-body">
                         <div class="form-floating mb-3">
-                            <select class="form-select" name="equipo_medico">
+                            <select class="form-select select2bs4" name="equipo_medico">
                                 <option value="">Seleccionar equipo</option>
                                 <option value="Cirrus 700" ${informe_imagen.equipo_medico === 'Cirrus 700' ? 'selected' : ''}>Cirrus 700</option>
                                 <option value="Stratus" ${informe_imagen.equipo_medico === 'Stratus' ? 'selected' : ''}>Stratus</option>
@@ -1469,7 +1729,7 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-floating">
-                                    <select class="form-select" name="equipo_medico">
+                                    <select class="form-select select2bs4" name="equipo_medico">
                                         <option value="">Seleccionar equipo</option>
                                         <option value="Cirrus 700" ${estudios.equipo_medico === 'Cirrus 700' ? 'selected' : ''}>Cirrus 700</option>
                                         <option value="Stratus" ${estudios.equipo_medico === 'Stratus' ? 'selected' : ''}>Stratus</option>
@@ -1537,6 +1797,15 @@
             const form = document.getElementById('edit-form');
             const formData = new FormData(form);
             let data = Object.fromEntries(formData.entries());
+            
+            // Extraer contenido de editores Summernote si están inicializados
+            $('textarea.summernote', form).each(function() {
+                const textarea = $(this);
+                if (textarea.next('.note-editor').length > 0) {
+                    const fieldName = textarea.attr('name');
+                    data[fieldName] = textarea.summernote('code');
+                }
+            });
             
             // CORRECCIÓN: Convertir fechas vacías a null para PostgreSQL
             if (data.proximaconsulta === '') {
@@ -1779,18 +2048,6 @@
             // Configurar cambio de tipo de formulario
             document.getElementById('tipo_formulario').addEventListener('change', handleFormTypeChange);
             
-            // Configurar motivos comunes
-            document.getElementById('motivos_comunes').addEventListener('change', aplicarMotivoComun);
-            
-            // Configurar preformatos
-            document.getElementById('preformatos_consulta').addEventListener('change', function() {
-                aplicarPreformato('consulta');
-            });
-            
-            document.getElementById('preformatos_receta').addEventListener('change', function() {
-                aplicarPreformato('receta');
-            });
-            
             // Configurar búsqueda con Enter
             document.getElementById('search-input').addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
@@ -1815,6 +2072,184 @@
             
             console.log('Sistema Livewire CRUD iniciado exitosamente');
         });
+    </script>
+    
+    <!-- jQuery (required for Select2 and Summernote) -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/alertifyjs/1.13.1/alertify.min.js"></script>
+    
+    <!-- Select2 -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    
+    <!-- Summernote -->
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js"></script>
+    
+    <script>
+        // Inicializar Select2 y Summernote después de que se cargue la página
+        $(document).ready(function() {
+            console.log('jQuery loaded:', typeof $ !== 'undefined');
+            console.log('Summernote available:', typeof $.fn.summernote !== 'undefined');
+            console.log('Select2 available:', typeof $.fn.select2 !== 'undefined');
+            
+            // Esperar un poco para asegurar que todas las librerías estén cargadas
+            setTimeout(function() {
+                // Inicializar Select2
+                initializeSelect2();
+                
+                // Inicializar Summernote
+                initializeSummernote();
+                
+                // Configurar event listeners después de que todo esté inicializado
+                setTimeout(function() {
+                    setupEventListeners();
+                }, 100);
+            }, 100);
+        });
+        
+        function initializeSelect2() {
+            if (typeof $.fn.select2 === 'undefined') {
+                console.error('Select2 not loaded');
+                return;
+            }
+            
+            try {
+                $('.select2bs4').select2({
+                    theme: 'bootstrap4',
+                    placeholder: 'Seleccionar...',
+                    allowClear: true,
+                    width: '100%'
+                });
+                console.log('Select2 initialized successfully');
+            } catch (error) {
+                console.error('Error initializing Select2:', error);
+            }
+        }
+        
+        function initializeSummernote() {
+            if (typeof $.fn.summernote === 'undefined') {
+                console.error('Summernote not loaded');
+                return;
+            }
+            
+            try {
+                $('.summernote').summernote({
+                    height: 200,
+                    toolbar: [
+                        ['style', ['style']],
+                        ['font', ['bold', 'underline', 'clear']],
+                        ['fontname', ['fontname']],
+                        ['fontsize', ['fontsize']],
+                        ['color', ['color']],
+                        ['para', ['ul', 'ol', 'paragraph']],
+                        ['table', ['table']],
+                        ['insert', ['link', 'picture']],
+                        ['view', ['fullscreen', 'codeview', 'help']]
+                    ],
+                    placeholder: 'Escriba aquí...',
+                    dialogsInBody: true,
+                    dialogsFade: true
+                });
+                console.log('Summernote initialized successfully');
+            } catch (error) {
+                console.error('Error initializing Summernote:', error);
+            }
+        }
+        
+        // Función para reinicializar componentes después de cambios dinámicos
+        function reinitializeComponents() {
+            try {
+                // Destruir instancias existentes de Select2
+                $('.select2bs4').each(function() {
+                    if ($(this).hasClass('select2-hidden-accessible')) {
+                        $(this).select2('destroy');
+                    }
+                });
+                
+                // Destruir instancias existentes de Summernote
+                $('.summernote').each(function() {
+                    if ($(this).next('.note-editor').length > 0) {
+                        $(this).summernote('destroy');
+                    }
+                });
+                
+                // Reinicializar después de un pequeño delay
+                setTimeout(function() {
+                    initializeSelect2();
+                    initializeSummernote();
+                    
+                    // Reconfigurar event listeners después de que Select2 esté listo
+                    setTimeout(function() {
+                        setupEventListeners();
+                    }, 100);
+                }, 50);
+                
+            } catch (error) {
+                console.error('Error reinitializing components:', error);
+            }
+        }
+        
+        // Función para configurar event listeners
+        function setupEventListeners() {
+            console.log('Setting up event listeners...');
+            
+            // Configurar motivos comunes
+            const motivosSelect = document.getElementById('motivos_comunes');
+            if (motivosSelect) {
+                // Usar eventos de Select2 si está inicializado, sino usar evento normal
+                if ($(motivosSelect).hasClass('select2-hidden-accessible')) {
+                    // Select2 está inicializado
+                    $(motivosSelect).off('select2:select').on('select2:select', function(e) {
+                        console.log('Select2 motivo comun selected:', e.params.data);
+                        aplicarMotivoComun();
+                    });
+                    console.log('Motivos comunes Select2 listener configured');
+                } else {
+                    // Fallback a evento normal
+                    motivosSelect.removeEventListener('change', aplicarMotivoComun);
+                    motivosSelect.addEventListener('change', aplicarMotivoComun);
+                    console.log('Motivos comunes normal listener configured');
+                }
+            } else {
+                console.log('Motivos comunes select not found');
+            }
+            
+            // Configurar preformatos consulta
+            const preformatosConsulta = document.getElementById('preformatos_consulta');
+            if (preformatosConsulta) {
+                if ($(preformatosConsulta).hasClass('select2-hidden-accessible')) {
+                    $(preformatosConsulta).off('select2:select').on('select2:select', function(e) {
+                        console.log('Select2 preformato consulta selected:', e.params.data);
+                        aplicarPreformato('consulta');
+                    });
+                    console.log('Preformatos consulta Select2 listener configured');
+                } else {
+                    preformatosConsulta.addEventListener('change', function() {
+                        aplicarPreformato('consulta');
+                    });
+                    console.log('Preformatos consulta normal listener configured');
+                }
+            }
+            
+            // Configurar preformatos receta
+            const preformatosReceta = document.getElementById('preformatos_receta');
+            if (preformatosReceta) {
+                if ($(preformatosReceta).hasClass('select2-hidden-accessible')) {
+                    $(preformatosReceta).off('select2:select').on('select2:select', function(e) {
+                        console.log('Select2 preformato receta selected:', e.params.data);
+                        aplicarPreformato('receta');
+                    });
+                    console.log('Preformatos receta Select2 listener configured');
+                } else {
+                    preformatosReceta.addEventListener('change', function() {
+                        aplicarPreformato('receta');
+                    });
+                    console.log('Preformatos receta normal listener configured');
+                }
+            }
+        }
     </script>
 </body>
 </html>
