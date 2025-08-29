@@ -125,11 +125,76 @@
         }
         
         .patient-search-area {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr auto auto;
-            gap: 15px;
-            align-items: end;
             margin-bottom: 20px;
+        }
+        
+        /* 🆕 NUEVO: Estilos para el autocompletado inteligente */
+        .smart-search-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .smart-search-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 0 0 8px 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+        }
+        
+        .smart-search-dropdown::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .smart-search-dropdown::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        .smart-search-dropdown::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 3px;
+        }
+        
+        .smart-search-dropdown::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        
+        .search-result-item {
+            padding: 12px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+            transition: background 0.2s, color 0.2s;
+        }
+        
+        .search-result-item:hover {
+            background: #f8f9fa !important;
+        }
+        
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .search-result-item.selected {
+            background: #007bff !important;
+            color: white !important;
+        }
+        
+        .no-results, .error-results {
+            padding: 15px;
+            text-align: center;
+            color: #666;
+            font-style: italic;
+        }
+        
+        .error-results {
+            color: #dc3545;
         }
         
         .search-field {
@@ -846,26 +911,57 @@
             <h2 style="margin-bottom: 20px; color: #333; font-size: 1.4rem;">🔍 Búsqueda de Paciente</h2>
             
             <div class="patient-search-area">
-                <div class="search-field">
-                    <label>Nombres</label>
-                    <input type="text" id="searchNombres" placeholder="Ingrese nombres del paciente">
+                <!-- 🆕 NUEVO: Campo de autocompletado inteligente -->
+                <div class="smart-search-container" style="position: relative;">
+                    <div class="search-field" style="margin-bottom: 0;">
+                        <label>🔍 Buscar Paciente (nombre, apellido o cédula)</label>
+                        <input 
+                            type="text" 
+                            id="smartPatientSearch" 
+                            placeholder="Escriba al menos 3 letras para buscar..." 
+                            oninput="handleSmartSearch(event)"
+                            onkeydown="handleSmartSearchKeydown(event)"
+                            autocomplete="off"
+                            style="width: 100%; padding: 12px; font-size: 16px; border: 2px solid #007bff; border-radius: 8px;"
+                        >
+                    </div>
+                    
+                    <!-- 🆕 NUEVO: Dropdown de resultados -->
+                    <div id="smartSearchDropdown" class="smart-search-dropdown" style="
+                        position: absolute;
+                        top: 100%;
+                        left: 0;
+                        right: 0;
+                        background: white;
+                        border: 1px solid #ddd;
+                        border-radius: 0 0 8px 8px;
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                        z-index: 1000;
+                        max-height: 300px;
+                        overflow-y: auto;
+                        display: none;
+                    ">
+                        <!-- Los resultados se cargarán aquí dinámicamente -->
+                    </div>
                 </div>
-                <div class="search-field">
-                    <label>Apellidos</label>
-                    <input type="text" id="searchApellidos" placeholder="Ingrese apellidos del paciente">
-                </div>
-                <div class="search-field">
-                    <label>CI</label>
-                    <input type="text" id="searchCI" placeholder="Ingrese cédula de identidad">
-                </div>
-                <div class="search-buttons">
-                    <button class="btn-search" onclick="searchPatient()">
-                        🔍 Buscar
-                    </button>
-                </div>
-                <div class="search-buttons">
-                    <button class="btn-clear" onclick="clearPatientSearch()">
-                        🗑️ Limpiar
+                
+                <!-- Mantener botón limpiar -->
+                <div class="search-buttons" style="margin-top: 15px;">
+                    <button class="btn-clear" onclick="clearSmartPatientSearch()" style="
+                        background: #dc3545;
+                        color: white;
+                        border: none;
+                        padding: 10px 20px;
+                        border-radius: 6px;
+                        cursor: pointer;
+                        font-size: 14px;
+                        font-weight: 500;
+                        transition: all 0.3s ease;
+                    " 
+                    onmouseover="this.style.background='#c82333'" 
+                    onmouseout="this.style.background='#dc3545'"
+                    title="Limpiar búsqueda y resetear toda la página">
+                        🧹 Limpiar Todo
                     </button>
                 </div>
             </div>
@@ -1298,6 +1394,22 @@
             }
         }
 
+        // ✅ NUEVA: Función auxiliar para formatear fechas de forma consistente
+        function formatDate(dateValue, defaultValue = '--') {
+            if (!dateValue) return defaultValue;
+            
+            try {
+                const fecha = new Date(dateValue);
+                if (!isNaN(fecha.getTime())) {
+                    return fecha.toLocaleDateString('es-ES');
+                }
+            } catch (e) {
+                console.warn('Error parseando fecha:', dateValue, e);
+            }
+            
+            return defaultValue;
+        }
+
         /**
          * Funciones de navegación de pestañas
          */
@@ -1607,23 +1719,33 @@
                 const consultas = result.data || [];
                 const totalConsultas = consultas.length;
                 
-                let ultimaConsulta = 'Invalid Date';
-                let proximaConsulta = '4/9/2025';
+                // ✅ CORREGIR: Valores por defecto más apropiados
+                let ultimaConsulta = '--';
+                let proximaConsulta = '--';
                 
                 if (consultas.length > 0) {
                     // Ordenar por fecha de registro más reciente
                     consultas.sort((a, b) => new Date(b.fecha_registro) - new Date(a.fecha_registro));
                     
-                    // Usar fecha_registro como última consulta
+                    // ✅ MEJORAR: Manejo robusto de fecha_registro usando función auxiliar
                     if (consultas[0].fecha_registro) {
-                        ultimaConsulta = new Date(consultas[0].fecha_registro).toLocaleDateString('es-ES');
+                        ultimaConsulta = formatDate(consultas[0].fecha_registro);
                     }
                     
-                    // Buscar próxima consulta programada
-                    const proximaConsultaData = consultas.find(c => c.proximaconsulta && new Date(c.proximaconsulta) > new Date());
+                    // ✅ MEJORAR: Buscar próxima consulta programada usando función auxiliar
+                    const proximaConsultaData = consultas.find(c => {
+                        if (!c.proximaconsulta) return false;
+                        const fecha = new Date(c.proximaconsulta);
+                        return !isNaN(fecha.getTime()) && fecha > new Date();
+                    });
+                    
                     if (proximaConsultaData) {
-                        proximaConsulta = new Date(proximaConsultaData.proximaconsulta).toLocaleDateString('es-ES');
+                        proximaConsulta = formatDate(proximaConsultaData.proximaconsulta);
                     }
+                } else {
+                    // ✅ Si no hay consultas, mostrar valores por defecto
+                    ultimaConsulta = '--';
+                    proximaConsulta = '--';
                 }
                 
                 // Actualizar estadísticas en la UI
@@ -1799,14 +1921,411 @@
             }, 500); // Dar más tiempo para que se cargue la pestaña completamente
         }
 
+        // 🆕 NUEVO: Estado para el autocompletado inteligente
+        let smartSearchState = {
+            isSearching: false,
+            lastQuery: '',
+            selectedIndex: -1,
+            results: []
+        };
+
         /**
-         * Limpiar búsqueda de paciente
+         * 🆕 NUEVO: Manejar entrada en el campo de búsqueda inteligente
+         */
+        function handleSmartSearch(event) {
+            const query = event.target.value.trim();
+            
+            if (query.length < 3) {
+                hideSmartDropdown();
+                return;
+            }
+            
+            // Evitar búsquedas repetidas
+            if (query === smartSearchState.lastQuery) {
+                return;
+            }
+            
+            smartSearchState.lastQuery = query;
+            smartSearchState.selectedIndex = -1;
+            
+            // Debounce: esperar 300ms después de que el usuario deje de escribir
+            clearTimeout(smartSearchState.searchTimeout);
+            smartSearchState.searchTimeout = setTimeout(() => {
+                performSmartSearch(query);
+            }, 300);
+        }
+
+        /**
+         * 🆕 NUEVO: Manejar teclas en el autocompletado
+         */
+        function handleSmartSearchKeydown(event) {
+            const dropdown = document.getElementById('smartSearchDropdown');
+            const items = dropdown.querySelectorAll('.search-result-item');
+            
+            switch(event.key) {
+                case 'Enter':
+                    event.preventDefault();
+                    if (smartSearchState.selectedIndex >= 0 && smartSearchState.selectedIndex < items.length) {
+                        // Seleccionar el item destacado
+                        selectSmartSearchResult(smartSearchState.results[smartSearchState.selectedIndex]);
+                    } else if (event.target.value.trim().length >= 3) {
+                        // Buscar si no hay selección pero hay texto suficiente
+                        performSmartSearch(event.target.value.trim());
+                    }
+                    break;
+                    
+                case 'ArrowDown':
+                    event.preventDefault();
+                    if (items.length > 0) {
+                        smartSearchState.selectedIndex = Math.min(smartSearchState.selectedIndex + 1, items.length - 1);
+                        updateSmartSelection(items);
+                    }
+                    break;
+                    
+                case 'ArrowUp':
+                    event.preventDefault();
+                    if (items.length > 0) {
+                        smartSearchState.selectedIndex = Math.max(smartSearchState.selectedIndex - 1, -1);
+                        updateSmartSelection(items);
+                    }
+                    break;
+                    
+                case 'Escape':
+                    hideSmartDropdown();
+                    event.target.blur();
+                    break;
+            }
+        }
+
+        /**
+         * 🆕 NUEVO: Realizar búsqueda inteligente
+         */
+        async function performSmartSearch(query) {
+            if (smartSearchState.isSearching) return;
+            
+            smartSearchState.isSearching = true;
+            showSmartDropdown('🔍 Buscando...');
+            
+            try {
+                const response = await fetch('modules/consultas/api/livewire-system.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `action=search&table=rh_person&nombres=${encodeURIComponent(query)}&apellidos=${encodeURIComponent(query)}&ci=${encodeURIComponent(query)}`
+                });
+                
+                const data = await response.json();
+                
+                console.log('🔍 Respuesta de búsqueda:', data); // Debug
+                
+                if (data.success && data.data && data.data.length > 0) {
+                    smartSearchState.results = data.data;
+                    displaySmartSearchResults(data.data);
+                } else {
+                    showSmartDropdown('<div class="no-results">❌ No se encontraron pacientes</div>');
+                }
+                
+            } catch (error) {
+                console.error('❌ Error en búsqueda inteligente:', error);
+                showSmartDropdown('<div class="error-results">⚠️ Error en la búsqueda</div>');
+            } finally {
+                smartSearchState.isSearching = false;
+            }
+        }
+
+        /**
+         * 🆕 NUEVO: Mostrar dropdown de búsqueda
+         */
+        function showSmartDropdown(content) {
+            const dropdown = document.getElementById('smartSearchDropdown');
+            dropdown.innerHTML = content;
+            dropdown.style.display = 'block';
+        }
+
+        /**
+         * 🆕 NUEVO: Ocultar dropdown
+         */
+        function hideSmartDropdown() {
+            const dropdown = document.getElementById('smartSearchDropdown');
+            dropdown.style.display = 'none';
+            smartSearchState.selectedIndex = -1;
+        }
+
+        /**
+         * 🆕 NUEVO: Mostrar resultados en el dropdown
+         */
+        function displaySmartSearchResults(patients) {
+            let html = '';
+            
+            patients.forEach((patient, index) => {
+                // ✅ USAR CAMPOS CORRECTOS DE LA BD
+                const firstName = patient.first_name || 'N/A';
+                const lastName = patient.last_name || 'N/A';
+                const fullName = `${firstName} ${lastName}`;
+                const ci = patient.document_number || 'Sin CI';
+                const telefono = patient.phone_number || null;
+                
+                html += `
+                    <div class="search-result-item" 
+                         data-index="${index}"
+                         onclick="selectSmartSearchResult(${JSON.stringify(patient).replace(/"/g, '&quot;')})"
+                         onmouseover="smartSearchState.selectedIndex = ${index}; updateSmartSelection(document.querySelectorAll('.search-result-item'))"
+                         onmouseleave="smartSearchState.selectedIndex = -1; updateSmartSelection(document.querySelectorAll('.search-result-item'))"
+                         style="
+                            padding: 12px 15px;
+                            cursor: pointer;
+                            border-bottom: 1px solid #eee;
+                            transition: background 0.2s;
+                         ">
+                        <div style="font-weight: bold; color: #333;">${fullName}</div>
+                        <div style="color: #666; font-size: 0.9em;">CI: ${ci}</div>
+                        ${telefono ? `<div style="color: #888; font-size: 0.8em;">📞 ${telefono}</div>` : ''}
+                    </div>
+                `;
+            });
+            
+            showSmartDropdown(html);
+            
+            // 🚫 NO seleccionar automáticamente el primer resultado
+            smartSearchState.selectedIndex = -1;
+        }
+
+        /**
+         * 🆕 NUEVO: Actualizar selección visual
+         */
+        function updateSmartSelection(items) {
+            items.forEach((item, index) => {
+                if (index === smartSearchState.selectedIndex) {
+                    item.style.background = '#007bff';
+                    item.style.color = 'white';
+                    item.classList.add('selected');
+                } else {
+                    item.style.background = '';
+                    item.style.color = '';
+                    item.classList.remove('selected');
+                }
+            });
+        }
+
+        /**
+         * 🆕 NUEVO: Seleccionar resultado de búsqueda
+         */
+        function selectSmartSearchResult(patient) {
+            console.log('🎯 Paciente seleccionado:', patient);
+            
+            // ✅ USAR CAMPOS CORRECTOS DE LA BD
+            const firstName = patient.first_name || 'N/A';
+            const lastName = patient.last_name || 'N/A';
+            const fullName = `${firstName} ${lastName}`;
+            
+            // Actualizar campo de búsqueda
+            document.getElementById('smartPatientSearch').value = fullName;
+            
+            // Ocultar dropdown
+            hideSmartDropdown();
+            
+            // Cargar información del paciente
+            loadSelectedPatient(patient);
+            
+            // Cargar consultas automáticamente usando person_id
+            const patientId = patient.person_id || patient.id_persona;
+            if (patientId) {
+                loadPatientConsultas(patientId);
+            } else {
+                console.error('❌ No se encontró ID del paciente');
+            }
+        }
+        
+        /**
+         * 🆕 NUEVO: Alias para cargar consultas del paciente (compatibilidad)
+         */
+        function loadPatientConsultas(patientId) {
+            console.log('🔄 Cargando consultas del paciente ID:', patientId);
+            loadPatientStats(patientId);
+        }
+
+        /**
+         * 🆕 NUEVO: Limpiar búsqueda inteligente y TODA LA PÁGINA
+         */
+        function clearSmartPatientSearch() {
+            console.log('🧹 Limpiando toda la página...');
+            
+            // 1. Limpiar campo de búsqueda y dropdown
+            document.getElementById('smartPatientSearch').value = '';
+            hideSmartDropdown();
+            
+            // 2. Limpiar información del paciente seleccionado
+            clearPatientInfo();
+            
+            // 3. Limpiar estado de búsqueda
+            smartSearchState.lastQuery = '';
+            smartSearchState.results = [];
+            smartSearchState.selectedIndex = -1;
+            
+            // 4. 🆕 LIMPIAR TABLA DE CONSULTAS - volver al estado inicial
+            const listContent = document.getElementById('list-content');
+            if (listContent) {
+                // Mostrar mensaje de carga mientras limpiamos
+                listContent.innerHTML = `
+                    <div class="text-center p-4" style="color: #666;">
+                        <div class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></div>
+                        Limpiando y cargando consultas generales...
+                    </div>
+                `;
+            }
+            
+            // 🆕 TAMBIÉN LIMPIAR LA TABLA VISIBLE (tbody)
+            const tableBody = document.querySelector('#list-content tbody');
+            if (tableBody) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center p-4" style="color: #666;">
+                            <div class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></div>
+                            Cargando consultas generales...
+                        </td>
+                    </tr>
+                `;
+            }
+            
+            // 5. 🆕 LIMPIAR ESTADÍSTICAS DEL PACIENTE
+            const statsElements = {
+                'totalConsultas': '0',
+                'ultimaConsulta': '--',
+                'proximaConsulta': '--'
+            };
+            
+            Object.entries(statsElements).forEach(([id, defaultValue]) => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.textContent = defaultValue;
+                }
+            });
+            
+            // 6. 🆕 RESET DEL ESTADO GLOBAL DE LA APLICACIÓN - COMPLETO
+            appState.selectedPatient = null;
+            appState.currentTab = 'list';
+            appState.loadingPatientConsultas = false;
+            appState.isResetting = false;
+            
+            // 🆕 LIMPIAR FILTROS Y BÚSQUEDAS ACTIVAS
+            appState.currentFilters = {};
+            appState.currentSearch = ''; // ✅ Esto es clave para loadConsultas
+            appState.pageSize = 10; // Resetear tamaño de página
+            
+            // 🆕 LIMPIAR CUALQUIER FILTRO DE PACIENTE ESPECÍFICO  
+            if (window.currentPatientFilter) {
+                delete window.currentPatientFilter;
+            }
+            
+            // 7. 🆕 CARGAR CONSULTAS GENERALES (estado inicial) - FORZADO  
+            console.log('🔄 Forzando recarga de consultas generales...');
+            
+            // Forzar recarga completa sin filtros
+            setTimeout(async () => {
+                try {
+                    // Llamar directamente a la API sin filtros
+                    const result = await callAPI('list', {
+                        table: 'consultas',
+                        page: 1,
+                        limit: 10,
+                        search: '', // Sin búsqueda
+                        filters: {} // Sin filtros
+                    });
+                    
+                    if (result && result.data) {
+                        // Si existe renderConsultasList, usarla, sino usar loadConsultas
+                        if (typeof renderConsultasList === 'function') {
+                            renderConsultasList(result.data, result.meta);
+                        } else {
+                            // Fallback: forzar actualización de la tabla
+                            const listContent = document.getElementById('list-content');
+                            if (listContent && result.data.length > 0) {
+                                // Simular la estructura que espera la tabla
+                                loadConsultas(1);
+                            }
+                        }
+                        console.log('✅ Consultas generales cargadas:', result.data.length);
+                    } else {
+                        // Fallback si no hay datos
+                        loadConsultas(1);
+                    }
+                    
+                } catch (error) {
+                    console.error('❌ Error cargando consultas generales:', error);
+                    loadConsultas(1); // Fallback a la función normal
+                }
+            }, 150); // Pausa para que se vea la limpieza
+            
+            // 8. 🆕 LIMPIAR CUALQUIER FILTRO O BÚSQUEDA ACTIVA EN LA UI
+            const searchInput = document.getElementById('search-input');
+            if (searchInput) {
+                searchInput.value = '';
+            }
+            
+            // 🆕 LIMPIAR SELECTOR DE PÁGINA SI EXISTE
+            const pageSizeSelect = document.querySelector('select[onchange*="pageSize"]');
+            if (pageSizeSelect) {
+                pageSizeSelect.value = '10'; // Valor por defecto
+            }
+            
+            // 🆕 RESETEAR CONTADORES DE PAGINACIÓN
+            appState.currentPage = 1;
+            
+            // 9. 🆕 VOLVER A LA PESTAÑA PRINCIPAL
+            showTab('list');
+            
+            console.log('✅ Página completamente limpiada y resetada');
+        }
+
+        /**
+         * Limpiar búsqueda de paciente (mantenida para compatibilidad)
          */
         function clearPatientSearch() {
-            document.getElementById('searchNombres').value = '';
-            document.getElementById('searchApellidos').value = '';
-            document.getElementById('searchCI').value = '';
-            clearPatientInfo();
+            clearSmartPatientSearch();
+        }
+
+        /**
+         * 🆕 NUEVO: Cargar información del paciente seleccionado desde autocompletado
+         */
+        function loadSelectedPatient(patient) {
+            console.log('🎯 Cargando información del paciente:', patient);
+            
+            // Mostrar información del paciente
+            const infoDiv = document.getElementById('selectedPatientInfo');
+            const nameElement = document.getElementById('selectedPatientName');
+            const detailsElement = document.getElementById('selectedPatientDetails');
+            
+            if (infoDiv && nameElement && detailsElement) {
+                // ✅ USAR CAMPOS CORRECTOS DE LA BD
+                const firstName = patient.first_name || 'N/A';
+                const lastName = patient.last_name || 'N/A';
+                const ci = patient.document_number || 'Sin CI';
+                const telefono = patient.phone_number || 'No disponible';
+                
+                nameElement.textContent = `${firstName} ${lastName}`;
+                detailsElement.textContent = `CI: ${ci} | Tel: ${telefono}`;
+                
+                infoDiv.style.display = 'block';
+                
+                // Guardar paciente seleccionado con el formato correcto
+                appState.selectedPatient = {
+                    id: patient.person_id || patient.id_persona, // ✅ person_id es el campo correcto
+                    firstName: firstName,
+                    lastName: lastName,
+                    documentNumber: ci
+                };
+                
+                // Cargar estadísticas del paciente
+                const patientId = patient.person_id || patient.id_persona;
+                if (patientId) {
+                    loadPatientStats(patientId);
+                }
+                
+                console.log('✅ Paciente cargado en appState:', appState.selectedPatient);
+            } else {
+                console.error('❌ No se encontraron elementos para mostrar información del paciente');
+            }
         }
 
         /**
@@ -1961,7 +2480,14 @@
             `;
             
             const tableRows = consultas.map(consulta => {
-                const fechaFormatted = new Date(consulta.fecha_consulta).toLocaleDateString('es-ES');
+                // ✅ CORREGIR: Usar función auxiliar para formateo de fechas
+                let fechaFormatted = formatDate(consulta.fecha_consulta);
+                
+                // Fallback a fecha_registro si no hay fecha_consulta válida
+                if (fechaFormatted === '--' && consulta.fecha_registro) {
+                    fechaFormatted = formatDate(consulta.fecha_registro);
+                }
+                
                 const pacienteInfo = `${consulta.first_name || ''} ${consulta.last_name || ''}`.trim();
                 const tipoColor = getTipoColor(consulta.tipo_formulario);
                 
@@ -3429,6 +3955,14 @@
                 const searchBox = document.querySelector('.search-box');
                 if (searchBox && !searchBox.contains(e.target)) {
                     document.getElementById('patient-results').style.display = 'none';
+                }
+                
+                // 🆕 NUEVO: Cerrar dropdown de búsqueda inteligente al hacer clic fuera
+                const smartContainer = document.querySelector('.smart-search-container');
+                const smartDropdown = document.getElementById('smartSearchDropdown');
+                
+                if (smartContainer && smartDropdown && !smartContainer.contains(e.target)) {
+                    hideSmartDropdown();
                 }
             });
             

@@ -589,12 +589,18 @@ class LivewireCRUDSystem {
         }
         
         // Filtros de búsqueda
+        $customOrderBy = null;
         if (!empty($search)) {
             $searchConditions = $this->buildSearchConditions($table, $search);
             if (!empty($searchConditions['where'])) {
                 $operator = $searchConditions['operator'] ?? 'OR';
                 $whereConditions[] = "(" . implode(" {$operator} ", $searchConditions['where']) . ")";
                 $params = array_merge($params, $searchConditions['params']);
+                
+                // 🆕 CAPTURAR ORDER BY PERSONALIZADO
+                if (isset($searchConditions['orderBy'])) {
+                    $customOrderBy = $searchConditions['orderBy'];
+                }
             }
         }
         
@@ -608,9 +614,11 @@ class LivewireCRUDSystem {
         
         $whereClause = empty($whereConditions) ? '' : 'WHERE ' . implode(' AND ', $whereConditions);
         
-        // Order by
+        // Order by - 🆕 USAR PERSONALIZADO SI EXISTE
         $orderClause = '';
-        if ($orderBy && $this->isValidField($table, $orderBy)) {
+        if ($customOrderBy) {
+            $orderClause = $customOrderBy; // Ya incluye "ORDER BY"
+        } elseif ($orderBy && $this->isValidField($table, $orderBy)) {
             $orderClause = "ORDER BY $orderBy $orderDir";
         } else {
             $primaryKey = $config['primaryKey'];
@@ -655,6 +663,19 @@ class LivewireCRUDSystem {
      * BUSCAR registros
      */
     public function search($input) {
+        // 🆕 MANEJO ESPECIAL PARA BÚSQUEDA INTELIGENTE DE PACIENTES
+        if (isset($input['nombres']) && isset($input['apellidos']) && isset($input['ci'])) {
+            // Convertir parámetros individuales en array de búsqueda
+            $input['search'] = [
+                'nombres' => $input['nombres'],
+                'apellidos' => $input['apellidos'], 
+                'ci' => $input['ci']
+            ];
+            
+            // Limpiar parámetros individuales
+            unset($input['nombres'], $input['apellidos'], $input['ci']);
+        }
+        
         $input['limit'] = min(50, intval($input['limit'] ?? 10));
         return $this->list($input);
     }
@@ -745,6 +766,7 @@ class LivewireCRUDSystem {
                 throw new Exception('JSON inválido: ' . json_last_error_msg());
             }
         } else {
+            // Para form-urlencoded o datos de formulario normales
             $input = $_REQUEST;
         }
         
@@ -1026,6 +1048,71 @@ class LivewireCRUDSystem {
         // Si search es un array (búsqueda específica por campos)
         if (is_array($search)) {
             $paramCounter = 1;
+            
+            // 🆕 BÚSQUEDA INTELIGENTE PARA PACIENTES: 
+            // Si tenemos nombres, apellidos y ci con el mismo valor, hacer búsqueda combinada
+            if ($table === 'rh_person' && 
+                isset($search['nombres']) && isset($search['apellidos']) && isset($search['ci']) &&
+                $search['nombres'] === $search['apellidos'] && $search['apellidos'] === $search['ci'] &&
+                !empty($search['nombres'])) {
+                
+                $smartSearchTerm = trim($search['nombres']);
+                $likeSearchTerm = "%{$smartSearchTerm}%";
+                
+                // 🎯 BÚSQUEDA INTELIGENTE CON PRIORIDAD:
+                // 1. Coincidencia exacta en nombres o apellidos
+                // 2. Coincidencia al inicio de nombres o apellidos  
+                // 3. Coincidencia en cualquier parte
+                // 4. Coincidencia en CI, teléfono o email
+                
+                $conditions[] = "(
+                    CASE 
+                        WHEN LOWER(first_name) = LOWER(:exact_search1) OR LOWER(last_name) = LOWER(:exact_search2) THEN 1
+                        WHEN LOWER(first_name) LIKE LOWER(:start_search1) OR LOWER(last_name) LIKE LOWER(:start_search2) THEN 2
+                        WHEN first_name ILIKE :smart_search1 OR last_name ILIKE :smart_search2 THEN 3
+                        WHEN CONCAT(first_name, ' ', last_name) ILIKE :smart_search6 THEN 4
+                        WHEN document_number ILIKE :smart_search3 THEN 5
+                        WHEN phone_number ILIKE :smart_search4 OR email ILIKE :smart_search5 THEN 6
+                        ELSE 7
+                    END
+                ) <= 6";
+                
+                $params = [
+                    // Búsquedas exactas
+                    ':exact_search1' => $smartSearchTerm,
+                    ':exact_search2' => $smartSearchTerm,
+                    // Búsquedas al inicio
+                    ':start_search1' => $smartSearchTerm . '%',
+                    ':start_search2' => $smartSearchTerm . '%',
+                    // Búsquedas generales
+                    ':smart_search1' => $likeSearchTerm,
+                    ':smart_search2' => $likeSearchTerm,
+                    ':smart_search3' => $likeSearchTerm,
+                    ':smart_search4' => $likeSearchTerm,
+                    ':smart_search5' => $likeSearchTerm,
+                    ':smart_search6' => $likeSearchTerm,
+                ];
+                
+                // 🔥 ORDENAMIENTO POR RELEVANCIA
+                $orderBy = "ORDER BY (
+                    CASE 
+                        WHEN LOWER(first_name) = LOWER('{$smartSearchTerm}') OR LOWER(last_name) = LOWER('{$smartSearchTerm}') THEN 1
+                        WHEN LOWER(first_name) LIKE LOWER('{$smartSearchTerm}%') OR LOWER(last_name) LIKE LOWER('{$smartSearchTerm}%') THEN 2
+                        WHEN first_name ILIKE '{$likeSearchTerm}' OR last_name ILIKE '{$likeSearchTerm}' THEN 3
+                        WHEN CONCAT(first_name, ' ', last_name) ILIKE '{$likeSearchTerm}' THEN 4
+                        WHEN document_number ILIKE '{$likeSearchTerm}' THEN 5
+                        ELSE 6
+                    END
+                ), first_name ASC, last_name ASC";
+                
+                return [
+                    'where' => $conditions, 
+                    'params' => $params, 
+                    'operator' => 'AND',
+                    'orderBy' => $orderBy
+                ];
+            }
+            
             foreach ($search as $field => $value) {
                 if (empty($value)) continue;
                 
@@ -1035,12 +1122,15 @@ class LivewireCRUDSystem {
                 if ($table === 'consultas') {
                     switch ($field) {
                         case 'first_name':
+                        case 'nombres':
                             $conditions[] = "p.first_name ILIKE {$paramName}";
                             break;
                         case 'last_name':
+                        case 'apellidos':
                             $conditions[] = "p.last_name ILIKE {$paramName}";
                             break;
                         case 'document_number':
+                        case 'ci':
                             $conditions[] = "p.document_number ILIKE {$paramName}";
                             break;
                         case 'txtmotivo':
@@ -1057,12 +1147,15 @@ class LivewireCRUDSystem {
                 } elseif ($table === 'rh_person') {
                     switch ($field) {
                         case 'first_name':
+                        case 'nombres':
                             $conditions[] = "first_name ILIKE {$paramName}";
                             break;
                         case 'last_name':
+                        case 'apellidos':
                             $conditions[] = "last_name ILIKE {$paramName}";
                             break;
                         case 'document_number':
+                        case 'ci':
                             $conditions[] = "document_number ILIKE {$paramName}";
                             break;
                         case 'phone_number':
