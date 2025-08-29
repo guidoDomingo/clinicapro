@@ -1259,7 +1259,8 @@
             currentSearch: '',
             editingRecord: null,
             selectedPatient: null,
-            currentFormType: 'general'
+            currentFormType: 'general',
+            loadingPatientConsultas: false  // 🆕 Indicador para evitar carga automática
         };
 
         // Configuración de la API
@@ -1313,7 +1314,10 @@
             // Cargar contenido específico de la pestaña
             switch(tabName) {
                 case 'list':
-                    loadConsultas();
+                    // Solo cargar todas las consultas si NO estamos cargando consultas específicas de un paciente
+                    if (!appState.loadingPatientConsultas) {
+                        loadConsultas();
+                    }
                     break;
                 case 'create':
                     resetForm();
@@ -1535,9 +1539,6 @@
                 document.getElementById('ultimaConsulta').textContent = ultimaConsulta;
                 document.getElementById('proximaConsulta').textContent = proximaConsulta;
                 
-                // Mostrar historial completo del paciente
-                await showPatientHistory(patientId, consultas);
-                
                 // 🆕 NUEVO: Cargar automáticamente todas las consultas en "Listar Consultas"
                 await loadAllPatientConsultasInList(patientId, consultas);
                 
@@ -1558,21 +1559,47 @@
 
                 console.log(`📋 Cargando automáticamente ${consultas.length} consultas en "Listar Consultas" para paciente ID ${patientId}`);
 
+                // Activar el indicador para evitar la carga automática de todas las consultas
+                appState.loadingPatientConsultas = true;
+
                 // Cambiar automáticamente a la pestaña "Listar Consultas"
                 showTab('list');
 
                 // Dar un pequeño delay para asegurar que la pestaña se carga
                 setTimeout(() => {
-                    const listEl = document.getElementById('list-content');
-                    const paginationEl = document.getElementById('pagination');
+                    // Esperar hasta que el elemento consultas-list esté disponible
+                    const waitForElement = (selector, callback, maxAttempts = 10, currentAttempt = 1) => {
+                        const element = document.getElementById(selector);
+                        
+                        if (element) {
+                            callback(element);
+                        } else if (currentAttempt < maxAttempts) {
+                            console.log(`⏳ Esperando elemento ${selector}... intento ${currentAttempt}/${maxAttempts}`);
+                            setTimeout(() => {
+                                waitForElement(selector, callback, maxAttempts, currentAttempt + 1);
+                            }, 200);
+                        } else {
+                            console.error(`❌ No se pudo encontrar el elemento ${selector} después de ${maxAttempts} intentos`);
+                            
+                            // Como último recurso, intentar cargar las consultas normalmente
+                            console.log('🔄 Intentando cargar consultas con loadConsultas() como respaldo...');
+                            appState.loadingPatientConsultas = false; // Desactivar antes del fallback
+                            if (typeof loadConsultas === 'function') {
+                                loadConsultas();
+                            }
+                        }
+                    };
                     
-                    if (listEl) {
+                    // Esperar a que aparezca consultas-list y luego cargar los datos
+                    waitForElement('consultas-list', (listEl) => {
+                        const paginationEl = document.getElementById('consultas-pagination');
+                        
                         // Ordenar consultas por fecha más reciente primero
                         consultas.sort((a, b) => new Date(b.fecha_registro) - new Date(a.fecha_registro));
                         
                         // Mostrar todas las consultas del paciente en la tabla
                         listEl.innerHTML = createModernConsultasTable(consultas);
-                        console.log(`✅ ${consultas.length} consultas cargadas automáticamente en "Listar Consultas"`);
+                        console.log(`✅ ${consultas.length} consultas del paciente cargadas correctamente en "Listar Consultas"`);
                         
                         // Actualizar paginación
                         if (paginationEl) {
@@ -1585,8 +1612,8 @@
                         }
                         
                         // Agregar indicador visual de que está filtrado por paciente
-                        const tableHeader = listEl.querySelector('.table-container');
-                        if (tableHeader && consultas.length > 0) {
+                        const tableContainer = listEl.querySelector('.table-container');
+                        if (tableContainer && consultas.length > 0) {
                             const patientName = `${consultas[0].first_name} ${consultas[0].last_name}`;
                             const filterIndicator = document.createElement('div');
                             filterIndicator.className = 'alert alert-info';
@@ -1598,133 +1625,22 @@
                                     🔄 Mostrar todas las consultas
                                 </button>
                             `;
-                            tableHeader.insertBefore(filterIndicator, tableHeader.firstChild);
+                            tableContainer.insertBefore(filterIndicator, tableContainer.firstChild);
                         }
                         
-                    } else {
-                        console.error('❌ No se encontró el elemento list-content para cargar consultas automáticamente');
-                    }
-                }, 200);
+                        // Scroll suave hasta la tabla
+                        listEl.scrollIntoView({ behavior: 'smooth' });
+                        
+                        // Desactivar el indicador después de cargar exitosamente
+                        appState.loadingPatientConsultas = false;
+                    });
+                    
+                }, 300); // Incrementar el delay inicial
 
             } catch (error) {
                 console.error('Error loading patient consultas automatically:', error);
-            }
-        }
-
-        /**
-         * Mostrar historial completo del paciente seleccionado
-         */
-        async function showPatientHistory(patientId, consultas) {
-            try {
-                if (!consultas || consultas.length === 0) {
-                    console.log(`No hay consultas para el paciente ID ${patientId}`);
-                    return;
-                }
-
-                console.log(`📋 Mostrando ${consultas.length} consultas para paciente ID ${patientId}`);
-
-                // Buscar dónde insertar el historial
-                let historialSection = document.getElementById('patient-history-section');
-                let parentElement = null;
-                
-                // Intentar diferentes ubicaciones para insertar el historial
-                if (!historialSection) {
-                    // Opción 1: Después de la información del paciente
-                    parentElement = document.querySelector('.patient-info') || 
-                                   document.querySelector('#patient-info-container') ||
-                                   document.querySelector('[style*="display: block"]') ||
-                                   document.querySelector('div[style*="border-left: 4px solid #28a745"]');
-                    
-                    console.log('🔍 Buscando elemento padre para historial:', parentElement);
-                    
-                    // Si no encuentra un lugar específico, insertarlo después de las estadísticas
-                    if (!parentElement) {
-                        const statsElements = document.querySelectorAll('[id*="Consultas"], [id*="consulta"]');
-                        if (statsElements.length > 0) {
-                            parentElement = statsElements[0].closest('div').parentElement;
-                        }
-                    }
-                    
-                    // Último recurso: insertarlo en el body del contenido principal
-                    if (!parentElement) {
-                        parentElement = document.querySelector('.crud-section-body') || 
-                                       document.querySelector('.form-section-body') ||
-                                       document.body;
-                    }
-                    
-                    console.log('📍 Elemento padre seleccionado:', parentElement);
-                    
-                    if (parentElement) {
-                        historialSection = document.createElement('div');
-                        historialSection.id = 'patient-history-section';
-                        historialSection.className = 'patient-history-section';
-                        historialSection.style.marginTop = '20px';
-                        parentElement.appendChild(historialSection);
-                        console.log('✅ Sección de historial creada');
-                    } else {
-                        console.error('❌ No se pudo encontrar elemento padre para historial');
-                        return;
-                    }
-                }
-
-                if (historialSection) {
-                    // Ordenar consultas por fecha más reciente primero
-                    consultas.sort((a, b) => new Date(b.fecha_registro) - new Date(a.fecha_registro));
-
-                    const historialHTML = `
-                        <div class="history-header" style="margin: 20px 0 10px 0; padding: 10px; background: #f8f9fa; border-left: 4px solid #007bff; border-radius: 4px;">
-                            <h5 style="margin: 0; color: #007bff;">📋 Historial Completo (${consultas.length} consultas)</h5>
-                        </div>
-                        <div class="history-list" style="max-height: 400px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 4px;">
-                            ${consultas.map(consulta => {
-                                const fecha = new Date(consulta.fecha_registro).toLocaleDateString('es-ES');
-                                const hora = new Date(consulta.fecha_registro).toLocaleTimeString('es-ES', {hour: '2-digit', minute: '2-digit'});
-                                const motivo = consulta.txtmotivo ? consulta.txtmotivo.replace(/<[^>]*>/g, '').substring(0, 100) + '...' : 'Sin motivo especificado';
-                                const tipoFormulario = consulta.tipo_formulario || 'general';
-                                
-                                return `
-                                    <div class="history-item" style="padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; transition: background-color 0.2s;" 
-                                         onmouseover="this.style.backgroundColor='#f8f9fa'" 
-                                         onmouseout="this.style.backgroundColor='white'"
-                                         onclick="viewConsultaDetails(${consulta.id_consulta})">
-                                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                                            <div style="flex: 1;">
-                                                <div style="font-weight: bold; color: #007bff; margin-bottom: 4px;">
-                                                    #${consulta.id_consulta} - ${fecha} ${hora}
-                                                </div>
-                                                <div style="color: #666; font-size: 12px; margin-bottom: 4px;">
-                                                    Tipo: <span style="background: #e9ecef; padding: 2px 6px; border-radius: 3px; text-transform: capitalize;">${tipoFormulario}</span>
-                                                </div>
-                                                <div style="color: #333; font-size: 14px;">
-                                                    ${motivo}
-                                                </div>
-                                            </div>
-                                            <div style="color: #28a745; font-size: 12px;">
-                                                👁️ Ver detalles
-                                            </div>
-                                        </div>
-                                    </div>
-                                `;
-                            }).join('')}
-                        </div>
-                    `;
-
-                    console.log('🎨 Insertando HTML del historial...');
-                    historialSection.innerHTML = historialHTML;
-                    console.log('✅ Historial insertado correctamente');
-                    
-                    // Verificar que el HTML se insertó
-                    if (historialSection.children.length > 0) {
-                        console.log('📋 Historial visible con', historialSection.children.length, 'elementos');
-                    } else {
-                        console.error('❌ El historial no se insertó correctamente');
-                    }
-                } else {
-                    console.error('❌ No hay sección de historial disponible');
-                }
-
-            } catch (error) {
-                console.error('Error showing patient history:', error);
+                // Desactivar el indicador en caso de error
+                appState.loadingPatientConsultas = false;
             }
         }
 
@@ -1753,7 +1669,7 @@
                     if (result.data && result.data.length > 0) {
                         // Mostrar los resultados en la tabla de "Listar Consultas"
                         const listEl = document.getElementById('list-content');
-                        const paginationEl = document.getElementById('pagination');
+                        const paginationEl = document.getElementById('consultas-pagination');
                         
                         if (listEl) {
                             listEl.innerHTML = createModernConsultasTable(result.data);
@@ -1817,6 +1733,9 @@
          */
         function showAllConsultas() {
             console.log('🔄 Cargando todas las consultas...');
+            
+            // Desactivar el indicador para permitir carga normal
+            appState.loadingPatientConsultas = false;
             
             // Recargar todas las consultas sin filtro
             loadConsultas();
