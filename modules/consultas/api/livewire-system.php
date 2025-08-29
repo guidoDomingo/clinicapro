@@ -34,7 +34,7 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-require_once '../../../model/conexion.php';
+require_once dirname(__DIR__, 3) . '/model/conexion.php';
 
 /**
  * Clase principal del sistema Livewire CRUD
@@ -960,6 +960,22 @@ class LivewireCRUDSystem {
             $conditions[] = "p.first_name ILIKE :search4";
             $conditions[] = "p.last_name ILIKE :search5";
             $conditions[] = "p.document_number ILIKE :search6";
+            
+            $params = [
+                ':search1' => $searchTerm,
+                ':search2' => $searchTerm,
+                ':search3' => $searchTerm,
+                ':search4' => $searchTerm,
+                ':search5' => $searchTerm,
+                ':search6' => $searchTerm,
+            ];
+        } elseif ($table === 'rh_person') {
+            $conditions[] = "first_name ILIKE :search1";
+            $conditions[] = "last_name ILIKE :search2";
+            $conditions[] = "document_number ILIKE :search3";
+            $conditions[] = "phone_number ILIKE :search4";
+            $conditions[] = "email ILIKE :search5";
+            $conditions[] = "CONCAT(first_name, ' ', last_name) ILIKE :search6";
             
             $params = [
                 ':search1' => $searchTerm,

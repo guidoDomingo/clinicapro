@@ -255,7 +255,7 @@
                         <div class="form-section-body">
                             <div class="field-group">
                                 <div class="form-floating">
-                                    <textarea class="form-control" id="motivo" name="motivo" style="height: 100px;" required></textarea>
+                                    <textarea class="form-control" id="motivo" name="txtmotivo" style="height: 100px;" required></textarea>
                                     <label>Motivo de Consulta *</label>
                                 </div>
                                 <div class="form-floating">
@@ -272,25 +272,25 @@
                             <div class="row">
                                 <div class="col-md-3">
                                     <div class="form-floating">
-                                        <input type="text" class="form-control" id="vision_od" name="vision_od">
+                                        <input type="text" class="form-control" id="vision_od" name="visionod">
                                         <label>Visión OD</label>
                                     </div>
                                 </div>
                                 <div class="col-md-3">
                                     <div class="form-floating">
-                                        <input type="text" class="form-control" id="vision_oi" name="vision_oi">
+                                        <input type="text" class="form-control" id="vision_oi" name="visionoi">
                                         <label>Visión OI</label>
                                     </div>
                                 </div>
                                 <div class="col-md-3">
                                     <div class="form-floating">
-                                        <input type="text" class="form-control" id="tension_od" name="tension_od">
+                                        <input type="text" class="form-control" id="tension_od" name="tensionod">
                                         <label>Tensión OD</label>
                                     </div>
                                 </div>
                                 <div class="col-md-3">
                                     <div class="form-floating">
-                                        <input type="text" class="form-control" id="tension_oi" name="tension_oi">
+                                        <input type="text" class="form-control" id="tension_oi" name="tensionoi">
                                         <label>Tensión OI</label>
                                     </div>
                                 </div>
@@ -298,11 +298,11 @@
                             
                             <div class="field-group">
                                 <div class="form-floating">
-                                    <textarea class="form-control" id="consulta" name="consulta" style="height: 120px;"></textarea>
+                                    <textarea class="form-control" id="consulta" name="consulta_textarea" style="height: 120px;"></textarea>
                                     <label>Consulta</label>
                                 </div>
                                 <div class="form-floating">
-                                    <textarea class="form-control" id="receta" name="receta" style="height: 120px;"></textarea>
+                                    <textarea class="form-control" id="receta" name="receta_textarea" style="height: 120px;"></textarea>
                                     <label>Receta</label>
                                 </div>
                             </div>
@@ -774,7 +774,9 @@
          */
         let searchTimeout;
         async function searchPatients(query) {
+            console.log('searchPatients called with:', query);
             const resultsEl = document.getElementById('patient-results');
+            console.log('Results element found:', resultsEl);
             
             if (query.length < 2) {
                 resultsEl.style.display = 'none';
@@ -783,6 +785,7 @@
             
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(async () => {
+                console.log('Making API call for search...');
                 try {
                     const result = await callAPI('search', {
                         table: 'rh_person',
@@ -790,36 +793,74 @@
                         limit: 10
                     });
                     
+                    console.log('Search API result:', result);
+                    
                     if (result.data && result.data.length > 0) {
-                        resultsEl.innerHTML = result.data.map(patient => `
-                            <div class="search-result-item" onclick="selectPatient(${patient.person_id}, '${patient.first_name}', '${patient.last_name}', '${patient.document_number}')">
-                                <strong>${patient.first_name} ${patient.last_name}</strong><br>
-                                <small class="text-muted">Documento: ${patient.document_number} | Tel: ${patient.phone_number || 'N/A'}</small>
-                            </div>
-                        `).join('');
+                        console.log('Processing', result.data.length, 'results');
+                        resultsEl.innerHTML = result.data.map(patient => {
+                            // Sanitizar datos para evitar errores
+                            const firstName = patient.first_name || '';
+                            const lastName = patient.last_name || '';
+                            const documentNumber = patient.document_number || '';
+                            const phoneNumber = patient.phone_number || 'N/A';
+                            const personId = patient.person_id || '';
+                            
+                            console.log('Processing patient:', {personId, firstName, lastName, documentNumber});
+                            
+                            return `
+                                <div class="search-result-item" onclick="selectPatient(${personId}, '${firstName.replace(/'/g, "\\'")}', '${lastName.replace(/'/g, "\\'")}', '${documentNumber}')">
+                                    <strong>${firstName} ${lastName}</strong><br>
+                                    <small class="text-muted">Documento: ${documentNumber} | Tel: ${phoneNumber}</small>
+                                </div>
+                            `;
+                        }).join('');
                         resultsEl.style.display = 'block';
+                        console.log('Results displayed successfully');
                     } else {
+                        console.log('No results found');
                         resultsEl.innerHTML = '<div class="search-result-item text-muted">No se encontraron pacientes</div>';
                         resultsEl.style.display = 'block';
                     }
                     
                 } catch (error) {
-                    resultsEl.style.display = 'none';
+                    console.error('Error en búsqueda de pacientes:', error);
+                    resultsEl.innerHTML = '<div class="search-result-item text-muted text-danger">Error en la búsqueda</div>';
+                    resultsEl.style.display = 'block';
                 }
             }, 300);
+        }
+
+        /**
+         * Limpiar selección de paciente
+         */
+        function clearPatientSelection() {
+            console.log('Clearing patient selection');
+            document.getElementById('selected-patient-id').value = '';
+            document.getElementById('patient-search').value = '';
+            document.getElementById('selected-patient-info').style.display = 'none';
+            document.getElementById('patient-results').style.display = 'none';
+            appState.selectedPatient = null;
         }
 
         /**
          * Seleccionar paciente
          */
         function selectPatient(id, firstName, lastName, documentNumber) {
-            document.getElementById('selected-patient-id').value = id;
+            console.log('selectPatient called with:', {id, firstName, lastName, documentNumber});
+            
+            const hiddenField = document.getElementById('selected-patient-id');
+            console.log('Hidden field element:', hiddenField);
+            
+            hiddenField.value = id;
+            console.log('Hidden field value set to:', hiddenField.value);
+            
             document.getElementById('patient-search').value = `${firstName} ${lastName}`;
             document.getElementById('patient-info-text').textContent = `${firstName} ${lastName} - ${documentNumber}`;
             document.getElementById('selected-patient-info').style.display = 'block';
             document.getElementById('patient-results').style.display = 'none';
             
             appState.selectedPatient = { id, firstName, lastName, documentNumber };
+            console.log('appState.selectedPatient updated:', appState.selectedPatient);
         }
 
         /**
@@ -846,6 +887,8 @@
             const formData = new FormData(form);
             let data = Object.fromEntries(formData.entries());
             
+            console.log('Form data before processing:', data);
+            
             // CORRECCIÓN: Convertir fechas vacías a null para PostgreSQL
             if (data.proxima_consulta === '') {
                 data.proxima_consulta = null;
@@ -854,7 +897,11 @@
             // CORRECCIÓN: Procesar campos booleanos
             data = processBooleanFields(data);
             
-            if (!data.person_id) {
+            console.log('Form data after processing:', data);
+            console.log('Patient ID value:', data.id_persona);
+            
+            // Verificar que hay un paciente seleccionado
+            if (!data.id_persona || data.id_persona === '' || data.id_persona === '0') {
                 showError('Debe seleccionar un paciente');
                 return;
             }
@@ -1541,11 +1588,15 @@
          * Limpiar formulario
          */
         function resetForm() {
+            console.log('Resetting form...');
             document.getElementById('create-form').reset();
+            document.getElementById('selected-patient-id').value = '';
             document.getElementById('selected-patient-info').style.display = 'none';
             document.getElementById('anteojos-section').style.display = 'none';
             document.getElementById('patient-results').style.display = 'none';
+            document.getElementById('patient-search').value = '';
             appState.selectedPatient = null;
+            console.log('Form reset completed');
         }
 
         /**
