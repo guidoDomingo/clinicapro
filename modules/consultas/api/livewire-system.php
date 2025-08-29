@@ -53,8 +53,8 @@ class LivewireCRUDSystem {
             'fields' => [
                 'id_consulta' => ['type' => 'int', 'primary' => true, 'auto' => true],
                 'id_persona' => ['type' => 'int', 'required' => true, 'foreign' => 'rh_person.person_id'],
-                'motivoscomunes' => ['type' => 'varchar', 'label' => 'Motivos Comunes'],
-                'txtmotivo' => ['type' => 'varchar', 'label' => 'Motivo de Consulta'],
+                'motivoscomunes' => ['type' => 'text', 'label' => 'Motivos Comunes'],
+                'txtmotivo' => ['type' => 'text', 'label' => 'Motivo de Consulta'],
                 'visionod' => ['type' => 'varchar', 'label' => 'Visión OD'],
                 'visionoi' => ['type' => 'varchar', 'label' => 'Visión OI'],
                 'tensionod' => ['type' => 'varchar', 'label' => 'Tensión OD'],
@@ -258,6 +258,12 @@ class LivewireCRUDSystem {
                 
             case 'validate':
                 return $this->validate($input);
+                
+            case 'get_motivos_comunes':
+                return $this->getMotivosComunes($input);
+                
+            case 'get_preformatos':
+                return $this->getPreformatos($input);
                 
             default:
                 throw new Exception("Acción no soportada: $action");
@@ -660,6 +666,62 @@ class LivewireCRUDSystem {
                 'errors' => $result['errors']
             ],
             'message' => $result['valid'] ? 'Datos válidos' : 'Datos inválidos'
+        ];
+    }
+    
+    /**
+     * OBTENER motivos comunes por tipo de formulario
+     */
+    public function getMotivosComunes($input) {
+        $tipoFormulario = $input['tipo_formulario'] ?? 'general';
+        
+        $stmt = $this->db->prepare("
+            SELECT id_motivo, nombre, descripcion, activo, tipo_formulario 
+            FROM motivos_comunes 
+            WHERE tipo_formulario = :tipo_formulario AND activo = true 
+            ORDER BY nombre ASC
+        ");
+        $stmt->bindParam(":tipo_formulario", $tipoFormulario, PDO::PARAM_STR);
+        $stmt->execute();
+        
+        $motivos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        return [
+            'data' => $motivos,
+            'message' => 'Motivos comunes obtenidos exitosamente',
+            'meta' => ['tipo_formulario' => $tipoFormulario, 'total' => count($motivos)]
+        ];
+    }
+    
+    /**
+     * OBTENER preformatos por tipo de formulario y tipo de contenido
+     */
+    public function getPreformatos($input) {
+        $tipoFormulario = $input['tipo_formulario'] ?? 'general';
+        $tipoContenido = $input['tipo'] ?? 'consulta'; // 'consulta', 'receta', etc.
+        
+        $stmt = $this->db->prepare("
+            SELECT id_preformato, nombre, contenido, tipo, activo, tipo_formulario 
+            FROM preformatos 
+            WHERE tipo_formulario = :tipo_formulario 
+            AND tipo = :tipo 
+            AND activo = true 
+            ORDER BY nombre ASC
+        ");
+        $stmt->bindParam(":tipo_formulario", $tipoFormulario, PDO::PARAM_STR);
+        $stmt->bindParam(":tipo", $tipoContenido, PDO::PARAM_STR);
+        $stmt->execute();
+        
+        $preformatos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        return [
+            'data' => $preformatos,
+            'message' => 'Preformatos obtenidos exitosamente',
+            'meta' => [
+                'tipo_formulario' => $tipoFormulario, 
+                'tipo' => $tipoContenido,
+                'total' => count($preformatos)
+            ]
         ];
     }
     

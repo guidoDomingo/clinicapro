@@ -255,11 +255,17 @@
                         <div class="form-section-body">
                             <div class="field-group">
                                 <div class="form-floating">
+                                    <select class="form-select" id="motivos_comunes" name="motivoscomunes">
+                                        <option value="">Seleccionar motivo común...</option>
+                                    </select>
+                                    <label>Motivos Comunes</label>
+                                </div>
+                                <div class="form-floating">
                                     <textarea class="form-control" id="motivo" name="txtmotivo" style="height: 100px;" required></textarea>
                                     <label>Motivo de Consulta *</label>
                                 </div>
                                 <div class="form-floating">
-                                    <select class="form-select" id="tipo_formulario" name="tipo_formulario">
+                                    <select class="form-select" id="tipo_formulario" name="tipo_formulario" onchange="handleFormTypeChange()">
                                         <option value="general">General</option>
                                         <option value="anteojos">Anteojos</option>
                                         <option value="informe_imagen">Informe con Imagen</option>
@@ -298,8 +304,20 @@
                             
                             <div class="field-group">
                                 <div class="form-floating">
+                                    <select class="form-select" id="preformatos_consulta">
+                                        <option value="">Seleccionar preformato para consulta...</option>
+                                    </select>
+                                    <label>Preformatos - Consulta</label>
+                                </div>
+                                <div class="form-floating">
                                     <textarea class="form-control" id="consulta" name="consulta_textarea" style="height: 120px;"></textarea>
                                     <label>Consulta</label>
+                                </div>
+                                <div class="form-floating">
+                                    <select class="form-select" id="preformatos_receta">
+                                        <option value="">Seleccionar preformato para receta...</option>
+                                    </select>
+                                    <label>Preformatos - Receta</label>
                                 </div>
                                 <div class="form-floating">
                                     <textarea class="form-control" id="receta" name="receta_textarea" style="height: 120px;"></textarea>
@@ -866,14 +884,153 @@
         /**
          * Manejar cambio de tipo de formulario
          */
+        /**
+         * Manejar cambio de tipo de formulario
+         */
         function handleFormTypeChange() {
             const tipoFormulario = document.getElementById('tipo_formulario').value;
             const anteojosSection = document.getElementById('anteojos-section');
             
+            // Mostrar/ocultar secciones específicas
             if (tipoFormulario === 'anteojos') {
                 anteojosSection.style.display = 'block';
             } else {
                 anteojosSection.style.display = 'none';
+            }
+            
+            // Cargar motivos comunes y preformatos para el nuevo tipo
+            loadMotivosComunes(tipoFormulario);
+            loadPreformatos(tipoFormulario);
+        }
+
+        /**
+         * Cargar motivos comunes por tipo de formulario
+         */
+        async function loadMotivosComunes(tipoFormulario = 'general') {
+            try {
+                const result = await callAPI('get_motivos_comunes', {
+                    tipo_formulario: tipoFormulario
+                });
+                
+                const select = document.getElementById('motivos_comunes');
+                select.innerHTML = '<option value="">Seleccionar motivo común...</option>';
+                
+                if (result.data && result.data.length > 0) {
+                    result.data.forEach(motivo => {
+                        const option = document.createElement('option');
+                        option.value = motivo.id_motivo;
+                        option.textContent = motivo.nombre;
+                        option.dataset.descripcion = motivo.descripcion || '';
+                        select.appendChild(option);
+                    });
+                }
+                
+                console.log(`Motivos comunes cargados para ${tipoFormulario}:`, result.data.length);
+            } catch (error) {
+                console.error('Error cargando motivos comunes:', error);
+            }
+        }
+
+        /**
+         * Cargar preformatos por tipo de formulario
+         */
+        async function loadPreformatos(tipoFormulario = 'general') {
+            try {
+                // Cargar preformatos de consulta
+                const consultaResult = await callAPI('get_preformatos', {
+                    tipo_formulario: tipoFormulario,
+                    tipo: 'consulta'
+                });
+                
+                const consultaSelect = document.getElementById('preformatos_consulta');
+                consultaSelect.innerHTML = '<option value="">Seleccionar preformato para consulta...</option>';
+                
+                if (consultaResult.data && consultaResult.data.length > 0) {
+                    consultaResult.data.forEach(preformato => {
+                        const option = document.createElement('option');
+                        option.value = preformato.id_preformato;
+                        option.textContent = preformato.nombre;
+                        option.dataset.contenido = preformato.contenido || '';
+                        consultaSelect.appendChild(option);
+                    });
+                }
+                
+                // Cargar preformatos de receta
+                const recetaResult = await callAPI('get_preformatos', {
+                    tipo_formulario: tipoFormulario,
+                    tipo: 'receta'
+                });
+                
+                const recetaSelect = document.getElementById('preformatos_receta');
+                recetaSelect.innerHTML = '<option value="">Seleccionar preformato para receta...</option>';
+                
+                if (recetaResult.data && recetaResult.data.length > 0) {
+                    recetaResult.data.forEach(preformato => {
+                        const option = document.createElement('option');
+                        option.value = preformato.id_preformato;
+                        option.textContent = preformato.nombre;
+                        option.dataset.contenido = preformato.contenido || '';
+                        recetaSelect.appendChild(option);
+                    });
+                }
+                
+                console.log(`Preformatos cargados para ${tipoFormulario}: Consulta=${consultaResult.data.length}, Receta=${recetaResult.data.length}`);
+            } catch (error) {
+                console.error('Error cargando preformatos:', error);
+            }
+        }
+
+        /**
+         * Aplicar motivo común seleccionado
+         */
+        function aplicarMotivoComun() {
+            const select = document.getElementById('motivos_comunes');
+            const textarea = document.getElementById('motivo');
+            
+            if (select.value) {
+                const selectedOption = select.options[select.selectedIndex];
+                const motivoTexto = selectedOption.textContent;
+                const descripcion = selectedOption.dataset.descripcion;
+                
+                // Si el textarea está vacío, usar el motivo completo
+                if (!textarea.value.trim()) {
+                    textarea.value = descripcion || motivoTexto;
+                } else {
+                    // Si ya tiene contenido, agregar el nuevo motivo
+                    textarea.value += (textarea.value.trim() ? '\n' : '') + (descripcion || motivoTexto);
+                }
+                
+                // Limpiar selección
+                select.value = '';
+            }
+        }
+
+        /**
+         * Aplicar preformato seleccionado
+         */
+        function aplicarPreformato(tipo) {
+            const selectId = `preformatos_${tipo}`;
+            const textareaId = tipo === 'consulta' ? 'consulta' : 'receta';
+            
+            const select = document.getElementById(selectId);
+            const textarea = document.getElementById(textareaId);
+            
+            if (select.value) {
+                const selectedOption = select.options[select.selectedIndex];
+                const contenido = selectedOption.dataset.contenido;
+                
+                if (contenido) {
+                    // Si el textarea está vacío, usar el preformato completo
+                    if (!textarea.value.trim()) {
+                        textarea.value = contenido;
+                    } else {
+                        // Si ya tiene contenido, agregar el nuevo preformato
+                        textarea.value += (textarea.value.trim() ? '\n\n' : '') + contenido;
+                    }
+                }
+                
+                // Limpiar selección
+                select.value = '';
             }
         }
 
@@ -1596,6 +1753,11 @@
             document.getElementById('patient-results').style.display = 'none';
             document.getElementById('patient-search').value = '';
             appState.selectedPatient = null;
+            
+            // Cargar motivos comunes y preformatos para tipo general (por defecto)
+            loadMotivosComunes('general');
+            loadPreformatos('general');
+            
             console.log('Form reset completed');
         }
 
@@ -1617,6 +1779,18 @@
             // Configurar cambio de tipo de formulario
             document.getElementById('tipo_formulario').addEventListener('change', handleFormTypeChange);
             
+            // Configurar motivos comunes
+            document.getElementById('motivos_comunes').addEventListener('change', aplicarMotivoComun);
+            
+            // Configurar preformatos
+            document.getElementById('preformatos_consulta').addEventListener('change', function() {
+                aplicarPreformato('consulta');
+            });
+            
+            document.getElementById('preformatos_receta').addEventListener('change', function() {
+                aplicarPreformato('receta');
+            });
+            
             // Configurar búsqueda con Enter
             document.getElementById('search-input').addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
@@ -1634,6 +1808,10 @@
             
             // Cargar datos iniciales
             loadConsultas();
+            
+            // Cargar motivos comunes y preformatos iniciales para tipo general
+            loadMotivosComunes('general');
+            loadPreformatos('general');
             
             console.log('Sistema Livewire CRUD iniciado exitosamente');
         });
