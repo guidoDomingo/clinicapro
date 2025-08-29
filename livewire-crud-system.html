@@ -1075,15 +1075,6 @@
                                     <label for="motivo">Motivo de Consulta *</label>
                                     <textarea class="form-control summernote" id="motivo" name="txtmotivo"></textarea>
                                 </div>
-                                <!-- <div class="form-floating">
-                                    <select class="form-select select2bs4" id="tipo_formulario" name="tipo_formulario" onchange="handleFormTypeChange()">
-                                        <option value="general">General</option>
-                                        <option value="anteojos">Anteojos</option>
-                                        <option value="informe_imagen">Informe con Imagen</option>
-                                        <option value="estudios">Estudios</option>
-                                    </select>
-                                    <label>Tipo de Formulario</label>
-                                </div> -->
                             </div>
                             
                             <div class="row">
@@ -2809,7 +2800,8 @@
          * Manejar cambio de tipo de formulario
          */
         function handleFormTypeChange() {
-            const tipoFormulario = document.getElementById('tipo_formulario').value;
+            // Usar el tipo de formulario actual del estado de la aplicación
+            const tipoFormulario = appState.currentFormType;
             const anteojosSection = document.getElementById('anteojos-section');
             
             console.log('🔄 Cambio de tipo de formulario:', tipoFormulario);
@@ -3943,9 +3935,6 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Configurar formulario de creación
             document.getElementById('create-form').addEventListener('submit', createConsulta);
-            
-            // Configurar cambio de tipo de formulario
-            document.getElementById('tipo_formulario').addEventListener('change', handleFormTypeChange);
             
             // Configurar búsqueda con Enter
             document.getElementById('search-input').addEventListener('keypress', function(e) {
