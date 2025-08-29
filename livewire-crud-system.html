@@ -1044,16 +1044,14 @@
                         <h5 class="form-section-title">Datos del Paciente</h5>
                         <div class="form-section-body">
                             <div class="field-group">
-                                <div class="form-floating search-box">
+                                <div class="form-floating search-box d-none" >
                                     <input type="text" class="form-control" id="patient-search" placeholder="🔍 AUTOCOMPLETADO - Escribe aquí para sugerencias..." 
                                            onkeyup="handlePatientSearchKeyup(event)" 
                                            onkeydown="handlePatientSearchKeydown(event)" 
                                            autocomplete="off"
-                                           style="border: 5px solid #ff0000; background-color: #fff0f0; font-weight: bold; font-size: 18px;">
-                                    <label style="color: #ff0000; font-weight: bold; font-size: 16px;">🔍 ESTE ES EL CAMPO DE AUTOCOMPLETADO - Escribe "visconte" AQUI</label>
+                                           style="border: 5px solid #CFF4FC; background-color: #fff0f0; font-weight: bold; font-size: 18px;">
+                                    <!-- <label style="color: #ff0000; font-weight: bold; font-size: 16px;">🔍 ESTE ES EL CAMPO DE AUTOCOMPLETADO - Escribe "visconte" AQUI</label> -->
                                     <div id="patient-results" class="search-results" style="display: none;"></div>
-                                    <!-- DEBUG: Botón temporal de test -->
-                                    <button type="button" onclick="testSearchManual()" style="position: absolute; right: 5px; top: 5px; z-index: 1001; padding: 5px; font-size: 12px; background: #dc3545; color: white; border: none; border-radius: 3px;">TEST</button>
                                 </div>
                                 <input type="hidden" id="selected-patient-id" name="id_persona" required>
                             </div>
@@ -1077,7 +1075,7 @@
                                     <label for="motivo">Motivo de Consulta *</label>
                                     <textarea class="form-control summernote" id="motivo" name="txtmotivo"></textarea>
                                 </div>
-                                <div class="form-floating">
+                                <!-- <div class="form-floating">
                                     <select class="form-select select2bs4" id="tipo_formulario" name="tipo_formulario" onchange="handleFormTypeChange()">
                                         <option value="general">General</option>
                                         <option value="anteojos">Anteojos</option>
@@ -1085,7 +1083,7 @@
                                         <option value="estudios">Estudios</option>
                                     </select>
                                     <label>Tipo de Formulario</label>
-                                </div>
+                                </div> -->
                             </div>
                             
                             <div class="row">
@@ -3899,9 +3897,15 @@
             console.log('🔄 Preservar paciente seleccionado:', shouldPreservePatient);
             
             if (!shouldPreservePatient) {
-                document.getElementById('selected-patient-id').value = '';
-                document.getElementById('selected-patient-info').style.display = 'none';
-                document.getElementById('patient-search').value = '';
+                // Verificar que los elementos existan antes de acceder a ellos
+                const selectedPatientId = document.getElementById('selected-patient-id');
+                const selectedPatientInfo = document.getElementById('selected-patient-info');
+                const patientSearch = document.getElementById('patient-search');
+                
+                if (selectedPatientId) selectedPatientId.value = '';
+                if (selectedPatientInfo) selectedPatientInfo.style.display = 'none';
+                if (patientSearch) patientSearch.value = '';
+                
                 appState.selectedPatient = null;
                 console.log('🧹 Datos de paciente limpiados');
             } else {
@@ -4155,21 +4159,6 @@
                     });
                     if (window.debugMode) console.log('Preformatos receta normal listener configured');
                 }
-            }
-        }
-        
-        // DEBUG: Función de test manual
-        function testSearchManual() {
-            console.log('🧪 TEST MANUAL - Iniciando...');
-            const input = document.getElementById('patient-search');
-            console.log('🧪 Input element:', input);
-            console.log('🧪 Input value:', input.value);
-            
-            if (input.value.length >= 3) {
-                console.log('🧪 Longitud OK, ejecutando búsqueda...');
-                searchPatients(input.value);
-            } else {
-                console.log('🧪 Valor muy corto, necesita 3+ caracteres');
             }
         }
         
