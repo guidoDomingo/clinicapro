@@ -2706,6 +2706,7 @@
          * Editar consulta
          */
         async function editConsulta(id) {
+            console.log('🔧 editConsulta called with ID:', id);
             try {
                 // CORRECCIÓN: Agregar timestamp para evitar cache
                 const result = await callAPI('read', {
@@ -2715,24 +2716,45 @@
                     _t: Date.now() // Anti-cache timestamp
                 });
                 
+                console.log('📋 Datos recibidos para edición:', result.data);
                 appState.editingRecord = result.data;
                 
                 // Generar formulario de edición dinámicamente
                 const formHtml = createEditForm(result.data);
-                document.getElementById('edit-form-container').innerHTML = formHtml;
+                const container = document.getElementById('edit-form-container');
+                if (container) {
+                    container.innerHTML = formHtml;
+                    console.log('✅ Formulario HTML generado e insertado');
+                } else {
+                    console.error('❌ No se encontró edit-form-container');
+                    return;
+                }
                 
                 // Mostrar modal
                 const modal = new bootstrap.Modal(document.getElementById('editModal'));
                 modal.show();
+                console.log('✅ Modal mostrado');
                 
-                // Reinicializar componentes después de mostrar el modal
+                // 🔧 NUEVO: Activar todas las form-section del modal de edición
                 setTimeout(function() {
+                    console.log('🔧 Activando secciones del formulario de edición...');
+                    const editFormSections = container.querySelectorAll('.form-section');
+                    editFormSections.forEach((section, index) => {
+                        section.classList.add('active');
+                        console.log(`  - Edit Section ${index} activada`);
+                    });
+                    
+                    // Reinicializar componentes
                     if (typeof reinitializeComponents === 'function') {
+                        console.log('🔄 Reinicializando componentes...');
                         reinitializeComponents();
                     }
+                    
+                    console.log('✅ Formulario de edición completamente cargado');
                 }, 200);
                 
             } catch (error) {
+                console.error('❌ Error en editConsulta:', error);
                 // Error ya manejado en callAPI
             }
         }
