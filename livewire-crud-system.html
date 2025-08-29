@@ -472,10 +472,10 @@
                             <div class="field-group">
                                 <div class="large-textarea-container">
                                     <label for="nota">Notas</label>
-                                    <textarea class="form-control summernote" id="nota" name="nota"></textarea>
+                                    <textarea class="form-control summernote" id="nota" name="txtnota"></textarea>
                                 </div>
                                 <div class="form-floating">
-                                    <input type="date" class="form-control" id="proxima_consulta" name="proxima_consulta">
+                                    <input type="date" class="form-control" id="proxima_consulta" name="proximaconsulta">
                                     <label>Próxima Consulta</label>
                                 </div>
                             </div>
@@ -1300,8 +1300,16 @@
             console.log('Form data before processing:', data);
             
             // CORRECCIÓN: Convertir fechas vacías a null para PostgreSQL
-            if (data.proxima_consulta === '') {
-                data.proxima_consulta = null;
+            if (data.proximaconsulta === '') {
+                data.proximaconsulta = null;
+            }
+            
+            // CORRECCIÓN: Asegurar que campos importantes existan aunque estén vacíos
+            if (!('proximaconsulta' in data)) {
+                data.proximaconsulta = '';
+            }
+            if (!('txtnota' in data)) {
+                data.txtnota = '';
             }
             
             // CORRECCIÓN: Procesar campos booleanos
@@ -1456,13 +1464,6 @@
                                         <option value="estudios" ${data.tipo_formulario === 'estudios' ? 'selected' : ''}>Estudios</option>
                                     </select>
                                     <label>Tipo de Formulario</label>
-                                </div>
-                            </div>
-                            
-                            <div class="field-group">
-                                <div class="form-floating">
-                                    <textarea class="form-control" name="motivoscomunes" style="height: 80px;">${data.motivoscomunes || ''}</textarea>
-                                    <label>Motivos Comunes</label>
                                 </div>
                             </div>
                             
