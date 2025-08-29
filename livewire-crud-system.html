@@ -1077,7 +1077,8 @@
                                 </div>
                             </div>
                             
-                            <div class="row">
+                            <!-- Sección de Visión y Tensión (solo para formularios General) -->
+                            <div class="vision-tension-section row">
                                 <div class="col-md-3">
                                     <div class="form-floating">
                                         <input type="text" class="form-control" id="vision_od" name="visionod">
@@ -1544,11 +1545,23 @@
             
             // Mantener las secciones básicas activas, solo ocultar secciones específicas
             const anteojosSection = document.getElementById('anteojos-section');
+            const visionTensionSection = document.querySelector('.vision-tension-section');
             
             // Ocultar todas las secciones específicas primero
             if (anteojosSection) {
                 anteojosSection.style.display = 'none';
                 anteojosSection.classList.remove('active');
+            }
+            
+            // Controlar sección de Visión y Tensión
+            if (visionTensionSection) {
+                if (formType === 'general') {
+                    visionTensionSection.style.display = 'flex';
+                    console.log('✅ Sección de visión y tensión activada para formulario General');
+                } else {
+                    visionTensionSection.style.display = 'none';
+                    console.log('🔒 Sección de visión y tensión oculta para formulario:', formType);
+                }
             }
             
             // Mostrar la sección correspondiente al tipo
@@ -3906,6 +3919,13 @@
             
             document.getElementById('anteojos-section').style.display = 'none';
             document.getElementById('patient-results').style.display = 'none';
+            
+            // Mostrar sección de visión y tensión para formulario General (por defecto)
+            const visionTensionSection = document.querySelector('.vision-tension-section');
+            if (visionTensionSection) {
+                visionTensionSection.style.display = 'flex';
+                console.log('✅ Sección de visión y tensión activada para formulario General por defecto');
+            }
             
             // Cargar motivos comunes y preformatos para tipo general (por defecto)
             console.log('🔄 Cargando motivos comunes y preformatos...');
