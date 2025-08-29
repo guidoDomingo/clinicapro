@@ -979,7 +979,7 @@
                                 </div>
                                 <div class="large-textarea-container">
                                     <label for="motivo">Motivo de Consulta *</label>
-                                    <textarea class="form-control summernote" id="motivo" name="txtmotivo" required></textarea>
+                                    <textarea class="form-control summernote" id="motivo" name="txtmotivo"></textarea>
                                 </div>
                                 <div class="form-floating">
                                     <select class="form-select select2bs4" id="tipo_formulario" name="tipo_formulario" onchange="handleFormTypeChange()">
@@ -1260,7 +1260,8 @@
             editingRecord: null,
             selectedPatient: null,
             currentFormType: 'general',
-            loadingPatientConsultas: false  // 🆕 Indicador para evitar carga automática
+            loadingPatientConsultas: false,  // 🆕 Indicador para evitar carga automática
+            isResetting: false  // 🛡️ Indicador para prevenir envío durante reset
         };
 
         // Configuración de la API
@@ -1301,15 +1302,63 @@
          * Funciones de navegación de pestañas
          */
         function showTab(tabName) {
+            console.log('🔵 showTab called with:', tabName);
+            
             // Actualizar pestañas
             document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
             document.querySelector(`button[onclick="showTab('${tabName}')"]`).classList.add('active');
             
             // Actualizar contenido
-            document.querySelectorAll('.tab-content').forEach(content => content.style.display = 'none');
-            document.getElementById(`tab-${tabName}`).style.display = 'block';
+            console.log('🔍 Ocultando todos los tab-content...');
+            document.querySelectorAll('.tab-content').forEach((content, index) => {
+                content.style.display = 'none';
+                console.log(`  - ${content.id}: ocultado`);
+            });
+            const targetTab = document.getElementById(`tab-${tabName}`);
+            if (targetTab) {
+                targetTab.style.display = 'block';
+                console.log(`✅ Tab ${tabName} mostrado`);
+                
+                // 🔍 Debug visual del elemento
+                const computedStyle = window.getComputedStyle(targetTab);
+                console.log(`🔍 Elemento tab-${tabName}:`);
+                console.log('  - display:', computedStyle.display);
+                console.log('  - visibility:', computedStyle.visibility);
+                console.log('  - opacity:', computedStyle.opacity);
+                console.log('  - height:', computedStyle.height);
+                console.log('  - width:', computedStyle.width);
+                console.log('  - position:', computedStyle.position);
+                console.log('  - top:', computedStyle.top);
+                console.log('  - left:', computedStyle.left);
+                console.log('  - z-index:', computedStyle.zIndex);
+                
+                // 🔍 Debug específico para tab-create
+                if (tabName === 'create') {
+                    console.log('🔍 Debugging formulario create...');
+                    const form = document.getElementById('create-form');
+                    if (form) {
+                        const formStyle = window.getComputedStyle(form);
+                        console.log('  - Form display:', formStyle.display);
+                        console.log('  - Form height:', formStyle.height);
+                        console.log('  - Form visibility:', formStyle.visibility);
+                        
+                        // Verificar elementos hijos del formulario
+                        const formChildren = form.children;
+                        console.log('  - Form children count:', formChildren.length);
+                        Array.from(formChildren).forEach((child, index) => {
+                            const childStyle = window.getComputedStyle(child);
+                            console.log(`    [${index}] ${child.className}: display=${childStyle.display}, height=${childStyle.height}`);
+                        });
+                    } else {
+                        console.error('❌ Form create-form not found!');
+                    }
+                }
+            } else {
+                console.error(`❌ No se encontró el elemento tab-${tabName}`);
+            }
             
             appState.currentTab = tabName;
+            console.log('🔵 appState.currentTab updated to:', appState.currentTab);
             
             // Cargar contenido específico de la pestaña
             switch(tabName) {
@@ -1320,7 +1369,42 @@
                     }
                     break;
                 case 'create':
+                    console.log('🔵 Ejecutando resetForm() para tab create');
                     resetForm();
+                    
+                    // 🔧 FIX: Asegurar que todas las form-section estén visibles
+                    console.log('🔧 Activando todas las form-section...');
+                    const createTab = document.getElementById('tab-create');
+                    if (createTab) {
+                        const formSections = createTab.querySelectorAll('.form-section');
+                        formSections.forEach((section, index) => {
+                            section.classList.add('active');
+                            console.log(`  - Section ${index} activada`);
+                        });
+                    }
+                    
+                    // 🔧 NUEVO: Heredar paciente ya seleccionado si existe
+                    if (appState.selectedPatient && appState.selectedPatient.id) {
+                        console.log('🔄 Heredando paciente ya seleccionado:', appState.selectedPatient);
+                        setTimeout(() => {
+                            const hiddenField = document.getElementById('selected-patient-id');
+                            const patientSearchField = document.getElementById('patient-search');
+                            const patientInfoDiv = document.getElementById('selected-patient-info');
+                            const patientInfoText = document.getElementById('patient-info-text');
+                            
+                            if (hiddenField && patientSearchField) {
+                                hiddenField.value = appState.selectedPatient.id;
+                                patientSearchField.value = `${appState.selectedPatient.firstName} ${appState.selectedPatient.lastName}`;
+                                
+                                if (patientInfoDiv && patientInfoText) {
+                                    patientInfoText.textContent = `${appState.selectedPatient.firstName} ${appState.selectedPatient.lastName} - ${appState.selectedPatient.documentNumber}`;
+                                    patientInfoDiv.style.display = 'block';
+                                }
+                                
+                                console.log('✅ Paciente heredado correctamente en el formulario');
+                            }
+                        }, 200); // Pequeño delay para asegurar que el DOM esté listo
+                    }
                     break;
                 case 'patients':
                     loadPatients();
@@ -1355,21 +1439,29 @@
          * Actualizar formulario según tipo
          */
         function updateFormForType(formType) {
-            // Ocultar todas las secciones de formulario
-            document.querySelectorAll('.form-section').forEach(section => {
-                section.classList.remove('active');
-            });
+            console.log('🔄 updateFormForType called with:', formType);
             
-            // Mostrar la sección correspondiente
-            const activeSection = document.getElementById(`form-section-${formType}`);
-            if (activeSection) {
-                activeSection.classList.add('active');
+            // Mantener las secciones básicas activas, solo ocultar secciones específicas
+            const anteojosSection = document.getElementById('anteojos-section');
+            
+            // Ocultar todas las secciones específicas primero
+            if (anteojosSection) {
+                anteojosSection.style.display = 'none';
+                anteojosSection.classList.remove('active');
+            }
+            
+            // Mostrar la sección correspondiente al tipo
+            if (formType === 'anteojos' && anteojosSection) {
+                anteojosSection.style.display = 'block';
+                anteojosSection.classList.add('active');
+                console.log('✅ Sección de anteojos activada');
             }
             
             // Actualizar select de tipo de formulario
             const tipoSelect = document.getElementById('tipo_formulario');
             if (tipoSelect) {
                 tipoSelect.value = formType;
+                console.log('✅ Select actualizado a:', formType);
             }
         }
 
@@ -2196,11 +2288,17 @@
             const tipoFormulario = document.getElementById('tipo_formulario').value;
             const anteojosSection = document.getElementById('anteojos-section');
             
+            console.log('🔄 Cambio de tipo de formulario:', tipoFormulario);
+            
             // Mostrar/ocultar secciones específicas
             if (tipoFormulario === 'anteojos') {
                 anteojosSection.style.display = 'block';
+                anteojosSection.classList.add('active'); // 🔧 Agregar clase active
+                console.log('✅ Sección de anteojos activada');
             } else {
                 anteojosSection.style.display = 'none';
+                anteojosSection.classList.remove('active'); // 🔧 Remover clase active
+                console.log('❌ Sección de anteojos desactivada');
             }
             
             // Cargar motivos comunes y preformatos para el nuevo tipo
@@ -2455,7 +2553,29 @@
          * Crear nueva consulta
          */
         async function createConsulta(event) {
+            console.log('🔥 createConsulta called, event:', event);
+            console.log('🔥 Event type:', event.type);
+            console.log('🔥 Event target:', event.target);
+            console.log('🔥 Current tab:', appState.currentTab);
+            console.log('🔥 Loading patient consultas:', appState.loadingPatientConsultas);
+            
             event.preventDefault();
+            
+            // 🛡️ PROTECCIÓN: No procesar si no estamos en el tab correcto o estamos cargando datos
+            if (appState.currentTab !== 'create') {
+                console.log('⚠️ Formulario enviado fuera del tab create - ignorando');
+                return;
+            }
+            
+            if (appState.loadingPatientConsultas) {
+                console.log('⚠️ Formulario enviado mientras se cargan consultas de paciente - ignorando');
+                return;
+            }
+            
+            if (appState.isResetting) {
+                console.log('⚠️ Formulario enviado durante reset - ignorando');
+                return;
+            }
             
             const form = document.getElementById('create-form');
             const formData = new FormData(form);
@@ -2471,6 +2591,27 @@
             });
             
             console.log('Form data before processing:', data);
+            console.log('🔍 Valor de id_persona:', data.id_persona);
+            console.log('🔍 appState.selectedPatient:', appState.selectedPatient);
+            
+            // Validación personalizada para campos Summernote required
+            const motivoContent = data.txtmotivo || '';
+            const cleanMotivo = motivoContent.replace(/<[^>]*>/g, '').trim(); // Remover HTML tags y espacios
+            
+            // Verificar si el paciente está seleccionado primero (si no hay paciente, el formulario no debería enviarse)
+            if (!data.id_persona || data.id_persona === '' || data.id_persona === '0') {
+                console.log('❌ No hay paciente seleccionado - formulario no debería enviarse');
+                console.log('💡 INSTRUCCIONES: Busca "visconte" en el campo rojo y selecciona el paciente de la lista');
+                showError('Debe seleccionar un paciente del autocompletado. Busque "visconte" y seleccione de la lista.');
+                return;
+            }
+            
+            if (!cleanMotivo || cleanMotivo === '' || motivoContent === '<p><br></p>' || motivoContent === '<p></p>') {
+                showError('El campo motivo de consulta es requerido');
+                return;
+            }
+            
+            console.log('Motivo validation passed:', cleanMotivo);
             
             // CORRECCIÓN: Convertir fechas vacías a null para PostgreSQL
             if (data.proximaconsulta === '') {
@@ -2490,12 +2631,6 @@
             
             console.log('Form data after processing:', data);
             console.log('Patient ID value:', data.id_persona);
-            
-            // Verificar que hay un paciente seleccionado
-            if (!data.id_persona || data.id_persona === '' || data.id_persona === '0') {
-                showError('Debe seleccionar un paciente');
-                return;
-            }
             
             const btn = document.getElementById('create-btn');
             const originalText = btn.innerHTML;
@@ -2627,7 +2762,7 @@
                             <div class="field-group">
                                 <div class="large-textarea-container">
                                     <label>Motivo de Consulta *</label>
-                                    <textarea class="form-control summernote" name="txtmotivo" required>${data.txtmotivo || ''}</textarea>
+                                    <textarea class="form-control summernote" name="txtmotivo">${data.txtmotivo || ''}</textarea>
                                 </div>
                                 <div class="form-floating">
                                     <select class="form-select select2bs4" name="tipo_formulario" onchange="handleEditFormTypeChange()">
@@ -3188,20 +3323,58 @@
          * Limpiar formulario
          */
         function resetForm() {
-            console.log('Resetting form...');
-            document.getElementById('create-form').reset();
-            document.getElementById('selected-patient-id').value = '';
-            document.getElementById('selected-patient-info').style.display = 'none';
+            console.log('🔄 Resetting form...');
+            console.log('🔄 appState before reset:', JSON.stringify(appState));
+            
+            // 🛡️ Agregar flag temporal para prevenir envío durante reset
+            appState.isResetting = true;
+            console.log('🔄 isResetting set to true');
+            
+            // Primero resetear los campos Summernote
+            $('.summernote').each(function() {
+                if ($(this).next('.note-editor').length > 0) {
+                    $(this).summernote('code', '');
+                }
+            });
+            
+            // Luego resetear el formulario
+            const form = document.getElementById('create-form');
+            if (form) {
+                form.reset();
+                console.log('✅ Form reset ejecutado');
+            } else {
+                console.error('❌ No se encontró create-form');
+            }
+            
+            // 🔧 MODIFICADO: No limpiar paciente si ya está seleccionado
+            const shouldPreservePatient = appState.selectedPatient && appState.selectedPatient.id;
+            console.log('🔄 Preservar paciente seleccionado:', shouldPreservePatient);
+            
+            if (!shouldPreservePatient) {
+                document.getElementById('selected-patient-id').value = '';
+                document.getElementById('selected-patient-info').style.display = 'none';
+                document.getElementById('patient-search').value = '';
+                appState.selectedPatient = null;
+                console.log('🧹 Datos de paciente limpiados');
+            } else {
+                console.log('🔒 Paciente preservado para el formulario');
+            }
+            
             document.getElementById('anteojos-section').style.display = 'none';
             document.getElementById('patient-results').style.display = 'none';
-            document.getElementById('patient-search').value = '';
-            appState.selectedPatient = null;
             
             // Cargar motivos comunes y preformatos para tipo general (por defecto)
+            console.log('🔄 Cargando motivos comunes y preformatos...');
             loadMotivosComunes('general');
             loadPreformatos('general');
             
-            console.log('Form reset completed');
+            // 🛡️ Quitar flag después de un pequeño delay
+            setTimeout(() => {
+                appState.isResetting = false;
+                console.log('🔄 isResetting set to false');
+            }, 100);
+            
+            console.log('✅ Form reset completed');
         }
 
         /**
