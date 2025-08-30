@@ -1688,6 +1688,71 @@
         }
 
         /**
+         * 🆕 Actualizar estadísticas del paciente seleccionado después de operaciones CRUD
+         */
+        async function updatePatientStats() {
+            if (!appState.selectedPatient || !appState.selectedPatient.id) {
+                console.log('⚠️ No hay paciente seleccionado para actualizar estadísticas');
+                return;
+            }
+            
+            const patientId = appState.selectedPatient.id;
+            console.log('🔄 Actualizando estadísticas del paciente ID:', patientId);
+            
+            try {
+                // Cargar consultas actualizadas del paciente
+                const result = await callAPI('search', {
+                    table: 'consultas',
+                    search: `id_persona:${patientId}`,
+                    limit: 100,
+                    _t: Date.now() // Anti-cache
+                });
+                
+                const consultas = result.data || [];
+                const totalConsultas = consultas.length;
+                
+                // Valores por defecto
+                let ultimaConsulta = '--';
+                let proximaConsulta = '--';
+                
+                if (consultas.length > 0) {
+                    // Ordenar por fecha de registro más reciente
+                    consultas.sort((a, b) => new Date(b.fecha_registro) - new Date(a.fecha_registro));
+                    
+                    // Última consulta
+                    if (consultas[0].fecha_registro) {
+                        ultimaConsulta = formatDate(consultas[0].fecha_registro);
+                    }
+                    
+                    // Próxima consulta programada
+                    const proximaConsultaData = consultas.find(c => {
+                        if (!c.proximaconsulta) return false;
+                        const fecha = new Date(c.proximaconsulta);
+                        return !isNaN(fecha.getTime()) && fecha > new Date();
+                    });
+                    
+                    if (proximaConsultaData) {
+                        proximaConsulta = formatDate(proximaConsultaData.proximaconsulta);
+                    }
+                }
+                
+                // Actualizar estadísticas en la UI
+                document.getElementById('totalConsultas').textContent = totalConsultas;
+                document.getElementById('ultimaConsulta').textContent = ultimaConsulta;
+                document.getElementById('proximaConsulta').textContent = proximaConsulta;
+                
+                console.log('✅ Estadísticas actualizadas:', {
+                    total: totalConsultas,
+                    ultima: ultimaConsulta,
+                    proxima: proximaConsulta
+                });
+                
+            } catch (error) {
+                console.error('❌ Error actualizando estadísticas del paciente:', error);
+            }
+        }
+
+        /**
          * Cargar estadísticas del paciente
          */
         async function loadPatientStats(patientId) {
@@ -2203,41 +2268,48 @@
                 delete window.currentPatientFilter;
             }
             
-            // 7. 🆕 CARGAR CONSULTAS GENERALES (estado inicial) - FORZADO  
-            console.log('🔄 Forzando recarga de consultas generales...');
+            // 7. 🆕 CARGAR CONSULTAS APROPIADAS (respetando paciente seleccionado)
+            console.log('🔄 Recargando consultas apropiadas...');
             
-            // Forzar recarga completa sin filtros
+            // Usar la función loadConsultas mejorada que respeta el paciente seleccionado
             setTimeout(async () => {
                 try {
-                    // Llamar directamente a la API sin filtros
-                    const result = await callAPI('list', {
-                        table: 'consultas',
-                        page: 1,
-                        limit: 10,
-                        search: '', // Sin búsqueda
-                        filters: {} // Sin filtros
-                    });
-                    
-                    if (result && result.data) {
-                        // Si existe renderConsultasList, usarla, sino usar loadConsultas
-                        if (typeof renderConsultasList === 'function') {
-                            renderConsultasList(result.data, result.meta);
-                        } else {
-                            // Fallback: forzar actualización de la tabla
-                            const listContent = document.getElementById('list-content');
-                            if (listContent && result.data.length > 0) {
-                                // Simular la estructura que espera la tabla
-                                loadConsultas(1);
-                            }
-                        }
-                        console.log('✅ Consultas generales cargadas:', result.data.length);
-                    } else {
-                        // Fallback si no hay datos
+                    if (appState.selectedPatient && appState.selectedPatient.id) {
+                        console.log('👤 Paciente seleccionado detectado - cargando solo sus consultas:', appState.selectedPatient.firstName);
                         loadConsultas(1);
+                    } else {
+                        console.log('🌐 No hay paciente seleccionado - cargando consultas generales');
+                        
+                        // Llamar directamente a la API sin filtros para consultas generales
+                        const result = await callAPI('list', {
+                            table: 'consultas',
+                            page: 1,
+                            limit: 10,
+                            search: '', // Sin búsqueda
+                            filters: {} // Sin filtros
+                        });
+                        
+                        if (result && result.data) {
+                            // Si existe renderConsultasList, usarla, sino usar loadConsultas
+                            if (typeof renderConsultasList === 'function') {
+                                renderConsultasList(result.data, result.meta);
+                            } else {
+                                // Fallback: forzar actualización de la tabla
+                                const listContent = document.getElementById('list-content');
+                                if (listContent && result.data.length > 0) {
+                                    // Simular la estructura que espera la tabla
+                                    loadConsultas(1);
+                                }
+                            }
+                            console.log('✅ Consultas generales cargadas:', result.data.length);
+                        } else {
+                            // Fallback si no hay datos
+                            loadConsultas(1);
+                        }
                     }
                     
                 } catch (error) {
-                    console.error('❌ Error cargando consultas generales:', error);
+                    console.error('❌ Error cargando consultas:', error);
                     loadConsultas(1); // Fallback a la función normal
                 }
             }, 150); // Pausa para que se vea la limpieza
@@ -2419,12 +2491,21 @@
             paginationEl.innerHTML = '';
             
             try {
+                // MEJORA: Si hay un paciente seleccionado, cargar solo sus consultas
+                let searchParam = appState.currentSearch;
+                if (appState.selectedPatient && appState.selectedPatient.id) {
+                    searchParam = `id_persona:${appState.selectedPatient.id}`;
+                    console.log('📋 Cargando consultas del paciente seleccionado:', appState.selectedPatient.firstName, appState.selectedPatient.lastName);
+                } else {
+                    console.log('📋 Cargando consultas generales');
+                }
+                
                 // CORRECCIÓN: Agregar timestamp para evitar cache en lista
                 const result = await callAPI('list', {
                     table: 'consultas',
                     page: page,
                     limit: appState.pageSize,
-                    search: appState.currentSearch,
+                    search: searchParam,
                     _t: Date.now() // Anti-cache timestamp
                 });
                 
@@ -2434,7 +2515,10 @@
                     listEl.innerHTML = createModernConsultasTable(result.data);
                     paginationEl.innerHTML = createPagination(result.meta);
                 } else {
-                    listEl.innerHTML = '<div class="table-container"><div style="text-align: center; padding: 60px; color: #666;"><h4>📋 No hay consultas registradas</h4><p>Comience creando una nueva consulta médica</p></div></div>';
+                    const message = appState.selectedPatient 
+                        ? `📋 No hay consultas para ${appState.selectedPatient.firstName} ${appState.selectedPatient.lastName}`
+                        : '📋 No hay consultas registradas';
+                    listEl.innerHTML = `<div class="table-container"><div style="text-align: center; padding: 60px; color: #666;"><h4>${message}</h4><p>Comience creando una nueva consulta médica</p></div></div>`;
                 }
                 
             } catch (error) {
@@ -3318,6 +3402,9 @@
                 resetForm();
                 showTab('list');
                 
+                // 🆕 NUEVO: Actualizar estadísticas del paciente después de crear
+                await updatePatientStats();
+                
             } catch (error) {
                 // Error ya manejado en callAPI
             } finally {
@@ -3861,6 +3948,9 @@
                 // CORRECCIÓN: Recargar datos actualizados en la lista
                 loadConsultas(appState.currentPage);
                 
+                // 🆕 NUEVO: Actualizar estadísticas del paciente después de actualizar
+                await updatePatientStats();
+                
                 // CORRECCIÓN: Limpiar cualquier cache del registro editado
                 if (window.currentEditingRecord) {
                     delete window.currentEditingRecord;
@@ -3887,6 +3977,9 @@
                 
                 showSuccess('Consulta eliminada exitosamente');
                 loadConsultas(appState.currentPage);
+                
+                // 🆕 NUEVO: Actualizar estadísticas del paciente después de eliminar
+                await updatePatientStats();
                 
             } catch (error) {
                 // Error ya manejado en callAPI
