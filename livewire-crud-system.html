@@ -1150,111 +1150,91 @@
                                     <h6 class="text-primary">Ojo Derecho (OD)</h6>
                                     <div class="row">
                                         <div class="col-md-4">
-                                            <div class="form-floating">
-                                                <input type="number" class="form-control" id="od_esf" name="od_esf" step="0.25">
-                                                <label>Esfera</label>
-                                            </div>
+                                            <label for="od_esf" class="form-label">Esfera (ESF) <span class="text-danger">*</span></label>
+                                            <select class="form-select select2bs4" id="od_esf" name="od_esf">
+                                                <option value="">Seleccionar esfera...</option>
+                                            </select>
                                         </div>
                                         <div class="col-md-4">
-                                            <div class="form-floating">
-                                                <input type="number" class="form-control" id="od_cil" name="od_cil" step="0.25">
-                                                <label>Cilindro</label>
-                                            </div>
+                                            <label for="od_cil" class="form-label">Cilindro (CIL)</label>
+                                            <select class="form-select select2bs4" id="od_cil" name="od_cil">
+                                                <option value="">Seleccionar cilindro...</option>
+                                            </select>
                                         </div>
                                         <div class="col-md-4">
-                                            <div class="form-floating">
-                                                <input type="number" class="form-control" id="od_eje" name="od_eje" min="0" max="180">
-                                                <label>Eje</label>
-                                            </div>
+                                            <label for="od_eje" class="form-label">Eje</label>
+                                            <input type="number" class="form-control" id="od_eje" name="od_eje" min="0" max="180" placeholder="0-180">
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col-md-4">
-                                            <div class="form-floating">
-                                                <input type="number" class="form-control" id="od_dnp" name="od_dnp">
-                                                <label>DNP</label>
-                                            </div>
+                                            <label for="od_dnp" class="form-label">DNP</label>
+                                            <input type="number" class="form-control" id="od_dnp" name="od_dnp" placeholder="DNP">
                                         </div>
                                         <div class="col-md-4">
-                                            <div class="form-floating">
-                                                <input type="number" class="form-control" id="od_add" name="od_add" step="0.25">
-                                                <label>Adición</label>
-                                            </div>
+                                            <label for="od_add" class="form-label">Adición</label>
+                                            <select class="form-select select2bs4" id="od_add" name="od_add">
+                                                <option value="">Seleccionar adición...</option>
+                                            </select>
                                         </div>
                                         <div class="col-md-4">
-                                            <div class="form-floating">
-                                                <input type="number" class="form-control" id="od_altura" name="od_altura">
-                                                <label>Altura</label>
-                                            </div>
+                                            <label for="od_altura" class="form-label">Altura</label>
+                                            <input type="number" class="form-control" id="od_altura" name="od_altura" placeholder="Altura">
                                         </div>
                                     </div>
-                                    <div class="form-floating">
-                                        <textarea class="form-control" id="od_nota" name="od_nota"></textarea>
-                                        <label>Notas OD</label>
-                                    </div>
+                                    <label for="od_nota" class="form-label">Notas OD</label>
+                                    <textarea class="form-control" id="od_nota" name="od_nota" placeholder="Notas para ojo derecho"></textarea>
                                 </div>
                                 
                                 <div class="col-md-6">
                                     <h6 class="text-success">Ojo Izquierdo (OI)</h6>
                                     <div class="row">
                                         <div class="col-md-4">
-                                            <div class="form-floating">
-                                                <input type="number" class="form-control" id="oi_esf" name="oi_esf" step="0.25">
-                                                <label>Esfera</label>
-                                            </div>
+                                            <label for="oi_esf" class="form-label">Esfera (ESF) <span class="text-danger">*</span></label>
+                                            <select class="form-select select2bs4" id="oi_esf" name="oi_esf">
+                                                <option value="">Seleccionar esfera...</option>
+                                            </select>
                                         </div>
                                         <div class="col-md-4">
-                                            <div class="form-floating">
-                                                <input type="number" class="form-control" id="oi_cil" name="oi_cil" step="0.25">
-                                                <label>Cilindro</label>
-                                            </div>
+                                            <label for="oi_cil" class="form-label">Cilindro (CIL)</label>
+                                            <select class="form-select select2bs4" id="oi_cil" name="oi_cil">
+                                                <option value="">Seleccionar cilindro...</option>
+                                            </select>
                                         </div>
                                         <div class="col-md-4">
-                                            <div class="form-floating">
-                                                <input type="number" class="form-control" id="oi_eje" name="oi_eje" min="0" max="180">
-                                                <label>Eje</label>
-                                            </div>
+                                            <label for="oi_eje" class="form-label">Eje</label>
+                                            <input type="number" class="form-control" id="oi_eje" name="oi_eje" min="0" max="180" placeholder="0-180">
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col-md-4">
-                                            <div class="form-floating">
-                                                <input type="number" class="form-control" id="oi_dnp" name="oi_dnp">
-                                                <label>DNP</label>
-                                            </div>
+                                            <label for="oi_dnp" class="form-label">DNP</label>
+                                            <input type="number" class="form-control" id="oi_dnp" name="oi_dnp" placeholder="DNP">
                                         </div>
                                         <div class="col-md-4">
-                                            <div class="form-floating">
-                                                <input type="number" class="form-control" id="oi_add" name="oi_add" step="0.25">
-                                                <label>Adición</label>
-                                            </div>
+                                            <label for="oi_add" class="form-label">Adición</label>
+                                            <select class="form-select select2bs4" id="oi_add" name="oi_add">
+                                                <option value="">Seleccionar adición...</option>
+                                            </select>
                                         </div>
                                         <div class="col-md-4">
-                                            <div class="form-floating">
-                                                <input type="number" class="form-control" id="oi_altura" name="oi_altura">
-                                                <label>Altura</label>
-                                            </div>
+                                            <label for="oi_altura" class="form-label">Altura</label>
+                                            <input type="number" class="form-control" id="oi_altura" name="oi_altura" placeholder="Altura">
                                         </div>
                                     </div>
-                                    <div class="form-floating">
-                                        <textarea class="form-control" id="oi_nota" name="oi_nota"></textarea>
-                                        <label>Notas OI</label>
-                                    </div>
+                                    <label for="oi_nota" class="form-label">Notas OI</label>
+                                    <textarea class="form-control" id="oi_nota" name="oi_nota" placeholder="Notas para ojo izquierdo"></textarea>
                                 </div>
                             </div>
                             
                             <div class="row">
                                 <div class="col-md-6">
-                                    <div class="form-floating">
-                                        <input type="number" class="form-control" id="dist_interpupilar" name="dist_interpupilar">
-                                        <label>Distancia Interpupilar</label>
-                                    </div>
+                                    <label for="dist_interpupilar" class="form-label">Distancia Interpupilar</label>
+                                    <input type="number" class="form-control" id="dist_interpupilar" name="dist_interpupilar" placeholder="Distancia interpupilar">
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="form-floating">
-                                        <textarea class="form-control" id="anteojos_notas" name="anteojos_notas"></textarea>
-                                        <label>Notas Generales Anteojos</label>
-                                    </div>
+                                    <label for="anteojos_notas" class="form-label">Notas Generales Anteojos</label>
+                                    <textarea class="form-control" id="anteojos_notas" name="anteojos_notas" placeholder="Notas generales sobre los anteojos"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -1569,6 +1549,9 @@
                 anteojosSection.style.display = 'block';
                 anteojosSection.classList.add('active');
                 console.log('✅ Sección de anteojos activada');
+                
+                // Cargar valores de referencia para anteojos
+                loadReferenciales();
             }
             
             // Actualizar select de tipo de formulario
@@ -2922,6 +2905,65 @@
                 }
             } catch (error) {
                 console.error('Error cargando preformatos:', error);
+            }
+        }
+
+        /**
+         * Cargar valores de referencia para selects de anteojos
+         */
+        async function loadReferenciales() {
+            try {
+                // Cargar valores para esfera
+                await loadReferencialValores('esfera', ['od_esf', 'oi_esf']);
+                
+                // Cargar valores para cilindro  
+                await loadReferencialValores('cilindro', ['od_cil', 'oi_cil']);
+                
+                // Cargar valores para adición
+                await loadReferencialValores('adicion', ['od_add', 'oi_add']);
+                
+                console.log('✅ Todos los referenciales de anteojos cargados exitosamente');
+            } catch (error) {
+                console.error('❌ Error cargando referenciales:', error);
+            }
+        }
+
+        /**
+         * Cargar valores específicos de un tipo de referencial
+         */
+        async function loadReferencialValores(tipo, selectIds) {
+            try {
+                const result = await callAPI('get_referenciales', { tipo: tipo });
+                
+                if (result.data && result.data.length > 0) {
+                    selectIds.forEach(selectId => {
+                        const selectElement = document.getElementById(selectId);
+                        if (selectElement) {
+                            // Limpiar opciones existentes
+                            selectElement.innerHTML = `<option value="">Seleccionar ${tipo}...</option>`;
+                            
+                            // Agregar nuevas opciones
+                            result.data.forEach(valor => {
+                                const option = document.createElement('option');
+                                option.value = valor.valor;
+                                option.textContent = valor.etiqueta;
+                                if (valor.valor_numerico !== null) {
+                                    option.dataset.numerico = valor.valor_numerico;
+                                }
+                                selectElement.appendChild(option);
+                            });
+                            
+                            console.log(`✅ ${tipo} cargado en select ${selectId}: ${result.data.length} valores`);
+                        } else {
+                            console.warn(`⚠️ Select ${selectId} no encontrado`);
+                        }
+                    });
+                } else {
+                    console.warn(`⚠️ No hay valores disponibles para ${tipo}`);
+                }
+            } catch (error) {
+                console.error(`❌ Error cargando ${tipo}:`, error);
+                throw error;
             }
         }
 

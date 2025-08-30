@@ -273,6 +273,9 @@ class LivewireCRUDSystem {
             case 'get_preformatos':
                 return $this->getPreformatos($input);
                 
+            case 'get_referenciales':
+                return $this->getReferenciales($input);
+                
             default:
                 throw new Exception("Acción no soportada: $action");
         }
@@ -753,6 +756,53 @@ class LivewireCRUDSystem {
                 'total' => count($preformatos)
             ]
         ];
+    }
+
+    /**
+     * Obtener valores de referencia para selects de anteojos
+     * @param array $input Datos de entrada con tipo de referencial
+     * @return array Resultado con valores de referencia
+     */
+    public function getReferenciales($input) {
+        try {
+            $tipo = $input['tipo'] ?? '';
+            
+            if (empty($tipo)) {
+                throw new Exception('Tipo de referencial requerido');
+            }
+            
+            // Validar tipos permitidos para seguridad
+            $tiposPermitidos = ['esfera', 'cilindro', 'adicion'];
+            if (!in_array(strtolower($tipo), $tiposPermitidos)) {
+                throw new Exception('Tipo de referencial no válido');
+            }
+            
+            $sql = "
+                SELECT rv.id, rv.valor, rv.etiqueta, rv.valor_numerico, rv.orden_visualizacion
+                FROM referenciales r 
+                INNER JOIN referencial_valores rv ON r.id = rv.referencial_id
+                WHERE LOWER(r.codigo) = LOWER(:tipo) 
+                  AND r.activo = 1 
+                  AND rv.activo = 1
+                ORDER BY rv.orden_visualizacion ASC, rv.valor_numerico ASC
+            ";
+            
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute(['tipo' => $tipo]);
+            $valores = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            return [
+                'data' => $valores,
+                'message' => "Valores de referencia para '{$tipo}' obtenidos exitosamente",
+                'meta' => [
+                    'tipo' => $tipo,
+                    'total' => count($valores)
+                ]
+            ];
+            
+        } catch (Exception $e) {
+            throw new Exception('Error al obtener referenciales: ' . $e->getMessage());
+        }
     }
     
     // Métodos auxiliares...
