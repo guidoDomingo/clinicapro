@@ -1236,10 +1236,13 @@ if ($paciente_id) {
                     }
                     break;
                 case 'create':
-                    // 🔧 FIX: No resetear si venimos de inserción ICD
+                    // 🔧 FIX: No resetear si venimos de inserción ICD o medicamentos
                     if (window.insertingIcdContent) {
                         console.log('🔵 Saltando resetForm() - inserción ICD en progreso');
                         window.insertingIcdContent = false; // Reset flag
+                    } else if (window.insertingMedicamentoContent) {
+                        console.log('🔵 Saltando resetForm() - inserción medicamento en progreso');
+                        window.insertingMedicamentoContent = false; // Reset flag
                     } else {
                         console.log('🔵 Ejecutando resetForm() para tab create');
                         resetForm();

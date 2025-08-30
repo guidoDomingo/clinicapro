@@ -157,44 +157,117 @@ function mostrarResultadosRemedios(datos) {
  * @param {string} presentacion - Presentación del medicamento
  */
 function agregarMedicamentoAReceta(nombre, presentacion) {
-    // Verificar si existe el editor de texto para la receta
-    const recetaTextarea = document.getElementById('receta-textarea');
+    console.log('🔍 Buscando campo de receta para medicamento...');
+    
+    // Buscar el textarea de receta por ID y name
+    let recetaTextarea = document.getElementById('receta');
+    if (!recetaTextarea) {
+        recetaTextarea = document.querySelector('textarea[name="receta_textarea"]');
+    }
+    
+    console.log('📝 Campo de receta encontrado:', {
+        id: recetaTextarea ? recetaTextarea.id : 'no encontrado',
+        name: recetaTextarea ? recetaTextarea.name : 'no encontrado',
+        hasSummernote: recetaTextarea ? $(recetaTextarea).hasClass('summernote') : false
+    });
     
     if (recetaTextarea) {
+        // Formatear el texto del medicamento
+        const medicamentoTexto = `${nombre}${presentacion ? ` (${presentacion})` : ''}`;
+        
         // Si es un editor Summernote
-        if ($(recetaTextarea).data('summernote')) {
+        if ($(recetaTextarea).hasClass('summernote')) {
+            console.log('📝 Insertando medicamento en Summernote de receta...');
+            
             const contenidoActual = $(recetaTextarea).summernote('code');
-            const nuevoContenido = contenidoActual + 
-                `<p><strong>${nombre}</strong>${presentacion ? ` (${presentacion})` : ''}</p>` +
-                `<p>Indicaciones: </p>`;
+            let nuevoContenido = '';
+            
+            // Si ya hay contenido, agregar separación
+            if (contenidoActual && contenidoActual.trim() !== '' && contenidoActual !== '<p><br></p>') {
+                nuevoContenido = contenidoActual + '<br>';
+            }
+            
+            // Agregar el medicamento con formato
+            nuevoContenido += `<p><strong>💊 ${medicamentoTexto}</strong></p>`;
+            nuevoContenido += `<p><em>Indicaciones: </em></p>`;
+            nuevoContenido += `<p><br></p>`;
             
             $(recetaTextarea).summernote('code', nuevoContenido);
+            
+            // Enfocar en el editor para que el usuario pueda continuar escribiendo
+            $(recetaTextarea).summernote('focus');
+            
         } else {
             // Si es un textarea normal
-            recetaTextarea.value += `\n${nombre}${presentacion ? ` (${presentacion})` : ''}\nIndicaciones: \n`;
+            console.log('📝 Insertando medicamento en textarea normal de receta...');
+            
+            const contenidoActual = recetaTextarea.value || '';
+            let nuevoContenido = '';
+            
+            if (contenidoActual.trim() !== '') {
+                nuevoContenido = contenidoActual + '\n\n';
+            }
+            
+            nuevoContenido += `💊 ${medicamentoTexto}\n`;
+            nuevoContenido += `Indicaciones: \n\n`;
+            
+            recetaTextarea.value = nuevoContenido;
+            recetaTextarea.focus();
         }
         
         // Mostrar mensaje de confirmación
-        mostrarMensaje('success', `Medicamento "${nombre}" agregado a la receta`);
+        mostrarMensaje('success', `Medicamento "${nombre}" agregado a la receta exitosamente`);
         
-        // Cambiar a la pestaña de registro
-        $('a[href="#activity"]').tab('show');
+        // Establecer bandera global para evitar reset del formulario
+        window.insertingMedicamentoContent = true;
+        
+        // Cambiar a la pestaña de creación para que el usuario vea el resultado
+        if (typeof showTab === 'function') {
+            showTab('create');
+        }
+        
+        console.log('✅ Medicamento agregado exitosamente a la receta');
+        
     } else {
-        mostrarMensaje('warning', 'No se pudo encontrar el campo de receta');
+        console.error('❌ No se encontró el campo de receta');
+        mostrarMensaje('error', 'No se pudo encontrar el campo de receta. Por favor, asegúrese de estar en la pestaña correcta.');
     }
 }
 
 /**
- * Muestra un mensaje utilizando SweetAlert2
+ * Muestra un mensaje utilizando el sistema de alertas disponible
  * @param {string} tipo - Tipo de mensaje (success, error, warning, info)
  * @param {string} mensaje - Texto del mensaje
  */
 function mostrarMensaje(tipo, mensaje) {
-    Swal.fire({
-        icon: tipo,
-        title: tipo === 'success' ? 'Éxito' : 'Atención',
-        text: mensaje,
-        timer: 3000,
-        timerProgressBar: true
-    });
+    // Verificar si existe alertify (sistema de alertas preferido)
+    if (typeof alertify !== 'undefined') {
+        switch(tipo) {
+            case 'success':
+                alertify.success(mensaje);
+                break;
+            case 'error':
+                alertify.error(mensaje);
+                break;
+            case 'warning':
+                alertify.warning(mensaje);
+                break;
+            default:
+                alertify.message(mensaje);
+        }
+    }
+    // Fallback a SweetAlert2 si está disponible
+    else if (typeof Swal !== 'undefined') {
+        Swal.fire({
+            icon: tipo,
+            title: tipo === 'success' ? 'Éxito' : 'Atención',
+            text: mensaje,
+            timer: 3000,
+            timerProgressBar: true
+        });
+    }
+    // Fallback a alert nativo
+    else {
+        alert(mensaje);
+    }
 }
