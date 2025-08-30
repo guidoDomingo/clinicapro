@@ -384,9 +384,18 @@
             }
         }
         
-        /* Ocultar contenido inactivo */
-        .tab-content:not(.active) {
+        /* Ocultar contenido inactivo - Reglas más específicas */
+        .consultas-v3-container .tab-content {
             display: none !important;
+        }
+        
+        .consultas-v3-container .tab-content.active {
+            display: block !important;
+        }
+        
+        /* Forzar visibilidad del tab activo */
+        .consultas-v3-container .tab-content[style*="display: block"] {
+            display: block !important;
         }
         
         /* Alertas compactas */
@@ -916,6 +925,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/alertifyjs/1.13.1/alertify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js"></script>
+    
+    <!-- Asegurar que jQuery esté disponible -->
+    <script>
+        if (typeof jQuery === 'undefined') {
+            console.warn('jQuery no está disponible, cargando desde CDN...');
+            document.write('<script src="https://code.jquery.com/jquery-3.6.0.min.js"><\/script>');
+        }
+    </script>
 
     <script>
         // Estado global de la aplicación
@@ -1010,11 +1027,13 @@
             console.log('🔍 Ocultando todos los tab-content...');
             document.querySelectorAll('.tab-content').forEach((content, index) => {
                 content.style.display = 'none';
+                content.classList.remove('active');
                 console.log(`  - ${content.id}: ocultado`);
             });
             const targetTab = document.getElementById(`tab-${tabName}`);
             if (targetTab) {
                 targetTab.style.display = 'block';
+                targetTab.classList.add('active');
                 console.log(`✅ Tab ${tabName} mostrado`);
                 
                 // 🔍 Debug visual del elemento
@@ -4191,27 +4210,68 @@
         }
 
         /**
-         * Event listeners
+         * Event listeners y inicialización
          */
         document.addEventListener('DOMContentLoaded', function() {
-            // Configurar formulario de creación
-            document.getElementById('create-form').addEventListener('submit', createConsulta);
+            console.log('🚀 Iniciando sistema Livewire CRUD...');
             
-            // Configurar búsqueda con Enter
-            document.getElementById('search-input').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    performSearch();
+            // Verificar dependencias
+            console.log('jQuery loaded:', typeof $ !== 'undefined');
+            console.log('Summernote available:', typeof $.fn.summernote !== 'undefined');
+            console.log('Select2 available:', typeof $.fn.select2 !== 'undefined');
+            
+            // Esperar un momento para que todas las librerías se carguen
+            setTimeout(function() {
+                // Inicializar componentes
+                try {
+                    initializeSummernote();
+                    initializeSelect2();
+                    console.log('✅ Componentes inicializados correctamente');
+                } catch (error) {
+                    console.error('❌ Error inicializando componentes:', error);
                 }
-            });
+                
+                // Configurar formulario de creación
+                const createForm = document.getElementById('create-form');
+                if (createForm) {
+                    createForm.addEventListener('submit', createConsulta);
+                    console.log('✅ Formulario de creación configurado');
+                } else {
+                    console.error('❌ No se encontró el formulario de creación');
+                }
+                
+                // Configurar búsqueda con Enter
+                const searchInput = document.getElementById('search-input');
+                if (searchInput) {
+                    searchInput.addEventListener('keypress', function(e) {
+                        if (e.key === 'Enter') {
+                            performSearch();
+                        }
+                    });
+                }
+                
+                // Cargar datos iniciales
+                loadConsultas();
+                
+                // Cargar motivos comunes y preformatos iniciales para tipo general
+                loadMotivosComunes('general');
+                loadPreformatos('general');
+                
+                console.log('✅ Sistema Livewire CRUD iniciado exitosamente');
+                
+            }, 500); // Delay de 500ms para asegurar que todo esté cargado
             
             // Cerrar resultados de búsqueda al hacer clic fuera
             document.addEventListener('click', function(e) {
                 const searchBox = document.querySelector('.search-box');
                 if (searchBox && !searchBox.contains(e.target)) {
-                    document.getElementById('patient-results').style.display = 'none';
+                    const patientResults = document.getElementById('patient-results');
+                    if (patientResults) {
+                        patientResults.style.display = 'none';
+                    }
                 }
                 
-                // 🆕 NUEVO: Cerrar dropdown de búsqueda inteligente al hacer clic fuera
+                // Cerrar dropdown de búsqueda inteligente al hacer clic fuera
                 const smartContainer = document.querySelector('.smart-search-container');
                 const smartDropdown = document.getElementById('smartSearchDropdown');
                 
@@ -4220,14 +4280,6 @@
                 }
             });
             
-            // Cargar datos iniciales
-            loadConsultas();
-            
-            // Cargar motivos comunes y preformatos iniciales para tipo general
-            loadMotivosComunes('general');
-            loadPreformatos('general');
-            
-            console.log('Sistema Livewire CRUD iniciado exitosamente');
         });
     </script>
     
