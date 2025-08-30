@@ -577,7 +577,7 @@ if ($paciente_id) {
         
         <!-- Header optimizado -->
         <div class="consultas-header">
-            <h1><i class="fas fa-stethoscope"></i> Consultas Médicas v3.0 Livewire</h1>
+            <h1><i class="fas fa-stethoscope"></i> Consultas Médicas</h1>
         </div>
 
         <!-- Tabs de tipos de formulario -->
