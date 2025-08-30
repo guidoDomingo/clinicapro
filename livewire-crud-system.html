@@ -4566,7 +4566,9 @@
         }
         
         function downloadArchivo(archivoId) {
-            window.open(`livewire-system.php?action=download_archivo&id_archivo=${archivoId}`, '_blank');
+            console.log('📥 Descargando archivo ID:', archivoId);
+            const url = `modules/consultas/api/livewire-system.php?action=download_archivo&id_archivo=${archivoId}`;
+            window.open(url, '_blank');
         }
         
         function previewEditArchivos(input) {

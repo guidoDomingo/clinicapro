@@ -1718,17 +1718,60 @@ class LivewireCRUDSystem {
             throw new Exception("Archivo no encontrado");
         }
         
-        if (!file_exists($archivo['ruta_archivo'])) {
-            throw new Exception("Archivo físico no encontrado");
+        // Resolver ruta relativa desde el directorio raíz del proyecto
+        $rutaRelativa = $archivo['ruta_archivo'];
+        $rutaAbsoluta = $rutaRelativa;
+        
+        // Si la ruta es relativa, resolverla desde el directorio raíz
+        if (strpos($rutaRelativa, '../') === 0) {
+            $directorioRaiz = dirname(__DIR__, 3); // Subir 3 niveles desde modules/consultas/api/
+            $rutaAbsoluta = $directorioRaiz . '/' . str_replace('../../../', '', $rutaRelativa);
         }
         
-        // Configurar headers para descarga
-        header('Content-Type: ' . $archivo['tipo_archivo']);
-        header('Content-Disposition: attachment; filename="' . $archivo['nombre_archivo'] . '"');
-        header('Content-Length: ' . filesize($archivo['ruta_archivo']));
+        // Normalizar separadores de ruta para Windows
+        $rutaAbsoluta = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $rutaAbsoluta);
+        
+        if (!file_exists($rutaAbsoluta)) {
+            // Intentar otra ruta común
+            $rutaAlternativa = dirname(__DIR__, 3) . '/uploads/consultas/' . basename($rutaRelativa);
+            $rutaAlternativa = str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $rutaAlternativa);
+            
+            if (file_exists($rutaAlternativa)) {
+                $rutaAbsoluta = $rutaAlternativa;
+            } else {
+                throw new Exception("Archivo físico no encontrado en: $rutaAbsoluta");
+            }
+        }
+        
+        // Limpiar cualquier output buffer previo
+        while (ob_get_level()) {
+            ob_end_clean();
+        }
+        
+        // Configurar headers para visualización en navegador
+        $mimeType = $archivo['tipo_archivo'];
+        $fileName = $archivo['nombre_archivo'];
+        
+        // Detectar si el archivo debe mostrarse inline o como descarga
+        $inlineTypes = [
+            'application/pdf',
+            'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/bmp', 
+            'image/webp', 'image/svg+xml', 'image/tiff',
+            'text/plain', 'text/html', 'text/css', 'text/javascript'
+        ];
+        
+        $disposition = in_array($mimeType, $inlineTypes) ? 'inline' : 'attachment';
+        
+        // Configurar headers apropiados
+        header('Content-Type: ' . $mimeType);
+        header('Content-Disposition: ' . $disposition . '; filename="' . $fileName . '"');
+        header('Content-Length: ' . filesize($rutaAbsoluta));
+        header('Cache-Control: no-cache, no-store, must-revalidate');
+        header('Pragma: no-cache');
+        header('Expires: 0');
         
         // Enviar archivo
-        readfile($archivo['ruta_archivo']);
+        readfile($rutaAbsoluta);
         exit;
     }
     
