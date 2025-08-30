@@ -1363,7 +1363,7 @@ function inicializarTabReservas() {
         }
 
         // Construir la URL para ir al módulo de consultas con el paciente
-        const urlConsultas = `index.php?ruta=consultas&paciente_id=${pacienteId}&reserva_id=${reservaId}`;
+        const urlConsultas = `index.php?ruta=consultas-v3&paciente_id=${pacienteId}&reserva_id=${reservaId}`;
 
         // Mostrar confirmación antes de navegar
         Swal.fire({

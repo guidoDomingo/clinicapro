@@ -1,5 +1,22 @@
 <!-- Consultas v3.0 Livewire - Optimizado para AdminLTE -->
 
+<?php
+// Procesar parámetros de URL para carga automática de paciente
+$paciente_id = isset($_GET['paciente_id']) ? (int)$_GET['paciente_id'] : null;
+$reserva_id = isset($_GET['reserva_id']) ? (int)$_GET['reserva_id'] : null;
+
+// Datos del paciente para carga automática
+$pacienteData = null;
+if ($paciente_id) {
+    // Aquí podrías cargar los datos del paciente desde la base de datos
+    // Por ahora, pasamos solo el ID para que JavaScript haga la carga
+    $pacienteData = array(
+        'paciente_id' => $paciente_id,
+        'reserva_id' => $reserva_id
+    );
+}
+?>
+
 <!-- CSS Libraries -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/alertifyjs/1.13.1/css/alertify.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/alertifyjs/1.13.1/css/themes/bootstrap.min.css" rel="stylesheet">
@@ -1288,27 +1305,6 @@
         }
 
         /**
-         * Seleccionar un paciente específico
-         */
-        function selectPatient(id, firstName, lastName, documentNumber) {
-            const patient = {
-                id: id,
-                first_name: firstName,
-                last_name: lastName,
-                document_number: documentNumber
-            };
-            
-            showPatientInfo(patient);
-            loadPatientStats(id);
-            
-            // Remover el selector
-            const selector = document.querySelector('.patient-selector');
-            if (selector) {
-                selector.remove();
-            }
-        }
-
-        /**
          * Mostrar información del paciente
          */
         function showPatientInfo(patient) {
@@ -2157,11 +2153,21 @@
                 if (result.data && result.data.length > 0) {
                     listEl.innerHTML = createModernConsultasTable(result.data);
                     paginationEl.innerHTML = createPagination(result.meta);
+                    
+                    // 📊 Actualizar estadísticas del paciente si hay uno seleccionado
+                    if (appState.selectedPatient && appState.selectedPatient.id) {
+                        actualizarEstadisticasPaciente(result.data);
+                    }
                 } else {
                     const message = appState.selectedPatient 
                         ? `📋 No hay consultas para ${appState.selectedPatient.firstName} ${appState.selectedPatient.lastName}`
                         : '📋 No hay consultas registradas';
                     listEl.innerHTML = `<div class="table-container"><div style="text-align: center; padding: 60px; color: #666;"><h4>${message}</h4><p>Comience creando una nueva consulta médica</p></div></div>`;
+                    
+                    // 📊 Si no hay consultas, limpiar estadísticas
+                    if (appState.selectedPatient && appState.selectedPatient.id) {
+                        actualizarEstadisticasPaciente([]);
+                    }
                 }
                 
             } catch (error) {
@@ -2501,22 +2507,82 @@
         function selectPatient(id, firstName, lastName, documentNumber) {
             if (window.debugMode) console.log('selectPatient called with:', {id, firstName, lastName, documentNumber});
             
+            // Validar y llenar campo oculto
             const hiddenField = document.getElementById('selected-patient-id');
-            if (window.debugMode) console.log('Hidden field element:', hiddenField);
+            if (hiddenField) {
+                hiddenField.value = id;
+                if (window.debugMode) console.log('Hidden field value set to:', hiddenField.value);
+            } else {
+                console.warn('⚠️ Hidden field selected-patient-id not found');
+            }
             
-            hiddenField.value = id;
-            if (window.debugMode) console.log('Hidden field value set to:', hiddenField.value);
+            // Validar y llenar campo de búsqueda
+            const patientSearchField = document.getElementById('patient-search');
+            if (patientSearchField) {
+                patientSearchField.value = `${firstName} ${lastName}`;
+                if (window.debugMode) console.log('Patient search field updated');
+            } else {
+                console.warn('⚠️ Patient search field not found');
+            }
             
-            document.getElementById('patient-search').value = `${firstName} ${lastName}`;
-            document.getElementById('patient-info-text').textContent = `${firstName} ${lastName} - ${documentNumber}`;
-            document.getElementById('selected-patient-info').style.display = 'block';
-            document.getElementById('patient-results').style.display = 'none';
+            // Validar y actualizar texto de información
+            const patientInfoText = document.getElementById('patient-info-text');
+            if (patientInfoText) {
+                patientInfoText.textContent = `${firstName} ${lastName} - ${documentNumber}`;
+                if (window.debugMode) console.log('Patient info text updated');
+            } else {
+                console.warn('⚠️ Patient info text element not found');
+            }
             
+            // Mostrar información del paciente seleccionado
+            const selectedPatientInfo = document.getElementById('selected-patient-info');
+            if (selectedPatientInfo) {
+                selectedPatientInfo.style.display = 'block';
+                if (window.debugMode) console.log('Selected patient info shown');
+            } else {
+                console.warn('⚠️ Selected patient info element not found');
+            }
+            
+            // Ocultar resultados de búsqueda
+            const patientResults = document.getElementById('patient-results');
+            if (patientResults) {
+                patientResults.style.display = 'none';
+                if (window.debugMode) console.log('Patient results hidden');
+            }
+            
+            // También llenar campo search-input si existe
+            const searchInput = document.getElementById('search-input');
+            if (searchInput) {
+                searchInput.value = `${firstName} ${lastName}`;
+                if (window.debugMode) console.log('Search input field updated');
+            }
+            
+            // Actualizar estado de la aplicación
             appState.selectedPatient = { id, firstName, lastName, documentNumber };
             if (window.debugMode) console.log('appState.selectedPatient updated:', appState.selectedPatient);
             
             // 🆕 NUEVO: Limpiar archivos cuando se selecciona un paciente para nueva consulta
             clearSelectedFiles();
+            
+            // 🆕 IMPORTANTE: Recargar consultas para mostrar solo las del paciente seleccionado
+            if (typeof loadConsultas === 'function') {
+                setTimeout(function() {
+                    console.log('🔄 Recargando consultas del paciente seleccionado...');
+                    loadConsultas(1);
+                }, 200);
+            }
+            
+            // 🆕 NUEVO: También actualizar elementos del estilo anterior si existen
+            const selectedPatientInfoLegacy = document.getElementById('selectedPatientInfo');
+            const selectedPatientName = document.getElementById('selectedPatientName');
+            const selectedPatientDetails = document.getElementById('selectedPatientDetails');
+            
+            if (selectedPatientInfoLegacy && selectedPatientName && selectedPatientDetails) {
+                selectedPatientName.textContent = `${firstName} ${lastName}`;
+                selectedPatientDetails.textContent = `CI: ${documentNumber}`;
+                selectedPatientInfoLegacy.style.display = 'block';
+                if (window.debugMode) console.log('Legacy patient info elements updated');
+            }
         }
 
         /**
@@ -2743,6 +2809,88 @@
             } catch (error) {
                 console.error(`❌ Error cargando ${tipo}:`, error);
                 throw error;
+            }
+        }
+
+        /**
+         * Actualizar estadísticas del paciente
+         */
+        function actualizarEstadisticasPaciente(consultasData) {
+            if (window.debugMode) console.log('📊 Actualizando estadísticas del paciente...', consultasData);
+            
+            const totalElement = document.getElementById('totalConsultas');
+            const ultimaElement = document.getElementById('ultimaConsulta');
+            const proximaElement = document.getElementById('proximaConsulta');
+            
+            if (!consultasData || !Array.isArray(consultasData)) {
+                if (window.debugMode) console.log('❌ Datos de consultas inválidos');
+                if (totalElement) totalElement.textContent = '0';
+                if (ultimaElement) ultimaElement.textContent = '--';
+                if (proximaElement) proximaElement.textContent = '--';
+                return;
+            }
+            
+            // Total de consultas
+            const total = consultasData.length;
+            if (totalElement) totalElement.textContent = total;
+            
+            // Última consulta (fecha más reciente)
+            let ultimaFecha = '--';
+            if (consultasData.length > 0) {
+                // Ordenar por fecha_registro descendente para obtener la más reciente
+                const consultasOrdenadas = consultasData.sort((a, b) => 
+                    new Date(b.fecha_registro) - new Date(a.fecha_registro)
+                );
+                
+                const fechaMasReciente = consultasOrdenadas[0].fecha_registro;
+                if (fechaMasReciente) {
+                    try {
+                        const fecha = new Date(fechaMasReciente);
+                        ultimaFecha = fecha.toLocaleDateString('es-ES');
+                    } catch (error) {
+                        console.error('Error formateando fecha:', error);
+                        ultimaFecha = fechaMasReciente.split(' ')[0]; // Fallback
+                    }
+                }
+            }
+            if (ultimaElement) ultimaElement.textContent = ultimaFecha;
+            
+            // Próxima consulta (fecha más cercana en el futuro)
+            let proximaFecha = '--';
+            const fechaActual = new Date();
+            const consultasFuturas = consultasData.filter(consulta => {
+                if (!consulta.proximaconsulta) return false;
+                try {
+                    const fechaProxima = new Date(consulta.proximaconsulta);
+                    return fechaProxima > fechaActual;
+                } catch (error) {
+                    return false;
+                }
+            });
+            
+            if (consultasFuturas.length > 0) {
+                // Ordenar por fecha ascendente para obtener la más próxima
+                const consultasOrdenadas = consultasFuturas.sort((a, b) => 
+                    new Date(a.proximaconsulta) - new Date(b.proximaconsulta)
+                );
+                
+                const fechaProximaConsulta = consultasOrdenadas[0].proximaconsulta;
+                try {
+                    const fecha = new Date(fechaProximaConsulta);
+                    proximaFecha = fecha.toLocaleDateString('es-ES');
+                } catch (error) {
+                    console.error('Error formateando próxima fecha:', error);
+                    proximaFecha = fechaProximaConsulta;
+                }
+            }
+            if (proximaElement) proximaElement.textContent = proximaFecha;
+            
+            if (window.debugMode) {
+                console.log('📊 Estadísticas actualizadas:', {
+                    total: total,
+                    ultima: ultimaFecha,
+                    proxima: proximaFecha
+                });
             }
         }
 
@@ -4261,6 +4409,21 @@
                 // Cargar datos iniciales
                 loadConsultas();
                 
+                // 🆕 Cargar automáticamente paciente si viene desde citas
+                <?php if ($pacienteData): ?>
+                    console.log('🔄 Cargando paciente automáticamente desde citas...');
+                    console.log('Paciente ID: <?php echo $pacienteData['paciente_id']; ?>');
+                    console.log('Reserva ID: <?php echo $pacienteData['reserva_id']; ?>');
+                    
+                    // Habilitar debug mode temporalmente para la carga automática
+                    window.debugMode = true;
+                    
+                    // Cargar paciente después de que todo esté inicializado
+                    setTimeout(function() {
+                        cargarPacienteAutomatico(<?php echo $pacienteData['paciente_id']; ?>, <?php echo $pacienteData['reserva_id'] ?: 'null'; ?>);
+                    }, 1000);
+                <?php endif; ?>
+                
                 // Cargar motivos comunes y preformatos iniciales para tipo general
                 loadMotivosComunes('general');
                 loadPreformatos('general');
@@ -4503,6 +4666,87 @@
          * Para deshabilitar:
          * window.debugMode = false;
          */
+        
+        // 🆕 Función para cargar paciente automáticamente desde citas
+        async function cargarPacienteAutomatico(pacienteId, reservaId) {
+            try {
+                console.log(`🔍 Buscando paciente con ID: ${pacienteId}`);
+                
+                // Hacer petición para obtener datos del paciente
+                const response = await fetch(`api/persons/show?id=${pacienteId}`);
+                const data = await response.json();
+                
+                if (data.status === 'success' && data.data) {
+                    const paciente = data.data;
+                    console.log('✅ Paciente encontrado:', paciente);
+                    
+                    // Llenar el campo de búsqueda con el nombre del paciente
+                    const searchInput = document.getElementById('search-input');
+                    if (searchInput) {
+                        searchInput.value = `${paciente.first_name} ${paciente.last_name}`;
+                        console.log('📝 Campo search-input llenado');
+                    }
+                    
+                    // También llenar el campo patient-search si existe
+                    const patientSearchInput = document.getElementById('patient-search');
+                    if (patientSearchInput) {
+                        patientSearchInput.value = `${paciente.first_name} ${paciente.last_name}`;
+                        console.log('📝 Campo patient-search llenado');
+                    }
+                    
+                    // Verificar que todos los elementos necesarios existen
+                    const hiddenField = document.getElementById('selected-patient-id');
+                    const patientInfoText = document.getElementById('patient-info-text');
+                    const selectedPatientInfo = document.getElementById('selected-patient-info');
+                    
+                    console.log('🔍 Elementos encontrados:', {
+                        hiddenField: !!hiddenField,
+                        patientInfoText: !!patientInfoText,
+                        selectedPatientInfo: !!selectedPatientInfo
+                    });
+                    
+                    // Simular selección del paciente usando los parámetros correctos
+                    selectPatient(
+                        paciente.person_id,
+                        paciente.first_name,
+                        paciente.last_name,
+                        paciente.document_number
+                    );
+                    
+                    console.log('✅ selectPatient llamado correctamente');
+                    
+                    // 🆕 IMPORTANTE: Recargar consultas para mostrar solo las del paciente seleccionado
+                    setTimeout(function() {
+                        console.log('🔄 Recargando consultas del paciente seleccionado...');
+                        loadConsultas(1);
+                    }, 500);
+                    
+                    // Mostrar mensaje de éxito
+                    if (typeof alertify !== 'undefined') {
+                        alertify.success(`Paciente ${paciente.first_name} ${paciente.last_name} cargado automáticamente desde citas`);
+                    }
+                    
+                    // Si hay reserva ID, podrías cargar información adicional de la reserva
+                    if (reservaId) {
+                        console.log(`📋 Información de reserva ID: ${reservaId} disponible`);
+                        // Aquí podrías cargar datos adicionales de la reserva si es necesario
+                    }
+                    
+                } else {
+                    console.error('❌ No se pudo cargar el paciente:', data.message || 'Paciente no encontrado');
+                    if (typeof alertify !== 'undefined') {
+                        alertify.error('No se pudo cargar automáticamente los datos del paciente');
+                    }
+                }
+                
+            } catch (error) {
+                console.error('❌ Error cargando paciente automáticamente:', error);
+                if (typeof alertify !== 'undefined') {
+                    alertify.error('Error de conexión al cargar datos del paciente');
+                }
+            }
+        }
+        
     </script>
 </body>
 </html>

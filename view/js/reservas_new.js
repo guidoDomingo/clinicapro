@@ -59,7 +59,7 @@ $(document).ready(function () {
         }).then((result) => {
             if (result.isConfirmed) {
                 // Construir la URL con los parámetros
-                let url = 'index.php?ruta=consultas';
+                let url = 'index.php?ruta=consultas-v3';
                 if (pacienteId) {
                     url += `&paciente_id=${pacienteId}`;
                 }

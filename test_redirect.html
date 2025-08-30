@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Redirect - Consultas v3.0</title>
+</head>
+<body>
+    <h1>Test de Redirección a Consultas v3.0</h1>
+    
+    <p>Haz clic en este enlace para probar directamente:</p>
+    <a href="index.php?ruta=consultas-v3&paciente_id=91&reserva_id=82" target="_blank">
+        Ir a Consultas v3.0 con paciente ID 91 y reserva ID 82
+    </a>
+    
+    <hr>
+    
+    <h2>Test JavaScript</h2>
+    <button onclick="testRedirect()">Test Redirect Function</button>
+    
+    <script>
+        function testRedirect() {
+            const pacienteId = 91;
+            const reservaId = 82;
+            const urlConsultas = `index.php?ruta=consultas-v3&paciente_id=${pacienteId}&reserva_id=${reservaId}`;
+            
+            console.log('URL generada:', urlConsultas);
+            window.open(urlConsultas, '_blank');
+        }
+    </script>
+    
+    <hr>
+    
+    <p>Si el problema persiste, intenta:</p>
+    <ul>
+        <li>Ctrl + F5 para forzar recarga</li>
+        <li>Limpiar cache del navegador</li>
+        <li>Abrir en modo incógnito</li>
+    </ul>
+    
+    <p><strong>Verificar en la consola del navegador si los archivos JS se cargan correctamente.</strong></p>
+</body>
+</html>

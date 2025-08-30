@@ -974,12 +974,12 @@ if (!isset($_SESSION['perfil'])) {
 <link href="view/css/estados_reserva.css?v=1.0" rel="stylesheet">
 
 <!-- Incluir JavaScript personalizado -->
-<script src="view/js/servicios.js"></script>
-<script src="view/js/slots_init.js"></script>
-<script src="view/js/slots_fallback.js"></script>
-<script src="view/js/slots_pagination.js"></script>
-<script src="view/js/enviar_pdf_reserva.js"></script>
-<script src="view/js/reservas_new_doctor.js"></script>
+<script src="view/js/servicios.js?v=<?php echo time(); ?>"></script>
+<script src="view/js/slots_init.js?v=<?php echo time(); ?>"></script>
+<script src="view/js/slots_fallback.js?v=<?php echo time(); ?>"></script>
+<script src="view/js/slots_pagination.js?v=<?php echo time(); ?>"></script>
+<script src="view/js/enviar_pdf_reserva.js?v=<?php echo time(); ?>"></script>
+<script src="view/js/reservas_new_doctor.js?v=<?php echo time(); ?>"></script>
 
 <!-- Script para asegurar que la pestaña "Nueva reserva" se abra por defecto -->
 <script>
