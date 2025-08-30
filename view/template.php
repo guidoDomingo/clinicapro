@@ -150,7 +150,7 @@ if (isset($_SESSION["iniciarSesion"]) && $_SESSION["iniciarSesion"] == "ok") {
     
     // Manejo de páginas con inicio de sesión      
     if(isset($_GET["ruta"])){
-        if ($_GET["ruta"] == "home" || $_GET["ruta"] == "logout"|| $_GET["ruta"] == "consultas" || $_GET["ruta"] == "consultas-new" || $_GET["ruta"] == "personas" || $_GET["ruta"] == "roles" || $_GET["ruta"] == "perfil" || $_GET["ruta"] == "rhpersonas" || $_GET["ruta"] == "preformatos" || $_GET["ruta"] == "agendas" || $_GET["ruta"] == "servicios" || $_GET["ruta"] == "rs_servicios" || $_GET["ruta"] == "citas" || $_GET["ruta"] == "citas" || $_GET["ruta"] == "profesiones" || $_GET["ruta"] == "especialidades" || $_GET["ruta"] == "motivos" || $_GET["ruta"] == "empresas" || $_GET["ruta"] == "tipos_proveedores" || $_GET["ruta"] == "proveedores" || $_GET["ruta"] == "salas" || $_GET["ruta"] == "turnos" || $_GET["ruta"] == "tipos-formularios" || $_GET["ruta"] == "campos-formularios" || $_GET["ruta"] == "tipos-campos" || $_GET["ruta"] == "referenciales" || $_GET["ruta"] == "valores-referenciales" || $_GET["ruta"] == "configuraciones-formularios")  {
+        if ($_GET["ruta"] == "home" || $_GET["ruta"] == "logout"|| $_GET["ruta"] == "consultas" || $_GET["ruta"] == "consultas-new" || $_GET["ruta"] == "consultas-v3" || $_GET["ruta"] == "personas" || $_GET["ruta"] == "roles" || $_GET["ruta"] == "perfil" || $_GET["ruta"] == "rhpersonas" || $_GET["ruta"] == "preformatos" || $_GET["ruta"] == "agendas" || $_GET["ruta"] == "servicios" || $_GET["ruta"] == "rs_servicios" || $_GET["ruta"] == "citas" || $_GET["ruta"] == "citas" || $_GET["ruta"] == "profesiones" || $_GET["ruta"] == "especialidades" || $_GET["ruta"] == "motivos" || $_GET["ruta"] == "empresas" || $_GET["ruta"] == "tipos_proveedores" || $_GET["ruta"] == "proveedores" || $_GET["ruta"] == "salas" || $_GET["ruta"] == "turnos" || $_GET["ruta"] == "tipos-formularios" || $_GET["ruta"] == "campos-formularios" || $_GET["ruta"] == "tipos-campos" || $_GET["ruta"] == "referenciales" || $_GET["ruta"] == "valores-referenciales" || $_GET["ruta"] == "configuraciones-formularios")  {
             
             // Verificar permisos para acceder a ciertas rutas
             $requierePermiso = false;
@@ -163,6 +163,7 @@ if (isset($_SESSION["iniciarSesion"]) && $_SESSION["iniciarSesion"] == "ok") {
                     break;
                 case "consultas":
                 case "consultas-new":
+                case "consultas-v3":
                     $requierePermiso = true;
                     $permisoRequerido = 'ver_consultas';
                     break;
@@ -345,6 +346,12 @@ switch ($ruta) {
     case "consultas-new":
         // Sistema refactorizado - Los scripts se cargan directamente en el módulo
         // para mejor control de la inicialización
+        break;
+        
+    case "consultas-v3":
+        // Sistema Livewire v3.0 - Scripts específicos para el sistema CRUD
+        //echo '<script src="view/js/consultas-v3.js"></script>';
+        // Nota: Los estilos y scripts de Livewire se incluyen en el módulo específico
         break;
         
     case "preformatos":

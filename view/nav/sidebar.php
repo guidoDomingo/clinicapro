@@ -45,6 +45,14 @@
                         </p>
                     </a>
                 </li>
+                <li class="nav-item <?php echo mostrar_si_tiene_permiso('ver_consultas'); ?>">
+                    <a href="index.php?ruta=consultas-v3" class="nav-link">
+                        <i class="nav-icon fas fa-stethoscope" style="color: #17a2b8;"></i>
+                        <p>Consultas v3.0 Livewire
+                            <span class="badge badge-info badge-xs">LIVEWIRE</span>
+                        </p>
+                    </a>
+                </li>
                 <li class="nav-item <?php echo mostrar_si_tiene_permiso('ver_agenda'); ?>">
                     <a href="index.php?ruta=citas" class="nav-link">
                         <i class="nav-icon fas fa-calendar-alt"></i>

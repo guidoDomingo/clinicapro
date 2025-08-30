@@ -1,0 +1,445 @@
+/**
+ * Estilos CSS para Consultas v3.0 - Sistema Livewire CRUD
+ * Estilos específicos y optimizados para el módulo de consultas
+ */
+
+/* === ESTILOS GENERALES DEL MÓDULO === */
+.consultas-v3-container {
+    font-family: 'Source Sans Pro', sans-serif;
+}
+
+.consultas-v3-container .content-header h1 {
+    color: #2c3e50;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+}
+
+.consultas-v3-container .content-header h1::before {
+    content: "🏥";
+    margin-right: 10px;
+    font-size: 1.2em;
+}
+
+/* === CARD PRINCIPAL === */
+.card-primary.card-outline {
+    border-top: 4px solid #007bff;
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.15);
+    transition: box-shadow 0.3s ease;
+}
+
+.card-primary.card-outline:hover {
+    box-shadow: 0 6px 12px rgba(0, 123, 255, 0.2);
+}
+
+/* === PESTAÑAS DE NAVEGACIÓN === */
+.nav-tabs {
+    border-bottom: 2px solid #dee2e6;
+    margin-bottom: 1rem;
+}
+
+.nav-tabs .nav-link {
+    font-weight: 600;
+    border-radius: 0.5rem 0.5rem 0 0;
+    color: #495057;
+    padding: 0.75rem 1.25rem;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+
+.nav-tabs .nav-link:hover {
+    background-color: #f8f9fa;
+    color: #007bff;
+    border-color: #dee2e6;
+    transform: translateY(-2px);
+}
+
+.nav-tabs .nav-link.active {
+    background-color: #007bff;
+    color: white !important;
+    border-color: #007bff;
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+}
+
+/* === BÚSQUEDA DE PACIENTES === */
+.busqueda-paciente {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    color: white;
+}
+
+.busqueda-paciente .input-group {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.busqueda-paciente .form-control {
+    border: none;
+    border-radius: 0.5rem 0 0 0.5rem;
+    font-size: 1.1rem;
+    padding: 0.75rem 1rem;
+}
+
+.busqueda-paciente .input-group-text {
+    background-color: #28a745;
+    border: none;
+    color: white;
+    border-radius: 0 0.5rem 0.5rem 0;
+}
+
+/* === BOTONES DE ACCIÓN === */
+.btn-accion-principal {
+    background: linear-gradient(45deg, #28a745, #20c997);
+    border: none;
+    color: white;
+    font-weight: 600;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);
+}
+
+.btn-accion-principal:hover {
+    background: linear-gradient(45deg, #218838, #1ea471);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(40, 167, 69, 0.4);
+}
+
+.btn-accion-secundario {
+    background: linear-gradient(45deg, #17a2b8, #138496);
+    border: none;
+    color: white;
+    font-weight: 600;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(23, 162, 184, 0.3);
+}
+
+.btn-accion-secundario:hover {
+    background: linear-gradient(45deg, #138496, #117a8b);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(23, 162, 184, 0.4);
+}
+
+/* === CARDS DE INFORMACIÓN === */
+.card-info-paciente {
+    border-left: 4px solid #17a2b8;
+    transition: all 0.3s ease;
+}
+
+.card-info-paciente:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(23, 162, 184, 0.2);
+}
+
+.card-nueva-consulta {
+    border-left: 4px solid #28a745;
+    transition: all 0.3s ease;
+}
+
+.card-nueva-consulta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);
+}
+
+.card-historial {
+    border-left: 4px solid #ffc107;
+    transition: all 0.3s ease;
+}
+
+.card-historial:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.2);
+}
+
+/* === LISTA DE PACIENTES === */
+.lista-pacientes .list-group-item {
+    border: 1px solid #e9ecef;
+    border-radius: 0.5rem;
+    margin-bottom: 0.5rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.lista-pacientes .list-group-item:hover {
+    background-color: #f8f9fa;
+    border-color: #007bff;
+    transform: translateX(5px);
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.15);
+}
+
+.lista-pacientes .list-group-item.active {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: white;
+}
+
+/* === FORMULARIO DE CONSULTA === */
+.formulario-consulta textarea {
+    resize: vertical;
+    min-height: 80px;
+    border-radius: 0.5rem;
+    border: 1px solid #ced4da;
+    transition: border-color 0.3s ease;
+}
+
+.formulario-consulta textarea:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.formulario-consulta .form-group label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+
+/* === TABLA DE HISTORIAL === */
+.tabla-historial {
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.tabla-historial thead th {
+    background: linear-gradient(135deg, #495057, #6c757d);
+    color: white;
+    font-weight: 600;
+    border: none;
+    padding: 1rem 0.75rem;
+}
+
+.tabla-historial tbody tr {
+    transition: background-color 0.3s ease;
+}
+
+.tabla-historial tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.tabla-historial tbody td {
+    padding: 0.75rem;
+    vertical-align: middle;
+    border-top: 1px solid #e9ecef;
+}
+
+/* === BADGES Y INDICADORES === */
+.badge-livewire {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    color: white;
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
+    border-radius: 1rem;
+    font-weight: 500;
+}
+
+.badge-nuevo {
+    background: linear-gradient(45deg, #28a745, #20c997);
+    color: white;
+    animation: pulso 2s infinite;
+}
+
+@keyframes pulso {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+/* === ALERTAS PERSONALIZADAS === */
+.alert-paciente-seleccionado {
+    background: linear-gradient(135deg, #d4edda, #c3e6cb);
+    border: 1px solid #b8dacc;
+    border-radius: 0.5rem;
+    color: #155724;
+}
+
+.alert-sin-datos {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+    color: #6c757d;
+    text-align: center;
+    padding: 2rem;
+}
+
+/* === INDICADORES DE CARGA === */
+.cargando {
+    position: relative;
+    pointer-events: none;
+}
+
+.cargando::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 0.5rem;
+}
+
+.spinner-consultas {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #007bff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* === FOOTER DEL MÓDULO === */
+.footer-modulo {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border-radius: 0 0 0.5rem 0.5rem;
+    padding: 1rem;
+}
+
+.footer-modulo .btn {
+    margin-right: 0.5rem;
+}
+
+.sistema-info {
+    font-size: 0.9rem;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+/* === RESPONSIVE DESIGN === */
+@media (max-width: 768px) {
+    .btn-lg {
+        font-size: 1rem;
+        padding: 0.5rem 1rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .nav-tabs .nav-link {
+        font-size: 0.9rem;
+        padding: 0.5rem 0.75rem;
+    }
+    
+    .busqueda-paciente {
+        padding: 1rem;
+    }
+    
+    .busqueda-paciente .form-control {
+        font-size: 1rem;
+        padding: 0.5rem 0.75rem;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .tabla-historial {
+        font-size: 0.9rem;
+    }
+    
+    .tabla-historial thead th,
+    .tabla-historial tbody td {
+        padding: 0.5rem 0.25rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .content-header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .nav-tabs .nav-link {
+        font-size: 0.8rem;
+        padding: 0.4rem 0.6rem;
+    }
+    
+    .btn-lg {
+        font-size: 0.9rem;
+        padding: 0.4rem 0.8rem;
+    }
+    
+    .busqueda-paciente .input-group {
+        flex-direction: column;
+    }
+    
+    .busqueda-paciente .input-group .form-control,
+    .busqueda-paciente .input-group .input-group-text {
+        border-radius: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* === ANIMACIONES ADICIONALES === */
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.slide-in-left {
+    animation: slideInLeft 0.6s ease-out;
+}
+
+@keyframes slideInLeft {
+    from { 
+        opacity: 0; 
+        transform: translateX(-100px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateX(0); 
+    }
+}
+
+.slide-in-right {
+    animation: slideInRight 0.6s ease-out;
+}
+
+@keyframes slideInRight {
+    from { 
+        opacity: 0; 
+        transform: translateX(100px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateX(0); 
+    }
+}
+
+/* === ESTADOS ESPECIALES === */
+.estado-deshabilitado {
+    opacity: 0.6;
+    pointer-events: none;
+    filter: grayscale(30%);
+}
+
+.estado-resaltado {
+    box-shadow: 0 0 20px rgba(0, 123, 255, 0.4);
+    border-color: #007bff !important;
+}
+
+.pulso-suave {
+    animation: pulsoSuave 3s ease-in-out infinite;
+}
+
+@keyframes pulsoSuave {
+    0%, 100% { 
+        box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2); 
+    }
+    50% { 
+        box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4); 
+    }
+}
