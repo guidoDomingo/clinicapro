@@ -1247,7 +1247,7 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <label for="archivos_consulta" class="form-label">Archivos Adjuntos</label>
-                                    <input type="file" class="form-control" id="archivos_consulta" name="archivos_consulta[]" multiple accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx">
+                                    <input type="file" class="form-control" id="archivos_consulta" name="archivos_consulta[]" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.rtf,.jpg,.jpeg,.png,.gif,.bmp,.tiff,.webp,.svg">
                                     <div class="form-text">Máximo 10 archivos. Formatos permitidos: PDF, Word, Excel, Imágenes (JPG, PNG)</div>
                                     <div id="archivos-preview" class="mt-2"></div>
                                 </div>
@@ -3664,7 +3664,7 @@
                                         <!-- Archivos existentes se cargarán aquí -->
                                     </div>
                                     <label for="edit_archivos_consulta" class="form-label">Agregar nuevos archivos</label>
-                                    <input type="file" class="form-control" id="edit_archivos_consulta" name="archivos_consulta[]" multiple accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx">
+                                    <input type="file" class="form-control" id="edit_archivos_consulta" name="archivos_consulta[]" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.rtf,.jpg,.jpeg,.png,.gif,.bmp,.tiff,.webp,.svg">
                                     <div class="form-text">Máximo 10 archivos. Formatos permitidos: PDF, Word, Excel, Imágenes (JPG, PNG)</div>
                                     <div id="edit-archivos-preview" class="mt-2"></div>
                                 </div>
@@ -4308,7 +4308,7 @@
                     const fileItem = document.createElement('div');
                     fileItem.className = 'file-item d-flex align-items-center mb-2 p-2 border rounded';
                     
-                    const icon = getFileIcon(file.type);
+                    const icon = getFileIcon(file.type, file.name);
                     const size = formatFileSize(file.size);
                     
                     fileItem.innerHTML = `
@@ -4327,11 +4327,41 @@
             }
         }
         
-        function getFileIcon(mimeType) {
-            if (mimeType.startsWith('image/')) return 'fas fa-image text-success';
-            if (mimeType.includes('pdf')) return 'fas fa-file-pdf text-danger';
-            if (mimeType.includes('word')) return 'fas fa-file-word text-primary';
-            if (mimeType.includes('excel') || mimeType.includes('spreadsheet')) return 'fas fa-file-excel text-success';
+        function getFileIcon(mimeType, fileName = '') {
+            // Obtener extensión del archivo como respaldo
+            const extension = fileName.split('.').pop().toLowerCase();
+            
+            // Imágenes
+            if (mimeType.startsWith('image/') || ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'webp', 'svg'].includes(extension)) {
+                return 'fas fa-image text-success';
+            }
+            
+            // PDFs
+            if (mimeType.includes('pdf') || extension === 'pdf') {
+                return 'fas fa-file-pdf text-danger';
+            }
+            
+            // Documentos Word
+            if (mimeType.includes('word') || mimeType.includes('msword') || mimeType.includes('wordprocessingml') || ['doc', 'docx'].includes(extension)) {
+                return 'fas fa-file-word text-primary';
+            }
+            
+            // Excel
+            if (mimeType.includes('excel') || mimeType.includes('spreadsheet') || mimeType.includes('ms-excel') || ['xls', 'xlsx'].includes(extension)) {
+                return 'fas fa-file-excel text-success';
+            }
+            
+            // PowerPoint
+            if (mimeType.includes('powerpoint') || mimeType.includes('presentation') || ['ppt', 'pptx'].includes(extension)) {
+                return 'fas fa-file-powerpoint text-warning';
+            }
+            
+            // Archivos de texto
+            if (mimeType.includes('text') || ['txt', 'rtf'].includes(extension)) {
+                return 'fas fa-file-alt text-info';
+            }
+            
+            // Archivo genérico
             return 'fas fa-file text-secondary';
         }
         
@@ -4436,7 +4466,7 @@
                     const html = '<div class="archivos-existentes">' +
                         archivos.map(archivo => `
                             <div class="file-item d-flex align-items-center mb-2 p-2 border rounded bg-light" data-archivo-id="${archivo.id_archivo}">
-                                <i class="${getFileIcon(archivo.tipo_archivo)} me-2"></i>
+                                <i class="${getFileIcon(archivo.tipo_archivo, archivo.nombre_archivo)} me-2"></i>
                                 <span class="file-name me-auto">${archivo.nombre_archivo}</span>
                                 <span class="file-size text-muted me-2">${formatFileSize(archivo.tamano_archivo || 0)}</span>
                                 <button type="button" class="btn btn-sm btn-outline-primary me-1" onclick="downloadArchivo(${archivo.id_archivo})" title="Descargar">
@@ -4499,7 +4529,7 @@
                     const fileItem = document.createElement('div');
                     fileItem.className = 'file-item d-flex align-items-center mb-2 p-2 border rounded';
                     
-                    const icon = getFileIcon(file.type);
+                    const icon = getFileIcon(file.type, file.name);
                     const size = formatFileSize(file.size);
                     
                     fileItem.innerHTML = `
