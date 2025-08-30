@@ -151,7 +151,7 @@ if ($paciente_id) {
         }
         
         .smart-search-dropdown {
-            position: absolute;
+            position: relative;
             top: 100%;
             left: 0;
             right: 0;
@@ -159,10 +159,11 @@ if ($paciente_id) {
             border: 1px solid #ced4da;
             border-radius: 0 0 8px 8px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            z-index: 1000;
-            max-height: 250px;
+            z-index: 5000;
+            max-height: 400px !important; /* Aumentado temporalmente */
             overflow-y: auto;
             display: none;
+            width: 100% !important; /* Asegurar ancho completo */
         }
         
         .search-result-item {
@@ -170,6 +171,9 @@ if ($paciente_id) {
             cursor: pointer;
             border-bottom: 1px solid #f1f3f4;
             transition: background 0.2s;
+            min-height: 40px !important; /* Altura mínima garantizada */
+            display: block !important; /* Forzar visualización */
+            visibility: visible !important; /* Asegurar visibilidad */
         }
         
         .search-result-item:hover {
@@ -179,6 +183,27 @@ if ($paciente_id) {
         .search-result-item.selected {
             background: #007bff;
             color: white;
+        }
+        
+        /* Estilos específicos para dropdown de resultados de búsqueda */
+        .search-results {
+            position: absolute;
+            width: 100%;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 0 0 8px 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            max-height: 250px;
+            overflow-y: auto;
+            display: none;
+            top: 100%;
+            left: 0;
+        }
+        
+        /* Asegurar que el contenedor tenga posición relativa */
+        .position-relative {
+            position: relative !important;
         }
         
         /* Información del paciente seleccionado */
@@ -613,7 +638,7 @@ if ($paciente_id) {
                         </div>
                         <div class="card-body-custom">
                             <div class="form-row">
-                                <div class="form-floating search-box d-none">
+                                <div class="form-floating search-box position-relative d-none">
                                     <input type="text" class="form-control" id="patient-search" placeholder="🔍 AUTOCOMPLETADO - Escribe aquí para sugerencias..." 
                                            onkeyup="handlePatientSearchKeyup(event)" 
                                            onkeydown="handlePatientSearchKeydown(event)" 
@@ -1728,8 +1753,43 @@ if ($paciente_id) {
          */
         function showSmartDropdown(content) {
             const dropdown = document.getElementById('smartSearchDropdown');
+            console.log('📊 SMART SEARCH DEBUG - showSmartDropdown called');
+            console.log('📊 SMART SEARCH DEBUG - Dropdown element found:', !!dropdown);
+            console.log('📊 SMART SEARCH DEBUG - Content length:', content.length);
+            
             dropdown.innerHTML = content;
             dropdown.style.display = 'block';
+            
+            console.log('📊 SMART SEARCH DEBUG - After setting innerHTML:');
+            console.log('📊 SMART SEARCH DEBUG - Dropdown innerHTML length:', dropdown.innerHTML.length);
+            console.log('📊 SMART SEARCH DEBUG - Dropdown display style:', dropdown.style.display);
+            console.log('📊 SMART SEARCH DEBUG - Found search-result-items:', dropdown.querySelectorAll('.search-result-item').length);
+            
+            // 🔧 Verificar dimensiones y visibilidad después de un momento
+            setTimeout(() => {
+                console.log('📊 SMART SEARCH DEBUG - After timeout check:');
+                console.log('📊 SMART SEARCH DEBUG - Dropdown dimensions:', {
+                    offsetHeight: dropdown.offsetHeight,
+                    scrollHeight: dropdown.scrollHeight,
+                    clientHeight: dropdown.clientHeight
+                });
+                console.log('📊 SMART SEARCH DEBUG - Computed styles:', {
+                    display: window.getComputedStyle(dropdown).display,
+                    visibility: window.getComputedStyle(dropdown).visibility,
+                    opacity: window.getComputedStyle(dropdown).opacity,
+                    maxHeight: window.getComputedStyle(dropdown).maxHeight
+                });
+                
+                const items = dropdown.querySelectorAll('.search-result-item');
+                console.log('📊 SMART SEARCH DEBUG - Items after timeout:', items.length);
+                items.forEach((item, index) => {
+                    console.log(`📊 SMART SEARCH DEBUG - Item ${index + 1} visible:`, {
+                        offsetHeight: item.offsetHeight,
+                        display: window.getComputedStyle(item).display,
+                        visibility: window.getComputedStyle(item).visibility
+                    });
+                });
+            }, 50);
         }
 
         /**
@@ -1745,6 +1805,9 @@ if ($paciente_id) {
          * 🆕 NUEVO: Mostrar resultados en el dropdown
          */
         function displaySmartSearchResults(patients) {
+            console.log('📊 SMART SEARCH DEBUG - displaySmartSearchResults called with', patients.length, 'patients');
+            console.log('📊 SMART SEARCH DEBUG - Patients data:', patients);
+            
             let html = '';
             
             patients.forEach((patient, index) => {
@@ -1754,6 +1817,8 @@ if ($paciente_id) {
                 const fullName = `${firstName} ${lastName}`;
                 const ci = patient.document_number || 'Sin CI';
                 const telefono = patient.phone_number || null;
+                
+                console.log(`📊 SMART SEARCH DEBUG - Processing patient ${index + 1}:`, {fullName, ci, telefono});
                 
                 html += `
                     <div class="search-result-item" 
@@ -1766,6 +1831,8 @@ if ($paciente_id) {
                             cursor: pointer;
                             border-bottom: 1px solid #eee;
                             transition: background 0.2s;
+                            display: block !important;
+                            visibility: visible !important;
                          ">
                         <div style="font-weight: bold; color: #333;">${fullName}</div>
                         <div style="color: #666; font-size: 0.9em;">CI: ${ci}</div>
@@ -1773,6 +1840,9 @@ if ($paciente_id) {
                     </div>
                 `;
             });
+            
+            console.log('📊 SMART SEARCH DEBUG - Generated HTML length:', html.length);
+            console.log('📊 SMART SEARCH DEBUG - Generated HTML preview:', html.substring(0, 200) + '...');
             
             showSmartDropdown(html);
             
@@ -2454,8 +2524,11 @@ if ($paciente_id) {
                     console.log('📡 SEARCH DEBUG - Respuesta:', result); // DEBUG
                     
                     if (result.data && result.data.length > 0) {
+                        console.log('📊 SEARCH DEBUG - Total resultados encontrados:', result.data.length);
+                        console.log('📊 SEARCH DEBUG - Primeros resultados:', result.data.slice(0, 3));
+                        
                         if (window.debugMode) console.log('Processing', result.data.length, 'results');
-                        resultsEl.innerHTML = result.data.map(patient => {
+                        const htmlResults = result.data.map((patient, index) => {
                             // Sanitizar datos para evitar errores
                             const firstName = patient.first_name || '';
                             const lastName = patient.last_name || '';
@@ -2463,7 +2536,7 @@ if ($paciente_id) {
                             const phoneNumber = patient.phone_number || 'N/A';
                             const personId = patient.person_id || '';
                             
-                            if (window.debugMode) console.log('Processing patient:', {personId, firstName, lastName, documentNumber});
+                            if (window.debugMode) console.log(`Processing patient ${index + 1}:`, {personId, firstName, lastName, documentNumber});
                             
                             return `
                                 <div class="search-result-item" onclick="selectPatient(${personId}, '${firstName.replace(/'/g, "\\'")}', '${lastName.replace(/'/g, "\\'")}', '${documentNumber}')">
@@ -2471,9 +2544,37 @@ if ($paciente_id) {
                                     <small class="text-muted">Documento: ${documentNumber} | Tel: ${phoneNumber}</small>
                                 </div>
                             `;
-                        }).join('');
+                        });
+                        
+                        console.log('📊 SEARCH DEBUG - HTML generado para', htmlResults.length, 'resultados');
+                        resultsEl.innerHTML = htmlResults.join('');
+                        console.log('📊 SEARCH DEBUG - innerHTML asignado, contenido actual:', resultsEl.innerHTML.length, 'caracteres');
+                        console.log('📊 SEARCH DEBUG - Elementos .search-result-item encontrados:', resultsEl.querySelectorAll('.search-result-item').length);
+                        
                         resultsEl.style.display = 'block';
-                        if (window.debugMode) console.log('Results displayed successfully');
+                        console.log('📊 SEARCH DEBUG - Display establecido a block, estilo actual:', resultsEl.style.display);
+                        
+                        // 🔧 Forzar re-render para asegurar visualización correcta
+                        setTimeout(() => {
+                            const items = resultsEl.querySelectorAll('.search-result-item');
+                            console.log('📊 SEARCH DEBUG - Items después de setTimeout:', items.length);
+                            items.forEach((item, index) => {
+                                item.style.display = 'block';
+                                item.style.visibility = 'visible';
+                                console.log(`📊 SEARCH DEBUG - Item ${index + 1} forzado a visible`);
+                            });
+                        }, 10);
+                        
+                        // Verificar dimensiones del contenedor
+                        console.log('📊 SEARCH DEBUG - Dimensiones contenedor:', {
+                            offsetHeight: resultsEl.offsetHeight,
+                            scrollHeight: resultsEl.scrollHeight,
+                            clientHeight: resultsEl.clientHeight,
+                            computedDisplay: window.getComputedStyle(resultsEl).display,
+                            computedVisibility: window.getComputedStyle(resultsEl).visibility,
+                            computedOpacity: window.getComputedStyle(resultsEl).opacity
+                        });
+                        
                         if (window.debugMode) console.log('Results displayed successfully');
                     } else {
                         if (window.debugMode) console.log('No results found');
@@ -4429,6 +4530,10 @@ if ($paciente_id) {
          */
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 Iniciando sistema Livewire CRUD...');
+            
+            // 🐛 Habilitar debug mode temporalmente para diagnosticar búsqueda
+            window.debugMode = true;
+            console.log('🐛 Debug mode habilitado para diagnosticar búsqueda de pacientes');
             
             // Verificar dependencias
             console.log('jQuery loaded:', typeof $ !== 'undefined');
