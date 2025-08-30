@@ -215,6 +215,9 @@
     window.icd11Client = new ICD11ApiClient();
     console.log('Cliente ICD-11 creado. Se inicializará cuando sea necesario.');
 
+    // COMENTADO: Este event listener está duplicado con icd11-integration.js
+    // y causaba inserción doble del contenido
+    /*
     // Agregar manejador de eventos para la selección de códigos
     document.addEventListener('icd11:codeSelected', function(event) {
         try {
@@ -243,6 +246,7 @@
             console.error('Error al procesar evento de código seleccionado:', e);
         }
     });
+    */
 </script>
 <script>
     function handleIframeError() {
@@ -442,7 +446,26 @@
         }
 
         function showAlert(type, message) {
-            // Crear el elemento de alerta
+            // Priorizar alertify si está disponible
+            if (typeof alertify !== 'undefined') {
+                switch(type) {
+                    case 'success':
+                        alertify.success(message);
+                        break;
+                    case 'warning':
+                        alertify.warning(message);
+                        break;
+                    case 'danger':
+                    case 'error':
+                        alertify.error(message);
+                        break;
+                    default:
+                        alertify.message(message);
+                }
+                return; // Salir temprano si se usó alertify
+            }
+            
+            // Fallback: Crear el elemento de alerta Bootstrap
             const alertDiv = document.createElement('div');
             alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
             alertDiv.role = 'alert';
@@ -453,6 +476,11 @@
 
             // Encontrar el contenedor de alertas
             const container = document.getElementById('alerts-container');
+            if (!container) {
+                // Si no hay contenedor, usar console como último recurso
+                console.log(`Alert ${type}: ${message}`);
+                return;
+            }
 
             // Insertar la alerta al inicio del contenedor
             container.appendChild(alertDiv);
@@ -1156,6 +1184,9 @@
             // Llamar a la función global findConsultaTextarea definida en icd11-integration.js
             const textareaResult = window.findConsultaTextarea();
 
+            // COMENTADO: Esta función estaba duplicando la inserción de contenido
+            // La funcionalidad ya está manejada en icd11-integration.js
+            /*
             function processTextArea(textareaWrapper) {
                 if (textareaWrapper) {
                     console.log('Editor/textarea encontrado, insertando diagnóstico...');
@@ -1230,6 +1261,20 @@
                     return false; // Fallo
                 }
             }
+            */
+            
+            // Nueva función simplificada que solo maneja el evento sin insertar contenido duplicado
+            function processTextArea(textareaWrapper) {
+                // Solo registrar que se encontró el textarea, sin insertar contenido
+                // La inserción real se maneja en icd11-integration.js
+                if (textareaWrapper) {
+                    console.log('✅ Editor/textarea encontrado, delegando a icd11-integration.js');
+                    return true;
+                } else {
+                    console.warn('⚠️ No se encontró el editor/textarea de consulta');
+                    return false;
+                }
+            }
 
             // Si tenemos un resultado pendiente (cambio de pestaña), esperamos la resolución
             if (textareaResult && textareaResult.pending) {
@@ -1279,7 +1324,11 @@
             // Disparar evento de código seleccionado
             if (window.icd11Client && typeof window.icd11Client.dispatchCodeSelected === 'function') {
                 window.icd11Client.dispatchCodeSelected(diagData);
-            } else {
+            } 
+            // COMENTADO: Esta lógica de fallback podría estar causando duplicación
+            // Ya se maneja todo en icd11-integration.js
+            /*
+            else {
                 // Fallback: actualizar directamente los campos
                 const codeField = document.getElementById('selected-code');
                 const diagnosisField = document.getElementById('selected-diagnosis');
@@ -1295,26 +1344,27 @@
                     bubbles: true
                 }));
             }
+            */
 
             // Cerrar modal
             $('#icd-details-modal').modal('hide');
             // Mostrar confirmación y guiar al usuario hacia la pestaña de registro si es necesario
-            const mensaje = consultaTextarea ?
+            const mensaje = textareaResult && !textareaResult.pending ?
                 `Diagnóstico seleccionado: ${code} - ${titleValue} (agregado a la descripción de consulta)` :
-                `Diagnóstico seleccionado: ${code} - ${titleValue}. Vaya a la pestaña "Registro" para ver o editar la descripción.`;
+                `Diagnóstico seleccionado: ${code} - ${titleValue}. Vaya a la pestaña "Nueva Consulta" para ver o editar la descripción.`;
 
             showAlert('success', mensaje);
 
             // Si no se encontró el textarea, intentar activar la pestaña de registro y mostrar un botón para navegar
-            if (!consultaTextarea) {
+            if (!textareaResult || textareaResult.pending) {
                 setTimeout(() => {
                     // Crear un botón de navegación rápida
                     const navButton = document.createElement('div');
                     navButton.className = 'alert alert-info alert-dismissible fade show mt-3';
                     navButton.innerHTML = `
-                        <strong>Consejo:</strong> Para ver el diagnóstico insertado, vaya a la pestaña "Registro".
-                        <button type="button" id="goto-registro-btn" class="btn btn-info btn-sm ms-3">
-                            <i class="fas fa-arrow-right"></i> Ir a Registro
+                        <strong>Consejo:</strong> Para ver el diagnóstico insertado, vaya a la pestaña "Nueva Consulta".
+                        <button type="button" id="goto-create-btn" class="btn btn-info btn-sm ms-3">
+                            <i class="fas fa-arrow-right"></i> Ir a Nueva Consulta
                         </button>
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     `;
@@ -1325,17 +1375,11 @@
                         alertsContainer.appendChild(navButton);
 
                         // Configurar el evento del botón
-                        document.getElementById('goto-registro-btn')?.addEventListener('click', function() {
-                            // Intentar activar la pestaña de registro
-                            const registroTabLink = document.querySelector('a[href="#activity"]');
-                            if (registroTabLink) {
-                                if (typeof $ !== 'undefined') {
-                                    $(registroTabLink).tab('show');
-                                } else if (typeof bootstrap !== 'undefined') {
-                                    new bootstrap.Tab(registroTabLink).show();
-                                } else {
-                                    registroTabLink.click();
-                                }
+                        document.getElementById('goto-create-btn')?.addEventListener('click', function() {
+                            // Intentar activar la pestaña "Nueva Consulta" 
+                            const createTabButton = document.querySelector("button[onclick=\"showTab('create')\"]");
+                            if (createTabButton) {
+                                createTabButton.click();
                             }
                         });
                     }

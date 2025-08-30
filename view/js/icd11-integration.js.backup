@@ -1,0 +1,729 @@
+/**
+ * icd11-integration.js
+ * Funciones para la integración de ICD-11 con el formulario de consulta
+ */
+
+// Función global para encontrar el textarea de la consulta usando diferentes estrategias
+function findConsultaTextarea() {
+    console.log('🔍 Buscando el textarea de consulta en consultas-v3...');
+
+    // **CAMPO #CONSULTA EXCLUIDO INTENCIONALMENTE**
+    console.log('� Campo #consulta ignorado por configuración - buscando alternativas...');
+
+    // **ESTRATEGIA SECUNDARIA: BUSCAR EN FORMULARIOS ACTIVOS**
+    // Si no encontramos #consulta, buscar otros campos de descripción
+    const alternativeIds = ['motivo', 'receta', 'nota'];
+    
+    for (const id of alternativeIds) {
+        const element = document.getElementById(id);
+        if (element && element.offsetParent !== null) {
+            console.log(`📝 Campo alternativo encontrado: #${id}`);
+            
+            // Verificar Summernote
+            if (typeof $ !== 'undefined' && $(element).hasClass('summernote')) {
+                const hasSummernote = $(element).next('.note-editor').length > 0;
+                
+                if (hasSummernote) {
+                    console.log(`✅ Usando campo Summernote alternativo: #${id}`);
+                    return {
+                        element: element,
+                        isSummernote: true,
+                        setValue: function(html) {
+                            const currentContent = $(element).summernote('code');
+                            let newContent = html;
+                            
+                            if (currentContent && currentContent.trim() !== '' && !currentContent.includes('[Diagnóstico ICD-11:')) {
+                                newContent = currentContent + html;
+                            }
+                            
+                            $(element).summernote('code', newContent);
+                            console.log(`✅ Contenido insertado en Summernote #${id}`);
+                        },
+                        getValue: function() {
+                            return $(element).summernote('code');
+                        },
+                        focus: function() {
+                            $(element).summernote('focus');
+                        }
+                    };
+                }
+            }
+            
+            // Como textarea normal
+            console.log(`✅ Usando campo alternativo: #${id}`);
+            return {
+                element: element,
+                isSummernote: false,
+                setValue: function(text) {
+                    const currentContent = element.value;
+                    let newContent = text;
+                    
+                    if (currentContent && currentContent.trim() !== '' && !currentContent.includes('[Diagnóstico ICD-11:')) {
+                        newContent = currentContent + '\n' + text;
+                    }
+                    
+                    element.value = newContent;
+                    console.log(`✅ Texto insertado en textarea #${id}`);
+                },
+                getValue: function() {
+                    return element.value;
+                },
+                focus: function() {
+                    element.focus();
+                }
+            };
+        }
+    }
+
+    // **ESTRATEGIA TERCIARIA: SIEMPRE FORZAR CAMBIO A TAB CREATE PARA INSERCIÓN**
+    // Ya no verificamos #consulta, directamente buscar alternativas o cambiar de tab
+    console.log('🔄 Buscando campos alternativos o cambiando a tab create...');
+    
+    try {
+        // Marcar que estamos insertando contenido ICD para evitar reset
+        window.insertingIcdContent = true;
+        
+        // Buscar y activar el tab create
+        const createTabButton = document.querySelector("button[onclick=\"showTab('create')\"]");
+        if (createTabButton) {
+            console.log('🔄 Activando tab create para inserción...');
+                
+                return {
+                    pending: true,
+                    resolve: function(callback) {
+                        // Activar el tab
+                        createTabButton.click();
+                        
+                        // Esperar a que se active y buscar el campo con múltiples intentos
+                        let attempts = 0;
+                        const maxAttempts = 5;
+                        
+                        function tryFindField() {
+                            attempts++;
+                            console.log(`🔍 Intento ${attempts}/${maxAttempts}: Buscando campo después de activar tab create...`);
+                            
+                            // BÚSQUEDA MEJORADA: Multiple estrategias para encontrar el campo
+                            let consultaField = null;
+                            
+                            // Estrategia 1: Buscar directamente por ID
+                            consultaField = document.getElementById('consulta');
+                            
+                            // Estrategia 2: Si no se encuentra, buscar por selector
+                            if (!consultaField) {
+                                consultaField = document.querySelector('#consulta');
+                            }
+                            
+                            // Estrategia 3: Buscar dentro del tab activo
+                            if (!consultaField) {
+                                const activeTab = document.querySelector('#tab-create');
+                                if (activeTab) {
+                                    consultaField = activeTab.querySelector('#consulta');
+                                }
+                            }
+                            
+                            // Estrategia 4: Buscar cualquier textarea con name="consulta"
+                            if (!consultaField) {
+                                consultaField = document.querySelector('textarea[name="consulta"]');
+                            }
+                            
+                            console.log('🔍 Estado de búsqueda:', {
+                                found: !!consultaField,
+                                visible: consultaField ? consultaField.offsetParent !== null : false,
+                                display: consultaField ? getComputedStyle(consultaField).display : 'N/A',
+                                hasClass: consultaField ? consultaField.classList.toString() : 'N/A'
+                            });
+                            
+                            if (consultaField && (consultaField.offsetParent !== null || attempts > 2)) {
+                                // FORZAR VISIBILIDAD si el campo existe pero está oculto
+                                if (consultaField.offsetParent === null) {
+                                    console.log('🔧 Campo encontrado pero oculto, forzando visibilidad...');
+                                    consultaField.style.display = 'block';
+                                    consultaField.style.visibility = 'visible';
+                                    
+                                    // Mostrar contenedor padre si está oculto
+                                    let parent = consultaField.parentElement;
+                                    while (parent && parent.offsetParent === null && parent.tagName !== 'BODY') {
+                                        if (parent.style.display === 'none') {
+                                            console.log('� Mostrando contenedor padre:', parent.className);
+                                            parent.style.display = 'block';
+                                        }
+                                        parent = parent.parentElement;
+                                    }
+                                }
+                                // **IMPORTANTE: Esperar a que el reset del formulario termine**
+                                // Verificar si el sistema está en proceso de reset
+                                if (window.appState && window.appState.isResetting) {
+                                    console.log('⏳ Esperando que termine el reset del formulario...');
+                                    if (attempts < maxAttempts) {
+                                        setTimeout(tryFindField, 1000); // Más tiempo para reset
+                                        return;
+                                    }
+                                }
+                                
+                                // **ESPERAR EXTRA si acabamos de salir del reset**
+                                if (attempts <= 2) {
+                                    console.log('⏳ Esperando inicialización completa de Summernote...');
+                                    setTimeout(tryFindField, 1500); // Aumentar espera para primeros intentos
+                                    return;
+                                }
+                                
+                                // Verificar Summernote con logging detallado
+                                if (typeof $ !== 'undefined' && $(consultaField).hasClass('summernote')) {
+                                    const hasSummernote = $(consultaField).next('.note-editor').length > 0;
+                                    console.log('🔍 Summernote check:', {
+                                        hasSummernoteClass: $(consultaField).hasClass('summernote'),
+                                        hasNoteEditor: hasSummernote,
+                                        nextElement: $(consultaField).next()[0]?.className || 'none'
+                                    });
+                                    
+                                    if (hasSummernote) {
+                                        console.log('✅ Campo Summernote #consulta encontrado después de cambiar tab');
+                                        
+                                        // **ESPERAR EXTRA para asegurar que Summernote esté completamente listo**
+                                        setTimeout(() => {
+                                            // Verificar que Summernote esté realmente funcional
+                                            try {
+                                                // Test si Summernote responde
+                                                const testContent = $(consultaField).summernote('code');
+                                                console.log('✅ Summernote responde correctamente');
+                                                
+                                                callback({
+                                                    element: consultaField,
+                                                    isSummernote: true,
+                                                    setValue: function(html) {
+                                                        try {
+                                                            const currentContent = $(consultaField).summernote('code');
+                                                            let newContent = html;
+                                                            
+                                                            // Si ya hay contenido, agregarlo al final
+                                                            if (currentContent && currentContent.trim() !== '' && currentContent !== '<p><br></p>') {
+                                                                if (!currentContent.includes('[Diagnóstico ICD-11:')) {
+                                                                    newContent = currentContent + html;
+                                                                } else {
+                                                                    // Si ya tiene diagnóstico ICD, reemplazar
+                                                                    newContent = currentContent.replace(/\[Diagnóstico ICD-11:[^\]]*\]/g, '') + html;
+                                                                }
+                                                            }
+                                                            
+                                                            $(consultaField).summernote('code', newContent);
+                                                            console.log('✅ Contenido insertado exitosamente en Summernote después de cambiar tab');
+                                                            
+                                                            // Disparar evento de cambio para notificar al sistema
+                                                            $(consultaField).trigger('summernote.change');
+                                                            
+                                                        } catch (e) {
+                                                            console.error('❌ Error al insertar en Summernote:', e);
+                                                        }
+                                                    },
+                                                    getValue: function() {
+                                                        return $(consultaField).summernote('code');
+                                                    },
+                                                    focus: function() {
+                                                        try {
+                                                            $(consultaField).summernote('focus');
+                                                        } catch (e) {
+                                                            console.log('⚠️  No se pudo enfocar Summernote');
+                                                        }
+                                                    }
+                                                });
+                                            } catch (e) {
+                                                console.error('❌ Summernote no está funcional:', e);
+                                                if (attempts < maxAttempts) {
+                                                    setTimeout(tryFindField, 1000); // Más tiempo para retry
+                                                } else {
+                                                    callback(null);
+                                                }
+                                            }
+                                        }, 1000); // Aumentar pausa para asegurar inicialización completa
+                                        
+                                        return;
+                                    } else {
+                                        // Si no tiene Summernote pero debería, esperar más
+                                        console.log('⏳ Esperando inicialización de Summernote...');
+                                        if (attempts < maxAttempts) {
+                                            setTimeout(tryFindField, 1000);
+                                            return;
+                                        }
+                                    }
+                                }
+                                
+                                // NUEVO: Verificar si es un textarea normal (fallback)
+                                if (consultaField && consultaField.tagName === 'TEXTAREA') {
+                                    console.log('✅ Campo textarea #consulta encontrado (modo fallback)');
+                                    callback({
+                                        element: consultaField,
+                                        isSummernote: false,
+                                        setValue: function(text) {
+                                            const currentContent = consultaField.value;
+                                            let newContent = text;
+                                            
+                                            if (currentContent && currentContent.trim() !== '' && !currentContent.includes('[Diagnóstico ICD-11:')) {
+                                                newContent = currentContent + '\n' + text;
+                                            }
+                                            
+                                            consultaField.value = newContent;
+                                            console.log('✅ Texto insertado en textarea después de cambiar tab');
+                                            
+                                            // Disparar evento de cambio
+                                            const event = new Event('input', { bubbles: true });
+                                            consultaField.dispatchEvent(event);
+                                        },
+                                        getValue: function() {
+                                            return consultaField.value;
+                                        },
+                                        focus: function() {
+                                            consultaField.focus();
+                                        }
+                                    });
+                                    return;
+                                }
+                                
+                                // Si llegamos aquí, el campo existe pero no está listo
+                                if (attempts < maxAttempts) {
+                                    console.log('⏳ Campo encontrado pero no listo, reintentando...');
+                                    setTimeout(tryFindField, 1000);
+                                    return;
+                                }
+                                
+                            } else if (attempts < maxAttempts) {
+                                // Si no encontramos el campo, intentar de nuevo
+                                console.log('⏳ Campo no encontrado o no visible, reintentando...');
+                                setTimeout(tryFindField, 1000); // Aumentar tiempo entre intentos
+                            } else {
+                                console.error('❌ No se encontró el campo #consulta después de múltiples intentos');
+                                console.error('🔍 Estado final de búsqueda:', {
+                                    tabActive: document.querySelector('#tab-create')?.style.display,
+                                    formVisible: document.querySelector('#createForm')?.style.display,
+                                    consultaExists: !!document.getElementById('consulta'),
+                                    allTextareas: Array.from(document.querySelectorAll('textarea')).map(t => ({id: t.id, name: t.name, visible: t.offsetParent !== null}))
+                                });
+                                callback(null);
+                            }
+                        }
+                        
+                        // Comenzar la búsqueda después de un breve delay inicial
+                        setTimeout(tryFindField, 1000); // Aumentar delay inicial para esperar reset completo
+                    }
+                };
+            }
+        } catch (e) {
+            console.error('❌ Error al intentar cambiar al tab create:', e);
+        }
+    }
+    
+    console.log('❌ No se encontró ningún campo de texto disponible');
+    return null;
+}
+
+// Función para seleccionar un código cuando fallan los detalles
+function selectCodeWithoutDetails(code, title) {
+    try {
+        console.log('🔧 Usando código sin detalles:', code, title);
+        
+        // Cerrar el modal de detalles si está abierto
+        if (typeof $ !== 'undefined') {
+            $('#icd-details-modal').modal('hide');
+        }
+        
+        // Crear datos simplificados
+        const simpleData = {
+            code: code,
+            title: title,
+            description: "Código ICD-11 seleccionado desde consultas-v3",
+            uri: ""
+        };
+        
+        // Intentar actualizar el textarea de consulta directamente
+        const textareaResult = findConsultaTextarea();
+        
+        function insertSimpleDiagnosis(textareaWrapper) {
+            if (textareaWrapper) {
+                console.log('📝 Editor/textarea encontrado, insertando diagnóstico...');
+                
+                // Formatear el diagnóstico simplificado
+                let diagnosisContent = '';
+                
+                if (textareaWrapper.isSummernote) {
+                    // Formateo para Summernote (HTML)
+                    diagnosisContent = `<p><strong>🏥 [Diagnóstico ICD-11: ${code} - ${title}]</strong></p><p>&nbsp;</p>`;
+                } else {
+                    // Formateo para textarea normal
+                    diagnosisContent = `🏥 [Diagnóstico ICD-11: ${code} - ${title}]\n\n`;
+                }
+                
+                // Insertar contenido usando el método setValue del wrapper
+                textareaWrapper.setValue(diagnosisContent);
+                
+                // Mostrar mensaje de éxito inmediatamente después de insertar
+                if (typeof showAlert === 'function') {
+                    showAlert('success', `✅ Diagnóstico agregado: ${code} - ${title}`);
+                } else if (typeof alertify !== 'undefined') {
+                    // Verificar funciones disponibles en alertify
+                    if (typeof alertify.success === 'function') {
+                        alertify.success(`✅ Diagnóstico agregado: ${code} - ${title}`);
+                    } else if (typeof alertify.notify === 'function') {
+                        alertify.notify(`✅ Diagnóstico agregado: ${code} - ${title}`, 'success');
+                    } else if (typeof alertify.message === 'function') {
+                        alertify.message(`✅ Diagnóstico agregado: ${code} - ${title}`);
+                    } else {
+                        console.log(`✅ Diagnóstico agregado: ${code} - ${title}`);
+                    }
+                } else {
+                    console.log(`✅ Diagnóstico agregado: ${code} - ${title}`);
+                }
+                
+                // Intentar enfocar
+                try {
+                    textareaWrapper.focus();
+                    
+                    // Si es un textarea normal, hacer scroll hacia él
+                    if (!textareaWrapper.isSummernote && textareaWrapper.element) {
+                        textareaWrapper.element.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'center'
+                        });
+                        
+                        // Resaltar brevemente el campo
+                        textareaWrapper.element.classList.add('highlight-textarea');
+                        setTimeout(() => {
+                            if (textareaWrapper.element) {
+                                textareaWrapper.element.classList.remove('highlight-textarea');
+                            }
+                        }, 3000);
+                    } else if (textareaWrapper.isSummernote) {
+                        // Para Summernote, resaltar el editor
+                        const noteEditor = $(textareaWrapper.element).next('.note-editor');
+                        if (noteEditor.length > 0) {
+                            noteEditor.addClass('highlight-summernote');
+                            setTimeout(() => {
+                                noteEditor.removeClass('highlight-summernote');
+                            }, 3000);
+                        }
+                    }
+                } catch (e) {
+                    console.error('⚠️  Error al enfocar elemento después de insertar:', e);
+                }
+                
+                console.log('✅ Diagnóstico insertado correctamente en el formulario');
+                return true;
+                
+            } else {
+                console.warn('❌ No se encontró el editor/textarea para inserción');
+                return false;
+            }
+        }
+        
+        // Si tenemos un resultado pendiente (cambio de pestaña), esperamos la resolución
+        if (textareaResult && textareaResult.pending) {
+            console.log('⏳ Esperando resolución de cambio de pestaña...');
+            textareaResult.resolve(function(resolvedWrapper) {
+                const success = insertSimpleDiagnosis(resolvedWrapper);
+                if (!success) {
+                    handleInsertionFailure();
+                } else {
+                    // Cerrar modal después de inserción exitosa
+                    setTimeout(() => {
+                        if (typeof $ !== 'undefined') {
+                            $('#icd-details-modal').modal('hide');
+                        }
+                    }, 1000);
+                }
+            });
+        } else if (textareaResult) {
+            // Procesamiento directo solo si tenemos un resultado válido
+            const success = insertSimpleDiagnosis(textareaResult);
+            if (!success) {
+                handleInsertionFailure();
+            } else {
+                // Cerrar modal después de inserción exitosa
+                setTimeout(() => {
+                    if (typeof $ !== 'undefined') {
+                        $('#icd-details-modal').modal('hide');
+                    }
+                }, 1000);
+            }
+        } else {
+            // No hay resultado, activar manejo de fallo
+            console.warn('❌ No se obtuvo resultado de findConsultaTextarea');
+            handleInsertionFailure();
+        }
+        
+        // Función para manejar el caso de fallo en la inserción
+        function handleInsertionFailure() {
+            console.warn('⚠️  Fallo en inserción automática, usando alternativas...');
+            
+            // Mostrar mensaje de guía al usuario
+            if (typeof alertify !== 'undefined') {
+                // Verificar qué funciones están disponibles en alertify
+                if (typeof alertify.warning === 'function') {
+                    alertify.warning('No se pudo insertar automáticamente. Por favor, vaya a la pestaña "Nueva Consulta" y use el diagnóstico copiado al portapapeles.');
+                } else if (typeof alertify.notify === 'function') {
+                    alertify.notify('No se pudo insertar automáticamente. Por favor, vaya a la pestaña "Nueva Consulta" y use el diagnóstico copiado al portapapeles.', 'warning');
+                } else if (typeof alertify.alert === 'function') {
+                    alertify.alert('Aviso', 'No se pudo insertar automáticamente. Por favor, vaya a la pestaña "Nueva Consulta" y use el diagnóstico copiado al portapapeles.');
+                } else {
+                    console.warn('⚠️  No se pudo mostrar mensaje de advertencia - funciones alertify no disponibles');
+                }
+            }
+            
+            // Copiar al portapapeles como alternativa
+            try {
+                const textToCopy = `[Diagnóstico ICD-11: ${code} - ${title}]`;
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(textToCopy).then(
+                        () => {
+                            if (typeof alertify !== 'undefined') {
+                                if (typeof alertify.success === 'function') {
+                                    alertify.success('Diagnóstico copiado al portapapeles');
+                                } else if (typeof alertify.notify === 'function') {
+                                    alertify.notify('Diagnóstico copiado al portapapeles', 'success');
+                                } else if (typeof alertify.message === 'function') {
+                                    alertify.message('Diagnóstico copiado al portapapeles');
+                                }
+                            }
+                            console.log('📋 Diagnóstico copiado al portapapeles');
+                        },
+                        (err) => {
+                            console.warn('⚠️  No se pudo copiar al portapapeles:', err);
+                        }
+                    );
+                }
+            } catch (e) {
+                console.error('❌ Error al copiar al portapapeles:', e);
+            }
+            
+            // Intentar activar la pestaña "Nueva Consulta" para guiar al usuario
+            try {
+                const createTabButton = document.querySelector("button[onclick=\"showTab('create')\"]");
+                if (createTabButton) {
+                    createTabButton.click();
+                    console.log('🔄 Cambiado a pestaña "Nueva Consulta"');
+                }
+            } catch (e) {
+                console.error('❌ Error al cambiar a pestaña create:', e);
+            }
+        }
+        
+        // Mostrar mensaje de confirmación
+        const mensaje = `✅ Diagnóstico seleccionado: ${code} - ${title}`;
+        if (typeof alertify !== 'undefined') {
+            if (typeof alertify.success === 'function') {
+                alertify.success(mensaje);
+            } else if (typeof alertify.notify === 'function') {
+                alertify.notify(mensaje, 'success');
+            } else if (typeof alertify.message === 'function') {
+                alertify.message(mensaje);
+            } else {
+                console.log(mensaje);
+            }
+        } else {
+            console.log(mensaje);
+        }
+        
+    } catch (err) {
+        console.error('❌ Error al seleccionar código sin detalles:', err);
+        if (typeof alertify !== 'undefined') {
+            if (typeof alertify.error === 'function') {
+                alertify.error('Error al seleccionar el código: ' + err.message);
+            } else if (typeof alertify.notify === 'function') {
+                alertify.notify('Error al seleccionar el código: ' + err.message, 'error');
+            } else if (typeof alertify.alert === 'function') {
+                alertify.alert('Error', 'Error al seleccionar el código: ' + err.message);
+            } else {
+                console.error('Error al seleccionar el código:', err.message);
+            }
+        }
+    }
+}
+
+// Setup de navegación entre pestañas para facilitar uso de ICD-11 en consultas-v3
+function setupTabNavigation() {
+    try {
+        console.log('🚀 Configurando navegación de tabs para consultas-v3...');
+        
+        // Encontrar todos los botones de navegación de tabs en consultas-v3
+        const tabButtons = document.querySelectorAll('.consultas-tab');
+        
+        // Configurar manejador de eventos para cada botón
+        tabButtons.forEach(button => {
+            button.addEventListener('click', function(event) {
+                const onclickAttr = button.getAttribute('onclick');
+                if (onclickAttr) {
+                    // Extraer el nombre del tab del onclick (ej: showTab('icd') -> 'icd')
+                    const tabMatch = onclickAttr.match(/showTab\(['"]([^'"]+)['"]\)/);
+                    if (tabMatch) {
+                        const tabName = tabMatch[1];
+                        console.log(`🔄 Cambio de pestaña a: ${tabName}`);
+                        
+                        // Si se está yendo de ICD a CREATE, preparar la transición
+                        if (tabName === 'create') {
+                            const currentActiveTab = document.querySelector('.consultas-tab.active');
+                            if (currentActiveTab && currentActiveTab.getAttribute('onclick').includes("'icd'")) {
+                                console.log('🔄 Transición de ICD a Nueva Consulta detectada');
+                                
+                                // Esperar a que cambie la pestaña y luego verificar el textarea
+                                setTimeout(() => {
+                                    console.log('🔍 Verificando campos después del cambio...');
+                                    const textarea = findConsultaTextarea();
+                                    if (textarea) {
+                                        console.log('✅ Campo de consulta encontrado después del cambio de pestaña');
+                                    } else {
+                                        console.warn('⚠️  No se encontró el campo después del cambio de pestaña');
+                                    }
+                                }, 500);
+                            }
+                        }
+                        
+                        // Si se está yendo a ICD, preparar el entorno
+                        if (tabName === 'icd') {
+                            console.log('📋 Preparando pestaña ICD para selección de diagnósticos');
+                            
+                            setTimeout(() => {
+                                // Verificar que el iframe de ICD se haya cargado
+                                const icdIframe = document.getElementById('coding-tool-iframe');
+                                if (icdIframe) {
+                                    console.log('✅ Herramienta ICD cargada y lista');
+                                }
+                                
+                                // Preparar mensaje informativo si es la primera vez
+                                const alertsContainer = document.getElementById('alerts-container');
+                                if (alertsContainer && alertsContainer.children.length === 0) {
+                                    const infoAlert = document.createElement('div');
+                                    infoAlert.className = 'alert alert-info alert-dismissible fade show';
+                                    infoAlert.innerHTML = `
+                                        <i class="fas fa-info-circle"></i> 
+                                        <strong>Consejo:</strong> Busque un término médico y haga clic en "Usar este diagnóstico" para agregarlo automáticamente a su consulta.
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    `;
+                                    alertsContainer.appendChild(infoAlert);
+                                    
+                                    // Remover automáticamente después de 8 segundos
+                                    setTimeout(() => {
+                                        if (infoAlert.parentNode === alertsContainer) {
+                                            infoAlert.remove();
+                                        }
+                                    }, 8000);
+                                }
+                            }, 300);
+                        }
+                    }
+                }
+            });
+        });
+        
+        console.log(`✅ Configurada navegación entre pestañas (${tabButtons.length} tabs encontrados)`);
+    } catch (e) {
+        console.error('❌ Error al configurar navegación entre pestañas:', e);
+    }
+}
+
+// Función auxiliar para obtener el tab actualmente activo
+function getCurrentActiveTab() {
+    const activeTabButton = document.querySelector('.consultas-tab.active');
+    if (activeTabButton) {
+        const onclickAttr = activeTabButton.getAttribute('onclick');
+        const tabMatch = onclickAttr?.match(/showTab\(['"]([^'"]+)['"]\)/);
+        return tabMatch ? tabMatch[1] : null;
+    }
+    return null;
+}
+
+// Exponer las funciones principales como globales para acceso desde otros scripts
+window.findConsultaTextarea = findConsultaTextarea;
+window.selectCodeWithoutDetails = selectCodeWithoutDetails;
+window.setupTabNavigation = setupTabNavigation;
+window.getCurrentActiveTab = getCurrentActiveTab;
+
+// Inicializar cuando el documento está listo
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 ICD-11 Integration para Consultas-V3: Inicializando...');
+    
+    // Configurar navegación de tabs
+    setupTabNavigation();
+    
+    // Verificar si ya tenemos elementos disponibles
+    const consultaField = document.getElementById('consulta');
+    if (consultaField) {
+        console.log('✅ Campo #consulta detectado al cargar');
+        
+        // Si tiene Summernote, esperar a que se inicialice
+        if (typeof $ !== 'undefined' && $(consultaField).hasClass('summernote')) {
+            // Esperar a que Summernote se inicialice completamente
+            setTimeout(() => {
+                const hasSummernote = $(consultaField).next('.note-editor').length > 0;
+                if (hasSummernote) {
+                    console.log('✅ Summernote inicializado en #consulta');
+                } else {
+                    console.log('⏳ Esperando inicialización de Summernote...');
+                }
+            }, 1000);
+        }
+    } else {
+        console.log('⏳ Campo #consulta no disponible al cargar, será detectado dinámicamente');
+    }
+    
+    console.log('✅ ICD-11 Integration inicializado correctamente para consultas-v3');
+    
+    // Agregar event listener para el evento icd11:codeSelected
+    document.addEventListener('icd11:codeSelected', function(event) {
+        console.log('🎯 Evento icd11:codeSelected recibido, insertando contenido...', event.detail);
+        
+        if (!event.detail || !event.detail.code) {
+            console.error('❌ Datos del evento inválidos');
+            return;
+        }
+        
+        const { code, title, description } = event.detail;
+        
+        // Buscar el textarea usando nuestra función principal
+        const textareaResult = findConsultaTextarea();
+        
+        function processInsertion(textareaWrapper) {
+            if (textareaWrapper) {
+                console.log('📝 Insertando diagnóstico ICD en editor...');
+                
+                // Formatear el contenido para insertar
+                let diagnosisContent = '';
+                
+                if (textareaWrapper.isSummernote) {
+                    // Formato HTML para Summernote
+                    diagnosisContent = `<p><strong>[Diagnóstico ICD-11: ${code} - ${title}]</strong></p><p>${description || 'Descripción no disponible'}</p><p>&nbsp;</p>`;
+                } else {
+                    // Formato texto plano
+                    diagnosisContent = `[Diagnóstico ICD-11: ${code} - ${title}]\n${description || 'Descripción no disponible'}\n\n`;
+                }
+                
+                // Insertar el contenido
+                textareaWrapper.setValue(diagnosisContent);
+                
+                // Intentar enfocar el campo
+                try {
+                    textareaWrapper.focus();
+                } catch (e) {
+                    console.log('⚠️ No se pudo enfocar el campo');
+                }
+                
+                console.log('✅ Diagnóstico ICD insertado exitosamente');
+                
+                // Mostrar notificación de éxito
+                if (typeof showAlert === 'function') {
+                    showAlert('success', `✅ Diagnóstico agregado: ${code} - ${title}`);
+                } else if (typeof alertify !== 'undefined' && typeof alertify.success === 'function') {
+                    alertify.success(`✅ Diagnóstico agregado: ${code} - ${title}`);
+                } else {
+                    console.log(`✅ Diagnóstico agregado: ${code} - ${title}`);
+                }
+            } else {
+                console.error('❌ No se encontró el editor para insertar el diagnóstico');
+            }
+        }
+        
+        // Si el resultado es una promesa (cambio de pestaña pendiente), esperar resolución
+        if (textareaResult && textareaResult.pending) {
+            textareaResult.resolve(processInsertion);
+        } else {
+            // Procesar inmediatamente
+            processInsertion(textareaResult);
+        }
+    });
+});

@@ -391,6 +391,76 @@ if ($paciente_id) {
             border-radius: 4px !important;
         }
         
+        /* Estilos para resaltar campos después de inserción ICD */
+        @keyframes highlightTextarea {
+            0% {
+                box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.4);
+            }
+            50% {
+                box-shadow: 0 0 0 10px rgba(40, 167, 69, 0.8);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(40, 167, 69, 0);
+            }
+        }
+        
+        .highlight-textarea {
+            animation: highlightTextarea 2s ease-out;
+            background-color: #d4edda !important;
+            border-color: #28a745 !important;
+            transition: background-color 2s ease, border-color 2s ease;
+        }
+        
+        /* Resaltado para editores Summernote */
+        .highlight-summernote {
+            animation: highlightSummernote 3s ease-out;
+            position: relative;
+        }
+        
+        .highlight-summernote::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(40, 167, 69, 0.1);
+            border: 2px solid #28a745;
+            border-radius: 4px;
+            pointer-events: none;
+            animation: fadeHighlight 3s ease-out forwards;
+        }
+        
+        @keyframes highlightSummernote {
+            0% { 
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.4);
+            }
+            50% { 
+                transform: scale(1.02);
+                box-shadow: 0 0 0 10px rgba(40, 167, 69, 0.6);
+            }
+            100% { 
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(40, 167, 69, 0);
+            }
+        }
+        
+        @keyframes fadeHighlight {
+            0% { opacity: 0.8; }
+            100% { opacity: 0; }
+        }
+        
+        /* Estilos específicos para ICD-11 */
+        .icd11-container {
+            background: transparent !important;
+        }
+        
+        .icd11-container .card {
+            border: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
         /* Responsive mejorado */
         @media (max-width: 768px) {
             .consultas-v3-container {
@@ -1166,8 +1236,14 @@ if ($paciente_id) {
                     }
                     break;
                 case 'create':
-                    console.log('🔵 Ejecutando resetForm() para tab create');
-                    resetForm();
+                    // 🔧 FIX: No resetear si venimos de inserción ICD
+                    if (window.insertingIcdContent) {
+                        console.log('🔵 Saltando resetForm() - inserción ICD en progreso');
+                        window.insertingIcdContent = false; // Reset flag
+                    } else {
+                        console.log('🔵 Ejecutando resetForm() para tab create');
+                        resetForm();
+                    }
                     
                     // 🔧 FIX: Asegurar que todas las form-section estén visibles
                     console.log('🔧 Activando todas las form-section...');
@@ -4943,6 +5019,68 @@ if ($paciente_id) {
                 }
             }
         }
+        
+        // Función global showAlert para compatibilidad con ICD-11
+        function showAlert(type, message) {
+            // Priorizar alertify si está disponible
+            if (typeof alertify !== 'undefined') {
+                switch(type) {
+                    case 'success':
+                        if (typeof alertify.success === 'function') {
+                            alertify.success(message);
+                        } else if (typeof alertify.notify === 'function') {
+                            alertify.notify(message, 'success');
+                        } else {
+                            alertify.alert('Éxito', message);
+                        }
+                        break;
+                    case 'warning':
+                        // alertify.warning no existe en muchas versiones
+                        if (typeof alertify.warning === 'function') {
+                            alertify.warning(message);
+                        } else if (typeof alertify.notify === 'function') {
+                            alertify.notify(message, 'warning');
+                        } else if (typeof alertify.alert === 'function') {
+                            alertify.alert('Aviso', message);
+                        } else {
+                            console.warn('WARNING:', message);
+                        }
+                        break;
+                    case 'danger':
+                    case 'error':
+                        if (typeof alertify.error === 'function') {
+                            alertify.error(message);
+                        } else if (typeof alertify.notify === 'function') {
+                            alertify.notify(message, 'error');
+                        } else {
+                            alertify.alert('Error', message);
+                        }
+                        break;
+                    case 'info':
+                        if (typeof alertify.message === 'function') {
+                            alertify.message(message);
+                        } else if (typeof alertify.notify === 'function') {
+                            alertify.notify(message, 'info');
+                        } else {
+                            alertify.alert('Información', message);
+                        }
+                        break;
+                    default:
+                        if (typeof alertify.message === 'function') {
+                            alertify.message(message);
+                        } else {
+                            alertify.alert('Información', message);
+                        }
+                }
+                return; // Salir temprano si se usó alertify
+            }
+            
+            // Fallback: Usar console como último recurso
+            console.log(`Alert ${type}: ${message}`);
+        }
+        
+        // Exponer showAlert globalmente
+        window.showAlert = showAlert;
         
     </script>
 
