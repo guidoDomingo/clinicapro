@@ -1369,9 +1369,24 @@
             if (!dateValue) return defaultValue;
             
             try {
-                const fecha = new Date(dateValue);
+                let fecha;
+                
+                // Si es una fecha tipo "YYYY-MM-DD" (típica de PostgreSQL)
+                if (typeof dateValue === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateValue)) {
+                    // Crear fecha local sin problemas de zona horaria
+                    const [year, month, day] = dateValue.split('-').map(Number);
+                    fecha = new Date(year, month - 1, day); // month - 1 porque Date usa 0-based months
+                } else {
+                    // Para otros formatos de fecha
+                    fecha = new Date(dateValue);
+                }
+                
                 if (!isNaN(fecha.getTime())) {
-                    return fecha.toLocaleDateString('es-ES');
+                    // Usar formateo manual para evitar problemas de zona horaria
+                    const day = fecha.getDate().toString().padStart(2, '0');
+                    const month = (fecha.getMonth() + 1).toString().padStart(2, '0');
+                    const year = fecha.getFullYear();
+                    return `${day}/${month}/${year}`;
                 }
             } catch (e) {
                 console.warn('Error parseando fecha:', dateValue, e);
