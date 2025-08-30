@@ -595,6 +595,12 @@ if ($paciente_id) {
                 <button class="consultas-tab" onclick="showTab('patients')">
                     <i class="fas fa-users me-2"></i>Pacientes
                 </button>
+                <button class="consultas-tab" onclick="showTab('icd')">
+                    <i class="fas fa-code-branch me-2"></i>Códigos ICD
+                </button>
+                <button class="consultas-tab" onclick="showTab('medicamentos')">
+                    <i class="fas fa-pills me-2"></i>Medicamentos
+                </button>
             </div>
         </div>
         
@@ -908,6 +914,30 @@ if ($paciente_id) {
             </div>
             <div class="card-body-custom">
                 <div id="patients-list"></div>
+            </div>
+        </div>
+        
+        <!-- Tab: Códigos ICD -->
+        <div id="tab-icd" class="tab-content consultas-card" style="display: none;">
+            <div class="card-header-custom">
+                <i class="fas fa-code-branch me-2"></i>Códigos ICD
+            </div>
+            <div class="card-body-custom">
+                <?php
+                    include "view/inc/frmConsultaICD.php";
+                ?>
+            </div>
+        </div>
+        
+        <!-- Tab: Medicamentos -->
+        <div id="tab-medicamentos" class="tab-content consultas-card" style="display: none;">
+            <div class="card-header-custom">
+                <i class="fas fa-pills me-2"></i>Medicamentos
+            </div>
+            <div class="card-body-custom">
+                <?php
+                    include "view/inc/frmConsultaRemedio.php";
+                ?>
             </div>
         </div>
         
@@ -4915,5 +4945,10 @@ if ($paciente_id) {
         }
         
     </script>
+
+    <!-- Scripts para ICD y Medicamentos -->
+    <script src="view/js/icd11-integration.js"></script>
+    <script src="view/js/remedios.js"></script>
+
 </body>
 </html>
