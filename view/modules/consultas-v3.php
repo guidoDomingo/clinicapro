@@ -217,7 +217,7 @@
             padding: 12px 20px;
             border: none;
             background: #f8f9fa;
-            color: #495057;
+            color: #6c757d;
             cursor: pointer;
             font-weight: 500;
             transition: all 0.3s ease;
@@ -235,6 +235,7 @@
         
         .consultas-tab:hover:not(.active) {
             background: #e9ecef;
+            color: #495057;
         }
         
         /* Formulario optimizado */
@@ -1019,9 +1020,16 @@
         function showTab(tabName) {
             console.log('🔵 showTab called with:', tabName);
             
-            // Actualizar pestañas
-            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-            document.querySelector(`button[onclick="showTab('${tabName}')"]`).classList.add('active');
+            // Actualizar pestañas visuales - remover active de todas
+            document.querySelectorAll('.consultas-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Agregar active solo al tab clickeado
+            const activeTabButton = document.querySelector(`button[onclick="showTab('${tabName}')"]`);
+            if (activeTabButton) {
+                activeTabButton.classList.add('active');
+            }
             
             // Actualizar contenido
             console.log('🔍 Ocultando todos los tab-content...');

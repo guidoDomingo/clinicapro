@@ -113,25 +113,39 @@ function inicializarTabla() {
       type: "GET",
       data: function(d) {
         // Mapear parámetros de DataTables a la API
-        return {
+        const params = {
           page: Math.floor(d.start / d.length) + 1,
           per_page: d.length,
           search: d.search.value,
           order_column: d.columns[d.order[0].column].data,
           order_direction: d.order[0].dir
         };
+        
+        console.log("Parámetros enviados a la API:", params);
+        return params;
       },
       dataSrc: function (json) {
         console.log("Datos recibidos:", json);
         
-        // La API devuelve data.data para los registros y data.pagination para metadatos
         if (json.status === 'success' && json.data) {
-          // Configurar metadatos para DataTables
-          json.recordsTotal = json.data.pagination ? json.data.pagination.total : 0;
-          json.recordsFiltered = json.data.pagination ? json.data.pagination.total : 0;
+          // Si json.data es un array directamente (búsqueda)
+          if (Array.isArray(json.data)) {
+            json.recordsTotal = json.data.length;
+            json.recordsFiltered = json.data.length;
+            return json.data;
+          }
           
-          // Devolver solo los datos de los registros
-          return json.data.data || [];
+          // Si json.data es un objeto con estructura paginada
+          if (json.data.data && Array.isArray(json.data.data)) {
+            json.recordsTotal = json.data.pagination ? json.data.pagination.total : json.data.data.length;
+            json.recordsFiltered = json.data.pagination ? json.data.pagination.total : json.data.data.length;
+            return json.data.data;
+          }
+          
+          // Fallback: asumir que json.data es el array de datos
+          json.recordsTotal = json.data.length || 0;
+          json.recordsFiltered = json.data.length || 0;
+          return Array.isArray(json.data) ? json.data : [];
         }
         
         return [];
@@ -139,6 +153,8 @@ function inicializarTabla() {
       error: function(xhr, error, thrown) {
         console.error('Error cargando datos:', error, thrown);
         console.error('Respuesta del servidor:', xhr.responseText);
+        console.error('Status HTTP:', xhr.status);
+        console.error('URL solicitada:', xhr.responseURL || 'No disponible');
       }
     },
     columns: [
@@ -220,13 +236,25 @@ function filtrarPersonas() {
   };
 
   // Construir URL con parámetros de búsqueda
-  let url = "api/persons/search?";
+  let url = "api/persons/search";
+  let params = new URLSearchParams();
+  
   for (const key in filtros) {
     if (filtros[key]) {
-      url += `${key}=${encodeURIComponent(filtros[key])}&`;
+      params.append(key, filtros[key]);
     }
   }
+  
+  // Solo agregar parámetros si hay filtros
+  if (params.toString()) {
+    url += "?" + params.toString();
+  } else {
+    // Si no hay filtros, usar el endpoint normal
+    url = "api/persons";
+  }
 
+  console.log("URL de filtrado:", url);
+  
   // Actualizar datos de la tabla
   tablaPersonas.ajax.url(url).load();
 }
@@ -551,55 +579,79 @@ function guardarPersona() {
     .then((data) => {
       console.log(data);
       
-      // Verificar si es el error específico de documento ya registrado
-      if (data.status === "error" && data.error && data.error.message === "Document number already registered") {
-        // Buscar la persona por documento para obtener sus datos
-        fetch(`api/persons/search?document=${personaData.document_number}`)
-          .then(response => response.json())
-          .then(searchData => {
-            if (searchData.status === "success" && searchData.data && searchData.data.length > 0) {
-              const persona = searchData.data[0];
-              
-              // Verificar explícitamente si estamos en el módulo de consultas
-              // y si existen los elementos necesarios
-              const currentPath = window.location.pathname;
-              const isConsultasModule = currentPath.includes("consultas") || 
-                                      currentPath.endsWith("/consultas") || 
-                                      currentPath.endsWith("/consultas.php");
-                                      
-              const txtDocumentoElem = document.getElementById("txtdocumento");
-              const pacienteElem = document.getElementById("paciente");
-              
-              if (isConsultasModule && txtDocumentoElem && pacienteElem) {
-                console.log("En módulo consultas: completando formulario con datos de la persona");
-                txtDocumentoElem.value = personaData.document_number;
-                
-                const txtFichaElem = document.getElementById("txtficha");
-                if (txtFichaElem) txtFichaElem.value = personaData.record_number || "";
-                
-                pacienteElem.value = personaData.first_name + " " + personaData.last_name;
-                
-                // Ejecutar la búsqueda de persona solo en el módulo de consultas
-                if (typeof buscarPersona === "function") {
-                  buscarPersona();
-                }
-              } else {
-                console.log("No estamos en módulo consultas o no existen los elementos necesarios");
-              }
-              
-              // Cerrar el modal y mostrar un mensaje informativo
-              mostrarAlerta("info", "La persona ya existe en la base de datos. Se han cargado sus datos.");
-              $("#modalAgregarPersonas").modal("hide");
-            } else {
-              mostrarAlerta("warning", "La persona ya existe en la base de datos pero no se pudieron recuperar sus datos.");
-              $("#modalAgregarPersonas").modal("hide");
-            }
-          })
-          .catch(error => {
-            console.error("Error al buscar la persona:", error);
-            mostrarAlerta("warning", "La persona ya existe en la base de datos.");
-            $("#modalAgregarPersonas").modal("hide");
-          });
+      // Verificar si hay un error en la respuesta
+      if (data.status === "error") {
+        let errorMessage = "Error al guardar la persona";
+        
+        // Extraer el mensaje de error de la estructura correcta
+        if (data.error && data.error.message) {
+          const apiError = data.error.message;
+          
+          // Traducir mensajes de error comunes al español
+          switch (apiError) {
+            case "Email already registered":
+              errorMessage = "El correo electrónico ya está registrado en el sistema";
+              break;
+            case "Document number already registered":
+              errorMessage = "El número de documento ya está registrado en el sistema";
+              // Para documento ya registrado, intentar cargar los datos existentes
+              fetch(`api/persons/search?document=${personaData.document_number}`)
+                .then(response => response.json())
+                .then(searchData => {
+                  if (searchData.status === "success" && searchData.data && searchData.data.length > 0) {
+                    const persona = searchData.data[0];
+                    
+                    // Verificar si estamos en el módulo de consultas
+                    const currentPath = window.location.pathname;
+                    const isConsultasModule = currentPath.includes("consultas") || 
+                                            currentPath.endsWith("/consultas") || 
+                                            currentPath.endsWith("/consultas.php");
+                                            
+                    const txtDocumentoElem = document.getElementById("txtdocumento");
+                    const pacienteElem = document.getElementById("paciente");
+                    
+                    if (isConsultasModule && txtDocumentoElem && pacienteElem) {
+                      console.log("En módulo consultas: completando formulario con datos de la persona");
+                      txtDocumentoElem.value = personaData.document_number;
+                      
+                      const txtFichaElem = document.getElementById("txtficha");
+                      if (txtFichaElem) txtFichaElem.value = personaData.record_number || "";
+                      
+                      pacienteElem.value = personaData.first_name + " " + personaData.last_name;
+                      
+                      // Ejecutar la búsqueda de persona solo en el módulo de consultas
+                      if (typeof buscarPersona === "function") {
+                        buscarPersona();
+                      }
+                    }
+                  }
+                })
+                .catch(error => console.error("Error al buscar la persona:", error));
+              break;
+            case "Phone number already registered":
+              errorMessage = "El número de teléfono ya está registrado en el sistema";
+              break;
+            case "Record number already registered":
+              errorMessage = "El número de ficha ya está registrado en el sistema";
+              break;
+            case "Invalid email format":
+              errorMessage = "El formato del correo electrónico no es válido";
+              break;
+            case "Invalid date format":
+              errorMessage = "El formato de la fecha no es válido";
+              break;
+            case "Person must be 18 or older":
+              errorMessage = "La persona debe ser mayor de 18 años";
+              break;
+            default:
+              errorMessage = apiError; // Mostrar el mensaje original si no hay traducción
+          }
+        } else if (data.message) {
+          errorMessage = data.message;
+        }
+        
+        // Mostrar el error al usuario
+        mostrarAlerta("error", errorMessage);
         return;
       }
       
@@ -652,12 +704,20 @@ function guardarPersona() {
           tablaPersonas.ajax.reload();
         }
       } else {
-        mostrarAlerta("error", data.message || "Error al guardar la persona");
+        // Extraer mensaje de error apropiado
+        let errorMessage = "Error al guardar la persona";
+        if (data.error && data.error.message) {
+          errorMessage = data.error.message;
+        } else if (data.message) {
+          errorMessage = data.message;
+        }
+        
+        mostrarAlerta("error", errorMessage);
       }
     })
     .catch((error) => {
-      console.error("Error:", error);
-      mostrarAlerta("error", "Error al procesar la solicitud");
+      console.error("Error de conexión:", error);
+      mostrarAlerta("error", "Error de conexión con el servidor. Por favor, verifique su conexión e intente nuevamente.");
     });
 }
 
@@ -852,31 +912,80 @@ function actualizarPersona() {
   })
     .then((response) => response.json())
     .then((respuesta) => {
+      console.log("Respuesta de actualización:", respuesta);
+      
+      // Verificar si hay un error en la respuesta
+      if (respuesta.status === "error") {
+        let errorMessage = "Error al actualizar la persona";
+        
+        // Extraer el mensaje de error de la estructura correcta
+        if (respuesta.error && respuesta.error.message) {
+          const apiError = respuesta.error.message;
+          
+          // Traducir mensajes de error comunes al español
+          switch (apiError) {
+            case "Email already registered":
+              errorMessage = "El correo electrónico ya está registrado por otra persona";
+              break;
+            case "Document number already registered":
+              errorMessage = "El número de documento ya está registrado por otra persona";
+              break;
+            case "Phone number already registered":
+              errorMessage = "El número de teléfono ya está registrado por otra persona";
+              break;
+            case "Record number already registered":
+              errorMessage = "El número de ficha ya está registrado por otra persona";
+              break;
+            case "Invalid email format":
+              errorMessage = "El formato del correo electrónico no es válido";
+              break;
+            case "Invalid date format":
+              errorMessage = "El formato de la fecha no es válido";
+              break;
+            default:
+              errorMessage = apiError; // Mostrar el mensaje original si no hay traducción
+          }
+        } else if (respuesta.message) {
+          errorMessage = respuesta.message;
+        }
+        
+        mostrarAlerta("error", errorMessage);
+        return;
+      }
+      
+      // Verificar éxito
       const data = respuesta.data;
-      if (data.person_id) {
+      if (data && data.person_id) {
         // Guardar especialidades seleccionadas
         const especialidadesSeleccionadas = $("#EditperEspecialidades").val();
-        guardarEspecialidades(personId, especialidadesSeleccionadas || []);
+        guardarEspecialidades(data.person_id, especialidadesSeleccionadas || []);
 
         // Si hay una foto para subir, hacerlo después de actualizar la persona
         const inputFoto = document.getElementById("inputEditFotoPerfil");
         if (inputFoto.files.length > 0) {
-          subirFotoPerfil(personId, inputFoto.files[0]);
+          subirFotoPerfil(data.person_id, inputFoto.files[0]);
         } else {
           mostrarAlerta("success", "Persona actualizada correctamente");
           $("#modalEditarPersonas").modal("hide");
           tablaPersonas.ajax.reload();
         }
       } else {
-        mostrarAlerta(
-          "error",
-          data.message || "Error al actualizar la persona"
-        );
+        // Extraer mensaje de error apropiado para casos donde no hay person_id
+        let errorMessage = "Error al actualizar la persona";
+        if (respuesta.error && respuesta.error.message) {
+          errorMessage = respuesta.error.message;
+        } else if (respuesta.message) {
+          errorMessage = respuesta.message;
+        } else if (data && data.message) {
+          errorMessage = data.message;
+        }
+        
+        mostrarAlerta("error", errorMessage);
       }
     })
     .catch((error) => {
-      console.error("Error:", error);
-      mostrarAlerta("error", "Error al procesar la solicitud");
+      console.error("Error de conexión:", error);
+      mostrarAlerta("error", "Error de conexión con el servidor. Por favor, verifique su conexión e intente nuevamente.");
     });
 }
 
@@ -1420,11 +1529,51 @@ function validarFormularioPersona() {
   const nombre = document.getElementById("perName").value;
   const apellido = document.getElementById("perLastname").value;
   const sexo = document.getElementById("perSex").value;
+  const email = document.getElementById("perEmail").value;
 
   if (!documento || !fecha || !nombre || !apellido || !sexo) {
     mostrarAlerta(
       "warning",
       "Por favor complete todos los campos obligatorios"
+    );
+    return false;
+  }
+
+  // Validar formato de email si se proporciona
+  if (email && !validarEmail(email)) {
+    mostrarAlerta(
+      "warning",
+      "El formato del correo electrónico no es válido"
+    );
+    return false;
+  }
+
+  // Validar formato de documento (solo números)
+  if (!/^\d+$/.test(documento)) {
+    mostrarAlerta(
+      "warning",
+      "El número de documento debe contener solo números"
+    );
+    return false;
+  }
+
+  // Validar fecha de nacimiento (no futura)
+  const fechaNac = new Date(fecha);
+  const hoy = new Date();
+  if (fechaNac > hoy) {
+    mostrarAlerta(
+      "warning",
+      "La fecha de nacimiento no puede ser futura"
+    );
+    return false;
+  }
+
+  // Validar edad mínima (ejemplo: mayor de 0 años)
+  const edad = calcularEdad(fecha);
+  if (edad < 0 || edad > 150) {
+    mostrarAlerta(
+      "warning",
+      "La fecha de nacimiento no es válida"
     );
     return false;
   }
@@ -1442,6 +1591,15 @@ function validarFormularioPersona() {
       );
       return false;
     }
+    
+    // Validar formato de documento del tutor
+    if (!/^\d+$/.test(docTutor)) {
+      mostrarAlerta(
+        "warning",
+        "El documento del tutor debe contener solo números"
+      );
+      return false;
+    }
   }
 
   return true;
@@ -1456,11 +1614,51 @@ function validarFormularioPersonaEdit() {
   const nombre = document.getElementById("EditperName").value;
   const apellido = document.getElementById("EditperLastname").value;
   const sexo = document.getElementById("EditperSex").value;
+  const email = document.getElementById("EditperEmail").value;
 
   if (!documento || !fecha || !nombre || !apellido || !sexo) {
     mostrarAlerta(
       "warning",
       "Por favor complete todos los campos obligatorios"
+    );
+    return false;
+  }
+
+  // Validar formato de email si se proporciona
+  if (email && !validarEmail(email)) {
+    mostrarAlerta(
+      "warning",
+      "El formato del correo electrónico no es válido"
+    );
+    return false;
+  }
+
+  // Validar formato de documento (solo números)
+  if (!/^\d+$/.test(documento)) {
+    mostrarAlerta(
+      "warning",
+      "El número de documento debe contener solo números"
+    );
+    return false;
+  }
+
+  // Validar fecha de nacimiento (no futura)
+  const fechaNac = new Date(fecha);
+  const hoy = new Date();
+  if (fechaNac > hoy) {
+    mostrarAlerta(
+      "warning",
+      "La fecha de nacimiento no puede ser futura"
+    );
+    return false;
+  }
+
+  // Validar edad mínima (ejemplo: mayor de 0 años)
+  const edad = calcularEdad(fecha);
+  if (edad < 0 || edad > 150) {
+    mostrarAlerta(
+      "warning",
+      "La fecha de nacimiento no es válida"
     );
     return false;
   }
@@ -1478,9 +1676,28 @@ function validarFormularioPersonaEdit() {
       );
       return false;
     }
+    
+    // Validar formato de documento del tutor
+    if (!/^\d+$/.test(docTutor)) {
+      mostrarAlerta(
+        "warning",
+        "El documento del tutor debe contener solo números"
+      );
+      return false;
+    }
   }
 
   return true;
+}
+
+/**
+ * Valida el formato de un email
+ * @param {string} email - Email a validar
+ * @returns {boolean} - true si es válido, false si no
+ */
+function validarEmail(email) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
 }
 
 /**
