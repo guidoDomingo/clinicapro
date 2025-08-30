@@ -2913,18 +2913,67 @@
          */
         async function loadReferenciales() {
             try {
-                // Cargar valores para esfera
+                // Cargar valores para esfera (tanto por ID como por clase)
                 await loadReferencialValores('esfera', ['od_esf', 'oi_esf']);
+                await loadReferencialSelectsByClass('esfera');
                 
                 // Cargar valores para cilindro  
                 await loadReferencialValores('cilindro', ['od_cil', 'oi_cil']);
+                await loadReferencialSelectsByClass('cilindro');
                 
                 // Cargar valores para adición
                 await loadReferencialValores('adicion', ['od_add', 'oi_add']);
+                await loadReferencialSelectsByClass('adicion');
                 
                 console.log('✅ Todos los referenciales de anteojos cargados exitosamente');
             } catch (error) {
                 console.error('❌ Error cargando referenciales:', error);
+            }
+        }
+
+        /**
+         * Cargar valores específicos de un tipo de referencial por clase (para modales de edición)
+         */
+        async function loadReferencialSelectsByClass(tipo) {
+            try {
+                const result = await callAPI('get_referenciales', { tipo: tipo });
+                
+                if (result.data && result.data.length > 0) {
+                    // Buscar todos los selects con clase referencial-select y data-referencial del tipo especificado
+                    const selects = document.querySelectorAll(`.referencial-select[data-referencial="${tipo}"]`);
+                    
+                    selects.forEach(selectElement => {
+                        // Obtener el valor actual si existe
+                        const currentValue = selectElement.getAttribute('data-current-value') || '';
+                        
+                        // Limpiar opciones existentes
+                        selectElement.innerHTML = `<option value="">Seleccionar ${tipo}...</option>`;
+                        
+                        // Agregar nuevas opciones
+                        result.data.forEach(valor => {
+                            const option = document.createElement('option');
+                            option.value = valor.valor;
+                            option.textContent = valor.etiqueta;
+                            if (valor.valor_numerico !== null) {
+                                option.dataset.numerico = valor.valor_numerico;
+                            }
+                            
+                            // Seleccionar si coincide con el valor actual
+                            if (valor.valor === currentValue) {
+                                option.selected = true;
+                            }
+                            
+                            selectElement.appendChild(option);
+                        });
+                        
+                        console.log(`✅ ${tipo} cargado en select por clase: ${result.data.length} valores, valor actual: "${currentValue}"`);
+                    });
+                } else {
+                    console.warn(`⚠️ No hay valores disponibles para ${tipo}`);
+                }
+            } catch (error) {
+                console.error(`❌ Error cargando ${tipo} por clase:`, error);
+                throw error;
             }
         }
 
@@ -3197,6 +3246,10 @@
                 data.txtnota = '';
             }
             
+            // CORRECCIÓN CRÍTICA: Agregar tipo_formulario del estado actual
+            data.tipo_formulario = appState.currentFormType || 'general';
+            console.log('🔧 Tipo de formulario establecido:', data.tipo_formulario);
+            
             // CORRECCIÓN: Procesar campos booleanos
             data = processBooleanFields(data);
             
@@ -3321,6 +3374,13 @@
                         reinitializeComponents();
                     }
                     
+                    // NUEVO: Cargar referencias si hay selects de referenciales en el modal de edición
+                    const editReferencialSelects = container.querySelectorAll('.referencial-select');
+                    if (editReferencialSelects.length > 0) {
+                        console.log('🔧 Cargando referencias para modal de edición...');
+                        loadReferenciales();
+                    }
+                    
                     console.log('✅ Formulario de edición completamente cargado');
                 }, 200);
                 
@@ -3368,6 +3428,8 @@
                                 </div>
                             </div>
                             
+                            <!-- Sección Visión y Tensión - Solo para formularios generales -->
+                            ${data.tipo_formulario === 'general' ? `
                             <div class="row">
                                 <div class="col-md-3">
                                     <div class="form-floating">
@@ -3394,6 +3456,7 @@
                                     </div>
                                 </div>
                             </div>
+                            ` : ''}
                             
                             <div class="field-group">
                                 <div class="large-textarea-container">
@@ -3454,16 +3517,22 @@
                                 <h6 class="text-primary">Ojo Derecho (OD)</h6>
                                 <div class="row">
                                     <div class="col-md-4">
-                                        <div class="form-floating">
-                                            <input type="number" class="form-control" name="od_esf" step="0.25" value="${anteojos.esfera_od || ''}">
-                                            <label>Esfera</label>
-                                        </div>
+                                        <label for="od_esf" class="form-label">Esfera</label>
+                                        <select class="form-select referencial-select" 
+                                                name="od_esf" 
+                                                data-referencial="esfera"
+                                                data-current-value="${anteojos.esfera_od || ''}">
+                                            <option value="">Seleccionar...</option>
+                                        </select>
                                     </div>
                                     <div class="col-md-4">
-                                        <div class="form-floating">
-                                            <input type="number" class="form-control" name="od_cil" step="0.25" value="${anteojos.cilindro_od || ''}">
-                                            <label>Cilindro</label>
-                                        </div>
+                                        <label for="od_cil" class="form-label">Cilindro</label>
+                                        <select class="form-select referencial-select" 
+                                                name="od_cil" 
+                                                data-referencial="cilindro"
+                                                data-current-value="${anteojos.cilindro_od || ''}">
+                                            <option value="">Seleccionar...</option>
+                                        </select>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-floating">
@@ -3480,10 +3549,13 @@
                                         </div>
                                     </div>
                                     <div class="col-md-4">
-                                        <div class="form-floating">
-                                            <input type="number" class="form-control" name="od_add" step="0.25" value="${anteojos.add_od || ''}">
-                                            <label>Adición</label>
-                                        </div>
+                                        <label for="od_add" class="form-label">Adición</label>
+                                        <select class="form-select referencial-select" 
+                                                name="od_add" 
+                                                data-referencial="adicion"
+                                                data-current-value="${anteojos.add_od || ''}">
+                                            <option value="">Seleccionar...</option>
+                                        </select>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-floating">
@@ -3502,16 +3574,22 @@
                                 <h6 class="text-success">Ojo Izquierdo (OI)</h6>
                                 <div class="row">
                                     <div class="col-md-4">
-                                        <div class="form-floating">
-                                            <input type="number" class="form-control" name="oi_esf" step="0.25" value="${anteojos.esfera_oi || ''}">
-                                            <label>Esfera</label>
-                                        </div>
+                                        <label for="oi_esf" class="form-label">Esfera</label>
+                                        <select class="form-select referencial-select" 
+                                                name="oi_esf" 
+                                                data-referencial="esfera"
+                                                data-current-value="${anteojos.esfera_oi || ''}">
+                                            <option value="">Seleccionar...</option>
+                                        </select>
                                     </div>
                                     <div class="col-md-4">
-                                        <div class="form-floating">
-                                            <input type="number" class="form-control" name="oi_cil" step="0.25" value="${anteojos.cilindro_oi || ''}">
-                                            <label>Cilindro</label>
-                                        </div>
+                                        <label for="oi_cil" class="form-label">Cilindro</label>
+                                        <select class="form-select referencial-select" 
+                                                name="oi_cil" 
+                                                data-referencial="cilindro"
+                                                data-current-value="${anteojos.cilindro_oi || ''}">
+                                            <option value="">Seleccionar...</option>
+                                        </select>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-floating">
@@ -3528,10 +3606,13 @@
                                         </div>
                                     </div>
                                     <div class="col-md-4">
-                                        <div class="form-floating">
-                                            <input type="number" class="form-control" name="oi_add" step="0.25" value="${anteojos.add_oi || ''}">
-                                            <label>Adición</label>
-                                        </div>
+                                        <label for="oi_add" class="form-label">Adición</label>
+                                        <select class="form-select referencial-select" 
+                                                name="oi_add" 
+                                                data-referencial="adicion"
+                                                data-current-value="${anteojos.add_oi || ''}">
+                                            <option value="">Seleccionar...</option>
+                                        </select>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-floating">
@@ -3962,17 +4043,41 @@
             document.getElementById('anteojos-section').style.display = 'none';
             document.getElementById('patient-results').style.display = 'none';
             
-            // Mostrar sección de visión y tensión para formulario General (por defecto)
+            // CORRECCIÓN: Mantener el tipo de formulario actual en lugar de forzar 'general'
+            const currentType = appState.currentFormType || 'general';
+            console.log('🔄 Manteniendo tipo de formulario actual:', currentType);
+            
+            // Mostrar sección de visión y tensión solo para formulario General
             const visionTensionSection = document.querySelector('.vision-tension-section');
             if (visionTensionSection) {
-                visionTensionSection.style.display = 'flex';
-                console.log('✅ Sección de visión y tensión activada para formulario General por defecto');
+                if (currentType === 'general') {
+                    visionTensionSection.style.display = 'flex';
+                    console.log('✅ Sección de visión y tensión activada para formulario General');
+                } else {
+                    visionTensionSection.style.display = 'none';
+                    console.log('🔒 Sección de visión y tensión oculta para formulario:', currentType);
+                }
             }
             
-            // Cargar motivos comunes y preformatos para tipo general (por defecto)
+            // Cargar motivos comunes y preformatos para el tipo actual
             console.log('🔄 Cargando motivos comunes y preformatos...');
-            loadMotivosComunes('general');
-            loadPreformatos('general');
+            loadMotivosComunes(currentType);
+            loadPreformatos(currentType);
+            
+            // Activar secciones específicas según el tipo de formulario
+            if (currentType === 'anteojos') {
+                const anteojosSection = document.getElementById('anteojos-section');
+                if (anteojosSection) {
+                    anteojosSection.style.display = 'block';
+                    anteojosSection.classList.add('active');
+                    console.log('✅ Sección de anteojos reactivada después del reset');
+                    
+                    // Recargar referencias después del reset
+                    setTimeout(() => {
+                        loadReferenciales();
+                    }, 200);
+                }
+            }
             
             // 🛡️ Quitar flag después de un pequeño delay
             setTimeout(() => {
