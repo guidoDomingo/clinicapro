@@ -1240,6 +1240,37 @@
                         </div>
                     </div>
                     
+                    <!-- Sección de Archivos y Contacto -->
+                    <div class="form-section active">
+                        <h5 class="form-section-title">Archivos Adjuntos y Contacto</h5>
+                        <div class="form-section-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="archivos_consulta" class="form-label">Archivos Adjuntos</label>
+                                    <input type="file" class="form-control" id="archivos_consulta" name="archivos_consulta[]" multiple accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx">
+                                    <div class="form-text">Máximo 10 archivos. Formatos permitidos: PDF, Word, Excel, Imágenes (JPG, PNG)</div>
+                                    <div id="archivos-preview" class="mt-2"></div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="row">
+                                        <div class="col-md-12 mb-3">
+                                            <div class="form-floating">
+                                                <input type="text" class="form-control" name="whatsapptxt" placeholder="Número de WhatsApp">
+                                                <label>Mensaje WhatsApp</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <div class="form-floating">
+                                                <input type="email" class="form-control" name="email" placeholder="Correo electrónico">
+                                                <label>Email</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <div class="d-flex gap-2 justify-content-end">
                         <button type="button" class="btn btn-secondary" onclick="resetForm()">
                             <i class="fas fa-times me-2"></i>Limpiar
@@ -3414,6 +3445,22 @@
                 });
                 
                 showSuccess('Consulta creada exitosamente');
+                
+                // 🆕 NUEVO: Subir archivos si existen
+                const archivosInput = document.getElementById('archivos_consulta');
+                if (archivosInput && archivosInput.files && archivosInput.files.length > 0) {
+                    console.log('📁 Subiendo archivos para consulta ID:', result.data.id_consulta);
+                    try {
+                        const uploadedFiles = await uploadArchivos(result.data.id_consulta, Array.from(archivosInput.files));
+                        if (uploadedFiles.length > 0) {
+                            console.log('✅ Archivos subidos exitosamente:', uploadedFiles.length);
+                        }
+                    } catch (uploadError) {
+                        console.error('❌ Error subiendo archivos:', uploadError);
+                        showError('Consulta creada, pero hubo problemas subiendo algunos archivos');
+                    }
+                }
+                
                 resetForm();
                 showTab('list');
                 
@@ -3481,6 +3528,18 @@
                     if (editReferencialSelects.length > 0) {
                         console.log('🔧 Cargando referencias para modal de edición...');
                         loadReferenciales();
+                    }
+                    
+                    // 🆕 NUEVO: Cargar archivos existentes de la consulta
+                    console.log('📁 Cargando archivos existentes para consulta ID:', result.data.id_consulta);
+                    loadArchivosExistentes(result.data.id_consulta);
+                    
+                    // Configurar event listener para nuevos archivos en modal de edición
+                    const editArchivosInput = document.getElementById('edit_archivos_consulta');
+                    if (editArchivosInput) {
+                        editArchivosInput.addEventListener('change', function(e) {
+                            previewEditArchivos(e.target);
+                        });
                     }
                     
                     console.log('✅ Formulario de edición completamente cargado');
@@ -3594,6 +3653,20 @@
                                         <input type="email" class="form-control" name="email" value="${data.email || ''}">
                                         <label>Email</label>
                                     </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Sección de Archivos Adjuntos en Edición -->
+                            <div class="row mt-3">
+                                <div class="col-12">
+                                    <h6>Archivos Adjuntos</h6>
+                                    <div id="edit-archivos-existentes" class="mb-3">
+                                        <!-- Archivos existentes se cargarán aquí -->
+                                    </div>
+                                    <label for="edit_archivos_consulta" class="form-label">Agregar nuevos archivos</label>
+                                    <input type="file" class="form-control" id="edit_archivos_consulta" name="archivos_consulta[]" multiple accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx">
+                                    <div class="form-text">Máximo 10 archivos. Formatos permitidos: PDF, Word, Excel, Imágenes (JPG, PNG)</div>
+                                    <div id="edit-archivos-preview" class="mt-2"></div>
                                 </div>
                             </div>
                         </div>
@@ -3954,6 +4027,22 @@
                     related: related
                 });
                 
+                // Subir archivos nuevos si existen
+                const archivosInput = document.getElementById('edit_archivos_consulta');
+                if (archivosInput && archivosInput.files.length > 0) {
+                    console.log('📎 Subiendo', archivosInput.files.length, 'archivos nuevos para consulta editada');
+                    const uploadedFiles = await uploadArchivos(data.id_consulta, Array.from(archivosInput.files));
+                    
+                    if (uploadedFiles.length > 0) {
+                        // Recargar archivos existentes para mostrar los nuevos
+                        await loadArchivosExistentes(data.id_consulta);
+                        // Limpiar el input de archivos
+                        archivosInput.value = '';
+                        const previewDiv = document.getElementById('edit-archivos-preview');
+                        if (previewDiv) previewDiv.innerHTML = '';
+                    }
+                }
+                
                 showSuccess('Consulta actualizada exitosamente');
                 
                 // Cerrar modal
@@ -4205,6 +4294,247 @@
         }
 
         /**
+         * 🆕 Funciones para manejo de archivos
+         */
+        function previewArchivos(input) {
+            const preview = document.getElementById('archivos-preview');
+            preview.innerHTML = '';
+            
+            if (input.files && input.files.length > 0) {
+                const container = document.createElement('div');
+                container.className = 'archivos-selected';
+                
+                Array.from(input.files).forEach((file, index) => {
+                    const fileItem = document.createElement('div');
+                    fileItem.className = 'file-item d-flex align-items-center mb-2 p-2 border rounded';
+                    
+                    const icon = getFileIcon(file.type);
+                    const size = formatFileSize(file.size);
+                    
+                    fileItem.innerHTML = `
+                        <i class="${icon} me-2"></i>
+                        <span class="file-name me-auto">${file.name}</span>
+                        <span class="file-size text-muted me-2">${size}</span>
+                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeFile(${index})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    `;
+                    
+                    container.appendChild(fileItem);
+                });
+                
+                preview.appendChild(container);
+            }
+        }
+        
+        function getFileIcon(mimeType) {
+            if (mimeType.startsWith('image/')) return 'fas fa-image text-success';
+            if (mimeType.includes('pdf')) return 'fas fa-file-pdf text-danger';
+            if (mimeType.includes('word')) return 'fas fa-file-word text-primary';
+            if (mimeType.includes('excel') || mimeType.includes('spreadsheet')) return 'fas fa-file-excel text-success';
+            return 'fas fa-file text-secondary';
+        }
+        
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        function removeFile(index) {
+            const input = document.getElementById('archivos_consulta');
+            const dt = new DataTransfer();
+            
+            for (let i = 0; i < input.files.length; i++) {
+                if (i !== index) {
+                    dt.items.add(input.files[i]);
+                }
+            }
+            
+            input.files = dt.files;
+            previewArchivos(input);
+        }
+        
+        async function uploadArchivos(consulta_id, archivos) {
+            if (!archivos || archivos.length === 0) return [];
+            
+            const uploadedFiles = [];
+            
+            for (let archivo of archivos) {
+                const formData = new FormData();
+                formData.append('archivos', archivo);
+                formData.append('id_consulta', consulta_id);
+                
+                // Corregir el envío de id_persona - usar el ID correcto
+                const personaId = appState.selectedPatient?.id || appState.selectedPatient?.person_id;
+                if (personaId) {
+                    formData.append('id_persona', personaId);
+                }
+                
+                formData.append('action', 'upload_archivo');
+                
+                console.log('📤 Enviando archivo:', {
+                    nombre: archivo.name,
+                    tamaño: archivo.size,
+                    tipo: archivo.type,
+                    consulta_id: consulta_id
+                });
+                
+                try {
+                    const response = await fetch('modules/consultas/api/livewire-system.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const result = await response.json();
+                    console.log('📎 Upload response:', result);
+                    
+                    if (result.success) {
+                        // Manejar diferentes formatos de respuesta
+                        const archivosSubidos = result.subidos || result.data || [];
+                        uploadedFiles.push(...archivosSubidos);
+                        console.log('✅ Archivo subido exitosamente:', archivo.name);
+                        console.log('🔢 Archivos procesados en esta respuesta:', archivosSubidos.length);
+                    } else {
+                        console.error('❌ Error subiendo archivo:', archivo.name, result.message || result.errores);
+                        showError(`Error subiendo ${archivo.name}: ${result.message || 'Error desconocido'}`);
+                    }
+                } catch (error) {
+                    console.error('❌ Error en upload:', archivo.name, error);
+                    showError(`Error de conexión subiendo ${archivo.name}`);
+                }
+            }
+            
+            console.log('📎 Total archivos subidos:', uploadedFiles.length);
+            return uploadedFiles;
+        }
+        
+        async function loadArchivosExistentes(consultaId) {
+            console.log('📁 loadArchivosExistentes llamada con consultaId:', consultaId);
+            
+            if (!consultaId) {
+                console.log('❌ No consultaId provided');
+                return;
+            }
+            
+            try {
+                console.log('📞 Llamando API get_archivos_consulta...');
+                const result = await callAPI('get_archivos_consulta', { id_consulta: consultaId });
+                console.log('📊 Resultado de get_archivos_consulta:', result);
+                
+                const container = document.getElementById('edit-archivos-existentes');
+                console.log('🎯 Container encontrado:', !!container);
+                
+                if (!container) return;
+                
+                const archivos = result.archivos || result.data || [];
+                console.log('📁 Archivos a mostrar:', archivos.length, archivos);
+                
+                if (archivos && archivos.length > 0) {
+                    const html = '<div class="archivos-existentes">' +
+                        archivos.map(archivo => `
+                            <div class="file-item d-flex align-items-center mb-2 p-2 border rounded bg-light" data-archivo-id="${archivo.id_archivo}">
+                                <i class="${getFileIcon(archivo.tipo_archivo)} me-2"></i>
+                                <span class="file-name me-auto">${archivo.nombre_archivo}</span>
+                                <span class="file-size text-muted me-2">${formatFileSize(archivo.tamano_archivo || 0)}</span>
+                                <button type="button" class="btn btn-sm btn-outline-primary me-1" onclick="downloadArchivo(${archivo.id_archivo})" title="Descargar">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeExistingArchivo(${archivo.id_archivo})" title="Eliminar">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        `).join('') +
+                    '</div>';
+                    
+                    container.innerHTML = html;
+                    console.log('✅ HTML de archivos insertado en container');
+                } else {
+                    container.innerHTML = '<p class="text-muted">No hay archivos adjuntos</p>';
+                    console.log('ℹ️ No hay archivos, mostrando mensaje vacío');
+                }
+            } catch (error) {
+                console.error('❌ Error cargando archivos existentes:', error);
+            }
+        }
+        
+        async function removeExistingArchivo(archivoId) {
+            if (!confirm('¿Está seguro de que desea eliminar este archivo?')) return;
+            
+            try {
+                const result = await callAPI('delete_archivo', { id_archivo: archivoId });
+                if (result.success) {
+                    // Remover del DOM
+                    const fileItem = document.querySelector(`[data-archivo-id="${archivoId}"]`);
+                    if (fileItem) {
+                        fileItem.remove();
+                    }
+                    showSuccess('Archivo eliminado exitosamente');
+                } else {
+                    showError('Error eliminando archivo');
+                }
+            } catch (error) {
+                console.error('Error eliminando archivo:', error);
+                showError('Error eliminando archivo');
+            }
+        }
+        
+        function downloadArchivo(archivoId) {
+            window.open(`livewire-system.php?action=download_archivo&id_archivo=${archivoId}`, '_blank');
+        }
+        
+        function previewEditArchivos(input) {
+            const preview = document.getElementById('edit-archivos-preview');
+            if (!preview) return;
+            
+            preview.innerHTML = '';
+            
+            if (input.files && input.files.length > 0) {
+                const container = document.createElement('div');
+                container.className = 'archivos-selected';
+                
+                Array.from(input.files).forEach((file, index) => {
+                    const fileItem = document.createElement('div');
+                    fileItem.className = 'file-item d-flex align-items-center mb-2 p-2 border rounded';
+                    
+                    const icon = getFileIcon(file.type);
+                    const size = formatFileSize(file.size);
+                    
+                    fileItem.innerHTML = `
+                        <i class="${icon} me-2"></i>
+                        <span class="file-name me-auto">${file.name}</span>
+                        <span class="file-size text-muted me-2">${size}</span>
+                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeEditFile(${index})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    `;
+                    
+                    container.appendChild(fileItem);
+                });
+                
+                preview.appendChild(container);
+            }
+        }
+        
+        function removeEditFile(index) {
+            const input = document.getElementById('edit_archivos_consulta');
+            if (!input) return;
+            
+            const dt = new DataTransfer();
+            
+            for (let i = 0; i < input.files.length; i++) {
+                if (i !== index) {
+                    dt.items.add(input.files[i]);
+                }
+            }
+            
+            input.files = dt.files;
+            previewEditArchivos(input);
+        }
+
+        /**
          * Event listeners
          */
         document.addEventListener('DOMContentLoaded', function() {
@@ -4424,6 +4754,18 @@
                     if (window.debugMode) console.log('Preformatos receta normal listener configured');
                 }
             }
+            
+            // 🆕 Configurar event listener para archivos
+            const archivosInput = document.getElementById('archivos_consulta');
+            if (archivosInput) {
+                archivosInput.removeEventListener('change', handleArchivosChange);
+                archivosInput.addEventListener('change', handleArchivosChange);
+                if (window.debugMode) console.log('Archivos input listener configured');
+            }
+        }
+        
+        function handleArchivosChange(event) {
+            previewArchivos(event.target);
         }
         
         // Ocultar resultados de búsqueda cuando se hace click fuera

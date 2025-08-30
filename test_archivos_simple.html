@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Archivos</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Test de Carga de Archivos</h1>
+    <button onclick="testLoadArchivos()">Test Load Archivos</button>
+    <div id="resultado"></div>
+
+    <script>
+        // Copiar la función callAPI del sistema principal
+        async function callAPI(action, data = {}) {
+            const payload = {
+                action: action,
+                ...data
+            };
+            
+            console.log('🚀 API Request:', payload);
+            
+            try {
+                const response = await fetch('modules/consultas/api/livewire-system.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                console.log('📨 Raw Response Status:', response.status);
+                const result = await response.json();
+                console.log('✅ API Response:', result);
+                
+                if (!result.success) {
+                    throw new Error(result.message || 'Error en API');
+                }
+                
+                return result;
+            } catch (error) {
+                console.error('❌ API Error:', error);
+                throw error;
+            }
+        }
+
+        async function testLoadArchivos() {
+            console.log('🧪 Iniciando test de carga de archivos...');
+            
+            try {
+                const result = await callAPI('get_archivos_consulta', { id_consulta: '179' });
+                console.log('✅ Resultado:', result);
+                
+                const archivos = result.archivos || result.data || [];
+                console.log('📁 Archivos encontrados:', archivos.length);
+                
+                document.getElementById('resultado').innerHTML = `
+                    <h3>Resultado:</h3>
+                    <pre>${JSON.stringify(result, null, 2)}</pre>
+                    <p>Archivos encontrados: ${archivos.length}</p>
+                `;
+                
+            } catch (error) {
+                console.error('❌ Error:', error);
+                document.getElementById('resultado').innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

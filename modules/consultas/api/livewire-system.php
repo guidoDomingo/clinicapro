@@ -276,6 +276,18 @@ class LivewireCRUDSystem {
             case 'get_referenciales':
                 return $this->getReferenciales($input);
                 
+            case 'upload_archivo':
+                return $this->uploadArchivo($input);
+                
+            case 'get_archivos_consulta':
+                return $this->getArchivosConsulta($input);
+                
+            case 'delete_archivo':
+                return $this->deleteArchivo($input);
+                
+            case 'download_archivo':
+                return $this->downloadArchivo($input);
+                
             default:
                 throw new Exception("Acción no soportada: $action");
         }
@@ -1422,6 +1434,326 @@ class LivewireCRUDSystem {
         $stmt->execute();
         
         return $stmt->rowCount();
+    }
+    
+    /**
+     * SUBIR archivo y vincularlo a consulta
+     */
+    public function uploadArchivo($input) {
+        // DEBUG específico para upload - con archivo específico
+        $logFile = __DIR__ . '/../../../logs/upload_debug.log';
+        error_log("=== UPLOAD DEBUG ESPECÍFICO " . date('Y-m-d H:i:s') . " ===", 3, $logFile);
+        error_log("FILES recibidos: " . json_encode($_FILES), 3, $logFile);
+        error_log("POST recibido: " . json_encode($_POST), 3, $logFile);
+        error_log("INPUT recibido: " . json_encode($input), 3, $logFile);
+        
+        $files = $_FILES ?? [];
+        $id_consulta = $input['id_consulta'] ?? $_POST['id_consulta'] ?? null;
+        $id_usuario = $_SESSION['id_usuario'] ?? 1;
+        $id_persona = $input['id_persona'] ?? $_POST['id_persona'] ?? null;
+        
+        error_log("Valores extraídos - id_consulta: $id_consulta, id_persona: $id_persona, id_usuario: $id_usuario", 3, $logFile);
+        
+        if (!$id_consulta) {
+            throw new Exception("ID de consulta requerido");
+        }
+        
+        // Buscar archivos en diferentes formatos posibles
+        $archivosField = null;
+        if (!empty($files['archivos'])) {
+            $archivosField = $files['archivos'];
+            error_log("✓ Archivos encontrados en FILES['archivos']", 3, $logFile);
+        } else {
+            error_log("✗ No se encontró FILES['archivos'], buscando en otros campos...", 3, $logFile);
+            // Buscar cualquier campo que contenga archivos
+            foreach ($files as $fieldName => $fieldData) {
+                error_log("Revisando campo: $fieldName - " . json_encode($fieldData), 3, $logFile);
+                if (!empty($fieldData['name'])) {
+                    $archivosField = $fieldData;
+                    error_log("✓ Archivos encontrados en campo '$fieldName'", 3, $logFile);
+                    break;
+                }
+            }
+        }
+        
+        if (!$archivosField) {
+            error_log("✗ ERROR CRÍTICO: No se encontraron archivos en ningún campo", 3, $logFile);
+            error_log("FILES completo: " . print_r($_FILES, true), 3, $logFile);
+            throw new Exception("No se encontraron archivos para subir");
+        }
+        
+        error_log("Archivos field seleccionado: " . json_encode($archivosField), 3, $logFile);
+        
+        // Crear directorio de archivos si no existe
+        $uploadDir = '../../../uploads/consultas/';
+        if (!file_exists($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
+        
+        $subidos = [];
+        $errores = [];
+        
+        // Manejar múltiples archivos
+        $fileArray = $archivosField;
+        $fileCount = is_array($fileArray['name']) ? count($fileArray['name']) : 1;
+        
+        error_log("Cantidad de archivos a procesar: $fileCount", 3, $logFile);
+        error_log("Estructura del array de archivos: " . json_encode($fileArray), 3, $logFile);
+        
+        for ($i = 0; $i < $fileCount; $i++) {
+            try {
+                $fileName = is_array($fileArray['name']) ? $fileArray['name'][$i] : $fileArray['name'];
+                $fileTmp = is_array($fileArray['tmp_name']) ? $fileArray['tmp_name'][$i] : $fileArray['tmp_name'];
+                $fileSize = is_array($fileArray['size']) ? $fileArray['size'][$i] : $fileArray['size'];
+                $fileError = is_array($fileArray['error']) ? $fileArray['error'][$i] : $fileArray['error'];
+                
+                error_log("Archivo $i procesando: nombre='$fileName', tmp='$fileTmp', size=$fileSize, error=$fileError", 3, $logFile);
+                
+                if ($fileError !== UPLOAD_ERR_OK) {
+                    error_log("✗ Error de upload en archivo '$fileName': " . $this->getUploadErrorMessage($fileError), 3, $logFile);
+                    $errores[] = "Error al subir $fileName: " . $this->getUploadErrorMessage($fileError);
+                    continue;
+                }
+                
+                // Validar tamaño (max 50MB)
+                if ($fileSize > 50 * 1024 * 1024) {
+                    error_log("✗ Archivo '$fileName' demasiado grande: $fileSize bytes", 3, $logFile);
+                    $errores[] = "Archivo $fileName demasiado grande (máx 50MB)";
+                    continue;
+                }
+                
+                error_log("✓ Archivo '$fileName' pasó validaciones iniciales", 3, $logFile);
+                
+                // Generar nombre único
+                $extension = pathinfo($fileName, PATHINFO_EXTENSION);
+                $uniqueName = uniqid() . '_' . time() . '.' . $extension;
+                $filePath = $uploadDir . $uniqueName;
+                
+                // Mover archivo
+                if (move_uploaded_file($fileTmp, $filePath)) {
+                    error_log("✓ Archivo '$fileName' movido exitosamente a: $filePath", 3, $logFile);
+                    
+                    // Calcular checksum
+                    $checksum = md5_file($filePath);
+                    error_log("✓ Checksum calculado: $checksum", 3, $logFile);
+                    
+                    // Detectar tipo MIME de forma compatible
+                    $mimeType = 'application/octet-stream'; // Por defecto
+                    if (function_exists('finfo_file')) {
+                        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                        $mimeType = finfo_file($finfo, $filePath) ?: $mimeType;
+                        finfo_close($finfo);
+                    } elseif (function_exists('mime_content_type')) {
+                        $mimeType = mime_content_type($filePath) ?: $mimeType;
+                    }
+                    
+                    $this->db->beginTransaction();
+                    
+                    // Insertar en tabla archivos
+                    $sql = "INSERT INTO archivos (nombre_archivo, ruta_archivo, id_usuario, id_persona, origen, tamano_archivo, tipo_archivo, checksum, fecha_creacion)
+                            VALUES (:nombre, :ruta, :id_usuario, :id_persona, 'consulta', :tamano, :tipo, :checksum, NOW())
+                            RETURNING id_archivo";
+                    
+                    $stmt = $this->db->prepare($sql);
+                    $stmt->execute([
+                        'nombre' => $fileName,
+                        'ruta' => $filePath,
+                        'id_usuario' => $id_usuario,
+                        'id_persona' => $id_persona,
+                        'tamano' => $fileSize,
+                        'tipo' => $mimeType,
+                        'checksum' => $checksum
+                    ]);
+                    
+                    $id_archivo = $stmt->fetchColumn();
+                    
+                    // Vincular con consulta
+                    $sql = "INSERT INTO archivos_consulta (id_consulta, id_archivo, fecha_adjunto)
+                            VALUES (:id_consulta, :id_archivo, NOW())";
+                    
+                    $stmt = $this->db->prepare($sql);
+                    $stmt->execute([
+                        'id_consulta' => $id_consulta,
+                        'id_archivo' => $id_archivo
+                    ]);
+                    
+                    $this->db->commit();
+                    
+                    error_log("✓ Archivo '$fileName' insertado en BD con ID: $id_archivo", 3, $logFile);
+                    
+                    $subidos[] = [
+                        'id_archivo' => $id_archivo,
+                        'nombre_original' => $fileName,
+                        'tamano' => $fileSize,
+                        'tipo' => $mimeType
+                    ];
+                } else {
+                    error_log("✗ Error al mover archivo '$fileName' de '$fileTmp' a '$filePath'", 3, $logFile);
+                    $errores[] = "Error al guardar archivo $fileName";
+                }
+                
+            } catch (Exception $e) {
+                error_log("✗ Excepción procesando archivo '$fileName': " . $e->getMessage(), 3, $logFile);
+                if ($this->db->inTransaction()) {
+                    $this->db->rollBack();
+                }
+                $errores[] = "Error procesando $fileName: " . $e->getMessage();
+            }
+        }
+        
+        error_log("=== RESUMEN UPLOAD ===", 3, $logFile);
+        error_log("Total archivos subidos: " . count($subidos), 3, $logFile);
+        error_log("Total errores: " . count($errores), 3, $logFile);
+        error_log("Archivos subidos: " . json_encode($subidos), 3, $logFile);
+        error_log("Errores: " . json_encode($errores), 3, $logFile);
+        
+        return [
+            'success' => !empty($subidos),
+            'data' => $subidos, // Para compatibilidad con el sistema principal
+            'subidos' => $subidos, // Para compatibilidad con el frontend
+            'errores' => $errores,
+            'total_subidos' => count($subidos),
+            'total_errores' => count($errores),
+            'message' => count($subidos) > 0 ? count($subidos) . ' archivo(s) subido(s) exitosamente' : 'Error: No se pudo subir ningún archivo'
+        ];
+    }
+    
+    /**
+     * OBTENER archivos de una consulta
+     */
+    public function getArchivosConsulta($input) {
+        $id_consulta = $input['id_consulta'] ?? null;
+        
+        if (!$id_consulta) {
+            throw new Exception("ID de consulta requerido");
+        }
+        
+        $sql = "SELECT a.id_archivo, a.nombre_archivo, a.ruta_archivo, a.tamano_archivo, 
+                       a.tipo_archivo, a.fecha_creacion, ac.fecha_adjunto
+                FROM archivos a
+                INNER JOIN archivos_consulta ac ON a.id_archivo = ac.id_archivo
+                WHERE ac.id_consulta = :id_consulta
+                ORDER BY ac.fecha_adjunto DESC";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['id_consulta' => $id_consulta]);
+        
+        $archivos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        return [
+            'success' => true,
+            'data' => $archivos,
+            'archivos' => $archivos, // Mantener ambos campos para compatibilidad
+            'message' => count($archivos) > 0 ? 'Archivos obtenidos exitosamente' : 'No hay archivos adjuntos'
+        ];
+    }
+    
+    /**
+     * ELIMINAR archivo
+     */
+    public function deleteArchivo($input) {
+        $id_archivo = $input['id_archivo'] ?? null;
+        
+        if (!$id_archivo) {
+            throw new Exception("ID de archivo requerido");
+        }
+        
+        $this->db->beginTransaction();
+        
+        try {
+            // Obtener información del archivo
+            $sql = "SELECT ruta_archivo FROM archivos WHERE id_archivo = :id";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute(['id' => $id_archivo]);
+            $archivo = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if (!$archivo) {
+                throw new Exception("Archivo no encontrado");
+            }
+            
+            // Eliminar relaciones con consultas
+            $sql = "DELETE FROM archivos_consulta WHERE id_archivo = :id";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute(['id' => $id_archivo]);
+            
+            // Eliminar registro del archivo
+            $sql = "DELETE FROM archivos WHERE id_archivo = :id";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute(['id' => $id_archivo]);
+            
+            // Eliminar archivo físico
+            if (file_exists($archivo['ruta_archivo'])) {
+                unlink($archivo['ruta_archivo']);
+            }
+            
+            $this->db->commit();
+            
+            return [
+                'success' => true,
+                'message' => 'Archivo eliminado exitosamente'
+            ];
+            
+        } catch (Exception $e) {
+            $this->db->rollBack();
+            throw $e;
+        }
+    }
+    
+    /**
+     * DESCARGAR archivo
+     */
+    public function downloadArchivo($input) {
+        $id_archivo = $input['id_archivo'] ?? null;
+        
+        if (!$id_archivo) {
+            throw new Exception("ID de archivo requerido");
+        }
+        
+        $sql = "SELECT nombre_archivo, ruta_archivo, tipo_archivo FROM archivos WHERE id_archivo = :id";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute(['id' => $id_archivo]);
+        $archivo = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$archivo) {
+            throw new Exception("Archivo no encontrado");
+        }
+        
+        if (!file_exists($archivo['ruta_archivo'])) {
+            throw new Exception("Archivo físico no encontrado");
+        }
+        
+        // Configurar headers para descarga
+        header('Content-Type: ' . $archivo['tipo_archivo']);
+        header('Content-Disposition: attachment; filename="' . $archivo['nombre_archivo'] . '"');
+        header('Content-Length: ' . filesize($archivo['ruta_archivo']));
+        
+        // Enviar archivo
+        readfile($archivo['ruta_archivo']);
+        exit;
+    }
+    
+    /**
+     * Obtener mensaje de error de upload
+     */
+    private function getUploadErrorMessage($error) {
+        switch ($error) {
+            case UPLOAD_ERR_INI_SIZE:
+                return 'El archivo excede el tamaño máximo permitido por PHP';
+            case UPLOAD_ERR_FORM_SIZE:
+                return 'El archivo excede el tamaño máximo del formulario';
+            case UPLOAD_ERR_PARTIAL:
+                return 'El archivo se subió parcialmente';
+            case UPLOAD_ERR_NO_FILE:
+                return 'No se subió ningún archivo';
+            case UPLOAD_ERR_NO_TMP_DIR:
+                return 'Falta directorio temporal';
+            case UPLOAD_ERR_CANT_WRITE:
+                return 'Error al escribir archivo al disco';
+            case UPLOAD_ERR_EXTENSION:
+                return 'Subida detenida por extensión';
+            default:
+                return 'Error desconocido';
+        }
     }
 }
 
