@@ -2917,6 +2917,9 @@
             
             appState.selectedPatient = { id, firstName, lastName, documentNumber };
             if (window.debugMode) console.log('appState.selectedPatient updated:', appState.selectedPatient);
+            
+            // 🆕 NUEVO: Limpiar archivos cuando se selecciona un paciente para nueva consulta
+            clearSelectedFiles();
         }
 
         /**
@@ -4217,6 +4220,20 @@
                 console.error('❌ No se encontró create-form');
             }
             
+            // 🆕 NUEVO: Limpiar archivos seleccionados y preview
+            const archivosInput = document.getElementById('archivos_consulta');
+            const archivosPreview = document.getElementById('archivos-preview');
+            
+            if (archivosInput) {
+                archivosInput.value = '';  // Limpiar input de archivos
+                console.log('🗂️ Input de archivos limpiado');
+            }
+            
+            if (archivosPreview) {
+                archivosPreview.innerHTML = '';  // Limpiar preview de archivos
+                console.log('🗂️ Preview de archivos limpiado');
+            }
+            
             // 🔧 MODIFICADO: No limpiar paciente si ya está seleccionado
             const shouldPreservePatient = appState.selectedPatient && appState.selectedPatient.id;
             console.log('🔄 Preservar paciente seleccionado:', shouldPreservePatient);
@@ -4283,6 +4300,43 @@
             }, 100);
             
             console.log('✅ Form reset completed');
+        }
+
+        /**
+         * 🆕 Limpiar archivos seleccionados en formularios
+         */
+        function clearSelectedFiles() {
+            console.log('🗂️ Limpiando archivos seleccionados...');
+            
+            // Limpiar formulario de creación
+            const archivosInput = document.getElementById('archivos_consulta');
+            const archivosPreview = document.getElementById('archivos-preview');
+            
+            if (archivosInput) {
+                archivosInput.value = '';
+                console.log('🗂️ Input de archivos de creación limpiado');
+            }
+            
+            if (archivosPreview) {
+                archivosPreview.innerHTML = '';
+                console.log('🗂️ Preview de archivos de creación limpiado');
+            }
+            
+            // Limpiar formulario de edición si existe
+            const editArchivosInput = document.getElementById('edit-archivos');
+            const editArchivosPreview = document.getElementById('edit-archivos-preview');
+            
+            if (editArchivosInput) {
+                editArchivosInput.value = '';
+                console.log('🗂️ Input de archivos de edición limpiado');
+            }
+            
+            if (editArchivosPreview) {
+                editArchivosPreview.innerHTML = '';
+                console.log('🗂️ Preview de archivos de edición limpiado');
+            }
+            
+            console.log('✅ Archivos limpiados completamente');
         }
 
         /**
