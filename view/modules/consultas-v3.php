@@ -2834,53 +2834,112 @@ if ($paciente_id) {
             const total = consultasData.length;
             if (totalElement) totalElement.textContent = total;
             
+            // Función auxiliar para parsear fechas sin problemas de timezone
+            function parseDateSafe(dateString) {
+                if (!dateString) return null;
+                console.log('🔍 Parseando fecha:', dateString);
+                try {
+                    let parsedDate;
+                    // Si es una fecha en formato YYYY-MM-DD, crear fecha manualmente para evitar timezone issues
+                    if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                        const parts = dateString.split('-');
+                        // new Date(year, month, day) - month es 0-indexed
+                        parsedDate = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+                        console.log('  → Formato YYYY-MM-DD detectado, creando fecha manual:', parsedDate);
+                    } else {
+                        // Si ya tiene tiempo, parsearlo normalmente pero ajustar timezone
+                        parsedDate = new Date(dateString);
+                        console.log('  → Formato con tiempo, parseando normal:', parsedDate);
+                    }
+                    console.log('  → Fecha final parseada:', parsedDate);
+                    return parsedDate;
+                } catch (error) {
+                    console.error('Error parseando fecha:', dateString, error);
+                    return null;
+                }
+            }
+            
+            // Función auxiliar para formatear fechas de manera consistente
+            function formatDateSafe(date) {
+                if (!date || !(date instanceof Date) || isNaN(date)) {
+                    console.log('🔍 formatDateSafe: fecha inválida:', date);
+                    return '--';
+                }
+                try {
+                    const formatted = date.toLocaleDateString('es-ES', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit'
+                    });
+                    console.log('🔍 formatDateSafe: fecha formateada:', date, '→', formatted);
+                    return formatted;
+                } catch (error) {
+                    console.error('Error formateando fecha:', error);
+                    return '--';
+                }
+            }
+            
             // Última consulta (fecha más reciente)
             let ultimaFecha = '--';
             if (consultasData.length > 0) {
                 // Ordenar por fecha_registro descendente para obtener la más reciente
-                const consultasOrdenadas = consultasData.sort((a, b) => 
-                    new Date(b.fecha_registro) - new Date(a.fecha_registro)
-                );
+                const consultasOrdenadas = consultasData.sort((a, b) => {
+                    const fechaA = parseDateSafe(a.fecha_registro);
+                    const fechaB = parseDateSafe(b.fecha_registro);
+                    if (!fechaA || !fechaB) return 0;
+                    return fechaB.getTime() - fechaA.getTime();
+                });
                 
-                const fechaMasReciente = consultasOrdenadas[0].fecha_registro;
-                if (fechaMasReciente) {
-                    try {
-                        const fecha = new Date(fechaMasReciente);
-                        ultimaFecha = fecha.toLocaleDateString('es-ES');
-                    } catch (error) {
-                        console.error('Error formateando fecha:', error);
-                        ultimaFecha = fechaMasReciente.split(' ')[0]; // Fallback
-                    }
-                }
+                const fechaMasReciente = parseDateSafe(consultasOrdenadas[0].fecha_registro);
+                ultimaFecha = formatDateSafe(fechaMasReciente);
             }
             if (ultimaElement) ultimaElement.textContent = ultimaFecha;
             
             // Próxima consulta (fecha más cercana en el futuro)
             let proximaFecha = '--';
             const fechaActual = new Date();
+            // Resetear la hora para comparar solo fechas
+            fechaActual.setHours(0, 0, 0, 0);
+            
+            if (window.debugMode) {
+                console.log('🗓️ Fecha actual para comparación:', fechaActual);
+                console.log('🔍 Buscando próximas consultas entre:', consultasData.length, 'consultas');
+            }
+            
             const consultasFuturas = consultasData.filter(consulta => {
                 if (!consulta.proximaconsulta) return false;
-                try {
-                    const fechaProxima = new Date(consulta.proximaconsulta);
-                    return fechaProxima > fechaActual;
-                } catch (error) {
-                    return false;
+                const fechaProxima = parseDateSafe(consulta.proximaconsulta);
+                if (!fechaProxima) return false;
+                
+                // Resetear la hora para comparar solo fechas
+                fechaProxima.setHours(0, 0, 0, 0);
+                
+                if (window.debugMode) {
+                    console.log('🔍 Comparando fecha próxima:', fechaProxima, 'vs actual:', fechaActual, 'resultado:', fechaProxima >= fechaActual);
                 }
+                
+                return fechaProxima >= fechaActual; // Incluir fechas de hoy también
             });
+            
+            if (window.debugMode) {
+                console.log('📅 Consultas futuras encontradas:', consultasFuturas.length);
+                consultasFuturas.forEach(c => console.log('  - Fecha:', c.proximaconsulta));
+            }
             
             if (consultasFuturas.length > 0) {
                 // Ordenar por fecha ascendente para obtener la más próxima
-                const consultasOrdenadas = consultasFuturas.sort((a, b) => 
-                    new Date(a.proximaconsulta) - new Date(b.proximaconsulta)
-                );
+                const consultasOrdenadas = consultasFuturas.sort((a, b) => {
+                    const fechaA = parseDateSafe(a.proximaconsulta);
+                    const fechaB = parseDateSafe(b.proximaconsulta);
+                    if (!fechaA || !fechaB) return 0;
+                    return fechaA.getTime() - fechaB.getTime();
+                });
                 
-                const fechaProximaConsulta = consultasOrdenadas[0].proximaconsulta;
-                try {
-                    const fecha = new Date(fechaProximaConsulta);
-                    proximaFecha = fecha.toLocaleDateString('es-ES');
-                } catch (error) {
-                    console.error('Error formateando próxima fecha:', error);
-                    proximaFecha = fechaProximaConsulta;
+                const fechaProximaConsulta = parseDateSafe(consultasOrdenadas[0].proximaconsulta);
+                proximaFecha = formatDateSafe(fechaProximaConsulta);
+                
+                if (window.debugMode) {
+                    console.log('🎯 Próxima consulta seleccionada:', consultasOrdenadas[0].proximaconsulta, '→', proximaFecha);
                 }
             }
             if (proximaElement) proximaElement.textContent = proximaFecha;
@@ -4670,6 +4729,9 @@ if ($paciente_id) {
         // 🆕 Función para cargar paciente automáticamente desde citas
         async function cargarPacienteAutomatico(pacienteId, reservaId) {
             try {
+                // 🐛 Habilitar debug mode temporalmente para diagnosticar fechas
+                window.debugMode = true;
+                
                 console.log(`🔍 Buscando paciente con ID: ${pacienteId}`);
                 
                 // Hacer petición para obtener datos del paciente
