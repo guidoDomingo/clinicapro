@@ -1,5 +1,21 @@
 {
   "dependencies": {
     "html-pdf": "^3.0.1"
-  }
+  },
+  "name": "clinica",
+  "version": "1.0.0",
+  "main": "console_test.js",
+  "directories": {
+    "doc": "doc",
+    "lib": "lib",
+    "test": "tests"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
 }
