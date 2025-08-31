@@ -140,13 +140,11 @@ class LivewireCRUDSystem {
                 'id_consulta' => ['type' => 'int', 'required' => true, 'foreign' => 'consultas.id_consulta'],
                 'equipo_medico' => ['type' => 'varchar', 'label' => 'Equipo Médico'],
                 'otro_equipo' => ['type' => 'varchar', 'label' => 'Otro Equipo'],
-                'descripcion_estudio' => ['type' => 'text', 'label' => 'Descripción del Estudio'],
-                'observaciones' => ['type' => 'text', 'label' => 'Observaciones'],
                 'resultados' => ['type' => 'text', 'label' => 'Resultados'],
-                'archivos_adjuntos' => ['type' => 'json', 'label' => 'Archivos Adjuntos'],
-                'fecha_estudio' => ['type' => 'date', 'label' => 'Fecha del Estudio'],
+                'emails_compartir' => ['type' => 'text', 'label' => 'Emails para Compartir'],
+                'compartir_activo' => ['type' => 'boolean', 'label' => 'Compartir Activo', 'default' => false],
                 'fecha_creacion' => ['type' => 'timestamp', 'auto' => true, 'default' => 'CURRENT_TIMESTAMP'],
-                'fecha_actualizacion' => ['type' => 'timestamp', 'auto' => true, 'default' => 'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP']
+                'fecha_actualizacion' => ['type' => 'timestamp', 'auto' => true, 'default' => 'CURRENT_TIMESTAMP']
             ]
         ],
         
@@ -784,7 +782,7 @@ class LivewireCRUDSystem {
             }
             
             // Validar tipos permitidos para seguridad
-            $tiposPermitidos = ['esfera', 'cilindro', 'adicion'];
+            $tiposPermitidos = ['esfera', 'cilindro', 'adicion', 'equipos_medicos'];
             if (!in_array(strtolower($tipo), $tiposPermitidos)) {
                 throw new Exception('Tipo de referencial no válido');
             }

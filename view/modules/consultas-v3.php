@@ -942,6 +942,64 @@ if ($paciente_id) {
                         </div>
                     </div>
                     
+                    <!-- Sección Específica de Estudios Médicos -->
+                    <div id="estudios-section" class="consultas-card" style="display: none;">
+                        <div class="form-section-title">
+                            <i class="fas fa-microscope"></i> Datos de Estudios Médicos
+                        </div>
+                        <div class="card-body-custom">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="equipo_medico" class="form-label">Equipo Médico</label>
+                                    <select class="form-select select2bs4" id="equipo_medico" name="equipo_medico">
+                                        <option value="">Seleccionar equipo médico...</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="otro_equipo" class="form-label">Otro Equipo (especificar)</label>
+                                    <input type="text" class="form-control" id="otro_equipo" name="otro_equipo" placeholder="Especificar otro equipo médico">
+                                </div>
+                            </div>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="preformatos_estudios" class="form-label">Preformatos de Estudios</label>
+                                    <select class="form-select select2bs4" id="preformatos_estudios" name="preformatos_estudios">
+                                        <option value="">Seleccionar preformato...</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="resultados" class="form-label">Resultados del Estudio</label>
+                                <textarea class="form-control summernote" id="resultados" name="resultados" placeholder="Descripción detallada de los resultados del estudio..."></textarea>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="emails_compartir" class="form-label">Compartir por Correo Electrónico</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="emails_compartir" name="emails_compartir" 
+                                           placeholder="Ej: doctor@clinica.com, especialista@hospital.com">
+                                    <button type="button" class="btn btn-outline-info" id="btnValidarEmails" title="Validar emails">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-outline-success" id="btnEnviarEmails" title="Enviar por correo" disabled>
+                                        <i class="fas fa-paper-plane"></i>
+                                    </button>
+                                </div>
+                                <div class="form-text">Separe múltiples correos con comas. Los resultados se enviarán automáticamente.</div>
+                                <div id="emailValidationFeedback" class="mt-2"></div>
+                            </div>
+                            
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="compartir_activo" name="compartir_activo">
+                                <label class="form-check-label" for="compartir_activo">
+                                    <i class="fas fa-share-alt"></i> Activar compartir por correo electrónico
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <div class="d-flex gap-2 justify-content-end mt-3">
                         <button type="button" class="btn btn-outline-secondary" onclick="resetForm()">
                             <i class="fas fa-times me-2"></i>Limpiar
@@ -1319,12 +1377,18 @@ if ($paciente_id) {
             
             // Mantener las secciones básicas activas, solo ocultar secciones específicas
             const anteojosSection = document.getElementById('anteojos-section');
+            const estudiosSection = document.getElementById('estudios-section');
             const visionTensionSection = document.querySelector('.vision-tension-section');
             
             // Ocultar todas las secciones específicas primero
             if (anteojosSection) {
                 anteojosSection.style.display = 'none';
                 anteojosSection.classList.remove('active');
+            }
+            
+            if (estudiosSection) {
+                estudiosSection.style.display = 'none';
+                estudiosSection.classList.remove('active');
             }
             
             // Controlar sección de Visión y Tensión
@@ -1346,6 +1410,14 @@ if ($paciente_id) {
                 
                 // Cargar valores de referencia para anteojos
                 loadReferenciales();
+            } else if (formType === 'estudios' && estudiosSection) {
+                estudiosSection.style.display = 'block';
+                estudiosSection.classList.add('active');
+                console.log('✅ Sección de estudios médicos activada');
+                
+                // Cargar equipos médicos y preformatos específicos para estudios
+                loadEquiposMedicos();
+                loadPreformatosEstudios();
             }
             
             // Actualizar select de tipo de formulario
@@ -2915,6 +2987,40 @@ if ($paciente_id) {
         }
 
         /**
+         * Cargar preformatos específicos para estudios médicos
+         */
+        async function loadPreformatosEstudios() {
+            try {
+                console.log('🔬 Cargando preformatos de estudios médicos...');
+                
+                const estudiosResult = await callAPI('get_preformatos', {
+                    tipo_formulario: 'estudios',
+                    tipo: 'consulta'
+                });
+                
+                const estudiosSelect = document.getElementById('preformatos_estudios');
+                if (estudiosSelect) {
+                    estudiosSelect.innerHTML = '<option value="">Seleccionar preformato de estudio...</option>';
+                    
+                    if (estudiosResult.data && estudiosResult.data.length > 0) {
+                        estudiosResult.data.forEach(preformato => {
+                            const option = document.createElement('option');
+                            option.value = preformato.id_preformato;
+                            option.textContent = preformato.nombre;
+                            option.dataset.contenido = preformato.contenido || '';
+                            estudiosSelect.appendChild(option);
+                        });
+                        console.log(`✅ Cargados ${estudiosResult.data.length} preformatos de estudios`);
+                    } else {
+                        console.log('ℹ️ No se encontraron preformatos para estudios');
+                    }
+                }
+            } catch (error) {
+                console.error('Error cargando preformatos de estudios:', error);
+            }
+        }
+
+        /**
          * Cargar valores de referencia para selects de anteojos
          */
         async function loadReferenciales() {
@@ -2931,9 +3037,155 @@ if ($paciente_id) {
                 await loadReferencialValores('adicion', ['od_add', 'oi_add']);
                 await loadReferencialSelectsByClass('adicion');
                 
-                console.log('✅ Todos los referenciales de anteojos cargados exitosamente');
+                // Cargar equipos médicos para estudios
+                await loadReferencialValores('equipos_medicos', ['equipo_medico']);
+                
+                console.log('✅ Todos los referenciales cargados exitosamente');
             } catch (error) {
                 console.error('❌ Error cargando referenciales:', error);
+            }
+        }
+
+        /**
+         * Cargar equipos médicos específicamente para estudios
+         */
+        async function loadEquiposMedicos() {
+            try {
+                console.log('🔄 Cargando equipos médicos...');
+                const result = await callAPI('get_referenciales', { tipo: 'equipos_medicos' });
+                
+                if (result.data && result.data.length > 0) {
+                    const selectElement = document.getElementById('equipo_medico');
+                    if (selectElement) {
+                        // Limpiar opciones existentes (mantener la primera)
+                        selectElement.innerHTML = '<option value="">Seleccionar equipo médico...</option>';
+                        
+                        // Agregar equipos médicos
+                        result.data.forEach(equipo => {
+                            const option = document.createElement('option');
+                            option.value = equipo.valor;
+                            option.textContent = equipo.etiqueta || equipo.valor;
+                            selectElement.appendChild(option);
+                        });
+                        
+                        console.log(`✅ Equipos médicos cargados: ${result.data.length} equipos`);
+                        
+                        // Configurar event listener después de cargar los equipos
+                        setupEquipoMedicoListener();
+                    } else {
+                        console.warn('⚠️ Select equipo_medico no encontrado');
+                    }
+                } else {
+                    console.warn('⚠️ No hay equipos médicos disponibles');
+                }
+            } catch (error) {
+                console.error('❌ Error cargando equipos médicos:', error);
+            }
+        }
+
+        /**
+         * Cargar equipos médicos específicamente para el modal de edición
+         */
+        async function loadEquiposMedicosForEdit() {
+            try {
+                console.log('🔄 Cargando equipos médicos para edición...');
+                const result = await callAPI('get_referenciales', { tipo: 'equipos_medicos' });
+                
+                if (result.data && result.data.length > 0) {
+                    const selectElement = document.getElementById('edit_equipo_medico');
+                    if (selectElement) {
+                        // Mantener el valor seleccionado actual
+                        const valorActual = selectElement.value;
+                        
+                        // Limpiar opciones existentes (mantener la primera)
+                        selectElement.innerHTML = '<option value="">Seleccionar equipo médico...</option>';
+                        
+                        // Agregar equipos médicos
+                        result.data.forEach(equipo => {
+                            const option = document.createElement('option');
+                            option.value = equipo.valor;
+                            option.textContent = equipo.etiqueta || equipo.valor;
+                            
+                            // Restaurar selección si coincide
+                            if (equipo.valor === valorActual) {
+                                option.selected = true;
+                            }
+                            
+                            selectElement.appendChild(option);
+                        });
+                        
+                        console.log(`✅ Equipos médicos cargados en edición: ${result.data.length} equipos`);
+                    } else {
+                        console.warn('⚠️ Select edit_equipo_medico no encontrado');
+                    }
+                } else {
+                    console.warn('⚠️ No hay equipos médicos disponibles para edición');
+                }
+            } catch (error) {
+                console.error('❌ Error cargando equipos médicos para edición:', error);
+            }
+        }
+
+        /**
+         * Configurar event listener para equipos médicos (debe llamarse después de cargar equipos)
+         */
+        function setupEquipoMedicoListener() {
+            const equipoMedicoSelect = document.getElementById('equipo_medico');
+            if (equipoMedicoSelect) {
+                // Verificar si está usando Select2
+                if ($(equipoMedicoSelect).hasClass('select2-hidden-accessible')) {
+                    $(equipoMedicoSelect).off('select2:select').on('select2:select', function(e) {
+                        const equipoSeleccionado = e.params.data.id;
+                        const equipoTexto = e.params.data.text;
+                        
+                        console.log('🩺 Select2 - Equipo seleccionado:', equipoTexto);
+                        agregarEquipoAOtroEquipo(equipoTexto);
+                    });
+                    console.log('🩺 Select2 listener para equipos médicos configurado');
+                } else {
+                    equipoMedicoSelect.addEventListener('change', function() {
+                        const equipoSeleccionado = this.value;
+                        const equipoTexto = this.options[this.selectedIndex].text;
+                        
+                        console.log('🩺 Change event - Equipo seleccionado:', equipoTexto);
+                        if (equipoSeleccionado && equipoSeleccionado !== '') {
+                            agregarEquipoAOtroEquipo(equipoTexto);
+                        }
+                    });
+                    console.log('🩺 Event listener normal para equipos médicos configurado');
+                }
+            } else {
+                console.warn('⚠️ Select equipo_medico no encontrado al configurar listener');
+            }
+        }
+
+        /**
+         * Agregar equipo seleccionado al campo "Otro Equipo"
+         */
+        function agregarEquipoAOtroEquipo(equipoTexto) {
+            const otroEquipoInput = document.getElementById('otro_equipo');
+            if (otroEquipoInput) {
+                let equiposActuales = otroEquipoInput.value.trim();
+                
+                // Si ya hay equipos, agregar coma y el nuevo equipo
+                if (equiposActuales) {
+                    // Verificar que no esté duplicado
+                    const equiposArray = equiposActuales.split(',').map(e => e.trim());
+                    if (!equiposArray.includes(equipoTexto)) {
+                        otroEquipoInput.value = equiposActuales + ', ' + equipoTexto;
+                    } else {
+                        console.log('🩺 Equipo ya está en la lista:', equipoTexto);
+                        return;
+                    }
+                } else {
+                    // Si está vacío, agregar directamente
+                    otroEquipoInput.value = equipoTexto;
+                }
+                
+                console.log('🩺 Equipo agregado a campo "Otro Equipo":', equipoTexto);
+                console.log('🩺 Valor actual del campo:', otroEquipoInput.value);
+            } else {
+                console.warn('⚠️ Campo otro_equipo no encontrado');
             }
         }
 
@@ -3243,7 +3495,16 @@ if ($paciente_id) {
          */
         function aplicarPreformato(tipo) {
             const selectId = `preformatos_${tipo}`;
-            const textareaId = tipo === 'consulta' ? 'consulta' : 'receta';
+            let textareaId;
+            
+            // Determinar el textarea destino según el tipo
+            if (tipo === 'consulta') {
+                textareaId = 'consulta';
+            } else if (tipo === 'receta') {
+                textareaId = 'receta';
+            } else if (tipo === 'estudios') {
+                textareaId = 'resultados';
+            }
             
             const select = document.getElementById(selectId);
             const textarea = document.getElementById(textareaId);
@@ -3447,10 +3708,9 @@ if ($paciente_id) {
                         estudios: {
                             equipo_medico: data.equipo_medico,
                             otro_equipo: data.otro_equipo,
-                            descripcion_estudio: data.descripcion_estudio,
-                            observaciones: data.observaciones,
                             resultados: data.resultados,
-                            fecha_estudio: data.fecha_estudio || null
+                            emails_compartir: data.emails_compartir,
+                            compartir_activo: data.compartir_activo || false
                         }
                     };
                 }
@@ -3545,6 +3805,15 @@ if ($paciente_id) {
                     if (editReferencialSelects.length > 0) {
                         console.log('🔧 Cargando referencias para modal de edición...');
                         loadReferenciales();
+                    }
+                    
+                    // NUEVO: Cargar equipos médicos si hay sección de estudios en el modal de edición
+                    const editEstudiosSection = container.querySelector('#edit-estudios-section');
+                    if (editEstudiosSection) {
+                        console.log('🩺 Cargando equipos médicos para modal de edición...');
+                        setTimeout(() => {
+                            loadEquiposMedicosForEdit();
+                        }, 100);
                     }
                     
                     // 🆕 NUEVO: Cargar archivos existentes de la consulta
@@ -3904,48 +4173,45 @@ if ($paciente_id) {
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-floating">
-                                    <select class="form-select select2bs4" name="equipo_medico">
-                                        <option value="">Seleccionar equipo</option>
-                                        <option value="Cirrus 700" ${estudios.equipo_medico === 'Cirrus 700' ? 'selected' : ''}>Cirrus 700</option>
-                                        <option value="Stratus" ${estudios.equipo_medico === 'Stratus' ? 'selected' : ''}>Stratus</option>
-                                        <option value="Pentacam" ${estudios.equipo_medico === 'Pentacam' ? 'selected' : ''}>Pentacam</option>
-                                        <option value="Campo Visual" ${estudios.equipo_medico === 'Campo Visual' ? 'selected' : ''}>Campo Visual</option>
-                                        <option value="Otro" ${estudios.equipo_medico === 'Otro' ? 'selected' : ''}>Otro</option>
+                                    <select class="form-select" name="equipo_medico" id="edit_equipo_medico">
+                                        <option value="">Seleccionar equipo médico...</option>
                                     </select>
                                     <label>Equipo Médico</label>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-floating">
-                                    <input type="text" class="form-control" name="otro_equipo" value="${estudios.otro_equipo || ''}">
-                                    <label>Otro Equipo</label>
+                                    <input type="text" class="form-control" name="otro_equipo" value="${estudios.otro_equipo || ''}" placeholder="Equipos utilizados separados por comas">
+                                    <label>Otro Equipo (especificar)</label>
                                 </div>
                             </div>
                         </div>
                         
                         <div class="form-floating mb-3">
-                            <textarea class="form-control" name="descripcion_estudio" style="height: 120px;">${estudios.descripcion_estudio || ''}</textarea>
-                            <label>Descripción del Estudio</label>
-                        </div>
-                        
-                        <div class="form-floating mb-3">
-                            <textarea class="form-control" name="observaciones" style="height: 100px;">${estudios.observaciones || ''}</textarea>
-                            <label>Observaciones</label>
-                        </div>
-                        
-                        <div class="form-floating mb-3">
                             <textarea class="form-control" name="resultados" style="height: 120px;">${estudios.resultados || ''}</textarea>
-                            <label>Resultados</label>
+                            <label>Resultados del Estudio</label>
                         </div>
                         
-                        <div class="form-floating">
-                            <input type="date" class="form-control" name="fecha_estudio" value="${estudios.fecha_estudio || ''}">
-                            <label>Fecha del Estudio</label>
+                        <div class="row">
+                            <div class="col-md-10">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" name="emails_compartir" value="${estudios.emails_compartir || ''}" placeholder="doctor@clinica.com, especialista@hospital.com">
+                                    <label>Compartir por Correo Electrónico</label>
+                                </div>
+                                <small class="form-text text-muted">Separe múltiples correos con comas. Los resultados se enviarán automáticamente.</small>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-check form-switch mt-3">
+                                    <input class="form-check-input" type="checkbox" name="compartir_activo" ${estudios.compartir_activo ? 'checked' : ''}>
+                                    <label class="form-check-label">Activo</label>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             `;
         }
+        
 
         /**
          * Procesar datos booleanos para evitar problemas con PostgreSQL
@@ -4305,6 +4571,18 @@ if ($paciente_id) {
                         loadReferenciales();
                     }, 200);
                 }
+            } else if (currentType === 'estudios') {
+                const estudiosSection = document.getElementById('estudios-section');
+                if (estudiosSection) {
+                    estudiosSection.style.display = 'block';
+                    estudiosSection.classList.add('active');
+                    console.log('✅ Sección de estudios reactivada después del reset');
+                    
+                    // Recargar equipos médicos después del reset
+                    setTimeout(() => {
+                        loadEquiposMedicos();
+                    }, 200);
+                }
             }
             
             // 🛡️ Quitar flag después de un pequeño delay
@@ -4312,6 +4590,19 @@ if ($paciente_id) {
                 appState.isResetting = false;
                 console.log('🔄 isResetting set to false');
             }, 100);
+            
+            // CORRECCIÓN: Asegurar que la vista se actualice según el tipo de formulario actual
+            setTimeout(() => {
+                updateFormForType(currentType);
+                
+                // También actualizar los tabs visuales para asegurar consistencia
+                document.querySelectorAll('.form-type-tab').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                document.querySelector(`.form-type-tab.${currentType}`)?.classList.add('active');
+                
+                console.log('🔧 Vista y tabs actualizados después del reset para tipo:', currentType);
+            }, 150);
             
             console.log('✅ Form reset completed');
         }
@@ -4701,6 +4992,19 @@ if ($paciente_id) {
                 loadMotivosComunes('general');
                 loadPreformatos('general');
                 
+                // Asegurar que la vista se actualice según el tipo de formulario actual
+                setTimeout(function() {
+                    const formType = appState.currentFormType;
+                    updateFormForType(formType);
+                    console.log('🔧 Vista actualizada para tipo de formulario:', formType);
+                    
+                    // Si no es 'general', cargar motivos y preformatos específicos
+                    if (formType !== 'general') {
+                        loadMotivosComunes(formType);
+                        loadPreformatos(formType);
+                    }
+                }, 200);
+                
                 console.log('✅ Sistema Livewire CRUD iniciado exitosamente');
                 
             }, 500); // Delay de 500ms para asegurar que todo esté cargado
@@ -4725,6 +5029,61 @@ if ($paciente_id) {
             });
             
         });
+        
+        // Función para validar emails de estudios
+        function validarEmailsEstudios() {
+            const emailInput = document.getElementById('emails_compartir');
+            if (!emailInput) {
+                console.error('Campo emails_compartir no encontrado');
+                return;
+            }
+            
+            const emails = emailInput.value.split(',').map(email => email.trim()).filter(email => email);
+            const invalidEmails = [];
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            
+            emails.forEach(email => {
+                if (!emailRegex.test(email)) {
+                    invalidEmails.push(email);
+                }
+            });
+            
+            if (invalidEmails.length > 0) {
+                alert('Los siguientes emails no son válidos:\n' + invalidEmails.join('\n'));
+            } else {
+                alert('Todos los emails son válidos');
+            }
+        }
+        
+        // Función para enviar emails de estudios
+        function enviarEmailsEstudios() {
+            const emailInput = document.getElementById('emails_compartir');
+            const resultadosTextarea = document.getElementById('resultados');
+            
+            if (!emailInput || !resultadosTextarea) {
+                console.error('Campos necesarios no encontrados');
+                return;
+            }
+            
+            const emails = emailInput.value.trim();
+            const resultados = resultadosTextarea.value.trim();
+            
+            if (!emails) {
+                alert('Por favor, ingrese al menos un email');
+                return;
+            }
+            
+            if (!resultados) {
+                alert('Por favor, ingrese los resultados del estudio');
+                return;
+            }
+            
+            // Aquí se implementaría la lógica de envío de emails
+            // Por ahora solo mostramos confirmación
+            if (confirm('¿Está seguro de enviar los resultados a los emails especificados?')) {
+                alert('Funcionalidad de envío de emails en desarrollo');
+            }
+        }
     </script>
     
     <!-- jQuery (required for Select2 and Summernote) -->
@@ -4913,6 +5272,40 @@ if ($paciente_id) {
                 archivosInput.removeEventListener('change', handleArchivosChange);
                 archivosInput.addEventListener('change', handleArchivosChange);
                 if (window.debugMode) console.log('Archivos input listener configured');
+            }
+            
+            // 🔬 Configurar preformatos estudios
+            const preformatosEstudios = document.getElementById('preformatos_estudios');
+            if (preformatosEstudios) {
+                if ($(preformatosEstudios).hasClass('select2-hidden-accessible')) {
+                    $(preformatosEstudios).off('select2:select').on('select2:select', function(e) {
+                        if (window.debugMode) console.log('Select2 preformato estudios selected:', e.params.data);
+                        aplicarPreformato('estudios');
+                    });
+                    if (window.debugMode) console.log('Preformatos estudios Select2 listener configured');
+                } else {
+                    preformatosEstudios.addEventListener('change', function() {
+                        aplicarPreformato('estudios');
+                    });
+                    if (window.debugMode) console.log('Preformatos estudios normal listener configured');
+                }
+            }
+            
+            // 📧 Configurar validación de emails para estudios
+            const btnValidarEmails = document.getElementById('btnValidarEmails');
+            const btnEnviarEmails = document.getElementById('btnEnviarEmails');
+            const emailsInput = document.getElementById('emails_compartir');
+            
+            if (btnValidarEmails && emailsInput) {
+                btnValidarEmails.addEventListener('click', function() {
+                    validarEmailsEstudios();
+                });
+            }
+            
+            if (btnEnviarEmails) {
+                btnEnviarEmails.addEventListener('click', function() {
+                    enviarEmailsEstudios();
+                });
             }
         }
         
