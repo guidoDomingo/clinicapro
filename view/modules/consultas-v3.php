@@ -570,6 +570,144 @@ if ($paciente_id) {
             background-color: #007bff;
             border-color: #007bff;
         }
+        
+        /* Estilos específicos para Select2 en modales */
+        .modal .select2-container {
+            z-index: 1060; /* Por encima del modal (1050) */
+        }
+        
+        .select2-dropdown {
+            z-index: 1061 !important; /* Por encima del container y modales */
+        }
+        
+        /* Fix para Select2 dentro de modales Bootstrap */
+        .select2-container--bootstrap4 .select2-results__option--highlighted {
+            background-color: #007bff;
+            color: white;
+        }
+        
+        /* Asegurar que el dropdown sea visible */
+        .modal-dialog .select2-dropdown {
+            position: fixed !important;
+            z-index: 1061 !important;
+        }
+        
+        /* Fix para tags de correos en modal */
+        .modal .select2-selection__choice {
+            background-color: #007bff !important;
+            border-color: #007bff !important;
+            color: white !important;
+        }
+
+        /* Estilos personalizados para el dropdown de equipos médicos */
+        #edit_equipo_medico {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #495057;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+            padding-right: 40px;
+        }
+
+        #edit_equipo_medico:focus {
+            outline: none;
+            border-color: #17a2b8;
+            box-shadow: 0 0 0 3px rgba(23, 162, 184, 0.1), 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-1px);
+            background: #ffffff;
+        }
+
+        #edit_equipo_medico:hover {
+            border-color: #17a2b8;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+            transform: translateY(-1px);
+        }
+
+        /* Estilos para las opciones del dropdown */
+        #edit_equipo_medico option {
+            padding: 10px;
+            font-weight: 500;
+            color: #495057;
+        }
+
+        #edit_equipo_medico option[value=""] {
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        #edit_equipo_medico option:not([value=""]) {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        }
+
+        /* Mejoras para el contenedor de form-floating */
+        .form-floating label {
+            font-weight: 600;
+            color: #17a2b8;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+
+        .form-floating:focus-within label {
+            color: #17a2b8;
+            transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+        }
+
+        /* Animación suave para el dropdown */
+        #edit_equipo_medico {
+            position: relative;
+        }
+
+        #edit_equipo_medico::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 12px;
+            background: linear-gradient(45deg, transparent, rgba(23, 162, 184, 0.05), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        #edit_equipo_medico:hover::before {
+            opacity: 1;
+        }
+
+        /* Efecto para indicar que es un dropdown activo */
+        .form-floating:has(#edit_equipo_medico) {
+            position: relative;
+        }
+
+        .form-floating:has(#edit_equipo_medico)::after {
+            content: '🏥';
+            position: absolute;
+            right: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+            opacity: 0.6;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        /* Responsivo para pantallas pequeñas */
+        @media (max-width: 768px) {
+            #edit_equipo_medico {
+                font-size: 16px; /* Evita zoom en iOS */
+                padding: 14px 16px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -978,8 +1116,9 @@ if ($paciente_id) {
                             <div class="mb-3">
                                 <label for="emails_compartir" class="form-label">Compartir por Correo Electrónico</label>
                                 <div class="input-group">
-                                    <input type="text" class="form-control" id="emails_compartir" name="emails_compartir" 
-                                           placeholder="Ej: doctor@clinica.com, especialista@hospital.com">
+                                    <select class="form-control select2bs4" id="emails_compartir" name="emails_compartir" multiple="multiple" data-placeholder="Agregar correos electrónicos..." style="width: 100%;">
+                                        <!-- Los correos se agregan dinámicamente -->
+                                    </select>
                                     <button type="button" class="btn btn-outline-info" id="btnValidarEmails" title="Validar emails">
                                         <i class="fas fa-check"></i>
                                     </button>
@@ -987,7 +1126,7 @@ if ($paciente_id) {
                                         <i class="fas fa-paper-plane"></i>
                                     </button>
                                 </div>
-                                <div class="form-text">Separe múltiples correos con comas. Los resultados se enviarán automáticamente.</div>
+                                <div class="form-text">Escriba un correo y presione Enter para agregarlo. Se validarán automáticamente.</div>
                                 <div id="emailValidationFeedback" class="mt-2"></div>
                             </div>
                             
@@ -3084,7 +3223,7 @@ if ($paciente_id) {
         }
 
         /**
-         * Cargar equipos médicos específicamente para el modal de edición
+         * Cargar equipos médicos específicamente para el modal de edición (SIN Select2)
          */
         async function loadEquiposMedicosForEdit() {
             try {
@@ -3114,7 +3253,11 @@ if ($paciente_id) {
                             selectElement.appendChild(option);
                         });
                         
-                        console.log(`✅ Equipos médicos cargados en edición: ${result.data.length} equipos`);
+                        console.log(`✅ Equipos médicos cargados en edición (SELECT NATIVO): ${result.data.length} equipos`);
+                        
+                        // NO inicializar Select2, mantener como select nativo
+                        // Configurar event listener nativo para modal de edición
+                        setupEquipoMedicoListenerForEdit();
                     } else {
                         console.warn('⚠️ Select edit_equipo_medico no encontrado');
                     }
@@ -3188,6 +3331,365 @@ if ($paciente_id) {
                 console.warn('⚠️ Campo otro_equipo no encontrado');
             }
         }
+
+        /**
+         * Configurar event listener para equipos médicos en modal de edición
+         */
+        function setupEquipoMedicoListenerForEdit() {
+            const equipoMedicoSelect = document.getElementById('edit_equipo_medico');
+            if (equipoMedicoSelect) {
+                // Verificar si está usando Select2
+                if ($(equipoMedicoSelect).hasClass('select2-hidden-accessible')) {
+                    $(equipoMedicoSelect).off('select2:select').on('select2:select', function(e) {
+                        const equipoSeleccionado = e.params.data.id;
+                        const equipoTexto = e.params.data.text;
+                        
+                        console.log('🩺 Select2 EDIT - Equipo seleccionado:', equipoTexto);
+                        agregarEquipoAOtroEquipoEdit(equipoTexto);
+                    });
+                    console.log('🩺 Select2 listener para equipos médicos EDIT configurado');
+                } else {
+                    equipoMedicoSelect.addEventListener('change', function() {
+                        const equipoSeleccionado = this.value;
+                        const equipoTexto = this.options[this.selectedIndex].text;
+                        
+                        console.log('🩺 Change event EDIT - Equipo seleccionado:', equipoTexto);
+                        if (equipoSeleccionado && equipoSeleccionado !== '') {
+                            agregarEquipoAOtroEquipoEdit(equipoTexto);
+                            // Resetear el dropdown para permitir múltiples selecciones
+                            this.value = '';
+                        }
+                    });
+                    console.log('🩺 Event listener normal para equipos médicos EDIT configurado');
+                }
+            } else {
+                console.warn('⚠️ Select edit_equipo_medico no encontrado al configurar listener');
+            }
+        }
+
+        /**
+         * Agregar equipo seleccionado al campo "Otro Equipo" en modal de edición
+         */
+        function agregarEquipoAOtroEquipoEdit(equipoTexto) {
+            // En el modal de edición, el campo se llama simplemente 'otro_equipo'
+            const otroEquipoInput = document.querySelector('#editModal [name="otro_equipo"]');
+            if (otroEquipoInput) {
+                let equiposActuales = otroEquipoInput.value.trim();
+                
+                // Si ya hay equipos, agregar coma y el nuevo equipo
+                if (equiposActuales) {
+                    // Verificar que no esté duplicado
+                    const equiposArray = equiposActuales.split(',').map(e => e.trim());
+                    if (!equiposArray.includes(equipoTexto)) {
+                        otroEquipoInput.value = equiposActuales + ', ' + equipoTexto;
+                    } else {
+                        console.log('🩺 Equipo ya está en la lista EDIT:', equipoTexto);
+                        
+                        // Mostrar mensaje visual de que ya existe
+                        mostrarNotificacionEquipo(`El equipo "${equipoTexto}" ya está en la lista`, 'warning');
+                        return;
+                    }
+                } else {
+                    // Si está vacío, agregar directamente
+                    otroEquipoInput.value = equipoTexto;
+                }
+                
+                console.log('🩺 Equipo agregado a campo "Otro Equipo" EDIT:', equipoTexto);
+                console.log('🩺 Valor actual del campo EDIT:', otroEquipoInput.value);
+                
+                // Mostrar notificación de éxito
+                mostrarNotificacionEquipo(`Equipo "${equipoTexto}" agregado correctamente`, 'success');
+                
+                // Agregar efecto visual al campo
+                otroEquipoInput.style.border = '2px solid #28a745';
+                setTimeout(() => {
+                    otroEquipoInput.style.border = '';
+                }, 1000);
+            } else {
+                console.warn('⚠️ Campo otro_equipo en modal EDIT no encontrado');
+            }
+        }
+        
+        /**
+         * Mostrar notificación visual para equipos médicos
+         */
+        function mostrarNotificacionEquipo(mensaje, tipo) {
+            // Crear elemento de notificación
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${tipo === 'success' ? 'success' : 'warning'} alert-dismissible fade show`;
+            notification.style.position = 'fixed';
+            notification.style.top = '20px';
+            notification.style.right = '20px';
+            notification.style.zIndex = '9999';
+            notification.style.minWidth = '300px';
+            notification.innerHTML = `
+                <i class="fas fa-${tipo === 'success' ? 'check-circle' : 'exclamation-triangle'}"></i> ${mensaje}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            // Agregar al body
+            document.body.appendChild(notification);
+            
+            // Auto-remover después de 3 segundos
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 3000);
+        }
+
+        /**
+         * Inicializar Summernote para el campo de resultados en modal de edición
+         */
+        function initializeSummernoteForEdit() {
+            const editResultadosTextarea = document.getElementById('edit_resultados');
+            if (editResultadosTextarea) {
+                // Verificar si ya está inicializado
+                if ($(editResultadosTextarea).hasClass('note-editor')) {
+                    console.log('📝 Summernote ya está inicializado para edit_resultados');
+                    return;
+                }
+                
+                // Configurar Summernote para el modal de edición
+                $(editResultadosTextarea).summernote({
+                    height: 150,
+                    toolbar: [
+                        ['style', ['style']],
+                        ['font', ['bold', 'underline', 'clear']],
+                        ['fontname', ['fontname']],
+                        ['color', ['color']],
+                        ['para', ['ul', 'ol', 'paragraph']],
+                        ['table', ['table']],
+                        ['insert', ['link']],
+                        ['view', ['fullscreen', 'codeview', 'help']]
+                    ],
+                    placeholder: 'Descripción detallada de los resultados del estudio...',
+                    focus: false,
+                    lang: 'es-ES'
+                });
+                
+                console.log('📝 Summernote inicializado para campo edit_resultados');
+            } else {
+                console.warn('⚠️ Campo edit_resultados no encontrado para Summernote');
+            }
+        }
+
+        /**
+         * Cargar correos existentes en el select del modal de edición
+         */
+        function loadEmailsForEdit(emailsString) {
+            if (!emailsString) return;
+            
+            const editEmailsSelect = document.getElementById('edit_emails_compartir');
+            if (editEmailsSelect) {
+                // Destruir Select2 existente si está inicializado
+                if ($(editEmailsSelect).hasClass('select2-hidden-accessible')) {
+                    console.log('🔄 Destruyendo Select2 anterior para edit_emails_compartir');
+                    $(editEmailsSelect).select2('destroy');
+                }
+                
+                // Limpiar opciones existentes
+                $(editEmailsSelect).empty();
+                
+                // Separar los correos por comas y limpiar espacios
+                const emails = emailsString.split(',').map(email => email.trim()).filter(email => email !== '');
+                
+                // Agregar cada correo como opción seleccionada
+                emails.forEach(email => {
+                    const option = new Option(email, email, true, true);
+                    editEmailsSelect.appendChild(option);
+                });
+                
+                // Reinicializar Select2 para correos con configuración de tags
+                console.log('🆕 Inicializando Select2 para edit_emails_compartir con correos existentes');
+                $(editEmailsSelect).select2({
+                    theme: 'bootstrap4',
+                    placeholder: 'Agregar correos electrónicos...',
+                    allowClear: true,
+                    width: '100%',
+                    tags: true,
+                    tokenSeparators: [',', ' ', ';'],
+                    dropdownParent: $('#editModal'), // Usar el modal como parent para mejor posicionamiento
+                    dropdownAutoWidth: false, // Desactivar para controlar mejor el posicionamiento
+                    createTag: function (params) {
+                        const term = $.trim(params.term);
+                        
+                        if (term === '') {
+                            return null;
+                        }
+                        
+                        // Validar formato de email
+                        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                        if (!emailRegex.test(term)) {
+                            return {
+                                id: term,
+                                text: term + ' (formato inválido)',
+                                invalid: true
+                            };
+                        }
+                        
+                        return {
+                            id: term,
+                            text: term,
+                            newTag: true
+                        };
+                    },
+                    templateResult: function(tag) {
+                        if (tag.invalid) {
+                            return $('<span style="color: red;">' + tag.text + '</span>');
+                        }
+                        if (tag.newTag) {
+                            return $('<span><i class="fas fa-plus-circle text-success mr-1"></i>' + tag.text + '</span>');
+                        }
+                        return tag.text;
+                    },
+                    templateSelection: function(tag) {
+                        if (tag.invalid) {
+                            return $('<span class="badge badge-danger">' + tag.id + '</span>');
+                        }
+                        return $('<span class="badge badge-primary">' + tag.id + '</span>');
+                    }
+                });
+                
+                // Agregar event listeners para debugging
+                $(editEmailsSelect).on('select2:select', function(e) {
+                    console.log('📧 Email agregado (con existentes):', e.params.data);
+                    console.log('📧 Todos los emails actuales:', $(this).val());
+                });
+                
+                $(editEmailsSelect).on('select2:unselect', function(e) {
+                    console.log('📧 Email removido (con existentes):', e.params.data);
+                    console.log('📧 Emails restantes:', $(this).val());
+                });
+                
+                console.log('📧 Correos cargados en modal de edición:', emails);
+                console.log('📧 Estado del select después de cargar:', $(editEmailsSelect).val());
+            } else {
+                console.warn('⚠️ Select edit_emails_compartir no encontrado');
+            }
+        }
+
+        /**
+         * Inicializar Select2 para correos vacío en modal de edición
+         */
+        function initializeEmptyEmailsForEdit() {
+            const editEmailsSelect = document.getElementById('edit_emails_compartir');
+            if (editEmailsSelect) {
+                console.log('🆕 Inicializando Select2 vacío para edit_emails_compartir');
+                
+                // Destruir Select2 existente si está inicializado
+                if ($(editEmailsSelect).hasClass('select2-hidden-accessible')) {
+                    console.log('🔄 Destruyendo Select2 anterior para edit_emails_compartir (vacío)');
+                    $(editEmailsSelect).select2('destroy');
+                }
+                
+                // Limpiar opciones existentes
+                $(editEmailsSelect).empty();
+                
+                // Inicializar Select2 para correos con configuración de tags
+                console.log('🆕 Inicializando Select2 vacío para edit_emails_compartir');
+                $(editEmailsSelect).select2({
+                    theme: 'bootstrap4',
+                    placeholder: 'Agregar correos electrónicos...',
+                    allowClear: true,
+                    width: '100%',
+                    tags: true,
+                    tokenSeparators: [',', ' ', ';'],
+                    dropdownParent: $('#editModal'), // Usar el modal como parent para mejor posicionamiento
+                    dropdownAutoWidth: false,
+                    createTag: function (params) {
+                        const term = $.trim(params.term);
+                        
+                        console.log('📧 Creando tag para término:', term);
+                        
+                        if (term === '') {
+                            return null;
+                        }
+                        
+                        // Validar formato de email
+                        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                        if (!emailRegex.test(term)) {
+                            console.warn('⚠️ Email inválido:', term);
+                            return {
+                                id: term,
+                                text: term + ' (formato inválido)',
+                                invalid: true
+                            };
+                        }
+                        
+                        console.log('✅ Email válido creado:', term);
+                        return {
+                            id: term,
+                            text: term
+                        };
+                    },
+                    templateResult: function(tag) {
+                        if (!tag.id) {
+                            return tag.text;
+                        }
+                        
+                        if (tag.invalid) {
+                            return $('<span class="text-danger">' + tag.text + '</span>');
+                        }
+                        
+                        return tag.text;
+                    },
+                    templateSelection: function(tag) {
+                        if (tag.invalid) {
+                            return $('<span class="badge badge-danger">' + tag.id + '</span>');
+                        }
+                        
+                        return $('<span class="badge badge-primary">' + tag.id + '</span>');
+                    }
+                });
+                
+                // Agregar event listeners para debugging
+                $(editEmailsSelect).on('select2:select', function(e) {
+                    console.log('📧 Email agregado:', e.params.data);
+                    console.log('📧 Todos los emails actuales:', $(this).val());
+                });
+                
+                $(editEmailsSelect).on('select2:unselect', function(e) {
+                    console.log('📧 Email removido:', e.params.data);
+                    console.log('📧 Emails restantes:', $(this).val());
+                });
+                
+                console.log('📧 Select2 vacío inicializado para correos en modal de edición');
+                console.log('📧 Estado inicial del select:', $(editEmailsSelect).val());
+            } else {
+                console.warn('⚠️ Select edit_emails_compartir no encontrado para inicialización vacía');
+            }
+        }
+        
+        /**
+         * Función de debug para verificar el estado de correos (llamar desde consola)
+         */
+        function debugEmailsState() {
+            const editEmailsSelect = document.getElementById('edit_emails_compartir');
+            console.log('🔍 DEBUG - Estado de correos:');
+            console.log('  - Elemento encontrado:', !!editEmailsSelect);
+            
+            if (editEmailsSelect) {
+                console.log('  - Select2 inicializado:', $(editEmailsSelect).hasClass('select2-hidden-accessible'));
+                console.log('  - Valor actual (jQuery):', $(editEmailsSelect).val());
+                console.log('  - Valor actual (native):', editEmailsSelect.value);
+                console.log('  - Opciones seleccionadas:', Array.from(editEmailsSelect.selectedOptions).map(opt => opt.value));
+                console.log('  - Todas las opciones:', Array.from(editEmailsSelect.options).map(opt => ({value: opt.value, text: opt.text, selected: opt.selected})));
+                
+                if ($(editEmailsSelect).hasClass('select2-hidden-accessible')) {
+                    console.log('  - Select2 data:', $(editEmailsSelect).select2('data'));
+                }
+            }
+            
+            return {
+                element: editEmailsSelect,
+                hasSelect2: editEmailsSelect ? $(editEmailsSelect).hasClass('select2-hidden-accessible') : false,
+                value: editEmailsSelect ? $(editEmailsSelect).val() : null
+            };
+        }
+        
+        // Hacer la función disponible globalmente para debugging
+        window.debugEmailsState = debugEmailsState;
 
         /**
          * Cargar valores específicos de un tipo de referencial por clase (para modales de edición)
@@ -3618,6 +4120,18 @@ if ($paciente_id) {
                 }
             });
             
+            // Procesar campos de correos (Select2 con tags)
+            const emailsSelect = document.getElementById('emails_compartir');
+            if (emailsSelect && $(emailsSelect).hasClass('select2-hidden-accessible')) {
+                const selectedEmails = $(emailsSelect).val();
+                if (Array.isArray(selectedEmails)) {
+                    data.emails_compartir = selectedEmails.join(', ');
+                    console.log('📧 Correos procesados para envío:', data.emails_compartir);
+                } else {
+                    data.emails_compartir = selectedEmails || '';
+                }
+            }
+            
             console.log('Form data before processing:', data);
             console.log('🔍 Valor de id_persona:', data.id_persona);
             console.log('🔍 appState.selectedPatient:', appState.selectedPatient);
@@ -3785,6 +4299,30 @@ if ($paciente_id) {
                 modal.show();
                 console.log('✅ Modal mostrado');
                 
+                // Configurar evento para limpiar Summernote al cerrar modal
+                const editModalElement = document.getElementById('editModal');
+                editModalElement.addEventListener('hidden.bs.modal', function() {
+                    const editResultadosTextarea = document.getElementById('edit_resultados');
+                    if (editResultadosTextarea && $(editResultadosTextarea).hasClass('note-editor')) {
+                        console.log('📝 Destruyendo Summernote al cerrar modal de edición');
+                        $(editResultadosTextarea).summernote('destroy');
+                    }
+                    
+                    // Limpiar Select2 de correos también
+                    const editEmailsSelect = document.getElementById('edit_emails_compartir');
+                    if (editEmailsSelect && $(editEmailsSelect).hasClass('select2-hidden-accessible')) {
+                        console.log('📧 Limpiando Select2 de correos al cerrar modal');
+                        $(editEmailsSelect).select2('destroy');
+                    }
+                    
+                    // Limpiar Select2 de equipos médicos también
+                    const editEquipoMedicoSelect = document.getElementById('edit_equipo_medico');
+                    if (editEquipoMedicoSelect && $(editEquipoMedicoSelect).hasClass('select2-hidden-accessible')) {
+                        console.log('🩺 Limpiando Select2 de equipos médicos al cerrar modal');
+                        $(editEquipoMedicoSelect).select2('destroy');
+                    }
+                }, { once: true }); // Solo ejecutar una vez para este modal
+                
                 // 🔧 NUEVO: Activar todas las form-section del modal de edición
                 setTimeout(function() {
                     console.log('🔧 Activando secciones del formulario de edición...');
@@ -3814,6 +4352,23 @@ if ($paciente_id) {
                         setTimeout(() => {
                             loadEquiposMedicosForEdit();
                         }, 100);
+                        
+                        // Inicializar Summernote para el campo de resultados en el modal de edición
+                        console.log('📝 Inicializando Summernote para modal de edición...');
+                        setTimeout(() => {
+                            initializeSummernoteForEdit();
+                        }, 200);
+                        
+                        // Cargar correos existentes en el select del modal de edición
+                        console.log('📧 Cargando correos para modal de edición...');
+                        setTimeout(() => {
+                            if (result.data.estudios && result.data.estudios.emails_compartir) {
+                                loadEmailsForEdit(result.data.estudios.emails_compartir);
+                            } else {
+                                // Inicializar Select2 para correos aunque no haya correos existentes
+                                initializeEmptyEmailsForEdit();
+                            }
+                        }, 300);
                     }
                     
                     // 🆕 NUEVO: Cargar archivos existentes de la consulta
@@ -4188,17 +4743,19 @@ if ($paciente_id) {
                         </div>
                         
                         <div class="form-floating mb-3">
-                            <textarea class="form-control" name="resultados" style="height: 120px;">${estudios.resultados || ''}</textarea>
+                            <textarea class="form-control summernote" id="edit_resultados" name="resultados" style="height: 120px;">${estudios.resultados || ''}</textarea>
                             <label>Resultados del Estudio</label>
                         </div>
                         
                         <div class="row">
                             <div class="col-md-10">
-                                <div class="form-floating">
-                                    <input type="text" class="form-control" name="emails_compartir" value="${estudios.emails_compartir || ''}" placeholder="doctor@clinica.com, especialista@hospital.com">
-                                    <label>Compartir por Correo Electrónico</label>
+                                <div class="mb-3">
+                                    <label class="form-label">Compartir por Correo Electrónico</label>
+                                    <select class="form-control select2bs4" name="emails_compartir" id="edit_emails_compartir" multiple="multiple" data-placeholder="Agregar correos electrónicos..." style="width: 100%;">
+                                        <!-- Los correos se cargan dinámicamente -->
+                                    </select>
+                                    <small class="form-text text-muted">Escriba un correo y presione Enter para agregarlo. Se validarán automáticamente.</small>
                                 </div>
-                                <small class="form-text text-muted">Separe múltiples correos con comas. Los resultados se enviarán automáticamente.</small>
                             </div>
                             <div class="col-md-2">
                                 <div class="form-check form-switch mt-3">
@@ -4239,6 +4796,18 @@ if ($paciente_id) {
             const formData = new FormData(form);
             let data = Object.fromEntries(formData.entries());
             
+            console.log('💾 Iniciando proceso de guardado...');
+            
+            // NUEVA FUNCIÓN: Forzar sincronización de Select2 antes de guardar
+            const emailsSelectForSync = document.getElementById('edit_emails_compartir');
+            if (emailsSelectForSync && $(emailsSelectForSync).hasClass('select2-hidden-accessible')) {
+                console.log('🔄 Forzando sincronización de Select2 antes de guardar...');
+                $(emailsSelectForSync).trigger('change'); // Forzar sincronización
+                
+                // Pequeña pausa para asegurar que la sincronización ocurra
+                await new Promise(resolve => setTimeout(resolve, 50));
+            }
+            
             // Extraer contenido de editores Summernote si están inicializados
             $('textarea.summernote', form).each(function() {
                 const textarea = $(this);
@@ -4247,6 +4816,54 @@ if ($paciente_id) {
                     data[fieldName] = textarea.summernote('code');
                 }
             });
+            
+            // Procesar campos de correos (Select2 con tags) en modal de edición
+            const editEmailsSelect = document.getElementById('edit_emails_compartir');
+            console.log('🔍 Procesando correos para guardar...');
+            console.log('🔍 Elemento editEmailsSelect encontrado:', !!editEmailsSelect);
+            
+            if (editEmailsSelect) {
+                console.log('🔍 Select2 inicializado:', $(editEmailsSelect).hasClass('select2-hidden-accessible'));
+                
+                if ($(editEmailsSelect).hasClass('select2-hidden-accessible')) {
+                    const selectedEmails = $(editEmailsSelect).val();
+                    console.log('🔍 Emails obtenidos de Select2:', selectedEmails);
+                    console.log('🔍 Tipo de selectedEmails:', typeof selectedEmails, Array.isArray(selectedEmails));
+                    
+                    if (Array.isArray(selectedEmails)) {
+                        data.emails_compartir = selectedEmails.join(', ');
+                        console.log('📧 Correos procesados para edición (array):', data.emails_compartir);
+                    } else {
+                        data.emails_compartir = selectedEmails || '';
+                        console.log('📧 Correos procesados para edición (string/other):', data.emails_compartir);
+                    }
+                } else {
+                    console.warn('⚠️ Select2 no inicializado, intentando obtener valor directo del select');
+                    // Fallback: obtener valores directamente del select
+                    const options = editEmailsSelect.selectedOptions;
+                    const emailsArray = Array.from(options).map(opt => opt.value);
+                    data.emails_compartir = emailsArray.join(', ');
+                    console.log('📧 Correos obtenidos directamente:', data.emails_compartir);
+                }
+            } else {
+                console.warn('⚠️ Elemento edit_emails_compartir no encontrado');
+                data.emails_compartir = '';
+            }
+
+            // 🔍 DEBUG ESPECÍFICO PARA EMAILS MÚLTIPLES
+            console.log('🐛 DEBUGGING EMAILS MÚLTIPLES:');
+            console.log('   📩 emails_compartir final:', data.emails_compartir);
+            console.log('   📏 longitud del string:', data.emails_compartir ? data.emails_compartir.length : 0);
+            console.log('   🔢 cantidad de emails (por comas):', data.emails_compartir ? data.emails_compartir.split(',').length : 0);
+            console.log('   📋 array de emails:', data.emails_compartir ? data.emails_compartir.split(',').map(e => e.trim()) : []);
+            
+            // Verificar si hay emails duplicados o problemas de formato
+            if (data.emails_compartir) {
+                const emailArray = data.emails_compartir.split(',').map(e => e.trim());
+                const uniqueEmails = [...new Set(emailArray)];
+                console.log('   🔄 emails únicos:', uniqueEmails);
+                console.log('   ❗ hay duplicados:', emailArray.length !== uniqueEmails.length);
+            }
             
             // CORRECCIÓN: Convertir fechas vacías a null para PostgreSQL
             if (data.proximaconsulta === '') {
@@ -4298,11 +4915,22 @@ if ($paciente_id) {
                             descripcion_estudio: data.descripcion_estudio,
                             observaciones: data.observaciones,
                             resultados: data.resultados,
-                            fecha_estudio: data.fecha_estudio || null
+                            fecha_estudio: data.fecha_estudio || null,
+                            emails_compartir: data.emails_compartir,
+                            compartir_activo: data.compartir_activo
                         }
                     };
                 }
                 
+                // 🔍 DEBUG FINAL ANTES DE ENVIAR AL API
+                console.log('🐛 DATOS FINALES ANTES DE ENVIAR AL API:');
+                console.log('   📊 data completo:', data);
+                console.log('   📩 emails_compartir específico:', data.emails_compartir);
+                console.log('   🔗 related data:', related);
+                if (related && related.estudios) {
+                    console.log('   📧 emails en related.estudios:', related.estudios);
+                }
+
                 const result = await callAPI('update', {
                     table: 'consultas',
                     id: data.id_consulta,
@@ -5128,12 +5756,62 @@ if ($paciente_id) {
             }
             
             try {
-                $('.select2bs4').select2({
+                // Inicializar Select2 normales (excluyendo los que se manejan específicamente)
+                $('.select2bs4:not([multiple]):not(#edit_equipo_medico)').select2({
                     theme: 'bootstrap4',
                     placeholder: 'Seleccionar...',
                     allowClear: true,
                     width: '100%'
                 });
+                
+                // Configuración especial para campos de correos (solo el de creación aquí)
+                $('#emails_compartir:not(.select2-hidden-accessible)').select2({
+                    theme: 'bootstrap4',
+                    placeholder: 'Agregar correos electrónicos...',
+                    allowClear: true,
+                    width: '100%',
+                    tags: true,
+                    tokenSeparators: [',', ' ', ';'],
+                    createTag: function (params) {
+                        const term = $.trim(params.term);
+                        
+                        if (term === '') {
+                            return null;
+                        }
+                        
+                        // Validar formato de email
+                        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                        if (!emailRegex.test(term)) {
+                            return {
+                                id: term,
+                                text: term + ' (formato inválido)',
+                                invalid: true
+                            };
+                        }
+                        
+                        return {
+                            id: term,
+                            text: term,
+                            newTag: true
+                        };
+                    },
+                    templateResult: function(tag) {
+                        if (tag.invalid) {
+                            return $('<span style="color: red;">' + tag.text + '</span>');
+                        }
+                        if (tag.newTag) {
+                            return $('<span><i class="fas fa-plus-circle text-success mr-1"></i>' + tag.text + '</span>');
+                        }
+                        return tag.text;
+                    },
+                    templateSelection: function(tag) {
+                        if (tag.invalid) {
+                            return $('<span class="badge badge-danger">' + tag.id + '</span>');
+                        }
+                        return $('<span class="badge badge-primary">' + tag.id + '</span>');
+                    }
+                });
+                
                 if (window.debugMode) {
                     console.log('Select2 initialized successfully');
                 }
@@ -5177,15 +5855,15 @@ if ($paciente_id) {
         // Función para reinicializar componentes después de cambios dinámicos
         function reinitializeComponents() {
             try {
-                // Destruir instancias existentes de Select2
-                $('.select2bs4').each(function() {
+                // Destruir instancias existentes de Select2 (EXCLUYENDO los del modal de edición)
+                $('.select2bs4:not(#edit_equipo_medico):not(#edit_emails_compartir)').each(function() {
                     if ($(this).hasClass('select2-hidden-accessible')) {
                         $(this).select2('destroy');
                     }
                 });
                 
-                // Destruir instancias existentes de Summernote
-                $('.summernote').each(function() {
+                // Destruir instancias existentes de Summernote (EXCLUYENDO el del modal de edición)
+                $('.summernote:not(#edit_resultados)').each(function() {
                     if ($(this).next('.note-editor').length > 0) {
                         $(this).summernote('destroy');
                     }

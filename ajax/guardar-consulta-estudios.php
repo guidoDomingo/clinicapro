@@ -120,10 +120,45 @@ class TableConsultaEstudios {
             // Preparar los datos
             $equipo_medico = isset($datos['equipo_medico']) ? $datos['equipo_medico'] : '';
             $otro_equipo = isset($datos['otro_equipo']) ? $datos['otro_equipo'] : '';
-            // El campo de descripción del formulario se llama 'consulta-textarea'
-            $resultados = isset($datos['consulta-textarea']) ? $datos['consulta-textarea'] : '';
-            $emails_compartir = isset($datos['txtEmailShare']) ? $datos['txtEmailShare'] : '';
-            $compartir_activo = isset($datos['gridCheck']) ? 1 : 0; // El checkbox se llama 'gridCheck'
+            
+            // CORRECCIÓN: Buscar campo resultados que es el nombre real del campo desde el frontend
+            $resultados = '';
+            if (isset($datos['resultados'])) {
+                $resultados = $datos['resultados'];
+            } elseif (isset($datos['consulta-textarea'])) {
+                // Fallback para compatibilidad
+                $resultados = $datos['consulta-textarea'];
+            }
+            
+            // CORRECCIÓN: Buscar emails_compartir que es el nombre real del campo desde el frontend
+            $emails_compartir = '';
+            if (isset($datos['emails_compartir'])) {
+                $emails_compartir = $datos['emails_compartir'];
+            } elseif (isset($datos['txtEmailShare'])) {
+                // Fallback para compatibilidad
+                $emails_compartir = $datos['txtEmailShare'];
+            }
+            
+            // CORRECCIÓN: Buscar compartir_activo que es el nombre real del campo desde el frontend
+            $compartir_activo = 0;
+            if (isset($datos['compartir_activo'])) {
+                $compartir_activo = $datos['compartir_activo'] ? 1 : 0;
+            } elseif (isset($datos['gridCheck'])) {
+                // Fallback para compatibilidad
+                $compartir_activo = $datos['gridCheck'] ? 1 : 0;
+            }
+            
+            // DEBUG: Log de los valores procesados
+            if (function_exists('debug_detallado')) {
+                debug_detallado('GUARDAR_ESTUDIOS_DEBUG', "Valores procesados", [
+                    'equipo_medico' => $equipo_medico,
+                    'otro_equipo' => $otro_equipo,
+                    'resultados_length' => strlen($resultados),
+                    'emails_compartir' => $emails_compartir,
+                    'compartir_activo' => $compartir_activo,
+                    'datos_recibidos_keys' => array_keys($datos)
+                ], 'info');
+            }
             
             if ($existing) {
                 // Actualizar registro existente
