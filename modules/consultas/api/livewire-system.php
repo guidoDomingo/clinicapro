@@ -1582,8 +1582,10 @@ class LivewireCRUDSystem {
                     $subidos[] = [
                         'id_archivo' => $id_archivo,
                         'nombre_original' => $fileName,
+                        'nombre_archivo' => $uniqueName, // ✅ AGREGADO: Nombre codificado del servidor
                         'tamano' => $fileSize,
-                        'tipo' => $mimeType
+                        'tipo' => $mimeType,
+                        'ruta_archivo' => $filePath
                     ];
                 } else {
                     error_log("✗ Error al mover archivo '$fileName' de '$fileTmp' a '$filePath'", 3, $logFile);

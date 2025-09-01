@@ -708,6 +708,345 @@ if ($paciente_id) {
                 padding: 14px 16px;
             }
         }
+        
+        /* Estilos para la sección Informe + Imagen */
+        .file-preview-container {
+            border: 2px dashed #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+        
+        .file-preview-container.has-files {
+            border-color: #28a745;
+            background-color: #d4edda;
+        }
+        
+        .file-preview-header {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .file-preview-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .file-preview-item {
+            background: white;
+            border: 1px solid #e0e6ed;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .file-preview-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        .file-preview-item .file-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        .file-preview-item .file-name {
+            font-size: 12px;
+            color: #6c757d;
+            word-wrap: break-word;
+            line-height: 1.2;
+            margin-bottom: 5px;
+        }
+        
+        .file-preview-item .file-size {
+            font-size: 10px;
+            color: #adb5bd;
+        }
+        
+        .file-preview-item .remove-file {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 3;
+            transition: all 0.2s ease;
+        }
+        
+        .file-preview-item .remove-file:hover {
+            background: #c82333;
+            transform: scale(1.1);
+        }
+        
+        /* Previews de imágenes */
+        .file-preview-item.image-file {
+            padding: 5px;
+        }
+        
+        .file-preview-item.image-file .file-thumbnail {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 6px;
+            margin-bottom: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .file-preview-item.image-file .file-thumbnail:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        /* Placeholder para imágenes no disponibles */
+        .placeholder-image {
+            width: 100%;
+            height: 120px;
+            border: 2px dashed #dee2e6;
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #f8f9fa;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .placeholder-image:hover {
+            border-color: #6c757d;
+            background-color: #e9ecef;
+        }
+        
+        .placeholder-text {
+            font-size: 10px;
+            color: #6c757d;
+            margin-top: 2px;
+            text-align: center;
+        }
+
+        /* Estilos específicos para previsualizaciones generadas dinámicamente */
+        .file-thumbnail {
+            position: relative;
+            cursor: pointer;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 8px;
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f8f9fa;
+        }
+        
+        .file-thumbnail img {
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            border-radius: 4px;
+        }
+        
+        .file-thumbnail.file-document {
+            background-color: #e9ecef;
+            color: #6c757d;
+            font-size: 24px;
+        }
+        
+        .file-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .file-thumbnail:hover .file-overlay {
+            opacity: 1;
+        }
+        
+        .file-info {
+            text-align: left;
+        }
+        
+        .file-name {
+            font-size: 12px;
+            font-weight: 500;
+            color: #495057;
+            margin-bottom: 4px;
+            word-wrap: break-word;
+            line-height: 1.3;
+        }
+        
+        .file-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 10px;
+            color: #6c757d;
+        }
+        
+        .file-size {
+            font-weight: 500;
+        }
+        
+        .file-date {
+            font-style: italic;
+        }
+        
+        .btn-remove-file {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 3;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-remove-file:hover {
+            background: #c82333;
+            transform: scale(1.1);
+        }
+        
+        /* Iconos por tipo de archivo */
+        .file-icon.pdf { color: #dc3545; }
+        .file-icon.doc { color: #0066cc; }
+        .file-icon.docx { color: #0066cc; }
+        .file-icon.jpg, .file-icon.jpeg, .file-icon.png, .file-icon.gif { color: #28a745; }
+        
+        /* Modal para preview de imágenes */
+        .image-modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .image-modal.show {
+            display: flex;
+        }
+        
+        .image-modal-content {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+        
+        .image-modal-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 10000;
+        }
+        
+        .image-modal-close:hover {
+            color: #ccc;
+        }
+        
+        /* Drag and drop área */
+        .file-drop-zone {
+            border: 2px dashed #007bff;
+            border-radius: 8px;
+            padding: 30px 20px;
+            text-align: center;
+            color: #007bff;
+            background-color: #f8f9fa;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+        
+        .file-drop-zone:hover,
+        .file-drop-zone.dragover {
+            border-color: #0056b3;
+            background-color: #e7f3ff;
+            color: #0056b3;
+        }
+        
+        .file-drop-zone i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            display: block;
+        }
+        
+        /* Estilo específico para las cards de OD/OI */
+        #informe_imagen-section .card-header {
+            font-weight: 600;
+            padding: 12px 15px;
+        }
+        
+        #informe_imagen-section .card-body {
+            padding: 15px;
+        }
+        
+        /* Responsive para file previews */
+        @media (max-width: 768px) {
+            .file-preview-list {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+                gap: 10px;
+            }
+            
+            .file-preview-item {
+                padding: 8px;
+            }
+            
+            .file-preview-item .file-icon {
+                font-size: 24px;
+            }
+            
+            .file-preview-item .file-name {
+                font-size: 11px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1142,6 +1481,127 @@ if ($paciente_id) {
                         </div>
                     </div>
                     
+                    <!-- Sección Específica de Informe + Imagen -->
+                    <div id="informe_imagen-section" class="consultas-card" style="display: none;">
+                        <div class="form-section-title">
+                            <i class="fas fa-file-image"></i> Datos de Informe + Imagen
+                        </div>
+                        <div class="card-body-custom">
+                            <!-- Equipo Médico -->
+                            <div class="row mb-3">
+                                <div class="col-md-12">
+                                    <label for="informe_equipo_medico" class="form-label">Equipo Médico</label>
+                                    <select class="form-select select2bs4" id="informe_equipo_medico" name="informe_equipo_medico">
+                                        <option value="">Seleccionar equipo médico...</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <!-- Archivos y Descripciones por Ojo -->
+                            <div class="row mb-4">
+                                <!-- Ojo Derecho (OD) -->
+                                <div class="col-md-6">
+                                    <div class="card h-100">
+                                        <div class="card-header bg-primary text-white">
+                                            <h6 class="mb-0"><i class="fas fa-eye"></i> Ojo Derecho (OD)</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <!-- Upload de Archivos OD -->
+                                            <div class="mb-3">
+                                                <label for="archivos_od" class="form-label">Subir Archivos</label>
+                                                <input type="file" class="form-control" id="archivos_od" name="archivos_od[]" 
+                                                       multiple accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx" 
+                                                       onchange="handleFileUpload('od', this.files)">
+                                                <div class="form-text">
+                                                    <small>Formatos soportados: JPG, PNG, GIF, PDF, DOC, DOCX. Máximo 5MB por archivo.</small>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Preview de Archivos OD -->
+                                            <div id="preview_od" class="file-preview-container mb-3" style="display: none;">
+                                                <div class="file-preview-header">
+                                                    <strong>Archivos cargados:</strong>
+                                                </div>
+                                                <div id="files_od" class="file-preview-list"></div>
+                                            </div>
+                                            
+                                            <!-- Descripción OD -->
+                                            <div class="mb-3">
+                                                <label for="descripcion_od" class="form-label">Descripción OD</label>
+                                                <textarea class="form-control summernote" id="descripcion_od" name="descripcion_od" 
+                                                          rows="6" placeholder="Descripción detallada del ojo derecho..."></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Ojo Izquierdo (OI) -->
+                                <div class="col-md-6">
+                                    <div class="card h-100">
+                                        <div class="card-header bg-info text-white">
+                                            <h6 class="mb-0"><i class="fas fa-eye"></i> Ojo Izquierdo (OI)</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <!-- Upload de Archivos OI -->
+                                            <div class="mb-3">
+                                                <label for="archivos_oi" class="form-label">Subir Archivos</label>
+                                                <input type="file" class="form-control" id="archivos_oi" name="archivos_oi[]" 
+                                                       multiple accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx" 
+                                                       onchange="handleFileUpload('oi', this.files)">
+                                                <div class="form-text">
+                                                    <small>Formatos soportados: JPG, PNG, GIF, PDF, DOC, DOCX. Máximo 5MB por archivo.</small>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Preview de Archivos OI -->
+                                            <div id="preview_oi" class="file-preview-container mb-3" style="display: none;">
+                                                <div class="file-preview-header">
+                                                    <strong>Archivos cargados:</strong>
+                                                </div>
+                                                <div id="files_oi" class="file-preview-list"></div>
+                                            </div>
+                                            
+                                            <!-- Descripción OI -->
+                                            <div class="mb-3">
+                                                <label for="descripcion_oi" class="form-label">Descripción OI</label>
+                                                <textarea class="form-control summernote" id="descripcion_oi" name="descripcion_oi" 
+                                                          rows="6" placeholder="Descripción detallada del ojo izquierdo..."></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Compartir por Email -->
+                            <div class="mb-3">
+                                <label for="informe_emails_compartir" class="form-label">Compartir por Correo Electrónico</label>
+                                <div class="input-group">
+                                    <select class="form-control select2bs4" id="informe_emails_compartir" name="informe_emails_compartir" 
+                                            multiple="multiple" data-placeholder="Agregar correos electrónicos..." style="width: 100%;">
+                                        <!-- Los correos se agregan dinámicamente -->
+                                    </select>
+                                    <button type="button" class="btn btn-outline-info" title="Validar emails">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-outline-warning" onclick="testEmailsSelect2('informe_emails_compartir')" title="Test Select2">
+                                        🧪
+                                    </button>
+                                    <button type="button" class="btn btn-outline-success" title="Enviar por correo" disabled>
+                                        <i class="fas fa-paper-plane"></i>
+                                    </button>
+                                </div>
+                                <div class="form-text">Escriba un correo y presione Enter para agregarlo. Se validarán automáticamente.</div>
+                            </div>
+                            
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="informe_compartir_activo" name="informe_compartir_activo">
+                                <label class="form-check-label" for="informe_compartir_activo">
+                                    <i class="fas fa-share-alt"></i> Activar compartir por correo electrónico
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <div class="d-flex gap-2 justify-content-end mt-3">
                         <button type="button" class="btn btn-outline-secondary" onclick="resetForm()">
                             <i class="fas fa-times me-2"></i>Limpiar
@@ -1525,6 +1985,7 @@ if ($paciente_id) {
             // Mantener las secciones básicas activas, solo ocultar secciones específicas
             const anteojosSection = document.getElementById('anteojos-section');
             const estudiosSection = document.getElementById('estudios-section');
+            const informeImagenSection = document.getElementById('informe_imagen-section');
             const visionTensionSection = document.querySelector('.vision-tension-section');
             
             // Ocultar todas las secciones específicas primero
@@ -1536,6 +1997,11 @@ if ($paciente_id) {
             if (estudiosSection) {
                 estudiosSection.style.display = 'none';
                 estudiosSection.classList.remove('active');
+            }
+            
+            if (informeImagenSection) {
+                informeImagenSection.style.display = 'none';
+                informeImagenSection.classList.remove('active');
             }
             
             // Controlar sección de Visión y Tensión
@@ -1570,6 +2036,25 @@ if ($paciente_id) {
                 setTimeout(() => {
                     initializeEmailsSelect2('emails_compartir');
                 }, 100); // Pequeño delay para asegurar que el DOM esté renderizado
+            } else if (formType === 'informe_imagen' && informeImagenSection) {
+                informeImagenSection.style.display = 'block';
+                informeImagenSection.classList.add('active');
+                console.log('✅ Sección de informe + imagen activada');
+                
+                // Cargar equipos médicos específicos para informe + imagen
+                loadEquiposMedicosInforme();
+                
+                // Inicializar Select2 para emails de informe + imagen
+                setTimeout(() => {
+                    initializeEmailsSelect2('informe_emails_compartir');
+                }, 100);
+                
+                // Limpiar archivos cargados previamente
+                window.uploadedFiles = { od: [], oi: [] };
+                updateFilePreview('od');
+                updateFilePreview('oi');
+                
+                console.log('✅ Sección de informe + imagen configurada completamente');
             }
             
             // Actualizar select de tipo de formulario
@@ -4221,15 +4706,24 @@ if ($paciente_id) {
                         }
                     };
                 } else if (data.tipo_formulario === 'informe_imagen') {
+                    console.log('🎯 [CREATE FUNCTION] PROCESSING INFORME_IMAGEN DATA');
+                    console.log('📋 Original data:', data);
+                    console.log('📁 Window uploaded files:', window.uploadedFiles);
+                    
+                    // 📝 NUEVO FLUJO: Crear consulta primero SIN archivos, luego subir archivos y actualizar
                     related = {
                         informe_imagen: {
-                            equipo_medico: data.equipo_medico,
+                            equipo_medico: data.informe_equipo_medico || data.equipo_medico,
                             descripcion_od: data.descripcion_od,
                             descripcion_oi: data.descripcion_oi,
-                            emails_compartir: data.emails_compartir,
-                            compartir_activo: data.compartir_activo
+                            emails_compartir: data.informe_emails_compartir || data.emails_compartir,
+                            compartir_activo: data.informe_compartir_activo || data.compartir_activo || false,
+                            archivos_od: JSON.stringify([]), // Inicialmente vacío
+                            archivos_oi: JSON.stringify([])  // Inicialmente vacío
                         }
                     };
+                    
+                    console.log('💾 Initial related data (without files):', related);
                 } else if (data.tipo_formulario === 'estudios') {
                     related = {
                         estudios: {
@@ -4250,17 +4744,49 @@ if ($paciente_id) {
                 
                 showSuccess('Consulta creada exitosamente');
                 
-                // 🆕 NUEVO: Subir archivos si existen
+                // 🆕 NUEVO: Si es informe_imagen y hay archivos, subirlos y actualizar la BD
+                if (data.tipo_formulario === 'informe_imagen' && window.uploadedFiles && 
+                    (window.uploadedFiles.od.length > 0 || window.uploadedFiles.oi.length > 0)) {
+                    
+                    console.log('📁 Subiendo archivos de informe_imagen para consulta ID:', result.data.id_consulta);
+                    try {
+                        // Subir archivos directamente al servidor
+                        const uploadedFilesData = await uploadFilesDirectly();
+                        
+                        if (uploadedFilesData.od.length > 0 || uploadedFilesData.oi.length > 0) {
+                            console.log('✅ Archivos subidos, actualizando BD con nombres codificados...');
+                            
+                            // Actualizar la tabla consulta_informe_imagen con los nombres codificados
+                            await callAPI('update', {
+                                table: 'consulta_informe_imagen',
+                                id: result.data.informe_imagen.id_consulta_informe_imagen,
+                                data: {
+                                    id_consulta: result.data.id_consulta, // 🔧 CORRECCIÓN: Incluir id_consulta requerido
+                                    archivos_od: JSON.stringify(uploadedFilesData.od),
+                                    archivos_oi: JSON.stringify(uploadedFilesData.oi)
+                                }
+                            });
+                            
+                            console.log('✅ Base de datos actualizada con nombres codificados');
+                            showSuccess('Consulta e imágenes guardadas exitosamente');
+                        }
+                    } catch (uploadError) {
+                        console.error('❌ Error subiendo archivos de informe_imagen:', uploadError);
+                        showError('Consulta creada, pero hubo problemas subiendo las imágenes');
+                    }
+                }
+                
+                // 🆕 NUEVO: Subir archivos generales si existen
                 const archivosInput = document.getElementById('archivos_consulta');
                 if (archivosInput && archivosInput.files && archivosInput.files.length > 0) {
-                    console.log('📁 Subiendo archivos para consulta ID:', result.data.id_consulta);
+                    console.log('📁 Subiendo archivos generales para consulta ID:', result.data.id_consulta);
                     try {
                         const uploadedFiles = await uploadArchivos(result.data.id_consulta, Array.from(archivosInput.files));
                         if (uploadedFiles.length > 0) {
-                            console.log('✅ Archivos subidos exitosamente:', uploadedFiles.length);
+                            console.log('✅ Archivos generales subidos exitosamente:', uploadedFiles.length);
                         }
                     } catch (uploadError) {
-                        console.error('❌ Error subiendo archivos:', uploadError);
+                        console.error('❌ Error subiendo archivos generales:', uploadError);
                         showError('Consulta creada, pero hubo problemas subiendo algunos archivos');
                     }
                 }
@@ -4382,6 +4908,134 @@ if ($paciente_id) {
                                 initializeEmptyEmailsForEdit();
                             }
                         }, 300);
+                    }
+                    
+                    // NUEVO: Inicializar componentes para sección de informe_imagen
+                    const editInformeImagenSection = container.querySelector('#edit-informe-imagen-section');
+                    if (editInformeImagenSection) {
+                        console.log('🖼️ Inicializando componentes de informe_imagen para edición...');
+                        
+                        // Inicializar Select2 para equipo médico
+                        setTimeout(() => {
+                            const equipoSelect = container.querySelector('#edit_informe_equipo_medico');
+                            if (equipoSelect && !$(equipoSelect).hasClass('select2-hidden-accessible')) {
+                                $(equipoSelect).select2({
+                                    theme: 'bootstrap-5',
+                                    dropdownParent: $('#editModal')
+                                });
+                                console.log('🩺 Select2 equipo médico inicializado para edición');
+                            }
+                        }, 100);
+                        
+                        // Inicializar Summernote para descripciones
+                        setTimeout(() => {
+                            const descOD = container.querySelector('#edit_descripcion_od');
+                            const descOI = container.querySelector('#edit_descripcion_oi');
+                            
+                            if (descOD && !$(descOD).hasClass('note-editor')) {
+                                $(descOD).summernote({
+                                    height: 120,
+                                    toolbar: [
+                                        ['style', ['bold', 'italic', 'underline']],
+                                        ['para', ['ul', 'ol']],
+                                        ['insert', ['link']]
+                                    ]
+                                });
+                                console.log('📝 Summernote OD inicializado para edición');
+                            }
+                            
+                            if (descOI && !$(descOI).hasClass('note-editor')) {
+                                $(descOI).summernote({
+                                    height: 120,
+                                    toolbar: [
+                                        ['style', ['bold', 'italic', 'underline']],
+                                        ['para', ['ul', 'ol']],
+                                        ['insert', ['link']]
+                                    ]
+                                });
+                                console.log('📝 Summernote OI inicializado para edición');
+                            }
+                        }, 200);
+                        
+                        // Inicializar Select2 para emails con tags
+                        setTimeout(() => {
+                            const emailsSelect = container.querySelector('#edit_informe_emails_compartir');
+                            if (emailsSelect && !$(emailsSelect).hasClass('select2-hidden-accessible')) {
+                                $(emailsSelect).select2({
+                                    tags: true,
+                                    tokenSeparators: [',', ' '],
+                                    theme: 'bootstrap-5',
+                                    dropdownParent: $('#editModal'),
+                                    placeholder: 'Escribe emails y presiona Enter',
+                                    createTag: function(params) {
+                                        const term = $.trim(params.term);
+                                        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                                        
+                                        if (term === '' || !emailRegex.test(term)) {
+                                            return null;
+                                        }
+                                        
+                                        return {
+                                            id: term,
+                                            text: term,
+                                            newTag: true
+                                        };
+                                    }
+                                });
+                                console.log('📧 Select2 emails inicializado para edición');
+                            }
+                        }, 300);
+                        
+                        // Inicializar archivos existentes en window.uploadedFiles para edición
+                        setTimeout(() => {
+                            if (result.data.informe_imagen) {
+                                window.uploadedFiles = { od: [], oi: [] };
+                                
+                                // Cargar archivos OD
+                                if (result.data.informe_imagen.archivos_od) {
+                                    try {
+                                        const archivosOD = typeof result.data.informe_imagen.archivos_od === 'string' 
+                                            ? JSON.parse(result.data.informe_imagen.archivos_od) 
+                                            : result.data.informe_imagen.archivos_od;
+                                        
+                                        // 🔧 CORRECCIÓN: Asegurar que todos los archivos tengan ID único
+                                        window.uploadedFiles.od = (archivosOD || []).map((archivo, index) => ({
+                                            ...archivo,
+                                            id: archivo.id || `existing_od_${Date.now()}_${index}`
+                                        }));
+                                        console.log('📁 Archivos OD cargados con IDs:', window.uploadedFiles.od);
+                                        console.log('📁 Primer archivo OD propiedades:', window.uploadedFiles.od[0]);
+                                    } catch (e) {
+                                        console.warn('Error parsing archivos_od:', e);
+                                    }
+                                }
+                                
+                                // Cargar archivos OI
+                                if (result.data.informe_imagen.archivos_oi) {
+                                    try {
+                                        const archivosOI = typeof result.data.informe_imagen.archivos_oi === 'string' 
+                                            ? JSON.parse(result.data.informe_imagen.archivos_oi) 
+                                            : result.data.informe_imagen.archivos_oi;
+                                        
+                                        // 🔧 CORRECCIÓN: Asegurar que todos los archivos tengan ID único
+                                        window.uploadedFiles.oi = (archivosOI || []).map((archivo, index) => ({
+                                            ...archivo,
+                                            id: archivo.id || `existing_oi_${Date.now()}_${index}`
+                                        }));
+                                        console.log('📁 Archivos OI cargados con IDs:', window.uploadedFiles.oi);
+                                        console.log('📁 Primer archivo OI propiedades:', window.uploadedFiles.oi[0]);
+                                    } catch (e) {
+                                        console.warn('Error parsing archivos_oi:', e);
+                                    }
+                                }
+                                
+                                // 🆕 NUEVO: Cargar previsualizaciones de archivos de informe_imagen
+                                console.log('🖼️ Iniciando carga de previsualizaciones de informe_imagen...');
+                                setTimeout(() => {
+                                    loadInformeImagenPreviews(window.uploadedFiles.od, window.uploadedFiles.oi);
+                                }, 100); // Pequeño delay para asegurar que el DOM esté listo
+                            }
+                        }, 400);
                     }
                     
                     // 🆕 NUEVO: Cargar archivos existentes de la consulta
@@ -4680,48 +5334,190 @@ if ($paciente_id) {
          * Crear sección de edición de informe con imagen
          */
         function createInformeImagenEditSection(informe_imagen) {
+            // Parsear archivos JSON
+            let archivosOD = [];
+            let archivosOI = [];
+            
+            try {
+                if (informe_imagen.archivos_od) {
+                    archivosOD = typeof informe_imagen.archivos_od === 'string' 
+                        ? JSON.parse(informe_imagen.archivos_od) 
+                        : informe_imagen.archivos_od;
+                }
+            } catch (e) {
+                console.warn('Error parsing archivos_od:', e);
+            }
+            
+            try {
+                if (informe_imagen.archivos_oi) {
+                    archivosOI = typeof informe_imagen.archivos_oi === 'string' 
+                        ? JSON.parse(informe_imagen.archivos_oi) 
+                        : informe_imagen.archivos_oi;
+                }
+            } catch (e) {
+                console.warn('Error parsing archivos_oi:', e);
+            }
+            
+            // Crear previews de archivos existentes
+            const createFilePreviewsHtml = (archivos, ojo) => {
+                if (!archivos || archivos.length === 0) {
+                    return '<div class="no-files-message">No hay archivos subidos</div>';
+                }
+                
+                // Nota: Los archivos mostrados aquí son solo informativos del JSON
+                // Los archivos reales se cargarán via API get_archivos_consulta
+                return archivos.map((archivo, index) => {
+                    const isImage = archivo.type && archivo.type.startsWith('image/');
+                    
+                    return `
+                        <div class="file-preview-item existing-file json-file" data-file-index="${index}" data-ojo="${ojo}">
+                            ${isImage ? `
+                                <div class="file-thumbnail">
+                                    <div class="placeholder-image">
+                                        <i class="fas fa-image fa-2x text-muted"></i>
+                                        <div class="placeholder-text">Cargando imagen...</div>
+                                    </div>
+                                </div>
+                            ` : `
+                                <div class="file-thumbnail file-document">
+                                    <i class="fas fa-file"></i>
+                                </div>
+                            `}
+                            <div class="file-info">
+                                <div class="file-name">${archivo.name}</div>
+                                <div class="file-meta">
+                                    <span class="file-size">${(archivo.size / 1024).toFixed(1)} KB</span>
+                                    <span class="file-date">${new Date(archivo.uploadedAt).toLocaleDateString()}</span>
+                                </div>
+                            </div>
+                            <button type="button" class="btn-remove-file" onclick="removeExistingFile(${index}, '${ojo}')" title="Eliminar archivo">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+            };
+            
             return `
                 <div id="edit-informe-imagen-section" class="form-section">
-                    <h6 class="form-section-title">Datos de Informe con Imagen</h6>
+                    <h6 class="form-section-title">
+                        <i class="fas fa-camera-retro me-2"></i>Datos de Informe con Imagen
+                    </h6>
                     <div class="form-section-body">
+                        <!-- Equipo Médico -->
                         <div class="form-floating mb-3">
-                            <select class="form-select select2bs4" name="equipo_medico">
+                            <select class="form-select select2bs4" name="informe_equipo_medico" id="edit_informe_equipo_medico">
                                 <option value="">Seleccionar equipo</option>
-                                <option value="Cirrus 700" ${informe_imagen.equipo_medico === 'Cirrus 700' ? 'selected' : ''}>Cirrus 700</option>
-                                <option value="Stratus" ${informe_imagen.equipo_medico === 'Stratus' ? 'selected' : ''}>Stratus</option>
-                                <option value="Pentacam" ${informe_imagen.equipo_medico === 'Pentacam' ? 'selected' : ''}>Pentacam</option>
-                                <option value="Campo Visual" ${informe_imagen.equipo_medico === 'Campo Visual' ? 'selected' : ''}>Campo Visual</option>
-                                <option value="Otro" ${informe_imagen.equipo_medico === 'Otro' ? 'selected' : ''}>Otro</option>
+                                <option value="oct_cirrus" ${informe_imagen.equipo_medico === 'oct_cirrus' ? 'selected' : ''}>OCT Cirrus</option>
+                                <option value="oct_stratus" ${informe_imagen.equipo_medico === 'oct_stratus' ? 'selected' : ''}>OCT Stratus</option>
+                                <option value="pentacam" ${informe_imagen.equipo_medico === 'pentacam' ? 'selected' : ''}>Pentacam</option>
+                                <option value="campo_visual" ${informe_imagen.equipo_medico === 'campo_visual' ? 'selected' : ''}>Campo Visual</option>
+                                <option value="retinografia" ${informe_imagen.equipo_medico === 'retinografia' ? 'selected' : ''}>Retinografía</option>
+                                <option value="otro" ${informe_imagen.equipo_medico === 'otro' ? 'selected' : ''}>Otro</option>
                             </select>
                             <label>Equipo Médico</label>
                         </div>
                         
+                        <!-- Grid de Ojos -->
                         <div class="row">
+                            <!-- OJO DERECHO -->
                             <div class="col-md-6">
-                                <div class="form-floating">
-                                    <textarea class="form-control" name="descripcion_od" style="height: 150px;">${informe_imagen.descripcion_od || ''}</textarea>
-                                    <label>Descripción Ojo Derecho (OD)</label>
+                                <div class="eye-card od-card">
+                                    <div class="eye-card-header">
+                                        <i class="fas fa-eye me-2"></i>Ojo Derecho (OD)
+                                    </div>
+                                    <div class="eye-card-body">
+                                        <!-- Descripción OD -->
+                                        <div class="form-floating mb-3">
+                                            <textarea class="form-control summernote" name="descripcion_od" id="edit_descripcion_od" style="height: 120px;">${informe_imagen.descripcion_od || ''}</textarea>
+                                            <label>Descripción y Hallazgos</label>
+                                        </div>
+                                        
+                                        <!-- Archivos OD -->
+                                        <div class="file-upload-section">
+                                            <label class="form-label">
+                                                <i class="fas fa-images me-2"></i>Archivos OD
+                                            </label>
+                                            <div class="file-drop-area" ondrop="handleDrop(event, 'od')" ondragover="handleDragOver(event)" ondragenter="handleDragEnter(event)" ondragleave="handleDragLeave(event)">
+                                                <div class="file-drop-content">
+                                                    <i class="fas fa-cloud-upload-alt"></i>
+                                                    <p>Arrastra archivos aquí o haz clic para seleccionar</p>
+                                                    <input type="file" class="file-input" id="edit_archivos_od" multiple accept="image/*,.pdf,.doc,.docx" onchange="handleFileUpload('od', this.files)">
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Preview archivos existentes OD -->
+                                            <div class="file-preview-grid" id="edit_preview_od">
+                                                ${createFilePreviewsHtml(archivosOD, 'od')}
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
+                            
+                            <!-- OJO IZQUIERDO -->
                             <div class="col-md-6">
-                                <div class="form-floating">
-                                    <textarea class="form-control" name="descripcion_oi" style="height: 150px;">${informe_imagen.descripcion_oi || ''}</textarea>
-                                    <label>Descripción Ojo Izquierdo (OI)</label>
+                                <div class="eye-card oi-card">
+                                    <div class="eye-card-header">
+                                        <i class="fas fa-eye me-2"></i>Ojo Izquierdo (OI)
+                                    </div>
+                                    <div class="eye-card-body">
+                                        <!-- Descripción OI -->
+                                        <div class="form-floating mb-3">
+                                            <textarea class="form-control summernote" name="descripcion_oi" id="edit_descripcion_oi" style="height: 120px;">${informe_imagen.descripcion_oi || ''}</textarea>
+                                            <label>Descripción y Hallazgos</label>
+                                        </div>
+                                        
+                                        <!-- Archivos OI -->
+                                        <div class="file-upload-section">
+                                            <label class="form-label">
+                                                <i class="fas fa-images me-2"></i>Archivos OI
+                                            </label>
+                                            <div class="file-drop-area" ondrop="handleDrop(event, 'oi')" ondragover="handleDragOver(event)" ondragenter="handleDragEnter(event)" ondragleave="handleDragLeave(event)">
+                                                <div class="file-drop-content">
+                                                    <i class="fas fa-cloud-upload-alt"></i>
+                                                    <p>Arrastra archivos aquí o haz clic para seleccionar</p>
+                                                    <input type="file" class="file-input" id="edit_archivos_oi" multiple accept="image/*,.pdf,.doc,.docx" onchange="handleFileUpload('oi', this.files)">
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Preview archivos existentes OI -->
+                                            <div class="file-preview-grid" id="edit_preview_oi">
+                                                ${createFilePreviewsHtml(archivosOI, 'oi')}
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                         
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-floating">
-                                    <input type="text" class="form-control" name="emails_compartir" value="${informe_imagen.emails_compartir || ''}">
-                                    <label>Emails para Compartir</label>
+                        <!-- Compartir por Email -->
+                        <div class="sharing-section mt-4">
+                            <h6 class="section-subtitle">
+                                <i class="fas fa-share-alt me-2"></i>Compartir Informe
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="form-floating">
+                                        <select class="form-control select2-tags" name="informe_emails_compartir" id="edit_informe_emails_compartir" multiple>
+                                            ${informe_imagen.emails_compartir ? 
+                                                informe_imagen.emails_compartir.split(',').map(email => 
+                                                    `<option value="${email.trim()}" selected>${email.trim()}</option>`
+                                                ).join('') 
+                                                : ''
+                                            }
+                                        </select>
+                                        <label>Emails para Compartir</label>
+                                    </div>
+                                    <small class="form-text text-muted">Escribe emails y presiona Enter para agregar</small>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-check mt-3">
-                                    <input class="form-check-input" type="checkbox" name="compartir_activo" ${informe_imagen.compartir_activo ? 'checked' : ''}>
-                                    <label class="form-check-label">Compartir Activo</label>
+                                <div class="col-md-4">
+                                    <div class="form-check mt-3">
+                                        <input class="form-check-input" type="checkbox" name="informe_compartir_activo" id="edit_informe_compartir_activo" ${informe_imagen.compartir_activo ? 'checked' : ''}>
+                                        <label class="form-check-label" for="edit_informe_compartir_activo">
+                                            <i class="fas fa-toggle-on me-2"></i>Compartir Activo
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -4911,15 +5707,38 @@ if ($paciente_id) {
                         }
                     };
                 } else if (data.tipo_formulario === 'informe_imagen') {
-                    related = {
-                        informe_imagen: {
-                            equipo_medico: data.equipo_medico,
-                            descripcion_od: data.descripcion_od,
-                            descripcion_oi: data.descripcion_oi,
-                            emails_compartir: data.emails_compartir,
-                            compartir_activo: data.compartir_activo
+                    console.log('🎯 [UPDATE FUNCTION] PROCESSING INFORME_IMAGEN DATA');
+                    console.log('📋 Original data:', data);
+                    console.log('📁 Window uploaded files:', window.uploadedFiles);
+                    
+                    // 🆕 NUEVO: Subir archivos nuevos de informe_imagen antes de actualizar BD
+                    if (window.uploadedFiles && 
+                        (window.uploadedFiles.od.some(f => f.file) || window.uploadedFiles.oi.some(f => f.file))) {
+                        
+                        console.log('📁 Detectados archivos nuevos, subiendo al servidor...');
+                        try {
+                            // Subir archivos y obtener nombres codificados
+                            const uploadedFilesData = await uploadFilesDirectly();
+                            
+                            // Usar función que incluye archivos subidos con nombres codificados
+                            related = {
+                                informe_imagen: prepareInformeImagenDataWithUploaded(data, uploadedFilesData)
+                            };
+                            
+                            console.log('✅ Archivos subidos exitosamente, usando nombres codificados');
+                        } catch (uploadError) {
+                            console.error('❌ Error subiendo archivos de informe_imagen:', uploadError);
+                            showError('Error subiendo las imágenes. Intente nuevamente.');
+                            return;
                         }
-                    };
+                    } else {
+                        // No hay archivos nuevos, usar función estándar
+                        related = {
+                            informe_imagen: prepareInformeImagenData(data)
+                        };
+                    }
+                    
+                    console.log('💾 Final related data:', related);
                 } else if (data.tipo_formulario === 'estudios') {
                     related = {
                         estudios: {
@@ -5289,8 +6108,95 @@ if ($paciente_id) {
          * Manejar cambio de tipo en formulario de edición
          */
         function handleEditFormTypeChange() {
-            // Esta función se llamará dinámicamente desde el formulario de edición
-            // La implementación dependerá del contexto específico
+            // Esta función se llama cuando cambia el tipo de formulario en el modal de edición
+            const selectElement = document.querySelector('#editModal select[name="tipo_formulario"]');
+            if (!selectElement) {
+                console.warn('No se encontró el select de tipo_formulario en el modal de edición');
+                return;
+            }
+            
+            const newTipo = selectElement.value;
+            console.log('🔄 Cambio de tipo de formulario en edición:', newTipo);
+            
+            // Ocultar todas las secciones específicas primero
+            const sectionsToHide = [
+                '#edit-anteojos-section',
+                '#edit-informe-imagen-section', 
+                '#edit-estudios-section'
+            ];
+            
+            sectionsToHide.forEach(selector => {
+                const section = document.querySelector(selector);
+                if (section) {
+                    section.style.display = 'none';
+                    console.log(`  - Ocultando sección: ${selector}`);
+                }
+            });
+            
+            // Mostrar la sección correspondiente según el nuevo tipo
+            let targetSection = null;
+            switch (newTipo) {
+                case 'anteojos':
+                    targetSection = document.querySelector('#edit-anteojos-section');
+                    break;
+                case 'informe_imagen':
+                    targetSection = document.querySelector('#edit-informe-imagen-section');
+                    break;
+                case 'estudios':
+                    targetSection = document.querySelector('#edit-estudios-section');
+                    break;
+                case 'general':
+                default:
+                    // No hay sección específica para general
+                    console.log('  - Tipo general seleccionado, no hay sección específica');
+                    break;
+            }
+            
+            if (targetSection) {
+                targetSection.style.display = 'block';
+                targetSection.classList.add('active');
+                console.log(`  ✅ Mostrando sección para: ${newTipo}`);
+                
+                // Reinicializar componentes específicos si es necesario
+                if (newTipo === 'informe_imagen') {
+                    setTimeout(() => {
+                        // Reinicializar Select2 y Summernote para informe_imagen si no están ya inicializados
+                        const equipoSelect = document.querySelector('#edit_informe_equipo_medico');
+                        if (equipoSelect && !$(equipoSelect).hasClass('select2-hidden-accessible')) {
+                            $(equipoSelect).select2({
+                                theme: 'bootstrap-5',
+                                dropdownParent: $('#editModal')
+                            });
+                        }
+                        
+                        const emailsSelect = document.querySelector('#edit_informe_emails_compartir');
+                        if (emailsSelect && !$(emailsSelect).hasClass('select2-hidden-accessible')) {
+                            $(emailsSelect).select2({
+                                tags: true,
+                                tokenSeparators: [',', ' '],
+                                theme: 'bootstrap-5',
+                                dropdownParent: $('#editModal'),
+                                placeholder: 'Escribe emails y presiona Enter'
+                            });
+                        }
+                        
+                        // Inicializar Summernote si no está inicializado
+                        ['#edit_descripcion_od', '#edit_descripcion_oi'].forEach(selector => {
+                            const textarea = document.querySelector(selector);
+                            if (textarea && !$(textarea).hasClass('note-editor')) {
+                                $(textarea).summernote({
+                                    height: 120,
+                                    toolbar: [
+                                        ['style', ['bold', 'italic', 'underline']],
+                                        ['para', ['ul', 'ol']],
+                                        ['insert', ['link']]
+                                    ]
+                                });
+                            }
+                        });
+                    }, 100);
+                }
+            }
         }
 
         /**
@@ -5373,18 +6279,84 @@ if ($paciente_id) {
             return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
         }
         
-        function removeFile(index) {
-            const input = document.getElementById('archivos_consulta');
-            const dt = new DataTransfer();
-            
-            for (let i = 0; i < input.files.length; i++) {
-                if (i !== index) {
-                    dt.items.add(input.files[i]);
+        function removeFile(eyeOrIndex, fileId) {
+            // Detectar si es para archivos generales (un parámetro) o informe_imagen (dos parámetros)
+            if (typeof fileId === 'undefined') {
+                // Función para archivos generales (archivos_consulta)
+                const index = eyeOrIndex;
+                console.log(`🗑️ Removing general file at index ${index}`);
+                
+                const input = document.getElementById('archivos_consulta');
+                if (!input) {
+                    console.warn('Input archivos_consulta not found');
+                    return;
                 }
+                
+                const dt = new DataTransfer();
+                
+                for (let i = 0; i < input.files.length; i++) {
+                    if (i !== index) {
+                        dt.items.add(input.files[i]);
+                    }
+                }
+                
+                input.files = dt.files;
+                previewArchivos(input);
+            } else {
+                // Función para archivos de informe_imagen (OD/OI)
+                const eye = eyeOrIndex;
+                console.log(`🗑️ REMOVEFILE: Removing file ${fileId} from ${eye.toUpperCase()}`);
+                console.log(`🗑️ REMOVEFILE: Current window.uploadedFiles[${eye}]:`, window.uploadedFiles[eye]);
+                
+                if (!window.uploadedFiles || !window.uploadedFiles[eye]) {
+                    console.warn(`No uploaded files found for ${eye}`);
+                    return;
+                }
+                
+                console.log(`🗑️ REMOVEFILE: Files before removal:`, window.uploadedFiles[eye].map(f => ({
+                    id: f.id, 
+                    name: f.name, 
+                    hasFile: !!f.file,
+                    hasPreview: !!f.preview,
+                    hasServerPath: !!f.server_path
+                })));
+                
+                // Buscar archivo por ID (string o number)
+                const fileIndex = window.uploadedFiles[eye].findIndex(file => 
+                    file.id === fileId || file.id === parseInt(fileId) || file.id === String(fileId)
+                );
+                
+                if (fileIndex === -1) {
+                    console.warn(`File with ID ${fileId} not found in ${eye} array`);
+                    console.log('Available files:', window.uploadedFiles[eye].map(f => ({id: f.id, name: f.name})));
+                    console.log('Searched ID type:', typeof fileId, 'value:', fileId);
+                    return;
+                }
+                
+                // Eliminar archivo del array
+                const removedFile = window.uploadedFiles[eye].splice(fileIndex, 1)[0];
+                console.log(`✅ REMOVEFILE: File removed: ${removedFile.name}`);
+                console.log(`✅ REMOVEFILE: Files after removal:`, window.uploadedFiles[eye].map(f => ({
+                    id: f.id, 
+                    name: f.name, 
+                    hasFile: !!f.file,
+                    hasPreview: !!f.preview,
+                    hasServerPath: !!f.server_path
+                })));
+                console.log(`✅ REMOVEFILE: Remaining files for ${eye.toUpperCase()}: ${window.uploadedFiles[eye].length}`);
+                
+                // Actualizar preview
+                console.log(`🔄 REMOVEFILE: Calling updateFilePreview for ${eye} - ${new Date().toISOString()}`);
+                console.log(`🔄 REMOVEFILE: Files that will be processed:`, window.uploadedFiles[eye].map((f, i) => ({
+                    index: i,
+                    id: f.id,
+                    name: f.name,
+                    hasFile: !!f.file,
+                    hasServerPath: !!f.server_path,
+                    fullObj: f
+                })));
+                updateFilePreview(eye);
             }
-            
-            input.files = dt.files;
-            previewArchivos(input);
         }
         
         async function uploadArchivos(consulta_id, archivos) {
@@ -5454,40 +6426,155 @@ if ($paciente_id) {
                 const result = await callAPI('get_archivos_consulta', { id_consulta: consultaId });
                 console.log('📊 Resultado de get_archivos_consulta:', result);
                 
+                // 1. Cargar archivos en la sección general
                 const container = document.getElementById('edit-archivos-existentes');
                 console.log('🎯 Container encontrado:', !!container);
-                
-                if (!container) return;
                 
                 const archivos = result.archivos || result.data || [];
                 console.log('📁 Archivos a mostrar:', archivos.length, archivos);
                 
-                if (archivos && archivos.length > 0) {
-                    const html = '<div class="archivos-existentes">' +
-                        archivos.map(archivo => `
-                            <div class="file-item d-flex align-items-center mb-2 p-2 border rounded bg-light" data-archivo-id="${archivo.id_archivo}">
-                                <i class="${getFileIcon(archivo.tipo_archivo, archivo.nombre_archivo)} me-2"></i>
-                                <span class="file-name me-auto">${archivo.nombre_archivo}</span>
-                                <span class="file-size text-muted me-2">${formatFileSize(archivo.tamano_archivo || 0)}</span>
-                                <button type="button" class="btn btn-sm btn-outline-primary me-1" onclick="downloadArchivo(${archivo.id_archivo})" title="Descargar">
-                                    <i class="fas fa-download"></i>
-                                </button>
-                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeExistingArchivo(${archivo.id_archivo})" title="Eliminar">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        `).join('') +
-                    '</div>';
-                    
-                    container.innerHTML = html;
-                    console.log('✅ HTML de archivos insertado en container');
-                } else {
-                    container.innerHTML = '<p class="text-muted">No hay archivos adjuntos</p>';
-                    console.log('ℹ️ No hay archivos, mostrando mensaje vacío');
+                if (container) {
+                    if (archivos && archivos.length > 0) {
+                        const html = '<div class="archivos-existentes">' +
+                            archivos.map(archivo => `
+                                <div class="file-item d-flex align-items-center mb-2 p-2 border rounded bg-light" data-archivo-id="${archivo.id_archivo}">
+                                    <i class="${getFileIcon(archivo.tipo_archivo, archivo.nombre_archivo)} me-2"></i>
+                                    <span class="file-name me-auto">${archivo.nombre_archivo}</span>
+                                    <span class="file-size text-muted me-2">${formatFileSize(archivo.tamano_archivo || 0)}</span>
+                                    <button type="button" class="btn btn-sm btn-outline-primary me-1" onclick="downloadArchivo(${archivo.id_archivo})" title="Descargar">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeExistingArchivo(${archivo.id_archivo})" title="Eliminar">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            `).join('') +
+                        '</div>';
+                        
+                        container.innerHTML = html;
+                        console.log('✅ HTML de archivos insertado en container');
+                    } else {
+                        container.innerHTML = '<p class="text-muted">No hay archivos adjuntos</p>';
+                        console.log('ℹ️ No hay archivos, mostrando mensaje vacío');
+                    }
                 }
+                
+                // 2. NUEVO: Actualizar previsualizaciones de informe_imagen con archivos reales
+                if (archivos && archivos.length > 0) {
+                    await updateInformeImagenPreviews(archivos);
+                }
+                
             } catch (error) {
                 console.error('❌ Error cargando archivos existentes:', error);
             }
+        }
+        
+        /**
+         * 🆕 NUEVO: Cargar previsualizaciones de informe_imagen directamente desde JSON de BD
+         */
+        function loadInformeImagenPreviews(archivosOD, archivosOI) {
+            console.log('🖼️ Cargando previsualizaciones de informe_imagen desde BD...');
+            console.log('📁 Archivos OD:', archivosOD);
+            console.log('📁 Archivos OI:', archivosOI);
+            
+            // Función para cargar archivos de un ojo específico
+            const loadEyeFiles = (archivos, ojo) => {
+                if (!archivos || archivos.length === 0) return;
+                
+                archivos.forEach((archivo, index) => {
+                    const fileItem = document.querySelector(`.file-preview-item[data-file-index="${index}"][data-ojo="${ojo}"]`);
+                    if (!fileItem) return;
+                    
+                    const isImage = archivo.type && archivo.type.startsWith('image/');
+                    if (!isImage) return;
+                    
+                    console.log(`🔄 Cargando imagen ${ojo}: ${archivo.name}`);
+                    
+                    // Construir URL usando el nombre codificado del servidor
+                    const imageUrl = `uploads/consultas/${archivo.name}`;
+                    
+                    // Buscar el placeholder dentro del file-item
+                    const placeholder = fileItem.querySelector('.placeholder-image');
+                    if (placeholder) {
+                        // Crear nueva imagen
+                        const newThumbnail = document.createElement('div');
+                        newThumbnail.className = 'file-thumbnail';
+                        newThumbnail.onclick = () => openImageModal(imageUrl, archivo.original_name || archivo.name);
+                        
+                        newThumbnail.innerHTML = `
+                            <img src="${imageUrl}" alt="${archivo.original_name || archivo.name}" loading="lazy" 
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="placeholder-image" style="display: none;">
+                                <i class="fas fa-image fa-2x text-muted"></i>
+                                <div class="placeholder-text">Imagen no disponible</div>
+                            </div>
+                            <div class="file-overlay">
+                                <i class="fas fa-search-plus"></i>
+                            </div>
+                        `;
+                        
+                        // Reemplazar el thumbnail completo
+                        const oldThumbnail = placeholder.closest('.file-thumbnail');
+                        if (oldThumbnail) {
+                            oldThumbnail.parentNode.replaceChild(newThumbnail, oldThumbnail);
+                            console.log(`✅ Imagen ${ojo} cargada: ${archivo.name}`);
+                        }
+                    }
+                });
+            };
+            
+            // Cargar archivos de ambos ojos
+            loadEyeFiles(archivosOD, 'od');
+            loadEyeFiles(archivosOI, 'oi');
+        }
+
+        /**
+         * Actualizar previsualizaciones de informe_imagen con archivos reales del servidor
+         */
+        async function updateInformeImagenPreviews(archivos) {
+            console.log('🖼️ Actualizando previsualizaciones de informe_imagen con archivos reales...');
+            
+            archivos.forEach(archivo => {
+                if (archivo.tipo_archivo && archivo.tipo_archivo.startsWith('image/')) {
+                    // Buscar placeholders con el nombre original
+                    const placeholders = document.querySelectorAll('.file-preview-item.json-file .placeholder-image');
+                    
+                    placeholders.forEach(placeholder => {
+                        const fileItem = placeholder.closest('.file-preview-item');
+                        const fileNameElement = fileItem.querySelector('.file-name');
+                        
+                        if (fileNameElement && fileNameElement.textContent.trim() === archivo.nombre_archivo) {
+                            console.log(`🔄 Reemplazando placeholder para: ${archivo.nombre_archivo}`);
+                            
+                            // Construir URL real del archivo
+                            const realImageUrl = archivo.ruta_archivo.replace(/\.\.\//g, ''); // Remover ../
+                            
+                            // Crear nueva imagen
+                            const newThumbnail = document.createElement('div');
+                            newThumbnail.className = 'file-thumbnail';
+                            newThumbnail.onclick = () => openImageModal(realImageUrl, archivo.nombre_archivo);
+                            
+                            newThumbnail.innerHTML = `
+                                <img src="${realImageUrl}" alt="${archivo.nombre_archivo}" loading="lazy" 
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div class="placeholder-image" style="display: none;">
+                                    <i class="fas fa-image fa-2x text-muted"></i>
+                                    <div class="placeholder-text">Imagen no disponible</div>
+                                </div>
+                                <div class="file-overlay">
+                                    <i class="fas fa-search-plus"></i>
+                                </div>
+                            `;
+                            
+                            // Reemplazar el thumbnail completo
+                            const oldThumbnail = placeholder.closest('.file-thumbnail');
+                            oldThumbnail.parentNode.replaceChild(newThumbnail, oldThumbnail);
+                            
+                            console.log(`✅ Placeholder reemplazado para: ${archivo.nombre_archivo}`);
+                        }
+                    });
+                }
+            });
         }
         
         async function removeExistingArchivo(archivoId) {
@@ -5888,6 +6975,750 @@ if ($paciente_id) {
             } catch (error) {
                 console.error('Error initializing Select2:', error);
             }
+        }
+        
+        // ========== FUNCIONES PARA INFORME + IMAGEN ==========
+        
+        // Variable global para almacenar archivos
+        window.uploadedFiles = {
+            od: [],
+            oi: []
+        };
+        
+        /**
+         * Manejar la carga de archivos
+         */
+        function handleFileUpload(eye, files) {
+            console.log(`📁 Handling file upload for ${eye.toUpperCase()}:`, files.length, 'files');
+            
+            // 🔧 NUEVO: Asegurar que window.uploadedFiles esté inicializado
+            if (!window.uploadedFiles) {
+                console.log('🔧 Inicializando window.uploadedFiles...');
+                window.uploadedFiles = { od: [], oi: [] };
+            }
+            if (!window.uploadedFiles[eye]) {
+                console.log(`🔧 Inicializando window.uploadedFiles[${eye}]...`);
+                window.uploadedFiles[eye] = [];
+            }
+            
+            console.log(`🔍 Estado actual de window.uploadedFiles[${eye}]:`, window.uploadedFiles[eye].length, 'archivos');
+            
+            // Validar archivos
+            const validFiles = [];
+            const maxSize = 5 * 1024 * 1024; // 5MB
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+            
+            Array.from(files).forEach((file, index) => {
+                console.log(`  📄 File ${index + 1}: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB) - Type: ${file.type}`);
+                
+                // Validar tamaño
+                if (file.size > maxSize) {
+                    alert(`El archivo "${file.name}" es demasiado grande. Máximo permitido: 5MB`);
+                    return;
+                }
+                
+                // Validar tipo
+                if (!allowedTypes.includes(file.type)) {
+                    alert(`El archivo "${file.name}" no es de un tipo permitido.`);
+                    return;
+                }
+                
+                validFiles.push(file);
+            });
+            
+            if (validFiles.length === 0) {
+                console.log('❌ No valid files to upload');
+                return;
+            }
+            
+            // Procesar archivos válidos
+            let processedFiles = 0;
+            const totalFiles = validFiles.length;
+            
+            validFiles.forEach((file, index) => {
+                const fileObj = {
+                    file: file,
+                    name: file.name,
+                    size: file.size,
+                    type: file.type,
+                    id: `new_${eye}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}_${index}`, // ID único y descriptivo
+                    preview: null
+                };
+                
+                // Agregar al array inmediatamente
+                window.uploadedFiles[eye].push(fileObj);
+                
+                // Generar preview para imágenes de forma asíncrona
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        fileObj.preview = e.target.result;
+                        console.log(`🖼️ Preview generated for ${file.name}`);
+                        processedFiles++;
+                        
+                        // Actualizar preview cuando todas las imágenes estén procesadas
+                        if (processedFiles === validFiles.filter(f => f.type.startsWith('image/')).length) {
+                            updateFilePreview(eye);
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    processedFiles++;
+                }
+            });
+            
+            console.log(`✅ Added ${validFiles.length} files to ${eye.toUpperCase()}. Total: ${window.uploadedFiles[eye].length}`);
+            
+            // Actualizar preview inmediatamente (se actualizará de nuevo cuando las imágenes estén listas)
+            updateFilePreview(eye);
+        }
+        
+        /**
+         * Actualizar la vista previa de archivos
+         */
+        function updateFilePreview(eye) {
+            console.log(`🔄 Updating preview for ${eye.toUpperCase()}`);
+            
+            if (!window.uploadedFiles || !window.uploadedFiles[eye]) {
+                console.warn(`⚠️ No uploadedFiles data for ${eye}`);
+                return;
+            }
+            
+            const files = window.uploadedFiles[eye];
+            
+            // Buscar contenedores (prioridad: edit_ para modal, normal para creación)
+            let targetContainer = document.getElementById(`edit_preview_${eye}`) || 
+                                  document.getElementById(`files_${eye}`) || 
+                                  document.getElementById(`preview_${eye}`);
+            
+            if (!targetContainer) {
+                console.error(`❌ No preview container found for ${eye} (tried edit_preview_${eye}, files_${eye}, preview_${eye})`);
+                return;
+            }
+            
+            console.log(`🔄 Found preview container for ${eye.toUpperCase()}, updating with ${files.length} files`);
+            
+            if (files.length === 0) {
+                // Ocultar contenedor si no hay archivos
+                if (targetContainer.parentNode) {
+                    targetContainer.parentNode.style.display = 'none';
+                }
+                targetContainer.innerHTML = '';
+                return;
+            }
+            
+            // Mostrar contenedor padre si existe
+            if (targetContainer.parentNode) {
+                targetContainer.parentNode.style.display = 'block';
+            }
+            
+            // Generar HTML para archivos 
+            const fileItems = files.map((fileObj, index) => {
+                const isImage = fileObj.type && fileObj.type.startsWith('image/');
+                const fileName = truncateFileName(fileObj.name, 25);
+                const fileSize = formatFileSize(fileObj.size);
+                
+                console.log(`📁 Procesando archivo ${index}:`, {
+                    name: fileObj.name,
+                    id: fileObj.id,
+                    hasFile: !!fileObj.file,
+                    hasPreview: !!fileObj.preview,
+                    serverPath: fileObj.server_path,
+                    type: fileObj.type,
+                    fullObject: JSON.stringify(fileObj, null, 2)
+                });
+                
+                // Determinar la fuente de la imagen
+                let imageSrc = '';
+                if (isImage) {
+                    if (fileObj.file && fileObj.preview) {
+                        // Nuevo archivo con preview generado
+                        imageSrc = fileObj.preview;
+                        console.log(`🆕 Nueva imagen con preview: ${fileName}`);
+                    } else if (!fileObj.file && fileObj.name) {
+                        // Archivo existente (sin objeto File, viene de la BD)
+                        // Usar name si no tiene espacios, sino server_path extraído, sino name
+                        let serverFileName;
+                        
+                        if (fileObj.server_path) {
+                            // Extraer nombre del archivo de server_path
+                            serverFileName = fileObj.server_path.split('/').pop();
+                        } else if (fileObj.name && !fileObj.name.includes(' ')) {
+                            // Si name no tiene espacios, ya es el nombre codificado
+                            serverFileName = fileObj.name;
+                        } else {
+                            // Fallback: usar name aunque tenga espacios
+                            serverFileName = fileObj.name;
+                        }
+                        
+                        imageSrc = `uploads/consultas/${serverFileName}`;
+                        console.log(`📁 Imagen existente BD: ${imageSrc} (usando: ${serverFileName})`);
+                        console.log(`📁 URL completa construida: http://clinica.test/${imageSrc}`);
+                        console.log(`📁 Propiedades disponibles:`, {
+                            name: fileObj.name,
+                            original_name: fileObj.original_name,
+                            server_path: fileObj.server_path,
+                            hasSpacesInName: fileObj.name && fileObj.name.includes(' '),
+                            serverFileName: serverFileName
+                        });
+                    } else if (fileObj.server_path) {
+                        // Archivo con ruta del servidor explícita
+                        imageSrc = fileObj.server_path;
+                        console.log(`�️ Imagen con server_path: ${imageSrc}`);
+                    } else {
+                        // Placeholder por defecto
+                        imageSrc = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZjBmMGYwIi8+CiAgICA8dGV4dCB4PSI1MCIgeT0iNTAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OTk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltYWdlbjwvdGV4dD4KICA8L3N2Zz4=';
+                        console.log(`❌ Placeholder por defecto para:`, {
+                            name: fileName,
+                            hasFile: !!fileObj.file,
+                            hasPreview: !!fileObj.preview,
+                            hasName: !!fileObj.name,
+                            fileObj: fileObj
+                        });
+                    }
+                }
+                
+                return `
+                    <div class="file-preview-item" data-file-index="${index}" data-ojo="${eye}">
+                        ${isImage ? `
+                            <div class="file-thumbnail" onclick="openImageModal(${fileObj.file ? `window.uploadedFiles['${eye}'][${index}].file` : `'${imageSrc}'`})">
+                                <img src="${imageSrc}" alt="${fileObj.name}" loading="lazy" 
+                                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICAgIDxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjZjBmMGYwIi8+CiAgICA8dGV4dCB4PSI1MCIgeT0iNTAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OTk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkVycm9yPC90ZXh0Pgo8L3N2Zz4='">
+                                <div class="file-overlay">
+                                    <i class="fas fa-search-plus"></i>
+                                </div>
+                            </div>
+                        ` : `
+                            <div class="file-thumbnail file-document">
+                                <i class="fas fa-file"></i>
+                            </div>
+                        `}
+                        <div class="file-info">
+                            <div class="file-name">${fileName}</div>
+                            <div class="file-meta">
+                                <span class="file-size">${fileSize}</span>
+                                <span class="file-date">${fileObj.file ? 'Nuevo' : 'Existente'}</span>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-remove-file" onclick="removeFile('${eye}', '${fileObj.id}')" title="Eliminar archivo">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+            
+            // Actualizar el contenedor
+            targetContainer.innerHTML = fileItems;
+            console.log(`✅ Preview updated in ${targetContainer.id} for ${eye.toUpperCase()}`);
+        }
+        
+        /**
+         * Crear elemento de preview para un archivo
+         */
+        function createFilePreviewItem(fileObj, eye, index) {
+            const div = document.createElement('div');
+            div.className = 'file-preview-item';
+            div.setAttribute('data-file-id', fileObj.id);
+            
+            const isImage = fileObj.type.startsWith('image/');
+            
+            if (isImage) {
+                div.classList.add('image-file');
+                
+                // Crear thumbnail
+                const img = document.createElement('img');
+                img.className = 'file-thumbnail';
+                img.alt = fileObj.name;
+                img.onclick = () => openImageModal(fileObj.file);
+                
+                // Leer archivo y crear URL
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(fileObj.file);
+                
+                div.appendChild(img);
+            } else {
+                // Crear icono para archivos no-imagen
+                const icon = document.createElement('i');
+                icon.className = `fas fa-file file-icon ${getFileExtension(fileObj.name)}`;
+                div.appendChild(icon);
+            }
+            
+            // Nombre del archivo
+            const nameDiv = document.createElement('div');
+            nameDiv.className = 'file-name';
+            nameDiv.textContent = truncateFileName(fileObj.name, 15);
+            nameDiv.title = fileObj.name; // Tooltip con nombre completo
+            div.appendChild(nameDiv);
+            
+            // Tamaño del archivo
+            const sizeDiv = document.createElement('div');
+            sizeDiv.className = 'file-size';
+            sizeDiv.textContent = formatFileSize(fileObj.size);
+            div.appendChild(sizeDiv);
+            
+            // Botón para remover
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'remove-file';
+            removeBtn.innerHTML = '×';
+            removeBtn.onclick = (e) => {
+                e.stopPropagation();
+                removeFile(eye, fileObj.id);
+            };
+            div.appendChild(removeBtn);
+            
+            return div;
+        }
+        
+        /**
+         * Remover archivo
+         */
+        
+        // Función para eliminar archivos existentes en modo edición
+        function removeExistingFile(fileIndex, eye) {
+            console.log(`🗑️ Removing existing file at index ${fileIndex} from ${eye.toUpperCase()}`);
+            
+            if (!window.uploadedFiles || !window.uploadedFiles[eye]) {
+                console.warn('No uploaded files found for', eye);
+                return;
+            }
+            
+            // Eliminar archivo del array
+            window.uploadedFiles[eye].splice(fileIndex, 1);
+            
+            console.log(`✅ Existing file removed. Remaining files for ${eye.toUpperCase()}: ${window.uploadedFiles[eye].length}`);
+            
+            // Actualizar preview
+            const previewContainer = document.getElementById(`edit_preview_${eye}`);
+            if (previewContainer) {
+                // Regenerar preview HTML
+                const createFilePreviewsHtml = (archivos, ojo) => {
+                    if (!archivos || archivos.length === 0) {
+                        return '<div class="no-files-message">No hay archivos subidos</div>';
+                    }
+                    
+                    return archivos.map((archivo, index) => `
+                        <div class="file-preview-item existing-file" data-file-index="${index}" data-ojo="${ojo}">
+                            ${archivo.type && archivo.type.startsWith('image/') ? `
+                                <div class="file-thumbnail" onclick="showImageNotAvailable('${archivo.name}')">
+                                    <div class="placeholder-image">
+                                        <i class="fas fa-image fa-2x text-muted"></i>
+                                        <div class="placeholder-text">Imagen no disponible</div>
+                                        <div class="file-overlay">
+                                            <i class="fas fa-info-circle"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            ` : `
+                                <div class="file-thumbnail file-document">
+                                    <i class="fas fa-file"></i>
+                                </div>
+                            `}
+                            <div class="file-info">
+                                <div class="file-name">${archivo.name}</div>
+                                <div class="file-meta">
+                                    <span class="file-size">${(archivo.size / 1024).toFixed(1)} KB</span>
+                                    <span class="file-date">${new Date(archivo.uploadedAt).toLocaleDateString()}</span>
+                                </div>
+                            </div>
+                            <button type="button" class="btn-remove-file" onclick="removeExistingFile(${index}, '${ojo}')" title="Eliminar archivo">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    `).join('');
+                };
+                
+                previewContainer.innerHTML = createFilePreviewsHtml(window.uploadedFiles[eye], eye);
+            }
+        }
+        
+        /**
+         * Abrir modal para ver imagen completa
+         */
+        function openImageModal(file, fileName = '') {
+            console.log('🖼️ Opening image modal for:', file);
+            
+            // Crear modal si no existe
+            let modal = document.getElementById('imageModal');
+            if (!modal) {
+                modal = createImageModal();
+                document.body.appendChild(modal);
+            }
+            
+            const img = modal.querySelector('.image-modal-content');
+            
+            // Verificar si es un archivo (File object) o una URL (string)
+            if (typeof file === 'string') {
+                // Es una URL - mostrar directamente
+                img.src = file;
+                img.alt = fileName || 'Imagen';
+                modal.classList.add('show');
+                console.log('✅ Image modal opened with URL:', file);
+            } else if (file instanceof File) {
+                // Es un archivo - leer con FileReader
+                console.log('🔍 Reading file:', file.name);
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    img.src = e.target.result;
+                    img.alt = file.name;
+                    modal.classList.add('show');
+                    console.log('✅ Image modal opened with File object');
+                };
+                reader.readAsDataURL(file);
+            } else {
+                console.error('❌ Invalid file parameter:', file);
+            }
+        }
+        
+        /**
+         * Crear modal para imágenes
+         */
+        function createImageModal() {
+            const modal = document.createElement('div');
+            modal.id = 'imageModal';
+            modal.className = 'image-modal';
+            modal.onclick = () => modal.classList.remove('show');
+            
+            modal.innerHTML = `
+                <span class="image-modal-close" onclick="document.getElementById('imageModal').classList.remove('show')">&times;</span>
+                <img class="image-modal-content" src="" alt="Preview">
+            `;
+            
+            return modal;
+        }
+        
+        /**
+         * Mostrar mensaje cuando la imagen no está disponible
+         */
+        function showImageNotAvailable(fileName) {
+            const message = `
+                <div class="alert alert-warning alert-dismissible fade show" style="margin: 20px;">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Imagen no disponible:</strong> ${fileName}
+                    <br><small class="text-muted">
+                        Esta imagen fue registrada como metadata pero el archivo físico no está disponible.
+                        Para ver imágenes, suba archivos usando el sistema de drag & drop.
+                    </small>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            
+            // Mostrar mensaje en la parte superior del modal
+            const modalBody = document.querySelector('#editModal .modal-body');
+            if (modalBody) {
+                const existingAlert = modalBody.querySelector('.alert-warning');
+                if (existingAlert) {
+                    existingAlert.remove();
+                }
+                modalBody.insertAdjacentHTML('afterbegin', message);
+                
+                // Auto-remover después de 5 segundos
+                setTimeout(() => {
+                    const alert = modalBody.querySelector('.alert-warning');
+                    if (alert) {
+                        alert.remove();
+                    }
+                }, 5000);
+            }
+            
+            console.log('ℹ️ Imagen no disponible:', fileName);
+        }
+        
+        /**
+         * Funciones utilitarias
+         */
+        function getFileExtension(filename) {
+            return filename.split('.').pop().toLowerCase();
+        }
+        
+        function truncateFileName(name, maxLength) {
+            if (name.length <= maxLength) return name;
+            
+            const ext = name.split('.').pop();
+            const nameWithoutExt = name.substring(0, name.lastIndexOf('.'));
+            const truncated = nameWithoutExt.substring(0, maxLength - ext.length - 4) + '...';
+            
+            return truncated + '.' + ext;
+        }
+        
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        /**
+         * Cargar equipos médicos para la sección Informe + Imagen
+         */
+        function loadEquiposMedicosInforme() {
+            const equipoSelect = document.getElementById('informe_equipo_medico');
+            if (!equipoSelect) {
+                console.warn('⚠️ Select informe_equipo_medico no encontrado');
+                return;
+            }
+            
+            console.log('🔄 Cargando equipos médicos para Informe + Imagen...');
+            
+            // Aquí iría la llamada AJAX para cargar equipos
+            // Por ahora, agregar algunas opciones de ejemplo
+            const equipos = [
+                { id: 'oct_triton', nombre: 'OCT Triton' },
+                { id: 'oct_cirrus', nombre: 'OCT Cirrus' },
+                { id: 'retinografo', nombre: 'Retinógrafo' },
+                { id: 'campimetro', nombre: 'Campímetro' },
+                { id: 'pentacam', nombre: 'Pentacam' },
+                { id: 'topografia', nombre: 'Topografía Corneal' },
+                { id: 'otro', nombre: 'Otro' }
+            ];
+            
+            // Limpiar opciones existentes (excepto la primera)
+            equipoSelect.innerHTML = '<option value="">Seleccionar equipo médico...</option>';
+            
+            // Agregar opciones
+            equipos.forEach(equipo => {
+                const option = document.createElement('option');
+                option.value = equipo.id;
+                option.textContent = equipo.nombre;
+                equipoSelect.appendChild(option);
+            });
+            
+            console.log('✅ Equipos médicos cargados para Informe + Imagen');
+        }
+        
+        // ========== FIN FUNCIONES INFORME + IMAGEN ==========
+        
+        /**
+         * Preparar datos de informe + imagen para envío
+         */
+        function prepareInformeImagenData(data) {
+            // Preparar archivos como JSON
+            const archivosOD = window.uploadedFiles && window.uploadedFiles.od ? 
+                window.uploadedFiles.od.map(f => ({
+                    name: f.name,
+                    size: f.size,
+                    type: f.type,
+                    uploadedAt: new Date().toISOString()
+                })) : [];
+            
+            const archivosOI = window.uploadedFiles && window.uploadedFiles.oi ? 
+                window.uploadedFiles.oi.map(f => ({
+                    name: f.name,
+                    size: f.size,
+                    type: f.type,
+                    uploadedAt: new Date().toISOString()
+                })) : [];
+            
+            console.log('📁 Archivos OD preparados:', archivosOD);
+            console.log('📁 Archivos OI preparados:', archivosOI);
+            
+            const informeData = {
+                equipo_medico: data.informe_equipo_medico || data.equipo_medico,
+                descripcion_od: data.descripcion_od,
+                descripcion_oi: data.descripcion_oi,
+                emails_compartir: data.informe_emails_compartir || data.emails_compartir,
+                compartir_activo: data.informe_compartir_activo || data.compartir_activo || false,
+                archivos_od: JSON.stringify(archivosOD),
+                archivos_oi: JSON.stringify(archivosOI)
+            };
+            
+            console.log('💾 Datos de informe_imagen preparados:', informeData);
+            return informeData;
+        }
+        
+        /**
+         * Preparar datos de informe_imagen con archivos ya subidos (nombres codificados)
+         */
+        function prepareInformeImagenDataWithUploaded(data, uploadedFilesData) {
+            console.log('📁 Preparando datos con archivos subidos:', uploadedFilesData);
+            console.log('📁 Estado actual de window.uploadedFiles:', window.uploadedFiles);
+            
+            // Combinar archivos existentes (sin .file) con archivos nuevos subidos (con nombres codificados)
+            const archivosOD = [];
+            const archivosOI = [];
+            
+            // Procesar archivos OD
+            if (window.uploadedFiles && window.uploadedFiles.od) {
+                window.uploadedFiles.od.forEach(fileObj => {
+                    if (fileObj.file) {
+                        // Es un archivo nuevo - buscar su correspondiente en uploadedFilesData
+                        const uploadedFile = uploadedFilesData.od.find(uploaded => 
+                            uploaded.original_name === fileObj.name || uploaded.size === fileObj.size
+                        );
+                        if (uploadedFile) {
+                            archivosOD.push({
+                                name: uploadedFile.server_filename || uploadedFile.name,
+                                original_name: fileObj.name,
+                                size: fileObj.size,
+                                type: fileObj.type,
+                                uploadedAt: new Date().toISOString(),
+                                server_path: uploadedFile.server_path
+                            });
+                        }
+                    } else {
+                        // Es un archivo existente - mantener tal como está
+                        archivosOD.push({
+                            name: fileObj.name,
+                            original_name: fileObj.original_name || fileObj.name,
+                            size: fileObj.size,
+                            type: fileObj.type,
+                            uploadedAt: fileObj.uploadedAt || new Date().toISOString(),
+                            server_path: fileObj.server_path
+                        });
+                    }
+                });
+            }
+            
+            // Procesar archivos OI
+            if (window.uploadedFiles && window.uploadedFiles.oi) {
+                window.uploadedFiles.oi.forEach(fileObj => {
+                    if (fileObj.file) {
+                        // Es un archivo nuevo - buscar su correspondiente en uploadedFilesData
+                        const uploadedFile = uploadedFilesData.oi.find(uploaded => 
+                            uploaded.original_name === fileObj.name || uploaded.size === fileObj.size
+                        );
+                        if (uploadedFile) {
+                            archivosOI.push({
+                                name: uploadedFile.server_filename || uploadedFile.name,
+                                original_name: fileObj.name,
+                                size: fileObj.size,
+                                type: fileObj.type,
+                                uploadedAt: new Date().toISOString(),
+                                server_path: uploadedFile.server_path
+                            });
+                        }
+                    } else {
+                        // Es un archivo existente - mantener tal como está
+                        archivosOI.push({
+                            name: fileObj.name,
+                            original_name: fileObj.original_name || fileObj.name,
+                            size: fileObj.size,
+                            type: fileObj.type,
+                            uploadedAt: fileObj.uploadedAt || new Date().toISOString(),
+                            server_path: fileObj.server_path
+                        });
+                    }
+                });
+            }
+            
+            console.log('📁 Archivos OD finales (existentes + nuevos):', archivosOD);
+            console.log('📁 Archivos OI finales (existentes + nuevos):', archivosOI);
+            
+            const informeData = {
+                equipo_medico: data.informe_equipo_medico || data.equipo_medico,
+                descripcion_od: data.descripcion_od,
+                descripcion_oi: data.descripcion_oi,
+                emails_compartir: data.informe_emails_compartir || data.emails_compartir,
+                compartir_activo: data.informe_compartir_activo || data.compartir_activo || false,
+                archivos_od: JSON.stringify(archivosOD),
+                archivos_oi: JSON.stringify(archivosOI)
+            };
+            
+            console.log('💾 Datos de informe_imagen preparados con nombres codificados:', informeData);
+            return informeData;
+        }
+        
+        /**
+         * Subir archivos directamente al servidor y obtener nombres codificados
+         */
+        function uploadFilesDirectly() {
+            return new Promise(async (resolve) => {
+                const uploadedFilesData = { od: [], oi: [] };
+                
+                // Subir SOLO archivos NUEVOS OD (los que tienen .file)
+                if (window.uploadedFiles && window.uploadedFiles.od && window.uploadedFiles.od.length > 0) {
+                    const newFilesOD = window.uploadedFiles.od.filter(fileData => fileData.file);
+                    console.log('⬆️ Subiendo archivos NUEVOS OD directamente:', newFilesOD.length, 'de', window.uploadedFiles.od.length);
+                    
+                    for (const fileData of newFilesOD) {
+                        try {
+                            const file = fileData.file;
+                            const formData = new FormData();
+                            formData.append('archivo', file);
+                            formData.append('folder', 'consultas'); // Carpeta específica
+                            
+                            console.log('🔄 Subiendo archivo OD:', file.name);
+                            const response = await fetch('upload_file.php', {
+                                method: 'POST',
+                                body: formData
+                            });
+                            
+                            if (response.ok) {
+                                const result = await response.json();
+                                if (result.success) {
+                                    console.log('✅ Archivo OD subido exitosamente:', result);
+                                    uploadedFilesData.od.push({
+                                        name: result.server_filename, // Nombre codificado del servidor
+                                        server_filename: result.server_filename,
+                                        original_name: file.name,
+                                        size: file.size,
+                                        type: file.type,
+                                        uploadedAt: new Date().toISOString(),
+                                        server_path: result.server_path
+                                    });
+                                } else {
+                                    console.error('❌ Error en respuesta del servidor OD:', result);
+                                }
+                            } else {
+                                console.error('❌ Error HTTP subiendo archivo OD:', response.status);
+                            }
+                        } catch (error) {
+                            console.error('❌ Error subiendo archivo OD:', error);
+                        }
+                    }
+                }
+                
+                // Subir SOLO archivos NUEVOS OI (los que tienen .file)
+                if (window.uploadedFiles && window.uploadedFiles.oi && window.uploadedFiles.oi.length > 0) {
+                    const newFilesOI = window.uploadedFiles.oi.filter(fileData => fileData.file);
+                    console.log('⬆️ Subiendo archivos NUEVOS OI directamente:', newFilesOI.length, 'de', window.uploadedFiles.oi.length);
+                    
+                    for (const fileData of newFilesOI) {
+                        try {
+                            const file = fileData.file;
+                            const formData = new FormData();
+                            formData.append('archivo', file);
+                            formData.append('folder', 'consultas');
+                            
+                            console.log('🔄 Subiendo archivo OI:', file.name);
+                            const response = await fetch('upload_file.php', {
+                                method: 'POST',
+                                body: formData
+                            });
+                            
+                            if (response.ok) {
+                                const result = await response.json();
+                                if (result.success) {
+                                    console.log('✅ Archivo OI subido exitosamente:', result);
+                                    uploadedFilesData.oi.push({
+                                        name: result.server_filename, // Nombre codificado del servidor
+                                        server_filename: result.server_filename,
+                                        original_name: file.name,
+                                        size: file.size,
+                                        type: file.type,
+                                        uploadedAt: new Date().toISOString(),
+                                        server_path: result.server_path
+                                    });
+                                } else {
+                                    console.error('❌ Error en respuesta del servidor OI:', result);
+                                }
+                            } else {
+                                console.error('❌ Error HTTP subiendo archivo OI:', response.status);
+                            }
+                        } catch (error) {
+                            console.error('❌ Error subiendo archivo OI:', error);
+                        }
+                    }
+                }
+                
+                console.log('🎉 Archivos NUEVOS subidos directamente con nombres codificados:', uploadedFilesData);
+                resolve(uploadedFilesData);
+            });
         }
         
         function initializeSummernote() {

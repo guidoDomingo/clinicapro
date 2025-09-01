@@ -1,2 +1,16 @@
 Options -Indexes
-Deny from all
+
+# Denegar acceso a archivos peligrosos
+<Files ~ "\.(php|phtml|php3|php4|php5|pl|py|jsp|asp|sh|cgi)$">
+    Deny from all
+</Files>
+
+# Permitir acceso a archivos de imagen y documentos
+<FilesMatch "\.(jpg|jpeg|png|gif|pdf|doc|docx|txt)$">
+    Allow from all
+</FilesMatch>
+
+# Denegar todo lo demás
+<FilesMatch "^\.">
+    Deny from all
+</FilesMatch>
