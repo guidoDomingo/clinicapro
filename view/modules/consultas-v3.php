@@ -1122,6 +1122,9 @@ if ($paciente_id) {
                                     <button type="button" class="btn btn-outline-info" id="btnValidarEmails" title="Validar emails">
                                         <i class="fas fa-check"></i>
                                     </button>
+                                    <button type="button" class="btn btn-outline-warning" onclick="testEmailsSelect2()" title="Test Select2">
+                                        🧪
+                                    </button>
                                     <button type="button" class="btn btn-outline-success" id="btnEnviarEmails" title="Enviar por correo" disabled>
                                         <i class="fas fa-paper-plane"></i>
                                     </button>
@@ -1478,6 +1481,11 @@ if ($paciente_id) {
                             }
                         }, 200); // Pequeño delay para asegurar que el DOM esté listo
                     }
+                    
+                    // CRÍTICO: Inicializar Select2 para emails en el formulario de creación
+                    setTimeout(() => {
+                        initializeEmailsSelect2('emails_compartir');
+                    }, 300); // Delay mayor para asegurar que todos los elementos estén renderizados
                     break;
                 case 'patients':
                     loadPatients();
@@ -1557,6 +1565,11 @@ if ($paciente_id) {
                 // Cargar equipos médicos y preformatos específicos para estudios
                 loadEquiposMedicos();
                 loadPreformatosEstudios();
+                
+                // CRÍTICO: Inicializar Select2 para emails después de mostrar la sección
+                setTimeout(() => {
+                    initializeEmailsSelect2('emails_compartir');
+                }, 100); // Pequeño delay para asegurar que el DOM esté renderizado
             }
             
             // Actualizar select de tipo de formulario
@@ -5749,6 +5762,108 @@ if ($paciente_id) {
             }, 100);
         });
         
+        // Función de testing para debuggear Select2 de emails
+        function testEmailsSelect2() {
+            console.log('🧪 TESTING EMAILS SELECT2');
+            
+            const emailsSelect = document.getElementById('emails_compartir');
+            console.log('📧 Elemento emails_compartir:', emailsSelect);
+            
+            if (emailsSelect) {
+                console.log('✅ Elemento encontrado');
+                console.log('🔍 Clases:', emailsSelect.className);
+                console.log('🔍 Estilo display:', window.getComputedStyle(emailsSelect).display);
+                console.log('🔍 Visible:', emailsSelect.offsetParent !== null);
+                console.log('🔍 Select2 inicializado:', $(emailsSelect).hasClass('select2-hidden-accessible'));
+                
+                // Intentar forzar reinicialización
+                console.log('🔄 Forzando reinicialización...');
+                initializeEmailsSelect2('emails_compartir');
+                
+                // Agregar un email de prueba programáticamente
+                setTimeout(() => {
+                    console.log('➕ Agregando email de prueba...');
+                    const testEmail = 'test@example.com';
+                    const newOption = new Option(testEmail, testEmail, true, true);
+                    $(emailsSelect).append(newOption).trigger('change');
+                    console.log('✅ Email de prueba agregado');
+                }, 200);
+                
+            } else {
+                console.log('❌ Elemento no encontrado');
+            }
+        }
+        
+        // Función específica para inicializar emails Select2
+        function initializeEmailsSelect2(elementId = 'emails_compartir') {
+            const emailsSelect = document.getElementById(elementId);
+            if (!emailsSelect) {
+                console.warn(`❌ Elemento ${elementId} no encontrado`);
+                return false;
+            }
+            
+            // Si ya está inicializado, destruir primero
+            if ($(emailsSelect).hasClass('select2-hidden-accessible')) {
+                console.log(`🔄 Destruyendo Select2 existente para ${elementId}`);
+                $(emailsSelect).select2('destroy');
+            }
+            
+            console.log(`🆕 Inicializando Select2 para ${elementId}`);
+            
+            $(emailsSelect).select2({
+                theme: 'bootstrap4',
+                placeholder: 'Agregar correos electrónicos...',
+                allowClear: true,
+                width: '100%',
+                tags: true,
+                tokenSeparators: [',', ' ', ';'],
+                createTag: function (params) {
+                    const term = $.trim(params.term);
+                    console.log('🏷️ CreateTag called with term:', term);
+                    
+                    if (term === '') {
+                        return null;
+                    }
+                    
+                    // Validar formato de email
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailRegex.test(term)) {
+                        console.log('❌ Email inválido:', term);
+                        return {
+                            id: term,
+                            text: term + ' (formato inválido)',
+                            invalid: true
+                        };
+                    }
+                    
+                    console.log('✅ Email válido, creando tag:', term);
+                    return {
+                        id: term,
+                        text: term,
+                        newTag: true
+                    };
+                },
+                templateResult: function(tag) {
+                    if (tag.invalid) {
+                        return $('<span style="color: red;">' + tag.text + '</span>');
+                    }
+                    if (tag.newTag) {
+                        return $('<span><i class="fas fa-plus-circle text-success mr-1"></i>' + tag.text + '</span>');
+                    }
+                    return tag.text;
+                },
+                templateSelection: function(tag) {
+                    if (tag.invalid) {
+                        return $('<span class="badge badge-danger">' + tag.id + '</span>');
+                    }
+                    return $('<span class="badge badge-primary">' + tag.id + '</span>');
+                }
+            });
+            
+            console.log(`✅ Select2 inicializado correctamente para ${elementId}`);
+            return true;
+        }
+        
         function initializeSelect2() {
             if (typeof $.fn.select2 === 'undefined') {
                 console.error('Select2 not loaded');
@@ -5757,60 +5872,15 @@ if ($paciente_id) {
             
             try {
                 // Inicializar Select2 normales (excluyendo los que se manejan específicamente)
-                $('.select2bs4:not([multiple]):not(#edit_equipo_medico)').select2({
+                $('.select2bs4:not([multiple]):not(#edit_equipo_medico):not(#emails_compartir):not(#edit_emails_compartir)').select2({
                     theme: 'bootstrap4',
                     placeholder: 'Seleccionar...',
                     allowClear: true,
                     width: '100%'
                 });
                 
-                // Configuración especial para campos de correos (solo el de creación aquí)
-                $('#emails_compartir:not(.select2-hidden-accessible)').select2({
-                    theme: 'bootstrap4',
-                    placeholder: 'Agregar correos electrónicos...',
-                    allowClear: true,
-                    width: '100%',
-                    tags: true,
-                    tokenSeparators: [',', ' ', ';'],
-                    createTag: function (params) {
-                        const term = $.trim(params.term);
-                        
-                        if (term === '') {
-                            return null;
-                        }
-                        
-                        // Validar formato de email
-                        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                        if (!emailRegex.test(term)) {
-                            return {
-                                id: term,
-                                text: term + ' (formato inválido)',
-                                invalid: true
-                            };
-                        }
-                        
-                        return {
-                            id: term,
-                            text: term,
-                            newTag: true
-                        };
-                    },
-                    templateResult: function(tag) {
-                        if (tag.invalid) {
-                            return $('<span style="color: red;">' + tag.text + '</span>');
-                        }
-                        if (tag.newTag) {
-                            return $('<span><i class="fas fa-plus-circle text-success mr-1"></i>' + tag.text + '</span>');
-                        }
-                        return tag.text;
-                    },
-                    templateSelection: function(tag) {
-                        if (tag.invalid) {
-                            return $('<span class="badge badge-danger">' + tag.id + '</span>');
-                        }
-                        return $('<span class="badge badge-primary">' + tag.id + '</span>');
-                    }
-                });
+                // Inicializar específicamente el campo de emails usando la función especializada
+                initializeEmailsSelect2('emails_compartir');
                 
                 if (window.debugMode) {
                     console.log('Select2 initialized successfully');
