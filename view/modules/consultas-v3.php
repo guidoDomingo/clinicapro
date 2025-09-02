@@ -6052,22 +6052,51 @@ if ($paciente_id) {
         /**
          * Crear contenido HTML para el PDF
          */
+        /**
+         * Limpiar texto para PDF (manejar encoding)
+         */
+        function cleanTextForPDF(text) {
+            if (!text) return '';
+            
+            // Convertir texto a string si no lo es
+            let cleanText = String(text);
+            
+            // Decodificar entidades HTML comunes
+            const textArea = document.createElement('textarea');
+            textArea.innerHTML = cleanText;
+            cleanText = textArea.value;
+            
+            // Corregir caracteres UTF-8 mal codificados comunes
+            const replacements = {
+                'Ã¡': 'á', 'Ã©': 'é', 'Ã­': 'í', 'Ã³': 'ó', 'Ãº': 'ú', 'Ã±': 'ñ',
+                'Ã ': 'Á', 'Ã‰': 'É', 'Ã"': 'Ó', 'Ãš': 'Ú',
+                '&nbsp;': ' ', '&amp;': '&', '&lt;': '<', '&gt;': '>',
+                '&quot;': '"', '&#39;': "'"
+            };
+            
+            for (const [search, replace] of Object.entries(replacements)) {
+                cleanText = cleanText.replace(new RegExp(search, 'g'), replace);
+            }
+            
+            return cleanText;
+        }
+
         function createPDFContent(data) {
             console.log('PDF Data Structure:', data); // Debug para ver la estructura
             
-            // Datos del paciente
+            // Datos del paciente (limpiando texto)
             const paciente = {
-                nombre: `${data.first_name || ''} ${data.last_name || ''}`.trim(),
-                documento: data.document_number || 'N/A',
-                telefono: data.phone_number || data.whatsapptxt || 'N/A',
-                email: data.email || 'N/A'
+                nombre: cleanTextForPDF(`${data.first_name || ''} ${data.last_name || ''}`.trim()),
+                documento: cleanTextForPDF(data.document_number) || 'N/A',
+                telefono: cleanTextForPDF(data.phone_number || data.whatsapptxt) || 'N/A',
+                email: cleanTextForPDF(data.email) || 'N/A'
             };
             
-            // Información del doctor (ahora incluida en la API)
+            // Información del doctor (limpiando texto)
             const doctor = {
-                nombre: `${data.doctor_first_name || ''} ${data.doctor_last_name || ''}`.trim() || 'No especificado',
-                email: data.doctor_email || 'No especificado',
-                documento: data.doctor_document || 'N/A'
+                nombre: cleanTextForPDF(`${data.doctor_first_name || ''} ${data.doctor_last_name || ''}`.trim()) || 'No especificado',
+                email: cleanTextForPDF(data.doctor_email) || 'No especificado',
+                documento: cleanTextForPDF(data.doctor_document) || 'N/A'
             };
             
             // Fecha formateada
@@ -6137,7 +6166,7 @@ if ($paciente_id) {
                     html += `
                         <div class="content-section">
                             <strong>Motivo:</strong><br>
-                            <p>${data.txtmotivo}</p>
+                            <div>${cleanTextForPDF(data.txtmotivo)}</div>
                         </div>`;
                 }
                 
@@ -6145,7 +6174,7 @@ if ($paciente_id) {
                     html += `
                         <div class="content-section">
                             <strong>Consulta:</strong><br>
-                            <div>${data.consulta_textarea}</div>
+                            <div>${cleanTextForPDF(data.consulta_textarea)}</div>
                         </div>`;
                 }
             }
@@ -6215,8 +6244,8 @@ if ($paciente_id) {
                 if (anteojos.tipo_lente || anteojos.observaciones_anteojos) {
                     html += `
                         <div class="content-section">
-                            ${anteojos.tipo_lente ? `<p><strong>Tipo de lente:</strong> ${anteojos.tipo_lente}</p>` : ''}
-                            ${anteojos.observaciones_anteojos ? `<p><strong>Observaciones:</strong> ${anteojos.observaciones_anteojos}</p>` : ''}
+                            ${anteojos.tipo_lente ? `<p><strong>Tipo de lente:</strong> ${cleanTextForPDF(anteojos.tipo_lente)}</p>` : ''}
+                            ${anteojos.observaciones_anteojos ? `<p><strong>Observaciones:</strong> ${cleanTextForPDF(anteojos.observaciones_anteojos)}</p>` : ''}
                         </div>`;
                 }
             }
@@ -6230,8 +6259,8 @@ if ($paciente_id) {
                 if (informe.equipo_medico || informe.descripcion_equipos) {
                     html += `
                         <div class="content-section">
-                            ${informe.equipo_medico ? `<p><strong>Equipo médico:</strong> ${informe.equipo_medico}</p>` : ''}
-                            ${informe.descripcion_equipos ? `<p><strong>Descripción del equipo:</strong> ${informe.descripcion_equipos}</p>` : ''}
+                            ${informe.equipo_medico ? `<p><strong>Equipo médico:</strong> ${cleanTextForPDF(informe.equipo_medico)}</p>` : ''}
+                            ${informe.descripcion_equipos ? `<p><strong>Descripción del equipo:</strong> ${cleanTextForPDF(informe.descripcion_equipos)}</p>` : ''}
                         </div>`;
                 }
                 
@@ -6239,7 +6268,7 @@ if ($paciente_id) {
                     html += `
                         <div class="content-section">
                             <strong>Descripción del estudio:</strong><br>
-                            <div>${informe.descripcion_estudio}</div>
+                            <div>${cleanTextForPDF(informe.descripcion_estudio)}</div>
                         </div>`;
                 }
                 
@@ -6266,7 +6295,7 @@ if ($paciente_id) {
                     html += `
                         <div class="content-section">
                             <strong>Descripción del estudio:</strong><br>
-                            <div>${estudios.descripcion_estudio}</div>
+                            <div>${cleanTextForPDF(estudios.descripcion_estudio)}</div>
                         </div>`;
                 }
             }
@@ -6276,7 +6305,7 @@ if ($paciente_id) {
                 html += `<div class="section-header">RECETA/TRATAMIENTO</div>`;
                 html += `
                     <div class="content-section">
-                        <div>${data.receta_textarea}</div>
+                        <div>${cleanTextForPDF(data.receta_textarea)}</div>
                     </div>`;
             }
             
@@ -6285,7 +6314,7 @@ if ($paciente_id) {
                 html += `<div class="section-header">NOTAS</div>`;
                 html += `
                     <div class="content-section">
-                        <p>${data.txtnota}</p>
+                        <p>${cleanTextForPDF(data.txtnota)}</p>
                     </div>`;
             }
             

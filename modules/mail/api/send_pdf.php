@@ -166,6 +166,10 @@ function sendPDFByEmail($pdo, $data) {
         try {
             $mail = new PHPMailer(true);
             
+            // Configurar UTF-8
+            $mail->CharSet = 'UTF-8';
+            $mail->Encoding = 'base64';
+            
             // Configurar servidor
             $mail->isSMTP();
             $mail->Host = $mailConfig['smtp_host'];
@@ -250,23 +254,26 @@ function generatePDFContent($htmlContent, $consultaId, $consultaData) {
         ob_start();
         
         $options = new Options();
-        $options->set('defaultFont', 'Arial');
+        $options->set('defaultFont', 'DejaVu Sans');
         $options->set('isRemoteEnabled', true);
         $options->set('isHtml5ParserEnabled', true);
         $options->set('chroot', realpath('.'));
+        $options->set('defaultMediaType', 'screen');
+        $options->set('isFontSubsettingEnabled', true);
         
         $dompdf = new Dompdf($options);
         
         // CSS optimizado
         $css = getCSSForPDF();
         
-        // Limpiar HTML
+        // Limpiar HTML y convertir encoding
         $cleanHtml = cleanHtmlForPDF($htmlContent);
         
         $fullHtml = '<!DOCTYPE html>
         <html>
         <head>
             <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+            <meta charset="UTF-8">
             <title>Consulta Médica #' . $consultaId . '</title>
             ' . $css . '
         </head>
@@ -274,6 +281,9 @@ function generatePDFContent($htmlContent, $consultaId, $consultaData) {
             ' . $cleanHtml . '
         </body>
         </html>';
+        
+        // Asegurar UTF-8
+        $fullHtml = mb_convert_encoding($fullHtml, 'HTML-ENTITIES', 'UTF-8');
         
         $dompdf->loadHtml($fullHtml);
         $dompdf->setPaper('A4', 'portrait');
@@ -302,26 +312,73 @@ function generatePDFContent($htmlContent, $consultaId, $consultaData) {
  * Limpiar HTML para PDF
  */
 function cleanHtmlForPDF($htmlContent) {
+    // Asegurar UTF-8
+    $html = mb_convert_encoding($htmlContent, 'UTF-8', 'auto');
+    
     // Remover elementos problemáticos
-    $html = preg_replace('/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/mi', '', $htmlContent);
+    $html = preg_replace('/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/mi', '', $html);
     $html = preg_replace('/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/mi', '', $html);
     
-    // Limpiar atributos problemáticos
+    // Limpiar atributos problemáticos pero mantener algunos útiles
     $html = preg_replace('/style="[^"]*"/i', '', $html);
     $html = preg_replace('/class="[^"]*"/i', '', $html);
+    $html = preg_replace('/id="[^"]*"/i', '', $html);
     
-    // Convertir elementos problemáticos
-    $html = str_replace(['<div', '</div>'], ['<p', '</p>'], $html);
+    // Convertir entidades HTML
+    $html = html_entity_decode($html, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+    
+    // Corregir caracteres UTF-8 mal codificados comunes
+    $html = str_replace('Ã¡', 'á', $html);
+    $html = str_replace('Ã©', 'é', $html);
+    $html = str_replace('Ã­', 'í', $html);
+    $html = str_replace('Ã³', 'ó', $html);
+    $html = str_replace('Ãº', 'ú', $html);
+    $html = str_replace('Ã±', 'ñ', $html);
+    $html = str_replace('Ã ', 'Á', $html);
+    $html = str_replace('Ã‰', 'É', $html);
+    $html = str_replace('Ã"', 'Ó', $html);
+    
+    // Convertir divs a párrafos para mejor compatibilidad
+    $html = preg_replace('/<div([^>]*)>/', '<p$1>', $html);
+    $html = str_replace('</div>', '</p>', $html);
     
     return $html;
+}
+
+/**
+ * Limpiar texto para email (manejar encoding UTF-8)
+ */
+function cleanTextForEmail($text) {
+    if (!$text) return '';
+    
+    // Asegurar UTF-8
+    $text = mb_convert_encoding($text, 'UTF-8', 'auto');
+    
+    // Decodificar entidades HTML
+    $text = html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+    
+    // Corregir caracteres UTF-8 mal codificados más comunes
+    $replacements = [
+        'Ã¡' => 'á', 'Ã©' => 'é', 'Ã­' => 'í', 'Ã³' => 'ó', 'Ãº' => 'ú', 'Ã±' => 'ñ',
+        'Ã ' => 'Á', 'Ã‰' => 'É', 'Ã' => 'Í', 'Ã"' => 'Ó', 'Ãš' => 'Ú',
+        'Â¿' => '¿', 'Â¡' => '¡', 'Â°' => '°'
+    ];
+    
+    foreach ($replacements as $search => $replace) {
+        $text = str_replace($search, $replace, $text);
+    }
+    
+    return $text;
 }
 
 /**
  * Generar cuerpo del email
  */
 function generateEmailBody($consultaData, $customMessage, $recipientType) {
-    $patientName = trim(($consultaData['first_name'] ?? '') . ' ' . ($consultaData['last_name'] ?? ''));
-    $doctorName = trim(($consultaData['doctor_first_name'] ?? '') . ' ' . ($consultaData['doctor_last_name'] ?? ''));
+    // Limpiar datos antes de usar
+    $patientName = cleanTextForEmail(trim(($consultaData['first_name'] ?? '') . ' ' . ($consultaData['last_name'] ?? '')));
+    $doctorName = cleanTextForEmail(trim(($consultaData['doctor_first_name'] ?? '') . ' ' . ($consultaData['doctor_last_name'] ?? '')));
+    $customMessage = cleanTextForEmail($customMessage);
     
     $greeting = $recipientType === 'doctor' ? "Dr. $doctorName" : $patientName;
     
@@ -341,17 +398,17 @@ function generateEmailBody($consultaData, $customMessage, $recipientType) {
     <body>
         <div class="header">
             <h1>🏥 Sistema Clínica</h1>
-            <p>Consulta Médica #' . $consultaData['id_consulta'] . '</p>
+            <p>Consulta Médica #' . cleanTextForEmail($consultaData['id_consulta']) . '</p>
         </div>
         
         <div class="content">
-            <p>Estimado/a <strong>' . $greeting . '</strong>,</p>
+            <p>Estimado/a <strong>' . cleanTextForEmail($greeting) . '</strong>,</p>
             
             <p>Adjunto encontrará el PDF de la consulta médica con los siguientes detalles:</p>
             
             <div class="highlight">
                 <strong>📋 Información de la Consulta:</strong><br>
-                <strong>ID:</strong> #' . $consultaData['id_consulta'] . '<br>
+                <strong>ID:</strong> #' . cleanTextForEmail($consultaData['id_consulta']) . '<br>
                 <strong>Paciente:</strong> ' . $patientName . '<br>
                 <strong>Fecha:</strong> ' . date('d/m/Y H:i', strtotime($consultaData['fecha_registro'] ?? 'now')) . '<br>';
     
@@ -366,7 +423,7 @@ function generateEmailBody($consultaData, $customMessage, $recipientType) {
         $body .= '
             <div style="background: #fff3cd; padding: 15px; border-left: 4px solid #ffc107; margin: 15px 0;">
                 <strong>💬 Mensaje:</strong><br>
-                ' . nl2br(htmlspecialchars($customMessage)) . '
+                ' . nl2br(htmlspecialchars($customMessage, ENT_QUOTES, 'UTF-8')) . '
             </div>';
     }
     
@@ -421,7 +478,7 @@ function getCSSForPDF() {
     return '
         <style>
             body { 
-                font-family: "Helvetica", "Arial", sans-serif; 
+                font-family: "DejaVu Sans", "Helvetica", "Arial", sans-serif; 
                 font-size: 10px; 
                 line-height: 1.3; 
                 color: #333;
