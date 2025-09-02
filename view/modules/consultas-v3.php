@@ -351,6 +351,18 @@ if ($paciente_id) {
             border-radius: 4px;
         }
         
+        /* Estilos específicos para botones de acción */
+        .btn-success {
+            background-color: #28a745;
+            border-color: #28a745;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: #218838;
+            border-color: #1e7e34;
+        }
+        
         /* Loading mejorado */
         .loading-container {
             text-align: center;
@@ -3122,6 +3134,9 @@ if ($paciente_id) {
                                 <button class="btn-primary btn-sm" onclick="viewConsulta(${consulta.id_consulta})" title="Ver detalles">
                                     👁️
                                 </button>
+                                <button class="btn-success btn-sm" onclick="downloadConsultaPDF(${consulta.id_consulta})" title="Descargar PDF">
+                                    📄
+                                </button>
                                 <button class="btn-danger btn-sm" onclick="deleteConsulta(${consulta.id_consulta})" title="Eliminar">
                                     🗑️
                                 </button>
@@ -5839,6 +5854,279 @@ if ($paciente_id) {
         function viewConsulta(id) {
             // Por ahora, redirigir a editar
             editConsulta(id);
+        }
+
+        /**
+         * Descargar consulta como PDF
+         */
+        async function downloadConsultaPDF(consultaId) {
+            try {
+                // Mostrar indicador de carga
+                showSuccess('Generando PDF... Por favor espere');
+                
+                // Obtener datos completos de la consulta
+                const response = await callAPI('get', { 
+                    table: 'consultas', 
+                    id: consultaId,
+                    id_consulta: consultaId 
+                });
+                
+                if (!response.success) {
+                    showError('Error al obtener datos de la consulta');
+                    return;
+                }
+                
+                // Generar el PDF con los datos completos
+                await generateConsultaPDF(response.data, consultaId);
+                
+            } catch (error) {
+                console.error('Error downloading PDF:', error);
+                showError('Error al generar el PDF');
+            }
+        }
+
+        /**
+         * Generar PDF de la consulta
+         */
+        async function generateConsultaPDF(consultaData, consultaId) {
+            try {
+                // Crear contenido HTML para el PDF
+                const htmlContent = createPDFContent(consultaData);
+                
+                // Enviar a endpoint PHP para generar PDF
+                const response = await fetch('modules/consultas/api/generate_pdf.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        consulta_id: consultaId,
+                        html_content: htmlContent,
+                        consulta_data: consultaData
+                    })
+                });
+                
+                if (response.ok) {
+                    // Descargar el archivo PDF
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    
+                    // Crear nombre del archivo usando los datos correctos
+                    const fecha = consultaData.fecha_consulta || consultaData.fecha_registro?.split(' ')[0] || new Date().toISOString().split('T')[0];
+                    const paciente = `${consultaData.first_name || ''}_${consultaData.last_name || ''}`.replace(/\s+/g, '_');
+                    a.download = `consulta_${consultaId}_${paciente}_${fecha}.pdf`;
+                    
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    
+                    showSuccess('PDF descargado exitosamente');
+                } else {
+                    throw new Error('Error en la respuesta del servidor');
+                }
+                
+            } catch (error) {
+                console.error('Error generating PDF:', error);
+                showError('Error al generar el PDF');
+            }
+        }
+
+        /**
+         * Crear contenido HTML para el PDF
+         */
+        function createPDFContent(data) {
+            console.log('PDF Data Structure:', data); // Debug para ver la estructura
+            
+            // Los datos vienen directamente
+            const consultaData = {
+                id_consulta: data.id_consulta || 'N/A',
+                first_name: data.first_name || '',
+                last_name: data.last_name || '',
+                document_number: data.document_number || 'N/A',
+                fecha_consulta: data.fecha_consulta || (data.fecha_registro ? data.fecha_registro.split(' ')[0] : new Date().toISOString().split('T')[0]),
+                tipo_formulario: data.tipo_formulario || 'general',
+                motivo: data.txtmotivo || data.motivo || 'No especificado',
+                consulta_textarea: data.consulta_textarea || '',
+                receta_textarea: data.receta_textarea || '',
+                txtnota: data.txtnota || data.observaciones || '',
+                visionod: data.visionod || '',
+                visionoi: data.visionoi || '',
+                tensionod: data.tensionod || '',
+                tensionoi: data.tensionoi || '',
+                proximaconsulta: data.proximaconsulta || '',
+                whatsapptxt: data.whatsapptxt || '',
+                email: data.email || '',
+                phone_number: data.phone_number || ''
+            };
+            
+            // Limpiar HTML de los campos de texto
+            const cleanHtml = (html) => {
+                if (!html) return '';
+                return html.replace(/<[^>]*>/g, '').trim();
+            };
+            
+            let html = `
+                <div class="pdf-container">
+                    <div class="section-header">
+                        <h1>CONSULTA MÉDICA</h1>
+                        <h2>ID: ${consultaData.id_consulta}</h2>
+                    </div>
+                    
+                    <div class="content-section">
+                        <h3>DATOS DEL PACIENTE</h3>
+                        <table class="patient-grid">
+                            <tr>
+                                <td><span class="field-label">Nombre:</span> ${consultaData.first_name} ${consultaData.last_name}</td>
+                                <td><span class="field-label">Documento:</span> ${consultaData.document_number}</td>
+                            </tr>
+                            <tr>
+                                <td><span class="field-label">Fecha de Consulta:</span> ${formatDate(consultaData.fecha_consulta)}</td>
+                                <td><span class="field-label">Tipo:</span> ${consultaData.tipo_formulario}</td>
+                            </tr>
+                            ${consultaData.phone_number ? `
+                            <tr>
+                                <td><span class="field-label">Teléfono:</span> ${consultaData.phone_number}</td>
+                                <td><span class="field-label">Email:</span> ${consultaData.email || 'N/A'}</td>
+                            </tr>
+                            ` : ''}
+                        </table>
+                    </div>
+                    
+                    <div class="content-section">
+                        <h3>CONSULTA GENERAL</h3>
+                        ${consultaData.motivo ? `
+                            <div class="field-value">
+                                <span class="field-label">Motivo:</span>
+                                <div class="text-content">${cleanHtml(consultaData.motivo)}</div>
+                            </div>
+                        ` : ''}
+                        ${consultaData.consulta_textarea ? `
+                            <div class="field-value">
+                                <span class="field-label">Consulta:</span>
+                                <div class="text-content">${cleanHtml(consultaData.consulta_textarea)}</div>
+                            </div>
+                        ` : ''}
+                        ${consultaData.receta_textarea ? `
+                            <div class="field-value">
+                                <span class="field-label">Receta/Tratamiento:</span>
+                                <div class="text-content">${cleanHtml(consultaData.receta_textarea)}</div>
+                            </div>
+                        ` : ''}
+                        ${consultaData.txtnota ? `
+                            <div class="field-value">
+                                <span class="field-label">Notas:</span>
+                                <div class="text-content">${cleanHtml(consultaData.txtnota)}</div>
+                            </div>
+                        ` : ''}
+                        ${consultaData.proximaconsulta ? `
+                            <div class="field-value">
+                                <span class="field-label">Próxima Consulta:</span>
+                                <div class="text-content">${formatDate(consultaData.proximaconsulta)}</div>
+                            </div>
+                        ` : ''}
+                    </div>
+            `;
+            
+            // Agregar sección de visión y tensión si hay datos
+            if (consultaData.visionod || consultaData.visionoi || consultaData.tensionod || consultaData.tensionoi) {
+                html += `
+                    <div class="content-section">
+                        <h3>EXAMEN VISUAL</h3>
+                        <table class="eyes-grid">
+                            <tr>
+                                <td>
+                                    <div class="eye-section">
+                                        <h4>OJO DERECHO (OD)</h4>
+                                        ${consultaData.visionod ? `<div class="field-value"><span class="field-label">Visión:</span> ${consultaData.visionod}</div>` : ''}
+                                        ${consultaData.tensionod ? `<div class="field-value"><span class="field-label">Tensión:</span> ${consultaData.tensionod}</div>` : ''}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="eye-section">
+                                        <h4>OJO IZQUIERDO (OI)</h4>
+                                        ${consultaData.visionoi ? `<div class="field-value"><span class="field-label">Visión:</span> ${consultaData.visionoi}</div>` : ''}
+                                        ${consultaData.tensionoi ? `<div class="field-value"><span class="field-label">Tensión:</span> ${consultaData.tensionoi}</div>` : ''}
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                `;
+            }
+            
+            // Agregar información específica según el tipo de formulario
+            if (consultaData.tipo_formulario === 'informe_imagen' && data.informe_imagen) {
+                const informe = data.informe_imagen;
+                html += `
+                    <div class="content-section">
+                        <h3>INFORME + IMAGEN</h3>
+                        ${informe.equipo_medico ? `
+                            <div class="field-value">
+                                <span class="field-label">Equipo Médico:</span>
+                                <div class="text-content">${informe.equipo_medico}</div>
+                            </div>
+                        ` : ''}
+                        ${informe.descripcion_od ? `
+                            <div class="field-value">
+                                <span class="field-label">Descripción OD:</span>
+                                <div class="text-content">${cleanHtml(informe.descripcion_od)}</div>
+                            </div>
+                        ` : ''}
+                        ${informe.descripcion_oi ? `
+                            <div class="field-value">
+                                <span class="field-label">Descripción OI:</span>
+                                <div class="text-content">${cleanHtml(informe.descripcion_oi)}</div>
+                            </div>
+                        ` : ''}
+                        ${informe.emails_compartir ? `
+                            <div class="field-value">
+                                <span class="field-label">Emails para Compartir:</span>
+                                <div class="text-content">${informe.emails_compartir}</div>
+                            </div>
+                        ` : ''}
+                        ${informe.archivos_od ? `
+                            <div class="field-value">
+                                <span class="field-label">Archivos OD:</span>
+                                <div class="text-content">Imágenes disponibles en el sistema</div>
+                            </div>
+                        ` : ''}
+                        ${informe.archivos_oi ? `
+                            <div class="field-value">
+                                <span class="field-label">Archivos OI:</span>
+                                <div class="text-content">Imágenes disponibles en el sistema</div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            } else if (consultaData.tipo_formulario === 'anteojos') {
+                html += `
+                    <div class="content-section">
+                        <h3>EXAMEN DE ANTEOJOS</h3>
+                        <p>Consulta específica de anteojos - datos detallados disponibles en el sistema.</p>
+                    </div>
+                `;
+            } else if (consultaData.tipo_formulario === 'estudios') {
+                html += `
+                    <div class="content-section">
+                        <h3>ESTUDIOS MÉDICOS</h3>
+                        <p>Consulta de estudios médicos - información detallada disponible en el sistema.</p>
+                    </div>
+                `;
+            }
+            
+            html += `
+                    <div class="footer-info">
+                        <p>Consulta generada el ${new Date().toLocaleDateString('es-ES')} a las ${new Date().toLocaleTimeString('es-ES')}</p>
+                        <p>Sistema de Gestión Médica - Consulta ID: ${consultaData.id_consulta}</p>
+                    </div>
+                </div>
+            `;
+            
+            return html;
         }
 
         /**
