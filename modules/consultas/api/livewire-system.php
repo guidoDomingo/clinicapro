@@ -73,7 +73,7 @@ class LivewireCRUDSystem {
                 'proximaconsulta' => ['type' => 'date', 'label' => 'Próxima Consulta'],
                 'whatsapptxt' => ['type' => 'varchar', 'label' => 'Mensaje WhatsApp'],
                 'email' => ['type' => 'varchar', 'label' => 'Email'],
-                'id_user' => ['type' => 'int', 'label' => 'Usuario'],
+                'id_user' => ['type' => 'int', 'label' => 'Usuario', 'default' => 'session.user_id'],
                 'id_reserva' => ['type' => 'int', 'default' => 0, 'label' => 'ID Reserva'],
                 'fecha_registro' => ['type' => 'timestamp', 'auto' => true, 'default' => 'CURRENT_TIMESTAMP'],
                 'ultima_modificacion' => ['type' => 'timestamp', 'label' => 'Última Modificación'],
@@ -839,9 +839,18 @@ class LivewireCRUDSystem {
         
         // Query base
         if ($table === 'consultas') {
-            $sql = "SELECT c.*, p.first_name, p.last_name, p.document_number, p.phone_number, p.email
+            $sql = "SELECT c.*, 
+                           patient.first_name, patient.last_name, patient.document_number, patient.phone_number, patient.email,
+                           doctor.email as doctor_email,
+                           doctor.first_name as doctor_first_name,
+                           doctor.last_name as doctor_last_name,
+                           doctor.document_number as doctor_document,
+                           doctor.phone_number as doctor_phone
                     FROM consultas c 
-                    LEFT JOIN rh_person p ON c.id_persona = p.person_id 
+                    LEFT JOIN rh_person patient ON c.id_persona = patient.person_id 
+                    LEFT JOIN person_system_user psu ON psu.system_user_id = c.id_user 
+                    LEFT JOIN rh_person doctor ON psu.person_id = doctor.person_id
+                    LEFT JOIN rh_doctors rd ON rd.person_id = doctor.person_id
                     WHERE c.$primaryKey = ?";
         } else {
             $sql = "SELECT * FROM $table WHERE $primaryKey = ?";

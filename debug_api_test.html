@@ -1,0 +1,154 @@
+<?php
+// Debug: Crear página de prueba para verificar API
+?>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug API - Consulta 203</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 800px; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .data { background-color: #f8f9fa; padding: 10px; border-radius: 4px; }
+        pre { white-space: pre-wrap; word-wrap: break-word; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Debug API - Consulta 203</h1>
+        
+        <div class="section">
+            <h2>Test API Call</h2>
+            <button onclick="testAPI()" id="testBtn">Probar API</button>
+            <div id="result"></div>
+        </div>
+        
+        <div class="section">
+            <h2>Test PDF Generation</h2>
+            <button onclick="testPDF()" id="pdfBtn">Probar PDF</button>
+            <div id="pdfResult"></div>
+        </div>
+    </div>
+
+    <script>
+        async function testAPI() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<p>Probando API...</p>';
+            
+            try {
+                const response = await fetch('modules/consultas/api/livewire-system.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'get',
+                        table: 'consultas',
+                        id: 203,
+                        id_consulta: 203
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <h3>✅ API Exitoso</h3>
+                            <h4>Datos del Doctor:</h4>
+                            <div class="data">
+                                <strong>Nombre:</strong> ${data.data.doctor_first_name || 'N/A'} ${data.data.doctor_last_name || 'N/A'}<br>
+                                <strong>Email:</strong> ${data.data.doctor_email || 'N/A'}<br>
+                                <strong>Documento:</strong> ${data.data.doctor_document || 'N/A'}<br>
+                                <strong>ID Usuario:</strong> ${data.data.id_user || 'N/A'}
+                            </div>
+                            <h4>Respuesta completa:</h4>
+                            <div class="data">
+                                <pre>${JSON.stringify(data, null, 2)}</pre>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            <h3>❌ Error en API</h3>
+                            <p><strong>Mensaje:</strong> ${data.message}</p>
+                            <div class="data">
+                                <pre>${JSON.stringify(data, null, 2)}</pre>
+                            </div>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h3>❌ Error de conexión</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        async function testPDF() {
+            const resultDiv = document.getElementById('pdfResult');
+            resultDiv.innerHTML = '<p>Probando generación de PDF...</p>';
+            
+            try {
+                // Primero obtener datos
+                const response = await fetch('modules/consultas/api/livewire-system.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'get',
+                        table: 'consultas',
+                        id: 203,
+                        id_consulta: 203
+                    })
+                });
+                
+                const apiData = await response.json();
+                
+                if (apiData.success) {
+                    // Crear contenido HTML como lo hace el frontend
+                    const data = apiData.data;
+                    const doctor = {
+                        nombre: `${data.doctor_first_name || ''} ${data.doctor_last_name || ''}`.trim() || 'No especificado',
+                        email: data.doctor_email || 'No especificado',
+                        documento: data.doctor_document || 'N/A'
+                    };
+                    
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <h3>✅ Datos extraídos para PDF</h3>
+                            <div class="data">
+                                <strong>Doctor Nombre:</strong> ${doctor.nombre}<br>
+                                <strong>Doctor Email:</strong> ${doctor.email}<br>
+                                <strong>Doctor Documento:</strong> ${doctor.documento}
+                            </div>
+                            <p><strong>Estado:</strong> ${doctor.nombre !== 'No especificado' ? '✅ Datos completos' : '❌ Datos faltantes'}</p>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            <h3>❌ Error obteniendo datos</h3>
+                            <p>${apiData.message}</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <h3>❌ Error</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

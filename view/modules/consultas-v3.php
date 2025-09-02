@@ -5941,190 +5941,254 @@ if ($paciente_id) {
         function createPDFContent(data) {
             console.log('PDF Data Structure:', data); // Debug para ver la estructura
             
-            // Los datos vienen directamente
-            const consultaData = {
-                id_consulta: data.id_consulta || 'N/A',
-                first_name: data.first_name || '',
-                last_name: data.last_name || '',
-                document_number: data.document_number || 'N/A',
-                fecha_consulta: data.fecha_consulta || (data.fecha_registro ? data.fecha_registro.split(' ')[0] : new Date().toISOString().split('T')[0]),
-                tipo_formulario: data.tipo_formulario || 'general',
-                motivo: data.txtmotivo || data.motivo || 'No especificado',
-                consulta_textarea: data.consulta_textarea || '',
-                receta_textarea: data.receta_textarea || '',
-                txtnota: data.txtnota || data.observaciones || '',
-                visionod: data.visionod || '',
-                visionoi: data.visionoi || '',
-                tensionod: data.tensionod || '',
-                tensionoi: data.tensionoi || '',
-                proximaconsulta: data.proximaconsulta || '',
-                whatsapptxt: data.whatsapptxt || '',
-                email: data.email || '',
-                phone_number: data.phone_number || ''
+            // Datos del paciente
+            const paciente = {
+                nombre: `${data.first_name || ''} ${data.last_name || ''}`.trim(),
+                documento: data.document_number || 'N/A',
+                telefono: data.phone_number || data.whatsapptxt || 'N/A',
+                email: data.email || 'N/A'
             };
             
-            // Limpiar HTML de los campos de texto
-            const cleanHtml = (html) => {
-                if (!html) return '';
-                return html.replace(/<[^>]*>/g, '').trim();
+            // Información del doctor (ahora incluida en la API)
+            const doctor = {
+                nombre: `${data.doctor_first_name || ''} ${data.doctor_last_name || ''}`.trim() || 'No especificado',
+                email: data.doctor_email || 'No especificado',
+                documento: data.doctor_document || 'N/A'
             };
+            
+            // Fecha formateada
+            const fechaConsulta = data.fecha_registro ? 
+                new Date(data.fecha_registro).toLocaleDateString('es-ES', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                }) : 'N/A';
             
             let html = `
-                <div class="pdf-container">
-                    <div class="section-header">
-                        <h1>CONSULTA MÉDICA</h1>
-                        <h2>ID: ${consultaData.id_consulta}</h2>
-                    </div>
-                    
-                    <div class="content-section">
-                        <h3>DATOS DEL PACIENTE</h3>
-                        <table class="patient-grid">
-                            <tr>
-                                <td><span class="field-label">Nombre:</span> ${consultaData.first_name} ${consultaData.last_name}</td>
-                                <td><span class="field-label">Documento:</span> ${consultaData.document_number}</td>
-                            </tr>
-                            <tr>
-                                <td><span class="field-label">Fecha de Consulta:</span> ${formatDate(consultaData.fecha_consulta)}</td>
-                                <td><span class="field-label">Tipo:</span> ${consultaData.tipo_formulario}</td>
-                            </tr>
-                            ${consultaData.phone_number ? `
-                            <tr>
-                                <td><span class="field-label">Teléfono:</span> ${consultaData.phone_number}</td>
-                                <td><span class="field-label">Email:</span> ${consultaData.email || 'N/A'}</td>
-                            </tr>
-                            ` : ''}
-                        </table>
-                    </div>
-                    
-                    <div class="content-section">
-                        <h3>CONSULTA GENERAL</h3>
-                        ${consultaData.motivo ? `
-                            <div class="field-value">
-                                <span class="field-label">Motivo:</span>
-                                <div class="text-content">${cleanHtml(consultaData.motivo)}</div>
-                            </div>
-                        ` : ''}
-                        ${consultaData.consulta_textarea ? `
-                            <div class="field-value">
-                                <span class="field-label">Consulta:</span>
-                                <div class="text-content">${cleanHtml(consultaData.consulta_textarea)}</div>
-                            </div>
-                        ` : ''}
-                        ${consultaData.receta_textarea ? `
-                            <div class="field-value">
-                                <span class="field-label">Receta/Tratamiento:</span>
-                                <div class="text-content">${cleanHtml(consultaData.receta_textarea)}</div>
-                            </div>
-                        ` : ''}
-                        ${consultaData.txtnota ? `
-                            <div class="field-value">
-                                <span class="field-label">Notas:</span>
-                                <div class="text-content">${cleanHtml(consultaData.txtnota)}</div>
-                            </div>
-                        ` : ''}
-                        ${consultaData.proximaconsulta ? `
-                            <div class="field-value">
-                                <span class="field-label">Próxima Consulta:</span>
-                                <div class="text-content">${formatDate(consultaData.proximaconsulta)}</div>
-                            </div>
-                        ` : ''}
-                    </div>
-            `;
-            
-            // Agregar sección de visión y tensión si hay datos
-            if (consultaData.visionod || consultaData.visionoi || consultaData.tensionod || consultaData.tensionoi) {
-                html += `
-                    <div class="content-section">
-                        <h3>EXAMEN VISUAL</h3>
-                        <table class="eyes-grid">
-                            <tr>
-                                <td>
-                                    <div class="eye-section">
-                                        <h4>OJO DERECHO (OD)</h4>
-                                        ${consultaData.visionod ? `<div class="field-value"><span class="field-label">Visión:</span> ${consultaData.visionod}</div>` : ''}
-                                        ${consultaData.tensionod ? `<div class="field-value"><span class="field-label">Tensión:</span> ${consultaData.tensionod}</div>` : ''}
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="eye-section">
-                                        <h4>OJO IZQUIERDO (OI)</h4>
-                                        ${consultaData.visionoi ? `<div class="field-value"><span class="field-label">Visión:</span> ${consultaData.visionoi}</div>` : ''}
-                                        ${consultaData.tensionoi ? `<div class="field-value"><span class="field-label">Tensión:</span> ${consultaData.tensionoi}</div>` : ''}
-                                    </div>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-                `;
-            }
-            
-            // Agregar información específica según el tipo de formulario
-            if (consultaData.tipo_formulario === 'informe_imagen' && data.informe_imagen) {
-                const informe = data.informe_imagen;
-                html += `
-                    <div class="content-section">
-                        <h3>INFORME + IMAGEN</h3>
-                        ${informe.equipo_medico ? `
-                            <div class="field-value">
-                                <span class="field-label">Equipo Médico:</span>
-                                <div class="text-content">${informe.equipo_medico}</div>
-                            </div>
-                        ` : ''}
-                        ${informe.descripcion_od ? `
-                            <div class="field-value">
-                                <span class="field-label">Descripción OD:</span>
-                                <div class="text-content">${cleanHtml(informe.descripcion_od)}</div>
-                            </div>
-                        ` : ''}
-                        ${informe.descripcion_oi ? `
-                            <div class="field-value">
-                                <span class="field-label">Descripción OI:</span>
-                                <div class="text-content">${cleanHtml(informe.descripcion_oi)}</div>
-                            </div>
-                        ` : ''}
-                        ${informe.emails_compartir ? `
-                            <div class="field-value">
-                                <span class="field-label">Emails para Compartir:</span>
-                                <div class="text-content">${informe.emails_compartir}</div>
-                            </div>
-                        ` : ''}
-                        ${informe.archivos_od ? `
-                            <div class="field-value">
-                                <span class="field-label">Archivos OD:</span>
-                                <div class="text-content">Imágenes disponibles en el sistema</div>
-                            </div>
-                        ` : ''}
-                        ${informe.archivos_oi ? `
-                            <div class="field-value">
-                                <span class="field-label">Archivos OI:</span>
-                                <div class="text-content">Imágenes disponibles en el sistema</div>
-                            </div>
-                        ` : ''}
-                    </div>
-                `;
-            } else if (consultaData.tipo_formulario === 'anteojos') {
-                html += `
-                    <div class="content-section">
-                        <h3>EXAMEN DE ANTEOJOS</h3>
-                        <p>Consulta específica de anteojos - datos detallados disponibles en el sistema.</p>
-                    </div>
-                `;
-            } else if (consultaData.tipo_formulario === 'estudios') {
-                html += `
-                    <div class="content-section">
-                        <h3>ESTUDIOS MÉDICOS</h3>
-                        <p>Consulta de estudios médicos - información detallada disponible en el sistema.</p>
-                    </div>
-                `;
-            }
-            
-            html += `
-                    <div class="footer-info">
-                        <p>Consulta generada el ${new Date().toLocaleDateString('es-ES')} a las ${new Date().toLocaleTimeString('es-ES')}</p>
-                        <p>Sistema de Gestión Médica - Consulta ID: ${consultaData.id_consulta}</p>
-                    </div>
+                <div class="header-section">
+                    <h1>CONSULTA MÉDICA</h1>
+                    <h2>ID: ${data.id_consulta}</h2>
                 </div>
-            `;
+                
+                <div class="info-grid">
+                    <div class="info-row">
+                        <div class="info-cell">
+                            <span class="field-label">Nombre:</span> 
+                            <span class="field-value">${paciente.nombre}</span>
+                        </div>
+                        <div class="info-cell">
+                            <span class="field-label">Documento:</span> 
+                            <span class="field-value">${paciente.documento}</span>
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-cell">
+                            <span class="field-label">Fecha de Consulta:</span> 
+                            <span class="field-value">${fechaConsulta}</span>
+                        </div>
+                        <div class="info-cell">
+                            <span class="field-label">Tipo:</span> 
+                            <span class="field-value">${data.tipo_formulario || 'general'}</span>
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-cell">
+                            <span class="field-label">Teléfono:</span> 
+                            <span class="field-value">${paciente.telefono}</span>
+                        </div>
+                        <div class="info-cell">
+                            <span class="field-label">Email:</span> 
+                            <span class="field-value">${paciente.email}</span>
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
+                </div>`;
+            
+            // Información del doctor
+            html += `
+                <div class="doctor-info">
+                    <div class="doctor-name">Dr. ${doctor.nombre}</div>
+                    <div class="doctor-details">Email: ${doctor.email} | Documento: ${doctor.documento}</div>
+                </div>`;
+            
+            // Motivo y consulta general
+            if (data.txtmotivo || data.consulta_textarea) {
+                html += `<div class="section-header">CONSULTA GENERAL</div>`;
+                
+                if (data.txtmotivo) {
+                    html += `
+                        <div class="content-section">
+                            <strong>Motivo:</strong><br>
+                            <p>${data.txtmotivo}</p>
+                        </div>`;
+                }
+                
+                if (data.consulta_textarea) {
+                    html += `
+                        <div class="content-section">
+                            <strong>Consulta:</strong><br>
+                            <div>${data.consulta_textarea}</div>
+                        </div>`;
+                }
+            }
+            
+            // Signos vitales en dos columnas
+            if (data.visionod || data.visionoi || data.tensionod || data.tensionoi) {
+                html += `<div class="section-header">SIGNOS VITALES</div>`;
+                html += `
+                    <div class="two-column">
+                        <div class="column">
+                            <div class="eye-section">
+                                <h4>Ojo Derecho</h4>
+                                ${data.visionod ? `<p><span class="field-label">Visión:</span> ${data.visionod}</p>` : ''}
+                                ${data.tensionod ? `<p><span class="field-label">Tensión:</span> ${data.tensionod}</p>` : ''}
+                            </div>
+                        </div>
+                        <div class="column">
+                            <div class="eye-section">
+                                <h4>Ojo Izquierdo</h4>
+                                ${data.visionoi ? `<p><span class="field-label">Visión:</span> ${data.visionoi}</p>` : ''}
+                                ${data.tensionoi ? `<p><span class="field-label">Tensión:</span> ${data.tensionoi}</p>` : ''}
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>`;
+            }
+            
+            // Consulta de anteojos con tabla mejorada
+            if (data.anteojos) {
+                html += `<div class="section-header">PRESCRIPCIÓN DE ANTEOJOS</div>`;
+                
+                const anteojos = data.anteojos;
+                
+                // Tabla de graduaciones
+                if (anteojos.esfera_od || anteojos.esfera_oi || anteojos.cilindro_od || anteojos.cilindro_oi) {
+                    html += `
+                        <table class="prescription-table">
+                            <thead>
+                                <tr>
+                                    <th>Ojo</th>
+                                    <th>Esfera</th>
+                                    <th>Cilindro</th>
+                                    <th>Eje</th>
+                                    <th>A.V.</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>OD</strong></td>
+                                    <td>${anteojos.esfera_od || '-'}</td>
+                                    <td>${anteojos.cilindro_od || '-'}</td>
+                                    <td>${anteojos.eje_od || '-'}</td>
+                                    <td>${anteojos.av_od || '-'}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>OI</strong></td>
+                                    <td>${anteojos.esfera_oi || '-'}</td>
+                                    <td>${anteojos.cilindro_oi || '-'}</td>
+                                    <td>${anteojos.eje_oi || '-'}</td>
+                                    <td>${anteojos.av_oi || '-'}</td>
+                                </tr>
+                            </tbody>
+                        </table>`;
+                }
+                
+                // Información adicional de anteojos
+                if (anteojos.tipo_lente || anteojos.observaciones_anteojos) {
+                    html += `
+                        <div class="content-section">
+                            ${anteojos.tipo_lente ? `<p><strong>Tipo de lente:</strong> ${anteojos.tipo_lente}</p>` : ''}
+                            ${anteojos.observaciones_anteojos ? `<p><strong>Observaciones:</strong> ${anteojos.observaciones_anteojos}</p>` : ''}
+                        </div>`;
+                }
+            }
+            
+            // Informe de imagen con equipos
+            if (data.informe_imagen) {
+                html += `<div class="section-header">INFORME DE IMAGEN</div>`;
+                
+                const informe = data.informe_imagen;
+                
+                if (informe.equipo_medico || informe.descripcion_equipos) {
+                    html += `
+                        <div class="content-section">
+                            ${informe.equipo_medico ? `<p><strong>Equipo médico:</strong> ${informe.equipo_medico}</p>` : ''}
+                            ${informe.descripcion_equipos ? `<p><strong>Descripción del equipo:</strong> ${informe.descripcion_equipos}</p>` : ''}
+                        </div>`;
+                }
+                
+                if (informe.descripcion_estudio) {
+                    html += `
+                        <div class="content-section">
+                            <strong>Descripción del estudio:</strong><br>
+                            <div>${informe.descripcion_estudio}</div>
+                        </div>`;
+                }
+                
+                // Lista de archivos si existen
+                if (informe.archivos && informe.archivos.length > 0) {
+                    html += `
+                        <div class="highlight-box">
+                            <strong>Archivos adjuntos:</strong><br>
+                            <ul>`;
+                    informe.archivos.forEach(archivo => {
+                        html += `<li>${archivo}</li>`;
+                    });
+                    html += `</ul></div>`;
+                }
+            }
+            
+            // Estudios
+            if (data.estudios) {
+                html += `<div class="section-header">ESTUDIOS</div>`;
+                
+                const estudios = data.estudios;
+                
+                if (estudios.descripcion_estudio) {
+                    html += `
+                        <div class="content-section">
+                            <strong>Descripción del estudio:</strong><br>
+                            <div>${estudios.descripcion_estudio}</div>
+                        </div>`;
+                }
+            }
+            
+            // Receta y tratamiento
+            if (data.receta_textarea) {
+                html += `<div class="section-header">RECETA/TRATAMIENTO</div>`;
+                html += `
+                    <div class="content-section">
+                        <div>${data.receta_textarea}</div>
+                    </div>`;
+            }
+            
+            // Notas adicionales
+            if (data.txtnota) {
+                html += `<div class="section-header">NOTAS</div>`;
+                html += `
+                    <div class="content-section">
+                        <p>${data.txtnota}</p>
+                    </div>`;
+            }
+            
+            // Próxima consulta
+            if (data.proximaconsulta) {
+                html += `
+                    <div class="highlight-box">
+                        <strong>Próxima consulta:</strong> ${new Date(data.proximaconsulta).toLocaleDateString('es-ES')}
+                    </div>`;
+            }
+            
+            // Footer con información del sistema
+            html += `
+                <div class="footer-info">
+                    <p>Sistema de Consultas Médicas | Generado el ${new Date().toLocaleDateString('es-ES')} a las ${new Date().toLocaleTimeString('es-ES')}</p>
+                    <p>Este documento contiene información médica confidencial</p>
+                </div>`;
             
             return html;
         }
