@@ -6341,12 +6341,28 @@ if ($paciente_id) {
          */
         async function sendPDFByEmail(consultaId) {
             try {
+                // Limpiar modal antes de abrir
+                resetEmailModal();
+                
                 // Mostrar modal
-                const modal = new bootstrap.Modal(document.getElementById('emailModal'));
+                const modalElement = document.getElementById('emailModal');
+                const modal = new bootstrap.Modal(modalElement);
+                
+                // Agregar listener para limpiar cuando se cierre el modal
+                modalElement.addEventListener('hidden.bs.modal', function() {
+                    resetEmailModal();
+                    // Limpiar variables globales
+                    window.currentConsultaId = null;
+                    window.availableEmails = null;
+                }, { once: true }); // Solo ejecutar una vez
+                
                 modal.show();
                 
                 // Actualizar información de la consulta
-                document.getElementById('emailConsultaInfo').innerHTML = `#${consultaId} - Cargando información...`;
+                const emailConsultaInfo = document.getElementById('emailConsultaInfo');
+                if (emailConsultaInfo) {
+                    emailConsultaInfo.innerHTML = `#${consultaId} - Cargando información...`;
+                }
                 
                 // Cargar emails disponibles
                 await loadConsultaEmails(consultaId);
@@ -6488,10 +6504,20 @@ if ($paciente_id) {
                 // Obtener mensaje personalizado
                 const message = document.getElementById('emailMessage').value.trim();
                 
-                // Mostrar estado de envío
-                document.getElementById('emailModalContent').style.display = 'none';
-                document.getElementById('sendingStatus').style.display = 'block';
-                document.getElementById('sendEmailBtn').disabled = true;
+                // Mostrar estado de envío - verificar que elementos existan
+                const emailModalContent = document.getElementById('emailModalContent');
+                const sendingStatus = document.getElementById('sendingStatus');
+                const sendEmailBtn = document.getElementById('sendEmailBtn');
+                
+                if (emailModalContent) {
+                    emailModalContent.style.display = 'none';
+                }
+                if (sendingStatus) {
+                    sendingStatus.style.display = 'block';
+                }
+                if (sendEmailBtn) {
+                    sendEmailBtn.disabled = true;
+                }
                 
                 // Obtener datos de la consulta
                 const consultaResponse = await callAPI('get', { 
@@ -6525,17 +6551,33 @@ if ($paciente_id) {
                 
                 const result = await response.json();
                 
-                // Ocultar estado de envío
-                document.getElementById('sendingStatus').style.display = 'none';
+                // Ocultar estado de envío - verificar elementos
+                const sendingStatusHide = document.getElementById('sendingStatus');
+                if (sendingStatusHide) {
+                    sendingStatusHide.style.display = 'none';
+                }
                 
                 // Mostrar resultados
                 displaySendResults(result);
                 
             } catch (error) {
                 console.error('Error enviando emails:', error);
-                document.getElementById('sendingStatus').style.display = 'none';
-                document.getElementById('emailModalContent').style.display = 'block';
-                document.getElementById('sendEmailBtn').disabled = false;
+                
+                // Restaurar estado del modal en caso de error - verificar elementos
+                const sendingStatusError = document.getElementById('sendingStatus');
+                const emailModalContentError = document.getElementById('emailModalContent');
+                const sendEmailBtnError = document.getElementById('sendEmailBtn');
+                
+                if (sendingStatusError) {
+                    sendingStatusError.style.display = 'none';
+                }
+                if (emailModalContentError) {
+                    emailModalContentError.style.display = 'block';
+                }
+                if (sendEmailBtnError) {
+                    sendEmailBtnError.disabled = false;
+                }
+                
                 showError('Error al enviar los emails: ' + error.message);
             }
         }
@@ -6625,18 +6667,44 @@ if ($paciente_id) {
          * Resetear modal de email
          */
         function resetEmailModal() {
-            document.getElementById('emailModalContent').style.display = 'block';
-            document.getElementById('sendResults').style.display = 'none';
-            document.getElementById('sendEmailBtn').disabled = false;
+            // Verificar que los elementos existan antes de manipularlos
+            const emailModalContent = document.getElementById('emailModalContent');
+            const sendResults = document.getElementById('sendResults');
+            const sendEmailBtn = document.getElementById('sendEmailBtn');
+            
+            if (emailModalContent) {
+                emailModalContent.style.display = 'block';
+            }
+            
+            if (sendResults) {
+                sendResults.style.display = 'none';
+            }
+            
+            if (sendEmailBtn) {
+                sendEmailBtn.disabled = false;
+            }
             
             // Restaurar footer original
             const footer = document.querySelector('#emailModal .modal-footer');
-            footer.innerHTML = `
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-info" id="sendEmailBtn" onclick="sendEmails()">
-                    <i class="fas fa-paper-plane me-2"></i>Enviar Emails
-                </button>
-            `;
+            if (footer) {
+                footer.innerHTML = `
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-info" id="sendEmailBtn" onclick="sendEmails()">
+                        <i class="fas fa-paper-plane me-2"></i>Enviar Emails
+                    </button>
+                `;
+            }
+            
+            // Limpiar campos del modal
+            const emailSubject = document.getElementById('emailSubject');
+            const emailMessage = document.getElementById('emailMessage');
+            const recipientsList = document.getElementById('recipientsList');
+            const additionalEmails = document.getElementById('additionalEmails');
+            
+            if (emailSubject) emailSubject.value = '';
+            if (emailMessage) emailMessage.value = '';
+            if (recipientsList) recipientsList.innerHTML = '';
+            if (additionalEmails) additionalEmails.innerHTML = '';
         }
 
         /**
