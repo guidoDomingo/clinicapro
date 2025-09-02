@@ -233,6 +233,12 @@
                         <p>Roles y Permisos</p>
                     </a>
                 </li>
+                <li class="nav-item <?php echo mostrar_si_tiene_permiso('administrar_sistema'); ?>">
+                    <a href="index.php?ruta=configuracion-correo" class="nav-link">
+                        <i class="nav-icon fas fa-envelope-open-text"></i>
+                        <p>Configuración Email</p>
+                    </a>
+                </li>
                 <li class="nav-item">
                     <a href="index.php?ruta=logout" class="nav-link">
                         <i class="nav-icon fas fa-sign-out-alt"></i>

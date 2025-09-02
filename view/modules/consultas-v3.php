@@ -1685,6 +1685,117 @@ if ($paciente_id) {
         
     </div>
     
+    <!-- Modal para Envío de PDF por Email -->
+    <div class="modal fade" id="emailModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-envelope me-2"></i>Enviar PDF por Correo Electrónico
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="emailModalContent">
+                        <!-- Información de la consulta -->
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>Consulta:</strong> <span id="emailConsultaInfo">Cargando...</span>
+                        </div>
+                        
+                        <!-- Lista de destinatarios -->
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-users"></i> Destinatarios
+                            </label>
+                            <div id="recipientsList" class="border rounded p-3">
+                                <div class="text-center">
+                                    <i class="fas fa-spinner fa-spin"></i> Cargando emails...
+                                </div>
+                            </div>
+                            <small class="form-text text-muted">
+                                Seleccione los destinatarios que recibirán el PDF de la consulta
+                            </small>
+                        </div>
+                        
+                        <!-- Emails adicionales -->
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-plus"></i> Emails Adicionales (Opcional)
+                            </label>
+                            <div id="additionalEmails">
+                                <div class="input-group mb-2">
+                                    <input type="email" class="form-control" placeholder="email@ejemplo.com">
+                                    <input type="text" class="form-control" placeholder="Nombre (opcional)">
+                                    <button type="button" class="btn btn-outline-danger" onclick="removeAdditionalEmail(this)">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-outline-success btn-sm" onclick="addAdditionalEmail()">
+                                <i class="fas fa-plus"></i> Agregar Email
+                            </button>
+                        </div>
+                        
+                        <!-- Asunto del email -->
+                        <div class="form-group">
+                            <label for="emailSubject" class="form-label">
+                                <i class="fas fa-tag"></i> Asunto
+                            </label>
+                            <input type="text" class="form-control" id="emailSubject" 
+                                   placeholder="PDF Consulta Médica #123">
+                        </div>
+                        
+                        <!-- Mensaje personalizado -->
+                        <div class="form-group">
+                            <label for="emailMessage" class="form-label">
+                                <i class="fas fa-comment"></i> Mensaje Personalizado (Opcional)
+                            </label>
+                            <textarea class="form-control" id="emailMessage" rows="3" 
+                                      placeholder="Agregue un mensaje personalizado que aparecerá en el email..."></textarea>
+                            <small class="form-text text-muted">
+                                Este mensaje se incluirá en el cuerpo del email junto con la información de la consulta
+                            </small>
+                        </div>
+                        
+                        <!-- Vista previa -->
+                        <div class="form-group">
+                            <div class="custom-control custom-switch">
+                                <input type="checkbox" class="custom-control-input" id="showPreview">
+                                <label class="custom-control-label" for="showPreview">
+                                    <i class="fas fa-eye"></i> Mostrar vista previa del email
+                                </label>
+                            </div>
+                            <div id="emailPreview" class="border rounded p-3 mt-2" style="display: none;">
+                                <div id="emailPreviewContent"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Estado de envío -->
+                    <div id="sendingStatus" style="display: none;">
+                        <div class="alert alert-info">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <strong>Enviando emails...</strong>
+                            <div class="progress mt-2">
+                                <div id="sendingProgress" class="progress-bar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Resultados del envío -->
+                    <div id="sendResults" style="display: none;"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-info" id="sendEmailBtn" onclick="sendEmails()">
+                        <i class="fas fa-paper-plane me-2"></i>Enviar Emails
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <!-- Modal para Editar Consulta -->
     <div class="modal fade" id="editModal" tabindex="-1">
         <div class="modal-dialog modal-xl">
@@ -3136,6 +3247,9 @@ if ($paciente_id) {
                                 </button>
                                 <button class="btn-success btn-sm" onclick="downloadConsultaPDF(${consulta.id_consulta})" title="Descargar PDF">
                                     📄
+                                </button>
+                                <button class="btn-info btn-sm" onclick="sendPDFByEmail(${consulta.id_consulta})" title="Enviar PDF por Email">
+                                    📧
                                 </button>
                                 <button class="btn-danger btn-sm" onclick="deleteConsulta(${consulta.id_consulta})" title="Eliminar">
                                     🗑️
@@ -6191,6 +6305,309 @@ if ($paciente_id) {
                 </div>`;
             
             return html;
+        }
+
+        /**
+         * Enviar PDF por correo electrónico
+         */
+        async function sendPDFByEmail(consultaId) {
+            try {
+                // Mostrar modal
+                const modal = new bootstrap.Modal(document.getElementById('emailModal'));
+                modal.show();
+                
+                // Actualizar información de la consulta
+                document.getElementById('emailConsultaInfo').innerHTML = `#${consultaId} - Cargando información...`;
+                
+                // Cargar emails disponibles
+                await loadConsultaEmails(consultaId);
+                
+            } catch (error) {
+                console.error('Error iniciando envío de email:', error);
+                showError('Error al cargar información de la consulta');
+            }
+        }
+        
+        /**
+         * Cargar emails asociados a una consulta
+         */
+        async function loadConsultaEmails(consultaId) {
+            try {
+                const response = await fetch('modules/mail/api/send_pdf.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'get_emails',
+                        consulta_id: consultaId
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Actualizar información de la consulta
+                    document.getElementById('emailConsultaInfo').innerHTML = 
+                        `#${data.consulta_info.id_consulta} - ${data.consulta_info.paciente_nombre}`;
+                    
+                    // Generar asunto por defecto
+                    document.getElementById('emailSubject').value = 
+                        `PDF Consulta Médica #${consultaId} - ${data.consulta_info.paciente_nombre}`;
+                    
+                    // Mostrar lista de destinatarios
+                    displayRecipients(data.emails);
+                    
+                    // Guardar datos para uso posterior
+                    window.currentConsultaId = consultaId;
+                    window.availableEmails = data.emails;
+                    
+                } else {
+                    showError(data.message || 'Error al cargar emails');
+                }
+                
+            } catch (error) {
+                console.error('Error cargando emails:', error);
+                showError('Error al cargar información de emails');
+            }
+        }
+        
+        /**
+         * Mostrar lista de destinatarios
+         */
+        function displayRecipients(emails) {
+            const container = document.getElementById('recipientsList');
+            
+            if (emails.length === 0) {
+                container.innerHTML = `
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        No se encontraron emails asociados a esta consulta.
+                        Puede agregar emails adicionales abajo.
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            emails.forEach((email, index) => {
+                const typeIcon = email.type === 'paciente' ? 'fas fa-user' : 'fas fa-user-md';
+                const typeColor = email.type === 'paciente' ? 'primary' : 'success';
+                
+                html += `
+                    <div class="custom-control custom-checkbox mb-2">
+                        <input type="checkbox" class="custom-control-input" id="recipient_${index}" 
+                               ${email.checked ? 'checked' : ''} 
+                               data-email="${email.email}" data-name="${email.name}" data-type="${email.type}">
+                        <label class="custom-control-label" for="recipient_${index}">
+                            <i class="${typeIcon} text-${typeColor}"></i>
+                            <strong>${email.name}</strong><br>
+                            <small class="text-muted">${email.email}</small>
+                            <span class="badge badge-${typeColor} badge-pill ml-2">${email.type}</span>
+                        </label>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        /**
+         * Agregar email adicional
+         */
+        function addAdditionalEmail() {
+            const container = document.getElementById('additionalEmails');
+            const div = document.createElement('div');
+            div.className = 'input-group mb-2';
+            div.innerHTML = `
+                <input type="email" class="form-control" placeholder="email@ejemplo.com">
+                <input type="text" class="form-control" placeholder="Nombre (opcional)">
+                <button type="button" class="btn btn-outline-danger" onclick="removeAdditionalEmail(this)">
+                    <i class="fas fa-minus"></i>
+                </button>
+            `;
+            container.appendChild(div);
+        }
+        
+        /**
+         * Remover email adicional
+         */
+        function removeAdditionalEmail(button) {
+            button.closest('.input-group').remove();
+        }
+        
+        /**
+         * Enviar emails
+         */
+        async function sendEmails() {
+            try {
+                // Obtener destinatarios seleccionados
+                const recipients = getSelectedRecipients();
+                
+                if (recipients.length === 0) {
+                    showError('Debe seleccionar al menos un destinatario');
+                    return;
+                }
+                
+                // Validar asunto
+                const subject = document.getElementById('emailSubject').value.trim();
+                if (!subject) {
+                    showError('El asunto es requerido');
+                    return;
+                }
+                
+                // Obtener mensaje personalizado
+                const message = document.getElementById('emailMessage').value.trim();
+                
+                // Mostrar estado de envío
+                document.getElementById('emailModalContent').style.display = 'none';
+                document.getElementById('sendingStatus').style.display = 'block';
+                document.getElementById('sendEmailBtn').disabled = true;
+                
+                // Obtener datos de la consulta
+                const consultaResponse = await callAPI('get', { 
+                    table: 'consultas', 
+                    id: window.currentConsultaId
+                });
+                
+                if (!consultaResponse.success) {
+                    throw new Error('Error al obtener datos de la consulta');
+                }
+                
+                // Crear contenido HTML del PDF
+                const htmlContent = createPDFContent(consultaResponse.data);
+                
+                // Enviar emails
+                const response = await fetch('modules/mail/api/send_pdf.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'send_pdf',
+                        consulta_id: window.currentConsultaId,
+                        recipients: recipients,
+                        subject: subject,
+                        message: message,
+                        html_content: htmlContent,
+                        consulta_data: consultaResponse.data
+                    })
+                });
+                
+                const result = await response.json();
+                
+                // Ocultar estado de envío
+                document.getElementById('sendingStatus').style.display = 'none';
+                
+                // Mostrar resultados
+                displaySendResults(result);
+                
+            } catch (error) {
+                console.error('Error enviando emails:', error);
+                document.getElementById('sendingStatus').style.display = 'none';
+                document.getElementById('emailModalContent').style.display = 'block';
+                document.getElementById('sendEmailBtn').disabled = false;
+                showError('Error al enviar los emails: ' + error.message);
+            }
+        }
+        
+        /**
+         * Obtener destinatarios seleccionados
+         */
+        function getSelectedRecipients() {
+            const recipients = [];
+            
+            // Destinatarios de la consulta
+            const checkboxes = document.querySelectorAll('#recipientsList input[type="checkbox"]:checked');
+            checkboxes.forEach(checkbox => {
+                recipients.push({
+                    email: checkbox.dataset.email,
+                    name: checkbox.dataset.name,
+                    type: checkbox.dataset.type
+                });
+            });
+            
+            // Emails adicionales
+            const additionalRows = document.querySelectorAll('#additionalEmails .input-group');
+            additionalRows.forEach(row => {
+                const emailInput = row.querySelector('input[type="email"]');
+                const nameInput = row.querySelector('input[type="text"]');
+                
+                if (emailInput.value.trim() && emailInput.checkValidity()) {
+                    recipients.push({
+                        email: emailInput.value.trim(),
+                        name: nameInput.value.trim() || emailInput.value.trim(),
+                        type: 'adicional'
+                    });
+                }
+            });
+            
+            return recipients;
+        }
+        
+        /**
+         * Mostrar resultados del envío
+         */
+        function displaySendResults(result) {
+            const container = document.getElementById('sendResults');
+            
+            let html = `
+                <div class="alert ${result.success ? 'alert-success' : 'alert-danger'}">
+                    <h6>
+                        <i class="fas ${result.success ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+                        Resultado del Envío
+                    </h6>
+                    <p><strong>${result.message}</strong></p>
+                </div>
+            `;
+            
+            if (result.results && result.results.length > 0) {
+                html += '<div class="mt-3"><h6>Detalle por destinatario:</h6>';
+                
+                result.results.forEach(res => {
+                    const statusClass = res.success ? 'success' : 'danger';
+                    const statusIcon = res.success ? 'check' : 'times';
+                    
+                    html += `
+                        <div class="alert alert-${statusClass} alert-sm">
+                            <i class="fas fa-${statusIcon}"></i>
+                            <strong>${res.email}</strong>: ${res.message}
+                        </div>
+                    `;
+                });
+                
+                html += '</div>';
+            }
+            
+            container.innerHTML = html;
+            container.style.display = 'block';
+            
+            // Actualizar botones del footer
+            const footer = document.querySelector('#emailModal .modal-footer');
+            footer.innerHTML = `
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" onclick="resetEmailModal()">
+                    <i class="fas fa-redo"></i> Enviar Otro
+                </button>
+            `;
+        }
+        
+        /**
+         * Resetear modal de email
+         */
+        function resetEmailModal() {
+            document.getElementById('emailModalContent').style.display = 'block';
+            document.getElementById('sendResults').style.display = 'none';
+            document.getElementById('sendEmailBtn').disabled = false;
+            
+            // Restaurar footer original
+            const footer = document.querySelector('#emailModal .modal-footer');
+            footer.innerHTML = `
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-info" id="sendEmailBtn" onclick="sendEmails()">
+                    <i class="fas fa-paper-plane me-2"></i>Enviar Emails
+                </button>
+            `;
         }
 
         /**
