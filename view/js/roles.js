@@ -20,11 +20,20 @@ $(document).ready(function() {
     const userRolesTable = $('#userRolesTable').DataTable({
         processing: true,
         serverSide: false,
+        pageLength: 25,
         ajax: {
             url: 'api/users',
             dataSrc: function(response) {
                 if (!response || !response.data || !response.data.data) return [];
                 const users = response.data.data;
+                
+                // Actualizar contadores en la interfaz
+                const totalUsers = users.length;
+                const doctorsCount = users.filter(user => user.es_doctor === 'SÍ').length;
+                
+                $('#totalUsersCount').text(`Total usuarios: ${totalUsers}`);
+                $('#doctorsCount').text(`Doctores: ${doctorsCount}`);
+                
                 users.forEach(function(user) {
                     user.roles = [];
                     $.ajax({
@@ -53,10 +62,28 @@ $(document).ready(function() {
             { 
                 data: null,
                 render: function(data, type, row) {
-                    return row.reg_name + ' ' + row.reg_lastname;
+                    return row.display_name || (row.reg_name + ' ' + row.reg_lastname);
                 }
             },
             { data: 'user_email' },
+            {
+                data: 'user_type',
+                render: function(data, type, row) {
+                    if (row.es_doctor === 'SÍ') {
+                        return '<span class="badge badge-success"><i class="fas fa-user-md"></i> Doctor</span>';
+                    }
+                    return '<span class="badge badge-secondary"><i class="fas fa-user"></i> Usuario</span>';
+                }
+            },
+            {
+                data: 'has_person',
+                render: function(data, type, row) {
+                    if (data === 'SÍ') {
+                        return '<span class="badge badge-success">SÍ</span>';
+                    }
+                    return '<span class="badge badge-warning">NO</span>';
+                }
+            },
             {
                 data: null,
                 render: function(data, type, row) {
@@ -73,7 +100,8 @@ $(document).ready(function() {
                     `;
                 }
             }
-        ]
+        ],
+        order: [[0, 'desc']]
     });
 
     // Initialize DataTables

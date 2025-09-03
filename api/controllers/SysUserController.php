@@ -48,7 +48,7 @@ class SysUserController
     {
         // Get pagination parameters
         $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
-        $perPage = isset($_GET['per_page']) ? (int) $_GET['per_page'] : 10;
+        $perPage = isset($_GET['per_page']) ? (int) $_GET['per_page'] : 50;
         
         $users = $this->userModel->paginate($page, $perPage);
         Response::success($users);

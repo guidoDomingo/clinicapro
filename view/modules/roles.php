@@ -83,6 +83,10 @@ if (!isset($_SESSION["iniciarSesion"]) || $_SESSION["iniciarSesion"] !== "ok") {
                     <div class="card">
                         <div class="card-header">
                             <h3 class="card-title">Asignación de Roles a Usuarios</h3>
+                            <div class="card-tools">
+                                <span class="badge badge-info" id="totalUsersCount">Total usuarios: 0</span>
+                                <span class="badge badge-success" id="doctorsCount">Doctores: 0</span>
+                            </div>
                         </div>
                         <div class="card-body">
                             <table id="userRolesTable" class="table table-bordered table-striped">
@@ -91,6 +95,8 @@ if (!isset($_SESSION["iniciarSesion"]) || $_SESSION["iniciarSesion"] !== "ok") {
                                         <th>ID</th>
                                         <th>Nombre</th>
                                         <th>Email</th>
+                                        <th>Tipo</th>
+                                        <th>Tiene Persona</th>
                                         <th>Roles Actuales</th>
                                         <th>Acciones</th>
                                     </tr>
