@@ -68,7 +68,7 @@
           <!-- /.col -->          <div class="col-4">
             <button type="submit" class="btn btn-primary btn-block" id="btnregister">
               <span class="normal-text">Registrarse</span>
-              <span class="spinner-border spinner-border-sm ms-1" role="status" style="display: none;">
+              <span class="spinner-border spinner-border-sm ms-1" role="status" style="display: none; width: 1rem; height: 1rem;">
                 <span class="visually-hidden">Cargando...</span>
               </span>
             </button>

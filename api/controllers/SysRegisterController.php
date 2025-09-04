@@ -118,34 +118,74 @@ class SysRegisterController
             // Log the registration data before creation
             \Api\Core\Logger::info($data, 'New registration attempt');
             
-            // Create the registration
+            // Create the registration and get the REAL ID using a more reliable method
             $regId = $this->registerModel->create($data);
-            $registration = $this->registerModel->find($regId);
+            
+            // For PostgreSQL, lastInsertId() might not work correctly
+            // Let's get the actual registration by email (more reliable for this case)
+            $registration = $this->registerModel->getByEmail($data['reg_email']);
+            
+            if (!$registration) {
+                // Fallback: try to find by document
+                $registration = $this->registerModel->getByDocument($data['reg_document']);
+            }
+            
+            if (!$registration) {
+                throw new \Exception('Registration created but could not be retrieved');
+            }
+            
+            // Use the REAL reg_id from the retrieved registration
+            $regId = $registration['reg_id'];
             
             // Log para debugging
-            \Api\Core\Logger::info("Registration created with ID: $regId", 'Registration process');
+            \Api\Core\Logger::info("Registration retrieved with REAL ID: $regId", 'Registration process');
             \Api\Core\Logger::info($registration, 'Registration data');
             
-            // Get the user by email instead of reg_id (more reliable)
-            $user = $this->userModel->raw(
-                "SELECT * FROM sys_users WHERE user_email = :email ORDER BY user_id DESC LIMIT 1",
-                ['email' => $registration['reg_email']]
-            )->fetch();
+            // Use the registration data directly for email (no database lookup needed)
+            $userData = [
+                'user_email' => $registration['reg_email'],
+                'reg_id' => $regId
+            ];
+            
+            // Wait a moment for the trigger to complete
+            usleep(200000); // 200ms delay to ensure trigger completion
+            
+            // Verify the user was created (for role assignment and activation)
+            $user = null;
+            $attempts = 0;
+            $maxAttempts = 5;
+            
+            while ($user === null && $attempts < $maxAttempts) {
+                $user = $this->userModel->raw(
+                    "SELECT * FROM sys_users WHERE reg_id = :reg_id LIMIT 1",
+                    ['reg_id' => $regId]
+                )->fetch();
+                
+                if ($user === null) {
+                    $attempts++;
+                    usleep(200000); // Wait 200ms before retry
+                    \Api\Core\Logger::info("User not found for reg_id: $regId, attempt: $attempts", 'Registration retry');
+                }
+            }
             
             // Log para debugging
-            \Api\Core\Logger::info($user, 'User data for email sending');
+            \Api\Core\Logger::info($userData, 'User data for email sending (from registration)');
+            \Api\Core\Logger::info("Final registration data being used for email:", 'Email Debug');
+            \Api\Core\Logger::info($registration, 'Email Debug');
             
-            // Assign default role (Usuario - ID 2)
+            // Assign default role and activate (if user was found)
             if ($user) {
                 $this->userModel->assignRole($user['user_id'], 2); // 2 = 'Usuario'
                 
-                // Send email with credentials
-                $this->sendRegistrationEmail($registration, $user);
+                // Send email with credentials using registration data (not database user data)
+                $this->sendRegistrationEmail($registration, $userData);
                 
                 // Activate user account
                 $this->userModel->activateUser($user['user_id']);
             } else {
-                \Api\Core\Logger::error("No user found for email: " . $registration['reg_email'], 'Registration error');
+                \Api\Core\Logger::error("No user found for reg_id: $regId after registration", 'Registration error');
+                // Still send email even if user lookup failed, using registration data
+                $this->sendRegistrationEmail($registration, $userData);
             }
             
             Response::success([

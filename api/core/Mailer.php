@@ -7,27 +7,66 @@ use PHPMailer\PHPMailer\Exception;
 /**
  * Mailer Class
  * 
- * Handles email sending functionality for the application using PHPMailer with Mailtrap
+ * Handles email sending functionality for the application using database configuration
  */
 class Mailer
 {
+    private static function getMailConfig()
+    {
+        try {
+            $pdo = new \PDO('pgsql:host=localhost;port=5432;dbname=clinica', 'postgres', 'admin');
+            $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+            
+            $sql = "SELECT * FROM mail_config WHERE is_active = TRUE ORDER BY id DESC LIMIT 1";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute();
+            
+            return $stmt->fetch(\PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            error_log("Database Error getting mail config: {$e->getMessage()}");
+            return null;
+        }
+    }
+    
     private static function getMailer()
     {
+        $config = self::getMailConfig();
+        
+        if (!$config) {
+            error_log("No active mail configuration found");
+            return null;
+        }
+        
         $mail = new PHPMailer(true);
         
         try {
-            // Server settings
+            // Server settings from database
             $mail->isSMTP();
-            $mail->Host = 'sandbox.smtp.mailtrap.io';
-            $mail->SMTPAuth = true;
-            $mail->Username = '403823a30f75f1'; // Replace with your Mailtrap username
-            $mail->Password = 'dd01ed75f12dbf'; // Replace with your Mailtrap password
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port = 2525;
+            $mail->Host = $config['smtp_host'];
+            $mail->Port = $config['smtp_port'];
             $mail->CharSet = 'UTF-8';
             
-            // Default sender
-            $mail->setFrom('noreply@miclinica.com', 'MiClinica');
+            if ($config['smtp_auth'] === 'true' || $config['smtp_auth'] === true) {
+                $mail->SMTPAuth = true;
+                $mail->Username = $config['smtp_username'];
+                $mail->Password = $config['smtp_password'];
+            }
+            
+            if ($config['smtp_secure']) {
+                if ($config['smtp_secure'] === 'tls') {
+                    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                } elseif ($config['smtp_secure'] === 'ssl') {
+                    $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+                }
+            }
+            
+            // Default sender from database configuration
+            $mail->setFrom($config['from_email'], $config['from_name']);
+            
+            // Reply-to if configured
+            if ($config['reply_to_email']) {
+                $mail->addReplyTo($config['reply_to_email'], $config['reply_to_name'] ?? $config['from_name']);
+            }
             
             return $mail;
         } catch (Exception $e) {
@@ -49,8 +88,12 @@ class Mailer
         if (!$mail) return false;
         
         try {
-            $mail->addAddress($registration['reg_email']);
+            // Send to the user's email (from sys_users table), not registration email
+            $mail->addAddress($user['user_email']);
             $mail->Subject = 'Bienvenido a MiClinica - Detalles de su cuenta';
+            
+            // La contraseña temporal es el email del usuario (como lo configura el trigger de BD)
+            $temporalPassword = $user['user_email'];
             
             // Create email body
             $body = "<html><body>";
@@ -58,8 +101,9 @@ class Mailer
             $body .= "<p>Estimado/a {$registration['reg_name']} {$registration['reg_lastname']},</p>";
             $body .= "<p>Su cuenta ha sido creada exitosamente. A continuación, encontrará sus credenciales de acceso:</p>";
             $body .= "<p><strong>Usuario:</strong> {$user['user_email']}</p>";
-            $body .= "<p><strong>Contraseña:</strong> {$user['user_pass']}</p>";
-            $body .= "<p>Por favor, cambie su contraseña después del primer inicio de sesión por motivos de seguridad.</p>";
+            $body .= "<p><strong>Contraseña temporal:</strong> {$temporalPassword}</p>";
+            $body .= "<p><strong>IMPORTANTE:</strong> Por motivos de seguridad, debe cambiar su contraseña inmediatamente después del primer inicio de sesión.</p>";
+            $body .= "<p>Para acceder al sistema, vaya a: <a href='http://clinica.test/index.php?ruta=login'>http://clinica.test/index.php?ruta=login</a></p>";
             $body .= "<p>Gracias por registrarse en nuestro sistema.</p>";
             $body .= "<p>Atentamente,<br>El equipo de MiClinica</p>";
             $body .= "</body></html>";
