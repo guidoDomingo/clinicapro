@@ -53,7 +53,7 @@
                         </p>
                     </a>
                 </li>
-                <li class="nav-item <?php echo mostrar_si_tiene_permiso('ver_agenda'); ?>">
+                <li class="nav-item <?php echo mostrar_si_tiene_permiso('sala_espera'); ?>">
                     <a href="index.php?ruta=citas" class="nav-link">
                         <i class="nav-icon fas fa-calendar-alt"></i>
                         <p>Sala de espera</p>
@@ -93,7 +93,7 @@
                 <li class="nav-header">CONFIGURACIÓN</li>
 
 
-                <li class="nav-item has-treeview <?php echo mostrar_si_tiene_permiso('administrar_roles'); ?>">
+                <li class="nav-item has-treeview <?php echo mostrar_si_tiene_permiso('preferenciales'); ?>">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-list"></i>
                         <p>
