@@ -2220,7 +2220,8 @@ function procesarParametrosURLPaciente() {
             method: 'POST',
             data: {
                 action: 'buscarReservas',
-                fecha: fecha
+                fecha: fecha,
+                modulo: 'citas' // Identificar que es el módulo de citas
             },
             dataType: 'json',
             success: function (response) {
@@ -2417,6 +2418,7 @@ function procesarParametrosURLPaciente() {
     // Preparar los datos para la solicitud
     const requestData = {
         action: "buscarReservas",
+        modulo: "citas" // Identificar que es el módulo de citas
     };
 
     // Añadir fecha solo si no está vacía

@@ -535,11 +535,31 @@ class ControllerUser {
         try {
             $db = Conexion::conectar();
             
-            // Primero verificamos si hay una relación directa en la tabla de doctores
+            // Verificar en la tabla rh_doctors usando la relación con users
             $stmt = $db->prepare("
-                SELECT doctor_id 
-                FROM doctor 
-                WHERE user_id = :user_id
+                SELECT d.doctor_id 
+                FROM rh_doctors d
+                INNER JOIN rh_person p ON d.person_id = p.person_id
+                INNER JOIN users u ON u.email = p.email
+                WHERE u.id = :user_id
+                LIMIT 1
+            ");
+            
+            $stmt->bindParam(":user_id", $userId, PDO::PARAM_INT);
+            $stmt->execute();
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($result && isset($result['doctor_id'])) {
+                return $result['doctor_id'];
+            }
+            
+            // Buscar por nombre de usuario si no encontró por email
+            $stmt = $db->prepare("
+                SELECT d.doctor_id 
+                FROM rh_doctors d
+                INNER JOIN rh_person p ON d.person_id = p.person_id
+                INNER JOIN users u ON LOWER(CONCAT(p.first_name, ' ', p.last_name)) LIKE CONCAT('%', LOWER(u.nombre), '%')
+                WHERE u.id = :user_id
                 LIMIT 1
             ");
             

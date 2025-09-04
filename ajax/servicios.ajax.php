@@ -510,23 +510,75 @@ if (isset($_POST['action'])) {
             }
             break;
               case 'buscarReservas':
-            // Debug para verificar los datos recibidos
-            error_log("AJAX buscarReservas: POST=" . json_encode($_POST), 3, 'c:/laragon/www/clinica/logs/reservas.log');
+            // Detectar si estamos en el módulo de citas
+            $esCitas = isset($_POST['modulo']) && $_POST['modulo'] === 'citas';
             
             // Procesar todos los parámetros de filtro
             $fecha = isset($_POST['fecha']) && !empty($_POST['fecha']) ? $_POST['fecha'] : date('Y-m-d');
             
             // Asegurar que doctorId sea tratado correctamente como entero o null
             $doctorId = null;
-            if (isset($_POST['doctor_id']) && $_POST['doctor_id'] !== '0' && $_POST['doctor_id'] !== '') {
-                $doctorId = intval($_POST['doctor_id']);
-                error_log("AJAX buscarReservas: doctor_id recibido={$_POST['doctor_id']}, convertido a int={$doctorId}", 3, 'c:/laragon/www/clinica/logs/reservas.log');
+            
+            // Si estamos en el módulo de citas, forzar el filtro por doctor logueado
+            if ($esCitas) {
+                // Obtener el doctor logueado
+                $doctorIdSesion = null;
+                
+                // Prioridad 1: doctor_id de sesión
+                if (isset($_SESSION['doctor_id']) && $_SESSION['doctor_id']) {
+                    $doctorIdSesion = $_SESSION['doctor_id'];
+                } 
+                // Prioridad 2: Buscar doctor_id usando user_id de sesión
+                elseif (isset($_SESSION['user_id']) && $_SESSION['user_id']) {
+                    try {
+                        $userId = $_SESSION['user_id'];
+                        $stmt = Conexion::conectar()->prepare("
+                            SELECT d.doctor_id 
+                            FROM rh_doctors d
+                            INNER JOIN rh_person p ON d.person_id = p.person_id
+                            INNER JOIN sys_users u ON u.user_email = p.email
+                            WHERE u.user_id = :user_id
+                            LIMIT 1
+                        ");
+                        $stmt->bindParam(":user_id", $userId, PDO::PARAM_INT);
+                        $stmt->execute();
+                        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+                        
+                        if ($result && isset($result['doctor_id'])) {
+                            $doctorIdSesion = $result['doctor_id'];
+                        }
+                    } catch (Exception $e) {
+                        // Silenciar errores en producción
+                    }
+                }
+                // Prioridad 3: usuario_id de sesión como fallback
+                elseif (isset($_SESSION['usuario_id']) && $_SESSION['usuario_id']) {
+                    $doctorIdSesion = $_SESSION['usuario_id'];
+                }
+                
+                if ($doctorIdSesion) {
+                    $doctorId = intval($doctorIdSesion);
+                }
+                
+                // Forzar estado CONFIRMADA para el módulo de citas
+                $estado = 'CONFIRMADA';
+                // Comportamiento normal para servicios
+                if (isset($_POST['doctor_id']) && $_POST['doctor_id'] !== '0' && $_POST['doctor_id'] !== '') {
+                    $doctorId = intval($_POST['doctor_id']);
+                }
             }
             
             // Procesar filtro de estado
             $estado = null;
-            if (isset($_POST['estado']) && $_POST['estado'] !== '0' && $_POST['estado'] !== '') {
-                $estado = trim($_POST['estado']);
+            
+            // Si estamos en el módulo de citas, forzar estado CONFIRMADA
+            if ($esCitas) {
+                $estado = 'CONFIRMADA';
+            } else {
+                // Comportamiento normal para servicios
+                if (isset($_POST['estado']) && $_POST['estado'] !== '0' && $_POST['estado'] !== '') {
+                    $estado = trim($_POST['estado']);
+                }
             }
             
             // Procesar filtro de paciente
@@ -547,53 +599,19 @@ if (isset($_POST['action'])) {
                 $origen = trim($_POST['origen']);
             }
             
-            error_log("AJAX buscarReservas (procesado): Fecha=" . ($fecha ?? "null") . 
-                      ", DoctorID=" . ($doctorId ?? "null") . " (tipo: " . gettype($doctorId) . ")" .
-                      ", Estado=" . ($estado ?? "null") . 
-                      ", Paciente=" . ($paciente ?? "null") . 
-                      ", SalaID=" . ($salaId ?? "null") .
-                      ", Origen=" . ($origen ?? "null"),
-                      3, 'c:/laragon/www/clinica/logs/reservas.log');
-            
             try {
-                // Verificación previa de registros (opcional)
-                if ($doctorId !== null) {
-                    $db = Conexion::conectar();
-                    $check = $db->prepare("SELECT COUNT(*) FROM servicios_reservas WHERE doctor_id = ?");
-                    $check->execute([$doctorId]);
-                    $count = $check->fetchColumn();
-                    error_log("AJAX buscarReservas: Verificación previa - Existen {$count} reservas con doctor_id={$doctorId}", 3, 'c:/laragon/www/clinica/logs/reservas.log');
-                }
-                
                 // Obtener reservas según los filtros
                 $reservas = ControladorServicios::ctrBuscarReservas($fecha, $doctorId, $estado, $paciente, $salaId, $origen);
                 
-                // Enviar respuesta con información de filtros para depuración
+                // Enviar respuesta
                 echo json_encode([
                     "status" => "success",
-                    "data" => $reservas,
-                    "filtros" => [
-                        "fecha" => $fecha,
-                        "doctor_id" => $doctorId,
-                        "estado" => $estado,
-                        "paciente" => $paciente,
-                        "sala_id" => $salaId,
-                        "origen" => $origen
-                    ]
+                    "data" => $reservas
                 ]);
             } catch (Exception $e) {
-                error_log("AJAX buscarReservas ERROR: " . $e->getMessage(), 3, 'c:/laragon/www/clinica/logs/reservas.log');
                 echo json_encode([
                     "status" => "error",
-                    "mensaje" => "Error al buscar reservas: " . $e->getMessage(),
-                    "debug_info" => [
-                        "fecha" => $fecha,
-                        "doctor_id" => $doctorId,
-                        "estado" => $estado,
-                        "paciente" => $paciente,
-                        "sala_id" => $salaId,
-                        "origen" => $origen
-                    ]
+                    "mensaje" => "Error al buscar reservas: " . $e->getMessage()
                 ]);
             }
             break;
