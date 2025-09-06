@@ -43,6 +43,9 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 require_once dirname(__DIR__, 3) . '/model/conexion.php';
+require_once dirname(__DIR__, 3) . '/controller/permisos.controller.php';
+require_once dirname(__DIR__, 3) . '/model/permisos.model.php';
+require_once dirname(__DIR__, 3) . '/view/helpers/permisos_helper.php';
 
 /**
  * Clase principal del sistema Livewire CRUD
@@ -627,6 +630,24 @@ class LivewireCRUDSystem {
             if (!empty($value)) {
                 $whereConditions[] = "$field = :filter_$field";
                 $params[":filter_$field"] = $value;
+            }
+        }
+        
+        // 🔒 FILTRO DE SEGURIDAD: Restricción por doctor para consultas
+        if ($table === 'consultas' && isset($_SESSION['user_id'])) {
+            // Verificar si el usuario tiene permiso para ver todas las consultas
+            $puedeVerTodasConsultas = false;
+            try {
+                $puedeVerTodasConsultas = PermisosController::tienePermiso('ver_todas_consultas');
+            } catch (Exception $e) {
+                // Si hay error verificando permisos, por seguridad no mostrar todas las consultas
+                $puedeVerTodasConsultas = false;
+            }
+            
+            // Si no tiene permiso para ver todas las consultas, filtrar solo las suyas
+            if (!$puedeVerTodasConsultas) {
+                $whereConditions[] = "c.id_user = :current_user_id";
+                $params[":current_user_id"] = $_SESSION['user_id'];
             }
         }
         
