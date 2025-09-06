@@ -598,7 +598,12 @@ class LivewireCRUDSystem {
         
         // Joins para mostrar datos relacionados
         if ($table === 'consultas') {
-            $baseQuery = "FROM consultas c LEFT JOIN rh_person p ON c.id_persona = p.person_id";
+            $baseQuery = "FROM consultas c 
+                LEFT JOIN rh_person p ON c.id_persona = p.person_id
+                LEFT JOIN sys_users u ON c.id_user = u.user_id
+                LEFT JOIN sys_register r ON u.reg_id = r.reg_id
+                LEFT JOIN person_system_user psu ON u.user_id = psu.system_user_id
+                LEFT JOIN rh_person pd ON psu.person_id = pd.person_id";
         }
         
         // Filtros de búsqueda
@@ -1104,7 +1109,11 @@ class LivewireCRUDSystem {
     
     private function getSelectFields($table) {
         if ($table === 'consultas') {
-            return "c.*, p.first_name, p.last_name, p.document_number, p.phone_number as paciente_telefono, p.email as paciente_email";
+            return "c.*, 
+                    p.first_name, p.last_name, p.document_number, p.phone_number as paciente_telefono, p.email as paciente_email,
+                    COALESCE(pd.first_name, r.reg_name) as doctor_first_name,
+                    COALESCE(pd.last_name, r.reg_lastname) as doctor_last_name,
+                    u.user_email as doctor_email";
         }
         
         return "*";

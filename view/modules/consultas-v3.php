@@ -507,6 +507,26 @@ if ($paciente_id) {
             .consultas-tab:last-child {
                 border-bottom: none;
             }
+            
+            /* Hacer tabla responsive con la nueva columna de Doctor */
+            .table-container {
+                overflow-x: auto;
+            }
+            
+            .table {
+                min-width: 800px; /* Asegurar que la tabla tenga espacio suficiente */
+            }
+            
+            /* Ocultar algunas columnas en móviles para mejor legibilidad */
+            .table th:nth-child(4), /* Columna Doctor */
+            .table td:nth-child(4) {
+                display: none;
+            }
+            
+            .table th:nth-child(6), /* Columna Motivo */
+            .table td:nth-child(6) {
+                display: none;
+            }
         }
         
         /* Ocultar contenido inactivo - Reglas más específicas */
@@ -3199,6 +3219,7 @@ if ($paciente_id) {
                                 <th>ID</th>
                                 <th>Fecha</th>
                                 <th>Paciente</th>
+                                <th>Doctor</th>
                                 <th>Tipo</th>
                                 <th>Motivo</th>
                                 <th>Estado</th>
@@ -3218,6 +3239,7 @@ if ($paciente_id) {
                 }
                 
                 const pacienteInfo = `${consulta.first_name || ''} ${consulta.last_name || ''}`.trim();
+                const doctorInfo = `${consulta.doctor_first_name || ''} ${consulta.doctor_last_name || ''}`.trim();
                 const tipoColor = getTipoColor(consulta.tipo_formulario);
                 
                 return `
@@ -3228,6 +3250,12 @@ if ($paciente_id) {
                             <div>
                                 <strong>${pacienteInfo || 'Sin nombre'}</strong>
                                 ${consulta.document_number ? `<br><small style="color: #666;">CI: ${consulta.document_number}</small>` : ''}
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <strong>${doctorInfo || 'Sin asignar'}</strong>
+                                ${consulta.doctor_email ? `<br><small style="color: #666;">${consulta.doctor_email}</small>` : ''}
                             </div>
                         </td>
                         <td><span class="badge" style="background: ${tipoColor}; color: white; padding: 6px 12px; border-radius: 20px; font-size: 0.85rem;">${consulta.tipo_formulario || 'general'}</span></td>
