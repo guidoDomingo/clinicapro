@@ -530,6 +530,149 @@ class ModelServicios {
     }
 
     /**
+     * Obtiene los días disponibles para un médico específico
+     * @param int $doctorId ID del doctor
+     * @param int $servicioId ID del servicio (opcional)
+     * @return array Lista de días disponibles con información de horarios
+     */
+    static public function mdlObtenerDiasDisponibles($doctorId, $servicioId = 0) {
+        try {
+            // Configurar zona horaria
+            date_default_timezone_set('America/Asuncion');
+            $fechaActual = date('Y-m-d');
+            
+            error_log("mdlObtenerDiasDisponibles: DoctorID=$doctorId, ServicioID=$servicioId", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+            
+            // Obtener horarios configurados para el médico
+            $sql = "SELECT DISTINCT
+                        ad.dia_semana,
+                        ad.hora_inicio,
+                        ad.hora_fin,
+                        ad.intervalo_minutos,
+                        t.turno_nombre,
+                        s.sala_nombre,
+                        CASE ad.dia_semana 
+                            WHEN 'LUNES' THEN 1
+                            WHEN 'MARTES' THEN 2
+                            WHEN 'MIERCOLES' THEN 3
+                            WHEN 'JUEVES' THEN 4
+                            WHEN 'VIERNES' THEN 5
+                            WHEN 'SABADO' THEN 6
+                            WHEN 'DOMINGO' THEN 7
+                        END as dia_orden
+                    FROM agendas_detalle ad
+                    INNER JOIN agendas_cabecera ac ON ad.agenda_id = ac.agenda_id
+                    INNER JOIN turnos t ON ad.turno_id = t.turno_id
+                    LEFT JOIN salas s ON ad.sala_id = s.sala_id
+                    WHERE ac.medico_id = :doctor_id
+                    AND ad.detalle_estado = true
+                    AND ac.agenda_estado = true
+                    ORDER BY dia_orden, ad.hora_inicio";
+            
+            $stmt = Conexion::conectar()->prepare($sql);
+            $stmt->bindParam(":doctor_id", $doctorId, PDO::PARAM_INT);
+            $stmt->execute();
+            $horariosConfigurados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            if (empty($horariosConfigurados)) {
+                error_log("mdlObtenerDiasDisponibles: No se encontraron horarios configurados para doctor ID $doctorId", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+                return [];
+            }
+            
+            // Generar fechas para los próximos 30 días
+            $diasDisponibles = [];
+            $fechaInicio = new DateTime($fechaActual);
+            
+            for ($i = 0; $i < 30; $i++) {
+                $fechaCheck = clone $fechaInicio;
+                $fechaCheck->add(new DateInterval('P' . $i . 'D'));
+                
+                $diaSemanaNum = (int)$fechaCheck->format('N'); // 1=lunes, 7=domingo
+                $diasSemanaTexto = [1 => 'LUNES', 2 => 'MARTES', 3 => 'MIERCOLES', 4 => 'JUEVES', 5 => 'VIERNES', 6 => 'SABADO', 7 => 'DOMINGO'];
+                $diaSemanaTexto = $diasSemanaTexto[$diaSemanaNum];
+                
+                // Verificar si el médico tiene horarios configurados para este día
+                $horariosDelDia = array_filter($horariosConfigurados, function($horario) use ($diaSemanaTexto) {
+                    return $horario['dia_semana'] === $diaSemanaTexto;
+                });
+                
+                if (!empty($horariosDelDia)) {
+                    $diasDisponibles[] = [
+                        'fecha' => $fechaCheck->format('Y-m-d'),
+                        'fecha_formateada' => $fechaCheck->format('d/m/Y'),
+                        'dia_semana' => $diaSemanaTexto,
+                        'dia_nombre' => ucfirst(strtolower($diaSemanaTexto)),
+                        'horarios' => array_values($horariosDelDia),
+                        'total_horarios' => count($horariosDelDia)
+                    ];
+                }
+            }
+            
+            error_log("mdlObtenerDiasDisponibles: Se encontraron " . count($diasDisponibles) . " días disponibles", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+            return $diasDisponibles;
+            
+        } catch (PDOException $e) {
+            error_log("Error al obtener días disponibles: " . $e->getMessage(), 3, 'c:/laragon/www/clinica/logs/servicios.log');
+            return [];
+        }
+    }
+
+    /**
+     * Obtiene todos los horarios disponibles para un médico de todas las fechas configuradas
+     * @param int $doctorId ID del doctor
+     * @param int $servicioId ID del servicio (opcional)
+     * @return array Lista de todos los horarios disponibles con fechas
+     */
+    static public function mdlObtenerTodosLosHorariosDisponibles($doctorId, $servicioId = 0) {
+        try {
+            error_log("mdlObtenerTodosLosHorariosDisponibles: DoctorID=$doctorId, ServicioID=$servicioId", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+            
+            // Obtener los días disponibles configurados para el médico
+            $diasDisponibles = self::mdlObtenerDiasDisponibles($doctorId, $servicioId);
+            
+            if (empty($diasDisponibles)) {
+                error_log("mdlObtenerTodosLosHorariosDisponibles: No se encontraron días disponibles", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+                return [];
+            }
+            
+            $todosLosHorarios = [];
+            
+            // Para cada día disponible, obtener los horarios específicos
+            foreach ($diasDisponibles as $dia) {
+                $fecha = $dia['fecha'];
+                
+                // Obtener horarios específicos para esta fecha
+                $horariosDelDia = self::mdlObtenerHorariosDisponibles($servicioId, $doctorId, $fecha);
+                
+                // Agregar la fecha a cada horario y añadir al array principal
+                foreach ($horariosDelDia as $horario) {
+                    $horario['fecha'] = $fecha;
+                    $horario['fecha_formateada'] = $dia['fecha_formateada'];
+                    $horario['dia_nombre'] = $dia['dia_nombre'];
+                    $horario['dia_semana'] = $dia['dia_semana'];
+                    $todosLosHorarios[] = $horario;
+                }
+            }
+            
+            // Ordenar por fecha y hora
+            usort($todosLosHorarios, function($a, $b) {
+                $fechaCompare = strcmp($a['fecha'], $b['fecha']);
+                if ($fechaCompare === 0) {
+                    return strcmp($a['hora_inicio'], $b['hora_inicio']);
+                }
+                return $fechaCompare;
+            });
+            
+            error_log("mdlObtenerTodosLosHorariosDisponibles: Se encontraron " . count($todosLosHorarios) . " horarios en total", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+            return $todosLosHorarios;
+            
+        } catch (Exception $e) {
+            error_log("Error al obtener todos los horarios disponibles: " . $e->getMessage(), 3, 'c:/laragon/www/clinica/logs/servicios.log');
+            return [];
+        }
+    }
+
+    /**
      * Genera los horarios disponibles para un servicio, doctor y fecha específica
      * @param int $servicioId ID del servicio
      * @param int $doctorId ID del doctor
@@ -3184,6 +3327,139 @@ class ModelServicios {
                           3, "c:/laragon/www/clinica/logs/reservas.log");
                 return [];
             }
+        }
+    }
+
+    /**
+     * Obtiene todos los servicios activos del sistema
+     * @return array Lista de todos los servicios activos
+     */
+    static public function mdlObtenerTodosLosServiciosActivos() {
+        try {
+            $stmt = Conexion::conectar()->prepare("
+                SELECT 
+                    serv_id,
+                    serv_codigo,
+                    serv_descripcion,
+                    serv_descripcion_factura,
+                    serv_monto,
+                    serv_tte,
+                    serv_rtte,
+                    serv_uso_equipo,
+                    serv_der_sala,
+                    tserv_cod,
+                    created_at,
+                    business_id,
+                    is_active,
+                    user_id
+                FROM rs_servicios
+                WHERE is_active = true
+                ORDER BY serv_descripcion ASC
+            ");
+            
+            $stmt->execute();
+            $servicios = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            error_log("mdlObtenerTodosLosServiciosActivos: " . count($servicios) . " servicios obtenidos", 
+                      3, "c:/laragon/www/clinica/logs/servicios.log");
+            
+            return $servicios;
+            
+        } catch (PDOException $e) {
+            error_log("Error en mdlObtenerTodosLosServiciosActivos: " . $e->getMessage(), 
+                      3, "c:/laragon/www/clinica/logs/servicios.log");
+            return [];
+        }
+    }
+
+    /**
+     * Obtiene médicos que ofrecen un servicio específico
+     * @param int $servicioId ID del servicio
+     * @return array Lista de médicos que ofrecen el servicio
+     */
+    static public function mdlObtenerMedicosPorServicio($servicioId) {
+        try {
+            $stmt = Conexion::conectar()->prepare("
+                SELECT DISTINCT
+                    rh.doctor_id,
+                    p.first_name || ' ' || p.last_name as doctor_nombre,
+                    p.first_name,
+                    p.last_name,
+                    rh.doctor_estado,
+                    rsd.id as relacion_id,
+                    rs.serv_descripcion as servicio_nombre,
+                    rs.serv_codigo as servicio_codigo,
+                    CASE 
+                        WHEN rh.doctor_estado = 'ACTIVO' THEN 'Disponible'
+                        ELSE 'No disponible'
+                    END as disponibilidad_texto,
+                    CASE 
+                        WHEN rh.doctor_estado = 'ACTIVO' THEN 'success'
+                        ELSE 'danger'
+                    END as disponibilidad_clase,
+                    rh.person_id,
+                    p.document_number,
+                    p.phone_number,
+                    p.email,
+                    COALESCE((
+                        SELECT STRING_AGG(
+                            dia_abreviado, ', '
+                            ORDER BY orden_dia
+                        ) 
+                        FROM (
+                            SELECT DISTINCT
+                                CASE ad.dia_semana::text
+                                    WHEN 'LUNES' THEN 'Lun'
+                                    WHEN 'MARTES' THEN 'Mar'
+                                    WHEN 'MIERCOLES' THEN 'Mié'
+                                    WHEN 'JUEVES' THEN 'Jue'
+                                    WHEN 'VIERNES' THEN 'Vie'
+                                    WHEN 'SABADO' THEN 'Sáb'
+                                    WHEN 'DOMINGO' THEN 'Dom'
+                                    ELSE ad.dia_semana::text
+                                END as dia_abreviado,
+                                CASE ad.dia_semana::text
+                                    WHEN 'LUNES' THEN 1
+                                    WHEN 'MARTES' THEN 2
+                                    WHEN 'MIERCOLES' THEN 3
+                                    WHEN 'JUEVES' THEN 4
+                                    WHEN 'VIERNES' THEN 5
+                                    WHEN 'SABADO' THEN 6
+                                    WHEN 'DOMINGO' THEN 7
+                                    ELSE 8
+                                END as orden_dia
+                            FROM agendas_cabecera ac2
+                            JOIN agendas_detalle ad ON ac2.agenda_id = ad.agenda_id
+                            WHERE ac2.medico_id = rh.doctor_id
+                                AND ad.detalle_estado = true
+                                AND ac2.agenda_estado = true
+                            ORDER BY orden_dia
+                        ) dias_ordenados
+                    ), 'Sin horarios') as dias_atencion
+                FROM rs_servicios_doctors rsd
+                JOIN rs_servicios rs ON rsd.servicio_id = rs.serv_id
+                JOIN rh_doctors rh ON rsd.doctor_id = rh.doctor_id
+                JOIN rh_person p ON rh.person_id = p.person_id
+                WHERE rsd.servicio_id = :servicio_id 
+                    AND rsd.is_active = true
+                    AND rs.is_active = true
+                    AND p.is_active = true
+                ORDER BY p.first_name, p.last_name
+            ");
+            
+            $stmt->bindParam(':servicio_id', $servicioId, PDO::PARAM_INT);
+            $stmt->execute();
+            $medicos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            error_log("mdlObtenerMedicosPorServicio: " . count($medicos) . " médicos obtenidos para servicio " . $servicioId, 
+                      3, "c:/laragon/www/clinica/logs/servicios.log");
+            
+            return $medicos;
+            
+        } catch (PDOException $e) {
+            error_log("Error en mdlObtenerMedicosPorServicio: " . $e->getMessage(), 
+                      3, "c:/laragon/www/clinica/logs/servicios.log");
+            return [];
         }
     }
 }

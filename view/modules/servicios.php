@@ -453,65 +453,93 @@ if (!isset($_SESSION['perfil'])) {
                                     <div class="reservas-new-container compact-view">
                                         <!-- Panel izquierdo -->
                                         <div class="section-left">
-                                            <!-- Sección Paciente (ahora es el primer paso) -->
-                                            <div class="reservas-section">
-                                                <div class="reservas-header">
-                                                    <h3><i class="fas fa-user"></i> Seleccione un Paciente</h3>
-                                                    <div class="header-actions">
-                                                        <button type="button" class="btn-square" id="btnNuevoPaciente" title="Nuevo paciente">
-                                                            <i class="fas fa-user-plus"></i>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="buscarPacienteNew">Buscar paciente</label>
-                                                    <div class="input-group">
-                                                        <input type="text" id="buscarPacienteNew" class="form-control" placeholder="Nombre, documento o teléfono...">
-                                                        <div class="input-group-append">
-                                                            <button class="btn btn-outline-primary" type="button" id="btnBuscarPacienteNew">
-                                                                <i class="fas fa-search"></i>
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </div>
+                            <!-- Sección Paciente (primer paso) -->
+                            <div class="reservas-section">
+                                <div class="reservas-header">
+                                    <h3><i class="fas fa-user"></i> 1. Seleccione un Paciente</h3>
+                                    <div class="header-actions">
+                                        <button type="button" class="btn-square" id="btnNuevoPaciente" title="Nuevo paciente">
+                                            <i class="fas fa-user-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="buscarPacienteNew">Buscar paciente</label>
+                                    <div class="input-group">
+                                        <input type="text" id="buscarPacienteNew" class="form-control" placeholder="Nombre, documento o teléfono...">
+                                        <div class="input-group-append">
+                                            <button class="btn btn-outline-primary" type="button" id="btnBuscarPacienteNew">
+                                                <i class="fas fa-search"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
 
-                                                <!-- Tabla de pacientes -->
-                                                <div class="table-responsive">
-                                                    <table class="table table-sm table-hover table-reservas" id="tablaPacientesNew">
-                                                        <thead>
-                                                            <tr>
-                                                                <th>Nombre</th>
-                                                                <th>Documento</th>
-                                                                <th>Acción</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            <tr>
-                                                                <td colspan="3" class="text-center">Ingrese un término para buscar pacientes</td>
-                                                            </tr>
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                                <input type="hidden" id="selectPacienteNew" value="">
-                                            </div>
+                                <!-- Tabla de pacientes -->
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-hover table-reservas" id="tablaPacientesNew">
+                                        <thead>
+                                            <tr>
+                                                <th>Nombre</th>
+                                                <th>Documento</th>
+                                                <th>Acción</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td colspan="3" class="text-center">Ingrese un término para buscar pacientes</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <input type="hidden" id="selectPacienteNew" value="">
+                            </div>
 
-                                            <!-- Sección Médico (ahora es el segundo paso) -->
-                                            <div class="reservas-section">
-                                                <div class="reservas-header">
-                                                    <h3><i class="fas fa-user-md"></i> Seleccione un Médico</h3>
-                                                    <div class="header-actions">
-                                                        <button type="button" class="btn-square" id="btnRefreshMedicos" title="Actualizar lista">
-                                                            <i class="fas fa-sync-alt"></i>
-                                                        </button>
-                                                    </div>
-                                                </div>
+                            <!-- Sección Servicio (ahora es el segundo paso) -->
+                            <div class="reservas-section" id="seccionServicio" style="display: none;">
+                                <div class="reservas-header">
+                                    <h3><i class="fas fa-stethoscope"></i> 2. Seleccione un Servicio</h3>
+                                    <div class="header-actions">
+                                        <button type="button" class="btn-square" id="btnRefreshServicios" title="Actualizar lista">
+                                            <i class="fas fa-sync-alt"></i>
+                                        </button>
+                                    </div>
+                                </div>
 
-                                                <!-- Componente de Cupos Disponibles por Turno -->
+                                <div class="alert alert-info" id="alertPacienteRequerido" style="display: block;">
+                                    <i class="fas fa-info-circle"></i>
+                                    <strong>Primero seleccione un paciente</strong> para continuar con la selección de servicio.
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="servicioSelectNew">Servicio médico</label>
+                                    <select id="servicioSelectNew" class="form-control">
+                                        <option value="">Seleccione un servicio</option>
+                                        <!-- Se llena dinámicamente con JS -->
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Sección Médico (ahora es el tercer paso - filtrado por servicio) -->
+                            <div class="reservas-section" id="seccionMedico" style="display: none;">
+                                <div class="reservas-header">
+                                    <h3><i class="fas fa-user-md"></i> 3. Seleccione un Médico</h3>
+                                    <div class="header-actions">
+                                        <button type="button" class="btn-square" id="btnRefreshMedicos" title="Actualizar lista">
+                                            <i class="fas fa-sync-alt"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="alert alert-info" id="alertServicioRequerido" style="display: block;">
+                                    <i class="fas fa-info-circle"></i>
+                                    <strong>Seleccione un servicio</strong> para ver los médicos que lo ofrecen.
+                                </div>                                                <!-- Componente de Cupos Disponibles por Turno -->
                                                 <div class="cupos-disponibles-container" id="cuposDisponiblesContainer" style="display: none;">
                                                     <div class="alert alert-info mb-3">
                                                         <div class="row text-center">
                                                             <div class="col-12 mb-2">
-                                                                <strong><i class="fas fa-info-circle"></i> Cupos disponibles en todos los turnos</strong>
+                                                                <strong><i class="fas fa-info-circle"></i> Cupos disponibles para el servicio seleccionado</strong>
                                                             </div>
                                                             <div class="col-3">
                                                                 <div class="cupo-turno">
@@ -541,8 +569,7 @@ if (!isset($_SESSION['perfil'])) {
                                                         <div class="row mt-2">
                                                             <div class="col-12 text-center">
                                                                 <small class="text-muted">
-                                                                    <i class="fas fa-minus-circle text-warning"></i> Restar turnos ya asignados
-                                                                    | <span class="text-danger">Si el conteo es 0 mostrar en rojo la fila</span>
+                                                                    <i class="fas fa-info-circle text-info"></i> Solo se muestran médicos que ofrecen este servicio
                                                                 </small>
                                                             </div>
                                                         </div>
@@ -558,13 +585,10 @@ if (!isset($_SESSION['perfil'])) {
                                                     </div>
                                                     <div class="form-col">
                                                         <div class="form-group">
-                                                            <label for="buscarMedicoNew">Médico</label>
+                                                            <label for="buscarMedicoNew">Médico seleccionado</label>
                                                             <div class="input-group">
-                                                                <input type="text" id="buscarMedicoNew" disabled class="form-control" placeholder="Nombre del médico...">
+                                                                <input type="text" id="buscarMedicoNew" disabled class="form-control" placeholder="Seleccione un médico de la lista...">
                                                                 <div class="input-group-append">
-                                                                    <!-- <button class="btn btn-outline-primary" type="button" id="btnBuscarMedicoNew">
-                                                                        <i class="fas fa-search"></i>
-                                                                    </button> -->
                                                                     <button class="btn btn-outline-secondary d-none" type="button" id="btnCambiarMedicoNew">
                                                                         <i class="fas fa-times"></i>
                                                                     </button>
@@ -572,16 +596,18 @@ if (!isset($_SESSION['perfil'])) {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </div> <!-- Tabla de médicos -->
-                                                <div class="table-responsive">
+                                                </div>
+
+                                                <!-- Tabla de médicos filtrados por servicio -->
+                                                <div class="table-responsive" id="tablaMedicosContainer" style="display: none;">
                                                     <table class="table table-hover table-reservas" id="tablaMedicosNew">
                                                         <thead class="bg-dark text-white">
                                                             <tr>
                                                                 <th width="5%">#</th>
-                                                                <th width="35%">Médico</th>
-                                                                <th width="30%">Turno</th>
+                                                                <th width="45%">Médico</th>
+                                                                <th width="25%">Especialidad</th>
                                                                 <th width="15%">Disponible</th>
-                                                                <th width="15%">Acción</th>
+                                                                <th width="10%">Acción</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -589,23 +615,45 @@ if (!isset($_SESSION['perfil'])) {
                                                         </tbody>
                                                     </table>
                                                 </div>
-                                                <!-- Sección servicio y seguro -->
-                                                <div class="reservas-section">
-                                                    <div class="reservas-header">
-                                                        <h3><i class="fas fa-stethoscope"></i> Servicio y seguro</h3>
-                                                    </div>
+                            </div>
 
-                                                    <div class="form-row">
-                                                        <div class="form-col">
-                                                            <div class="form-group">
-                                                                <label for="servicioSelect">Servicio</label>
-                                                                <select id="servicioSelect" class="form-control">
-                                                                    <option value="">Seleccione un servicio</option>
-                                                                    <!-- Se llena dinámicamente con JS -->
-                                                                </select>
-                                                            </div>
-                                                        </div>
+                            <!-- Sección Detalles de la Reserva (horarios y fecha) -->
+                            <div class="reservas-section" id="seccionDetalles" style="display: none;">
+                                <div class="reservas-header">
+                                    <h3><i class="fas fa-clock"></i> 4. Seleccione Fecha y Horario</h3>
+                                    <div class="header-actions">
+                                        <button type="button" class="btn-square" id="btnRefreshHorarios" title="Actualizar horarios">
+                                            <i class="fas fa-sync-alt"></i>
+                                        </button>
+                                    </div>
+                                </div>
 
+                                <div class="form-row">
+                                    <div class="form-col">
+                                        <div class="form-group">
+                                            <label for="fechaReservaNew">Fecha de la consulta</label>
+                                            <input type="date" id="fechaReservaNew" class="form-control" min="<?php echo date('Y-m-d'); ?>">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Horarios disponibles -->
+                                <div class="form-group">
+                                    <label>Horarios disponibles</label>
+                                    <div id="contenedorHorariosNew" class="horarios-container">
+                                        <div class="text-center text-muted py-4">
+                                            <i class="fas fa-clock fa-2x mb-2"></i>
+                                            <p>Seleccione una fecha para ver los horarios disponibles</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                                <!-- Sección seguro (ahora es el quinto paso) -->
+                                <div class="reservas-section" id="seccionSeguro" style="display: none;">
+                                    <div class="reservas-header">
+                                        <h3><i class="fas fa-shield-alt"></i> 5. Seguro y Sala</h3>
+                                    </div>                                                    <div class="form-row">
                                                         <div class="form-col">
                                                             <div class="form-group">
                                                                 <label for="seguroSelect">Seguro de salud</label>
@@ -615,9 +663,7 @@ if (!isset($_SESSION['perfil'])) {
                                                                 </select>
                                                             </div>
                                                         </div>
-                                                    </div>
 
-                                                    <div class="form-row">
                                                         <div class="form-col">
                                                             <div class="form-group">
                                                                 <label for="planSelect">Plan</label>
@@ -627,23 +673,16 @@ if (!isset($_SESSION['perfil'])) {
                                                                 </select>
                                                             </div>
                                                         </div>
+                                                    </div>
 
+                                                    <div class="form-row">
                                                         <div class="form-col">
                                                             <div class="form-group">
                                                                 <label for="importeReservaNew">Importe (S/)</label>
                                                                 <input type="text" id="importeReservaNew" class="form-control" placeholder="0.00" readonly>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                </div>
 
-                                                <!-- Sección de Sala -->
-                                                <div class="reservas-section">
-                                                    <div class="reservas-header">
-                                                        <h3><i class="fas fa-door-open"></i> Sala</h3>
-                                                    </div>
-
-                                                    <div class="form-row">
                                                         <div class="form-col">
                                                             <div class="form-group">
                                                                 <label for="salaSelect">Sala (Opcional)</label>
@@ -651,7 +690,6 @@ if (!isset($_SESSION['perfil'])) {
                                                                     <option value="">Seleccione una sala</option>
                                                                     <!-- Se llena dinámicamente con JS -->
                                                                 </select>
-                                                                <small class="form-text text-muted">La sala es opcional y se puede cambiar posteriormente.</small>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -683,12 +721,16 @@ if (!isset($_SESSION['perfil'])) {
 
                                                     <div class="resumen-info">
                                                         <div class="resumen-item">
-                                                            <div class="resumen-label">Médico:</div>
-                                                            <div class="resumen-value" id="resumenMedicoNew">-</div>
-                                                        </div>
-                                                        <div class="resumen-item">
                                                             <div class="resumen-label">Paciente:</div>
                                                             <div class="resumen-value" id="resumenPacienteNew">-</div>
+                                                        </div>
+                                                        <div class="resumen-item">
+                                                            <div class="resumen-label">Servicio:</div>
+                                                            <div class="resumen-value" id="resumenServicioNew">-</div>
+                                                        </div>
+                                                        <div class="resumen-item">
+                                                            <div class="resumen-label">Médico:</div>
+                                                            <div class="resumen-value" id="resumenMedicoNew">-</div>
                                                         </div>
                                                         <div class="resumen-item">
                                                             <div class="resumen-label">Fecha:</div>
@@ -697,10 +739,6 @@ if (!isset($_SESSION['perfil'])) {
                                                         <div class="resumen-item">
                                                             <div class="resumen-label">Hora:</div>
                                                             <div class="resumen-value" id="resumenHoraNew">-</div>
-                                                        </div>
-                                                        <div class="resumen-item">
-                                                            <div class="resumen-label">Servicio:</div>
-                                                            <div class="resumen-value" id="resumenServicioNew">-</div>
                                                         </div>
                                                         <div class="resumen-item">
                                                             <div class="resumen-label">Sala:</div>
@@ -1284,6 +1322,70 @@ if (!isset($_SESSION['perfil'])) {
 <link href="view/css/reservas_new.css?v=1.0" rel="stylesheet">
 <link href="view/css/estados_reserva.css?v=1.0" rel="stylesheet">
 <link href="view/css/editar_reservas.css?v=1.0" rel="stylesheet">
+
+<style>
+/* Estilos para los horarios disponibles */
+.horarios-container {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 15px;
+    min-height: 100px;
+}
+
+.horarios-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.hora-slot {
+    background: #fff;
+    border: 2px solid #007bff;
+    border-radius: 6px;
+    padding: 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.hora-slot:hover {
+    background: #e3f2fd;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,123,255,0.2);
+}
+
+.hora-slot.selected {
+    background: #007bff;
+    color: white;
+}
+
+.hora-slot.no-disponible {
+    background: #f5f5f5;
+    border-color: #ccc;
+    color: #999;
+    cursor: not-allowed;
+}
+
+.hora-slot .hora-texto {
+    font-weight: 600;
+    font-size: 0.9em;
+}
+
+.hora-slot .btn-select-horario {
+    background: none;
+    border: none;
+    color: inherit;
+    margin-top: 5px;
+    font-size: 12px;
+}
+
+.hora-slot.selected .btn-select-horario {
+    color: white;
+}
+</style>
 
 <!-- Incluir JavaScript personalizado -->
 <script src="view/js/servicios.js"></script>

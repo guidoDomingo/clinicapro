@@ -78,7 +78,7 @@ $(document).ready(function () {
  * Initialize the Reservas New module
  */
 function inicializarReservasNew() {
-    console.log('Inicializando módulo Reservas New');
+    console.log('Inicializando módulo Reservas New - Flujo Paciente Primero');
 
     // Cargar los seguros de salud
     cargarSeguros();
@@ -86,30 +86,142 @@ function inicializarReservasNew() {
     // Cargar salas disponibles
     cargarSalasReservasNew();
 
-    // Cargar algunos servicios predeterminados iniciales
-    cargarServiciosIniciales();
-
-    // Configurar la fecha actual
+    // Configurar la fecha actual como mínima (pero campo vacío)
     const fechaActual = moment().format('YYYY-MM-DD');
-    $('#fechaReservaNew').val(fechaActual);
+    
+    // Establecer fecha mínima para el input (no permitir fechas pasadas)
+    $('#fechaReservaNew').attr('min', fechaActual);
+    
+    // Dejar el campo vacío inicialmente para mostrar todas las fechas disponibles
+    $('#fechaReservaNew').val('');
 
-    // Cargar reservas para la fecha actual
+    // Cargar reservas para la fecha actual (para la tabla de reservas existentes)
     cargarReservasPorFecha(fechaActual);
 
-    // Iniciar carga de médicos después de un breve retraso para asegurar que todo esté listo
-    setTimeout(function () {
-        console.log('Iniciando carga inicial de médicos...');
-        depurarCargaMedicos();
-        buscarMedicosDisponibles();
+    // Event listeners para el nuevo flujo
+    configurarEventListeners();
+
+    // Focus en búsqueda de paciente (primer paso)
+    setTimeout(function() {
+        $('#buscarPacienteNew').focus();
     }, 500);
+}
 
-    // Asegurarse de que el botón de cambiar médico esté oculto al inicio
-    $('#btnCambiarMedicoNew').addClass('d-none');
-    $('#btnBuscarMedicoNew').removeClass('d-none');
-    $('#buscarMedicoNew').prop('readonly', false).removeClass('selected-doctor');
+/**
+ * Configurar los event listeners para el nuevo flujo
+ */
+function configurarEventListeners() {
+    // Evento para el campo de fecha superior (filtro principal)
+    $('#fechaReservaNew').change(function() {
+        const fechaSeleccionada = $(this).val();
+        console.log('Fecha superior seleccionada:', fechaSeleccionada);
+        
+        // Si hay médico y servicio seleccionados
+        const medicoId = $('#selectMedicoNew').val();
+        const servicioId = $('#servicioSelectNew').val();
+        
+        if (medicoId && servicioId) {
+            if (fechaSeleccionada) {
+                // Si hay fecha específica, mostrar solo horarios de esa fecha
+                console.log('Mostrando horarios para fecha específica:', fechaSeleccionada);
+                mostrarHorariosPorFechaSeleccionada(fechaSeleccionada);
+            } else {
+                // Si no hay fecha (vacío), mostrar todas las fechas disponibles
+                console.log('Campo fecha vacío - mostrando todas las fechas disponibles');
+                cargarDiasDisponibles(medicoId, servicioId);
+            }
+        }
+    });
 
-    // Ocultar el resumen de horarios al inicio
-    $('#resumenHorariosNew').addClass('d-none');
+    // Evento para búsqueda de paciente (paso 1)
+    $('#btnBuscarPacienteNew').click(function() {
+        const termino = $('#buscarPacienteNew').val().trim();
+        if (termino.length >= 2) {
+            buscarPacientes(termino);
+        } else {
+            mostrarNotificacion('Ingrese al menos 2 caracteres para buscar', 'warning');
+        }
+    });
+
+    // Buscar al presionar Enter en el campo de búsqueda
+    $('#buscarPacienteNew').keypress(function(e) {
+        if (e.which == 13) {
+            $('#btnBuscarPacienteNew').click();
+        }
+    });
+
+    // Evento para selección de servicio (paso 2)
+    $('#servicioSelectNew').change(function() {
+        const servicioId = $(this).val();
+        const servicioNombre = $(this).find('option:selected').text();
+        
+        if (servicioId) {
+            console.log('Servicio seleccionado:', servicioId, servicioNombre);
+            
+            // Actualizar resumen
+            $('#resumenServicioNew').text(servicioNombre);
+            
+            // Mostrar sección de médicos
+            $('#seccionMedico').show();
+            $('#alertServicioRequerido').hide();
+            $('#tablaMedicosContainer').show();
+            
+            // Cargar médicos que ofrecen este servicio
+            cargarMedicosPorServicio(servicioId);
+        } else {
+            // Ocultar sección de médicos
+            $('#seccionMedico').hide();
+            $('#resumenServicioNew').text('-');
+            
+            // Limpiar tabla de médicos
+            $('#tablaMedicosNew tbody').html('<tr><td colspan="5" class="text-center">Seleccione un servicio primero</td></tr>');
+            
+            // Limpiar horarios
+            $('#contenedorHorariosNew').html('');
+        }
+    });
+}
+
+/**
+ * Cargar todos los servicios activos
+ */
+function cargarServiciosActivos() {
+    console.log('Cargando servicios activos...');
+    
+    // Mostrar loading
+    $('#servicioSelectNew').html('<option value="">Cargando servicios...</option>');
+    
+    $.ajax({
+        url: 'ajax/servicios.ajax.php',
+        method: 'POST',
+        data: { action: 'obtenerTodosLosServicios' },
+        dataType: 'json',
+        success: function(response) {
+            console.log('Respuesta servicios:', response);
+            
+            // Limpiar select
+            $('#servicioSelectNew').html('<option value="">Seleccione un servicio</option>');
+            
+            if (response.success && response.data.length > 0) {
+                $.each(response.data, function(index, servicio) {
+                    $('#servicioSelectNew').append(`
+                        <option value="${servicio.serv_id}" 
+                                data-precio="${servicio.serv_monto || 0}" 
+                                data-codigo="${servicio.serv_codigo}">
+                            ${servicio.serv_descripcion}
+                        </option>
+                    `);
+                });
+            } else {
+                $('#servicioSelectNew').append('<option value="">No hay servicios disponibles</option>');
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Error al cargar servicios:', error);
+            $('#servicioSelectNew').html('<option value="">Error al cargar servicios</option>');
+        }
+    });
+}
 
     // Focus on patient search first as it's now step 1
     setTimeout(function () {
@@ -134,28 +246,6 @@ function inicializarReservasNew() {
     // Patient search button click
     $('#btnBuscarPacienteNew').click(function () {
         buscarPaciente();
-    });    // Search for available doctors on date change (step 2)
-    $('#fechaReservaNew').change(function () {
-        const fecha = $(this).val();
-        console.log('Fecha seleccionada:', fecha);
-
-        // Ejecutar la depuración primero
-        depurarCargaMedicos();
-
-        // Luego buscar médicos disponibles
-        buscarMedicosDisponibles();
-
-        // Si hay un médico seleccionado, actualizar sus servicios para la nueva fecha
-        const medicoSeleccionado = $('#selectMedicoNew').val();
-        if (medicoSeleccionado) {
-            cargarServiciosPorFechaMedico(fecha, medicoSeleccionado);
-        }
-
-        // Cargar reservas existentes para la fecha seleccionada
-        cargarReservasPorFecha(fecha);
-
-        // Check if form is complete after changing date
-        verificarFormularioCompleto();
     });
 
     // Doctor search on Enter key
@@ -193,7 +283,7 @@ function inicializarReservasNew() {
             // También cargar los horarios disponibles
             console.log('Cargando horarios después de seleccionar médico');
             setTimeout(function () {
-                cargarHorariosDisponibles();
+                // cargarHorariosDisponibles(); // Comentado - requiere parámetros específicos
             }, 300);
         }
 
@@ -396,7 +486,7 @@ function inicializarReservasNew() {
     });
 
     // Service selection
-    $('#servicioSelect').change(function () {
+    $('#servicioSelectNew').change(function () {
         const servicioId = $(this).val();
         const servicioNombre = $(this).find('option:selected').text();
 
@@ -417,6 +507,10 @@ function inicializarReservasNew() {
                 $('#resumenPrecioNew').text(precioFormateado);
             }
 
+            // Show doctors section and load doctors filtered by service
+            $('#seccionMedico').show();
+            cargarMedicosPorServicio(servicioId);
+
             // Check if form is complete
             verificarFormularioCompleto();
             if (precio) {
@@ -425,7 +519,7 @@ function inicializarReservasNew() {
             }
 
             // Reload available time slots with service duration
-            cargarHorariosDisponibles();
+            // cargarHorariosDisponibles(); // Comentado - requiere parámetros específicos
         }
     });
 
@@ -739,29 +833,34 @@ function inicializarReservasNew() {
             window.medicosDisponibles = medicos;
             
             medicos.forEach(function (medico) {
-                // Get doctor ID and name from response
-                const medicoId = medico.doctor_id || medico.id || medico.person_id;
-                const medicoNombre = medico.nombre_doctor || medico.nombre || medico.nombre_completo || '';
+                // Get doctor data from response
+                const medicoId = medico.doctor_id || medico.id;
+                const medicoNombre = medico.doctor_nombre || medico.first_name + ' ' + medico.last_name || '';
+                const especialidad = medico.servicio_nombre || 'No especificado';
+                const diasAtencion = medico.dias_atencion || 'Sin horarios';
+                const estadoDoctor = medico.doctor_estado || 'INACTIVO';
 
-                // Use real data from backend
-                const turno = medico.turno_nombre || medico.turno || 'No especificado';
-                const disponibles = medico.cupo_disponible || medico.disponibles || 0;
-
-                // Determinar clase CSS para fila si no hay cupos
-                const filaClass = disponibles == 0 ? 'table-danger' : '';
+                // Determinar si está disponible
+                const estaDisponible = estadoDoctor === 'ACTIVO';
+                const filaClass = !estaDisponible ? 'table-warning' : '';
 
                 html += `
                 <tr class="doctor-row ${filaClass}" data-medico-id="${medicoId}">
                     <td>${counter}</td>
-                    <td>${medicoNombre}</td>
-                    <td>${turno}</td>
-                    <td><span class="${disponibles == 0 ? 'text-danger font-weight-bold' : ''}">${disponibles}</span></td>
                     <td>
-                        <button class="btn btn-primary btn-circle btn-select-doctor" 
+                        <strong>${medicoNombre}</strong>
+                        <br><small class="text-muted">Estado: ${estadoDoctor}</small>
+                    </td>
+                    <td>${especialidad}</td>
+                    <td>
+                        <span class="badge badge-info">${diasAtencion}</span>
+                    </td>
+                    <td>
+                        <button class="btn btn-primary btn-sm btn-select-doctor" 
                                 data-medico-id="${medicoId}" 
                                 data-medico-nombre="${medicoNombre}"
-                                ${disponibles == 0 ? 'disabled' : ''}>
-                            <i class="fas fa-check"></i>
+                                ${!estaDisponible ? 'disabled' : ''}>
+                            <i class="fas fa-check"></i> Seleccionar
                         </button>
                     </td>
                 </tr>
@@ -769,7 +868,7 @@ function inicializarReservasNew() {
                 counter++;
             });
         } else {
-            html = '<tr><td colspan="5" class="text-center">No hay médicos disponibles para la fecha seleccionada</td></tr>';
+            html = '<tr><td colspan="5" class="text-center">No hay médicos disponibles para este servicio</td></tr>';
         }
 
         $('#tablaMedicosNew tbody').html(html);
@@ -1000,13 +1099,12 @@ function inicializarReservasNew() {
         $('#pacienteNombreMostrar').text(pacienteNombre);
         $('#resumenPacienteNew').text(pacienteNombre);
 
+        // Show services section after patient selection
+        $('#seccionServicio').show();
+        cargarServiciosIniciales();
+
         // Check if form is complete after selecting patient
         verificarFormularioCompleto();
-
-        // Focus on the fecha element to guide user to next step
-        setTimeout(function () {
-            $('#fechaReservaNew').focus();
-        }, 300);
     });
 
     /**
@@ -1015,9 +1113,13 @@ function inicializarReservasNew() {
     function cargarHorariosDisponibles() {
         const medicoId = $('#selectMedicoNew').val();
         const fecha = $('#fechaReservaNew').val();
-        const servicioId = $('#servicioSelect').val();
+        const servicioId = $('#servicioSelectNew').val();
 
-        console.log('Cargando horarios para - Fecha:', fecha, 'Médico ID:', medicoId, 'Servicio ID:', servicioId);
+        console.log('=== CARGANDO HORARIOS DISPONIBLES ===');
+        console.log('Médico ID:', medicoId);
+        console.log('Fecha:', fecha);
+        console.log('Servicio ID:', servicioId);
+        console.log('Contenedor horarios existe:', $('#contenedorHorariosNew').length > 0);
 
         if (!medicoId || !fecha) {
             console.warn('No se puede cargar horarios, falta médico o fecha');
@@ -1673,25 +1775,25 @@ function inicializarReservasNew() {
             url: "ajax/servicios.ajax.php",
             method: "POST",
             data: {
-                action: "obtenerServicios"
+                action: "obtenerTodosLosServicios"
             },
             dataType: "json",
             beforeSend: function () {
-                $('#servicioSelect').html('<option value="">Cargando servicios...</option>');
+                $('#servicioSelectNew').html('<option value="">Cargando servicios...</option>');
             },
             success: function (respuesta) {
                 console.log('Respuesta servicios iniciales:', respuesta);
 
-                $('#servicioSelect').html('<option value="">Seleccione un servicio</option>');
+                $('#servicioSelectNew').html('<option value="">Seleccione un servicio</option>');
 
-                if (respuesta.data && respuesta.data.length > 0) {
+                if (respuesta.status === "success" && respuesta.data && respuesta.data.length > 0) {
                     respuesta.data.forEach(function (servicio) {
-                        // Verificar las diferentes propiedades que puede tener el objeto servicio
-                        const servicioId = servicio.servicio_id || servicio.id || 0;
-                        const servicioNombre = servicio.servicio_nombre || servicio.nombre || servicio.name || 'Servicio sin nombre';
-                        const precio = servicio.precio_base || servicio.precio || 0;
+                        // Usar las propiedades correctas del objeto servicio
+                        const servicioId = servicio.serv_id || servicio.servicio_id || servicio.id || 0;
+                        const servicioNombre = servicio.serv_descripcion || servicio.servicio_nombre || servicio.nombre || 'Servicio sin nombre';
+                        const precio = servicio.serv_monto || servicio.precio_base || servicio.precio || 0;
 
-                        $('#servicioSelect').append(`
+                        $('#servicioSelectNew').append(`
                         <option value="${servicioId}" data-precio="${precio}">
                             ${servicioNombre}
                         </option>
@@ -1699,12 +1801,12 @@ function inicializarReservasNew() {
                     });
                 } else {
                     console.warn('No se encontraron servicios disponibles.');
-                    $('#servicioSelect').html('<option value="">No hay servicios disponibles</option>');
+                    $('#servicioSelectNew').html('<option value="">No hay servicios disponibles</option>');
                 }
             },
             error: function (xhr, status, error) {
                 console.error('Error al cargar servicios iniciales:', xhr);
-                $('#servicioSelect').html('<option value="">Error al cargar servicios</option>');
+                $('#servicioSelectNew').html('<option value="">Error al cargar servicios</option>');
             }
         });
     }
@@ -1801,7 +1903,7 @@ function inicializarReservasNew() {
             console.log('DataTable no está inicializada, esto podría ser un problema');
         }
     }
-}
+
 
 /**
  * Cambia el estado de una reserva y actualiza la interfaz
@@ -2976,4 +3078,959 @@ $(document).on('click', '.btnEnviarWhatsApp', function() {
         console.log('Filtro de fecha cambiado - ejecutando búsqueda automática');
         buscarReservas();
     });
+
+    // Action for doctor selection
+    $(document).on('click', '.btn-select-medico', function () {
+        console.log('=== CLICK EN BOTÓN SELECCIONAR MÉDICO ===');
+        console.log('Evento disparado correctamente');
+        
+        const medicoId = $(this).data('medico-id');
+        const medicoNombre = $(this).data('medico-nombre');
+
+        console.log('=== SELECCIÓN DE MÉDICO ===');
+        console.log('Médico ID:', medicoId);
+        console.log('Médico Nombre:', medicoNombre);
+
+        // Update UI
+        $('#selectMedicoNew').val(medicoId);
+        $('#buscarMedicoNew').val(medicoNombre);
+
+        // Highlight selected doctor
+        $('#tablaMedicosNew tbody tr').removeClass('selected');
+        $(this).closest('tr').addClass('selected');
+
+        // Update summary
+        $('#resumenMedicoNew').text(medicoNombre);
+
+        // Show details section
+        console.log('Mostrando sección de detalles...');
+        $('#seccionDetalles').show();
+        console.log('Sección de detalles mostrada:', $('#seccionDetalles').is(':visible'));
+
+        // Load available time slots for selected doctor
+        console.log('Cargando horarios disponibles...');
+        // cargarHorariosDisponibles(); // Comentado - requiere parámetros específicos
+
+        // Check if form is complete
+        verificarFormularioCompleto();
+    });
+
+    // Refresh horarios button
+    $(document).on('click', '#btnRefreshHorarios', function () {
+        // cargarHorariosDisponibles(); // Comentado - requiere parámetros específicos
+    });
 });
+
+/**
+ * Load doctors filtered by service (Global function)
+ */
+function cargarMedicosPorServicio(servicioId) {
+    $.ajax({
+        url: "ajax/servicios.ajax.php",
+        method: "POST",
+        data: {
+            action: "obtenerMedicosPorServicio",
+            servicio_id: servicioId
+        },
+        dataType: "json",
+        beforeSend: function () {
+            $('#tablaMedicosNew tbody').html('<tr><td colspan="5" class="text-center">Cargando médicos...</td></tr>');
+            $('#tablaMedicosContainer').show();
+        },
+        success: function (respuesta) {
+            console.log('Respuesta médicos por servicio:', respuesta);
+
+            $('#tablaMedicosNew tbody').empty();
+
+            if (respuesta.status === "success" && respuesta.data && respuesta.data.length > 0) {
+                let counter = 1;
+                respuesta.data.forEach(function (medico) {
+                    const medicoId = medico.doctor_id || medico.medico_id || medico.id;
+                    const medicoNombre = medico.doctor_nombre || medico.medico_nombre || 
+                                       (medico.first_name + ' ' + medico.last_name) || medico.nombre;
+                    const medicoEspecialidad = medico.servicio_nombre || medico.especialidad || 'Medicina General';
+                    const diasAtencion = medico.dias_atencion || 'Sin horarios';
+                    const estadoDoctor = medico.doctor_estado || 'INACTIVO';
+
+                    console.log('Agregando médico:', {
+                        id: medicoId,
+                        nombre: medicoNombre,
+                        especialidad: medicoEspecialidad,
+                        diasAtencion: diasAtencion,
+                        estado: estadoDoctor
+                    });
+
+                    // Determinar si está disponible
+                    const estaDisponible = estadoDoctor === 'ACTIVO';
+                    const filaClass = !estaDisponible ? 'table-warning' : '';
+
+                    $('#tablaMedicosNew tbody').append(`
+                        <tr class="doctor-row ${filaClass}" data-medico-id="${medicoId}">
+                            <td>${counter}</td>
+                            <td>
+                                <strong>${medicoNombre}</strong>
+                                <br><small class="text-muted">Estado: ${estadoDoctor}</small>
+                            </td>
+                            <td>${medicoEspecialidad}</td>
+                            <td>
+                                <span class="badge badge-info">${diasAtencion}</span>
+                            </td>
+                            <td>
+                                <button type="button" 
+                                        class="btn btn-sm btn-primary btn-select-medico" 
+                                        data-medico-id="${medicoId}" 
+                                        data-medico-nombre="${medicoNombre}"
+                                        ${!estaDisponible ? 'disabled' : ''}
+                                        onclick="seleccionarMedicoNuevo(${medicoId}, '${medicoNombre}')">
+                                    <i class="fas fa-check"></i> Seleccionar
+                                </button>
+                            </td>
+                        </tr>
+                    `);
+                    counter++;
+                });
+            } else {
+                $('#tablaMedicosNew tbody').html(`
+                    <tr>
+                        <td colspan="5" class="text-center text-muted">
+                            No hay médicos disponibles para este servicio
+                        </td>
+                    </tr>
+                `);
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error('Error al cargar médicos por servicio:', error);
+            $('#tablaMedicosNew tbody').html(`
+                <tr>
+                    <td colspan="5" class="text-center text-danger">
+                        Error al cargar médicos
+                    </td>
+                </tr>
+            `);
+        }
+    });
+}
+
+/**
+ * Global function to select a doctor (called via onclick)
+ */
+function seleccionarMedicoNuevo(medicoId, medicoNombre) {
+    console.log('=== FUNCIÓN GLOBAL SELECCIONAR MÉDICO ===');
+    console.log('Médico ID:', medicoId);
+    console.log('Médico Nombre:', medicoNombre);
+
+    // Update UI
+    $('#selectMedicoNew').val(medicoId);
+    $('#buscarMedicoNew').val(medicoNombre);
+
+    // Highlight selected doctor
+    $('#tablaMedicosNew tbody tr').removeClass('selected');
+    $(`button[data-medico-id="${medicoId}"]`).closest('tr').addClass('selected');
+
+    // Update summary
+    $('#resumenMedicoNew').text(medicoNombre);
+
+    // Show details section
+    console.log('Mostrando sección de detalles...');
+    $('#seccionDetalles').show();
+    console.log('Sección de detalles mostrada:', $('#seccionDetalles').is(':visible'));
+
+    // NO establecer fecha por defecto - mantener campo vacío para mostrar todas las fechas
+
+    console.log('Valores del DOM antes de cargar horarios:');
+    console.log('- #selectMedicoNew val:', $('#selectMedicoNew').val());
+    console.log('- #fechaReservaNew val:', $('#fechaReservaNew').val());
+    console.log('- #servicioSelectNew val:', $('#servicioSelectNew').val());
+
+    // Cargar días disponibles para el médico seleccionado automáticamente
+    const servicioId = $('#servicioSelectNew').val();
+    const fechaSeleccionada = $('#fechaReservaNew').val();
+    
+    if (servicioId) {
+        console.log('Cargando días disponibles automáticamente...');
+        
+        if (fechaSeleccionada) {
+            // Si hay una fecha específica seleccionada, mostrar solo horarios de esa fecha
+            console.log('Mostrando horarios para fecha específica:', fechaSeleccionada);
+            setTimeout(() => {
+                mostrarHorariosPorFechaSeleccionada(fechaSeleccionada);
+            }, 500);
+        } else {
+            // Si no hay fecha (campo vacío), mostrar todas las fechas disponibles
+            console.log('Campo fecha vacío - mostrando todas las fechas disponibles');
+            cargarDiasDisponibles(medicoId, servicioId);
+        }
+    }
+
+    // Check if form is complete
+    verificarFormularioCompleto();
+}
+
+/**
+ * Load available time slots for a specific doctor and service (Global function)
+ */
+function cargarHorariosDisponibles() {
+    console.log('=== FUNCIÓN GLOBAL CARGAR HORARIOS ===');
+    
+    const medicoId = $('#selectMedicoNew').val();
+    const fecha = $('#fechaReservaNew').val();
+    const servicioId = $('#servicioSelectNew').val();
+    
+    console.log('Valores obtenidos del DOM:');
+    console.log('- medicoId:', medicoId, '(tipo:', typeof medicoId, ')');
+    console.log('- fecha:', fecha, '(tipo:', typeof fecha, ')');
+    console.log('- servicioId:', servicioId, '(tipo:', typeof servicioId, ')');
+    
+    // Verificar elementos DOM
+    console.log('Elementos DOM:');
+    console.log('- #selectMedicoNew existe:', $('#selectMedicoNew').length > 0);
+    console.log('- #fechaReservaNew existe:', $('#fechaReservaNew').length > 0);
+    console.log('- #servicioSelectNew existe:', $('#servicioSelectNew').length > 0);
+
+    console.log('=== CARGANDO HORARIOS DISPONIBLES ===');
+    console.log('Médico ID:', medicoId);
+    console.log('Fecha:', fecha);
+    console.log('Servicio ID:', servicioId);
+    console.log('Contenedor horarios existe:', $('#contenedorHorariosNew').length > 0);
+
+    if (!medicoId || !fecha) {
+        console.warn('No se puede cargar horarios, falta médico o fecha');
+        $('#contenedorHorariosNew').html('<div class="text-center py-3 text-warning">Por favor seleccione un médico y una fecha</div>');
+        return;
+    }
+
+    // Show loading
+    $('#cargandoHorarios').remove(); // Remover mensaje de carga anterior si existe
+    
+    // Si hay días disponibles mostrados, solo agregar sección de horarios específicos
+    const hayCalendario = $('#contenedorHorariosNew .card').length > 0;
+    if (hayCalendario) {
+        // Remover horarios anteriores si existen
+        $('#horariosEspecificos').remove();
+        
+        // Agregar nueva sección para horarios específicos
+        $('#contenedorHorariosNew').append(`
+            <div id="horariosEspecificos" class="col-12 mt-4">
+                <hr>
+                <h6><i class="fas fa-clock"></i> Horarios para ${fecha}</h6>
+                <div id="contenedorSlotsSeleccionados" class="mt-3">
+                    <div class="text-center py-3">
+                        <i class="fas fa-spinner fa-spin"></i> Cargando horarios disponibles...
+                    </div>
+                </div>
+            </div>
+        `);
+    } else {
+        // Si no hay calendario, usar el contenedor completo
+        $('#contenedorHorariosNew').html('<div class="text-center py-3"><i class="fas fa-spinner fa-spin"></i> Cargando horarios disponibles...</div>');
+    }
+
+    // AJAX call to get available time slots
+    $.ajax({
+        url: 'ajax/servicios.ajax.php',
+        method: 'POST',
+        data: {
+            action: 'obtenerHorariosDisponibles',
+            doctor_id: medicoId,
+            fecha: fecha,
+            servicio_id: servicioId || 0
+        },
+        dataType: 'json',
+        beforeSend: function() {
+            console.log('=== ENVIANDO SOLICITUD DE HORARIOS ===');
+            console.log('URL:', 'ajax/servicios.ajax.php');
+            console.log('Datos enviados:', {
+                action: 'obtenerHorariosDisponibles',
+                doctor_id: medicoId,
+                fecha: fecha,
+                servicio_id: servicioId || 0
+            });
+        },
+        success: function (respuesta) {
+            console.log('Respuesta horarios:', respuesta);
+            if (respuesta && respuesta.status === 'success') {
+                if (respuesta.data && respuesta.data.length > 0) {
+                    // Determinar dónde mostrar los horarios
+                    const contenedorTarget = $('#contenedorSlotsSeleccionados').length > 0 ? 
+                        '#contenedorSlotsSeleccionados' : '#contenedorHorariosNew';
+                    
+                    mostrarHorariosDisponibles(respuesta.data, contenedorTarget);
+                } else {
+                    // Determinar dónde mostrar el mensaje
+                    const contenedorTarget = $('#contenedorSlotsSeleccionados').length > 0 ? 
+                        '#contenedorSlotsSeleccionados' : '#contenedorHorariosNew';
+                    
+                    $(contenedorTarget).html('<div class="text-center py-3 text-info">No hay horarios disponibles para este médico en la fecha seleccionada</div>');
+                }
+            } else {
+                console.error('Error al cargar horarios:', respuesta ? respuesta.message : 'Respuesta inválida');
+                const contenedorTarget = $('#contenedorSlotsSeleccionados').length > 0 ? 
+                    '#contenedorSlotsSeleccionados' : '#contenedorHorariosNew';
+                
+                $(contenedorTarget).html('<div class="text-center py-3 text-danger">Error: ' + (respuesta && respuesta.message ? respuesta.message : 'No se pudo cargar los horarios') + '</div>');
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error('Error al cargar horarios:', error);
+            $('#contenedorHorariosNew').html('<div class="text-center py-3 text-danger">Error al cargar los horarios</div>');
+        }
+    });
+}
+
+/**
+ * Display available time slots (Global function)
+ */
+function mostrarHorariosDisponibles(horarios, contenedor = '#contenedorHorariosNew') {
+    let html = '';
+
+    if (horarios && horarios.length > 0) {
+        html = '<div class="horarios-grid">';
+        horarios.forEach(function (horario) {
+            const horaInicio = horario.hora_inicio || horario.hora || '';
+            const horaFin = horario.hora_fin || '';
+            const horarioId = horario.horario_id || '';
+            const agendaId = horario.agenda_id || horarioId || '';
+            const disponible = horario.disponible !== false;
+
+            const disponibleClass = disponible ? '' : 'no-disponible';
+            const horarioTexto = horaFin ? `${horaInicio} - ${horaFin}` : horaInicio;
+
+            html += `
+                <div class="hora-slot ${disponibleClass}" 
+                     data-id="${horarioId}"
+                     data-inicio="${horaInicio}"
+                     data-fin="${horaFin}" 
+                     data-agenda-id="${agendaId}"
+                     data-texto="${horarioTexto}"
+                     data-disponible="${disponible ? 'true' : 'false'}">
+                    <span class="hora-texto">${horarioTexto}</span>
+                    <button class="btn-select-horario" ${!disponible ? 'disabled' : ''}>
+                        <i class="fas fa-check"></i>
+                    </button>
+                    <input type="hidden" class="agenda-id-value" value="${agendaId}">
+                </div>
+            `;
+        });
+        html += '</div>';
+    } else {
+        html = `
+            <div class="text-center text-muted py-4">
+                <i class="fas fa-calendar-times fa-3x mb-3"></i>
+                <p>No hay horarios disponibles para este médico en la fecha seleccionada</p>
+            </div>
+        `;
+    }
+
+    $(contenedor).html(html);
+
+    // Agregar evento click a los slots de horario
+    $('.hora-slot').click(function () {
+        if ($(this).data('disponible') === 'true') {
+            $('.hora-slot').removeClass('selected');
+            $(this).addClass('selected');
+
+            // Actualizar el resumen de la reserva
+            const horaInicio = $(this).data('inicio');
+            const horaFin = $(this).data('fin');
+            $('#resumenHorario').text(horaFin ? `${horaInicio} - ${horaFin}` : horaInicio);
+
+            // Guardar valores en campos ocultos para el formulario
+            $('#horaInicioSeleccionada').val(horaInicio);
+            $('#horaFinSeleccionada').val(horaFin);
+
+            // Habilitar el botón de confirmar si todos los datos están completos
+            verificarFormularioCompleto();
+        }
+    });
+}
+
+/**
+ * Cargar días disponibles para un médico específico
+ */
+function cargarDiasDisponibles(medicoId, servicioId = 0) {
+    console.log('=== CARGANDO DÍAS DISPONIBLES ===');
+    console.log('Médico ID:', medicoId);
+    console.log('Servicio ID:', servicioId);
+    
+    if (!medicoId) {
+        console.warn('No se puede cargar días disponibles sin médico ID');
+        return;
+    }
+
+    $.ajax({
+        url: 'ajax/servicios.ajax.php',
+        method: 'POST',
+        data: {
+            action: 'obtenerDiasDisponibles',
+            doctor_id: medicoId,
+            servicio_id: servicioId || 0
+        },
+        dataType: 'json',
+        success: function(respuesta) {
+            console.log('Respuesta días disponibles:', respuesta);
+            if (respuesta && respuesta.status === 'success') {
+                mostrarDiasDisponibles(respuesta.data);
+            } else {
+                console.error('Error al cargar días disponibles:', respuesta ? respuesta.message : 'Respuesta inválida');
+                mostrarMensajeDiasDisponibles('No se pudieron cargar los días disponibles');
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Error AJAX al cargar días disponibles:', error);
+            mostrarMensajeDiasDisponibles('Error al cargar los días disponibles');
+        }
+    });
+}
+
+/**
+ * Mostrar los días disponibles en la interfaz
+ */
+function mostrarDiasDisponibles(dias) {
+    console.log('Mostrando días disponibles:', dias);
+    
+    if (!dias || dias.length === 0) {
+        mostrarMensajeDiasDisponibles('No hay días disponibles configurados para este médico');
+        return;
+    }
+    
+    let html = '<div class="row">';
+    const coloresSemana = ['semana-1', 'semana-2', 'semana-3', 'semana-4', 'semana-5'];
+    
+    // Función para obtener el lunes de la semana
+    function obtenerLunesDeLaSemana(fecha) {
+        const date = new Date(fecha + 'T00:00:00'); // Forzar zona horaria local
+        const dayOfWeek = date.getDay(); // 0 = domingo, 1 = lunes, 2 = martes, etc.
+        
+        // Calcular días para retroceder al lunes
+        let daysToSubtract;
+        if (dayOfWeek === 0) { // domingo
+            daysToSubtract = 6;
+        } else { // lunes a sábado
+            daysToSubtract = dayOfWeek - 1;
+        }
+        
+        const monday = new Date(date);
+        monday.setDate(date.getDate() - daysToSubtract);
+        
+        // Formatear como YYYY-MM-DD
+        const year = monday.getFullYear();
+        const month = String(monday.getMonth() + 1).padStart(2, '0');
+        const day = String(monday.getDate()).padStart(2, '0');
+        
+        return `${year}-${month}-${day}`;
+    }
+    
+    // Agrupar fechas por su lunes correspondiente
+    const semanasMap = new Map();
+    let numeroSemana = 0;
+    
+    // Ordenar fechas para procesamiento secuencial
+    const diasOrdenados = [...dias].sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+    
+    diasOrdenados.forEach(dia => {
+        const lunes = obtenerLunesDeLaSemana(dia.fecha);
+        const dateObj = new Date(dia.fecha + 'T00:00:00');
+        const dayName = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'][dateObj.getDay()];
+        
+        console.log(`Procesando: ${dia.fecha} (${dayName}) → Lunes de la semana: ${lunes}`);
+        
+        if (!semanasMap.has(lunes)) {
+            numeroSemana++;
+            semanasMap.set(lunes, numeroSemana);
+            console.log(`Nueva semana creada: ${lunes} → Semana ${numeroSemana}`);
+        }
+    });
+    
+    dias.forEach(function(dia, index) {
+        const lunes = obtenerLunesDeLaSemana(dia.fecha);
+        const semanaNumero = semanasMap.get(lunes);
+        const colorIndex = (semanaNumero - 1) % coloresSemana.length;
+        const colorSemana = coloresSemana[colorIndex];
+        
+        const esHoy = dia.fecha === new Date().toISOString().split('T')[0];
+        const etiquetaHoy = esHoy ? '<span class="badge badge-light ml-2">Hoy</span>' : '';
+        
+        console.log(`Fecha: ${dia.fecha}, Lunes: ${lunes}, Semana: ${semanaNumero}, Color: ${colorSemana}`);
+        
+        html += `
+            <div class="col-lg-6 col-md-12 mb-4">
+                <div class="fecha-grupo ${colorSemana}">
+                    <div class="semana-badge">Semana ${semanaNumero}</div>
+                    <h6>${dia.dia_nombre}${etiquetaHoy}</h6>
+                    <div class="fecha-disponible">
+                        <strong>${dia.fecha_formateada}</strong><br>
+                        ${dia.total_horarios} horario(s) disponible(s)
+                    </div>
+                    <div class="horarios-fecha" id="horarios-${dia.fecha}">
+                        <div class="text-center py-2">
+                            <i class="fas fa-spinner fa-spin text-white"></i> 
+                            <span class="text-white">Cargando horarios...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    html += '</div>';
+    
+    // Insertar el HTML en el contenedor de horarios
+    $('#contenedorHorariosNew').html(html);
+    
+    // Cargar horarios para cada fecha específica
+    console.log('Cargando horarios para cada fecha...');
+    dias.forEach(function(dia) {
+        cargarHorariosPorFecha(dia.fecha);
+    });
+}
+
+/**
+ * Seleccionar una fecha específica y cargar sus horarios
+ */
+function seleccionarFecha(fecha) {
+    console.log('=== SELECCIONANDO FECHA ===');
+    console.log('Fecha seleccionada:', fecha);
+    
+    // Actualizar el campo de fecha
+    $('#fechaReservaNew').val(fecha);
+    console.log('Campo fecha actualizado:', $('#fechaReservaNew').val());
+    
+    // Destacar la fecha seleccionada visualmente
+    $('#contenedorHorariosNew .card').removeClass('border-success bg-light');
+    $('#contenedorHorariosNew .card').each(function() {
+        const onclickAttr = $(this).attr('onclick');
+        if (onclickAttr && onclickAttr.includes(fecha)) {
+            $(this).addClass('border-success bg-light');
+            console.log('Fecha destacada visualmente:', fecha);
+        }
+    });
+    
+    // Mostrar mensaje de carga
+    $('#contenedorHorariosNew').append(`
+        <div id="cargandoHorarios" class="col-12 mt-3">
+            <div class="alert alert-info text-center">
+                <i class="fas fa-spinner fa-spin"></i> Cargando horarios para ${fecha}...
+            </div>
+        </div>
+    `);
+    
+    // Cargar horarios para la fecha seleccionada
+    console.log('Ejecutando cargarHorariosDisponibles() para fecha:', fecha);
+    setTimeout(function() {
+        cargarHorariosDisponibles();
+    }, 200);
+}
+
+/**
+ * Cargar horarios específicos para una fecha individual
+ */
+function cargarHorariosPorFecha(fecha) {
+    console.log('=== CARGANDO HORARIOS PARA FECHA ===', fecha);
+    
+    const medicoId = $('#selectMedicoNew').val();
+    const servicioId = $('#servicioSelectNew').val();
+    
+    if (!medicoId || !fecha) {
+        console.warn('No se puede cargar horarios, falta médico o fecha');
+        return;
+    }
+
+    // AJAX call para obtener horarios de esta fecha específica
+    $.ajax({
+        url: 'ajax/servicios.ajax.php',
+        method: 'POST',
+        data: {
+            action: 'obtenerHorariosDisponibles',
+            doctor_id: medicoId,
+            fecha: fecha,
+            servicio_id: servicioId || 0
+        },
+        dataType: 'json',
+        success: function (respuesta) {
+            console.log(`Respuesta horarios para ${fecha}:`, respuesta);
+            if (respuesta && respuesta.status === 'success') {
+                if (respuesta.data && respuesta.data.length > 0) {
+                    mostrarHorariosPorFecha(respuesta.data, fecha);
+                } else {
+                    $(`#horarios-${fecha}`).html('<div class="text-center py-2 text-info">No hay horarios disponibles para esta fecha</div>');
+                }
+            } else {
+                console.error(`Error al cargar horarios para ${fecha}:`, respuesta ? respuesta.message : 'Respuesta inválida');
+                $(`#horarios-${fecha}`).html('<div class="text-center py-2 text-danger">Error al cargar horarios</div>');
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error(`Error AJAX al cargar horarios para ${fecha}:`, error);
+            $(`#horarios-${fecha}`).html('<div class="text-center py-2 text-danger">Error al cargar horarios</div>');
+        }
+    });
+}
+
+/**
+ * Mostrar horarios específicos para una fecha individual
+ */
+function mostrarHorariosPorFecha(horarios, fecha) {
+    console.log(`Mostrando horarios para ${fecha}:`, horarios);
+    
+    if (!horarios || horarios.length === 0) {
+        $(`#horarios-${fecha}`).html('<div class="text-center py-2 text-info">No hay horarios disponibles</div>');
+        return;
+    }
+
+    let html = '<div class="horarios-grid-compacta">';
+    
+    horarios.forEach(function(horario) {
+        const horaInicio = horario.hora_inicio || horario.hora || '';
+        const horaFin = horario.hora_fin || '';
+        const horarioId = horario.horario_id || '';
+        const agendaId = horario.agenda_id || horarioId || '';
+        const disponible = horario.disponible !== false;
+
+        const disponibleClass = disponible ? '' : 'no-disponible';
+        const horarioTexto = horaFin ? `${horaInicio} - ${horaFin}` : horaInicio;
+
+        html += `
+            <div class="hora-slot-compacto ${disponibleClass}" 
+                 data-id="${horarioId}"
+                 data-inicio="${horaInicio}"
+                 data-fin="${horaFin}" 
+                 data-fecha="${fecha}"
+                 data-agenda-id="${agendaId}"
+                 data-texto="${horarioTexto}"
+                 data-disponible="${disponible ? 'true' : 'false'}"
+                 onclick="seleccionarHorarioCompleto('${fecha}', '${horaInicio}', '${horaFin}', '${agendaId}')">
+                <span class="hora-texto-compacto">${horarioTexto}</span>
+                <button class="btn-select-horario-compacto btn btn-primary btn-sm" ${!disponible ? 'disabled' : ''}>
+                    <i class="fas fa-check"></i>
+                </button>
+            </div>
+        `;
+    });
+    
+    html += '</div>';
+    
+    $(`#horarios-${fecha}`).html(html);
+}
+
+/**
+ * Mostrar mensaje informativo sobre días disponibles
+ */
+function mostrarMensajeDiasDisponibles(mensaje) {
+    $('#contenedorHorariosNew').html(`
+        <div class="text-center py-4">
+            <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+            <p class="text-muted">${mensaje}</p>
+        </div>
+    `);
+}
+
+/**
+ * Cargar todos los horarios disponibles de todas las fechas
+ */
+function cargarTodosLosHorariosDisponibles() {
+    console.log('=== CARGANDO TODOS LOS HORARIOS DISPONIBLES ===');
+    
+    const medicoId = $('#selectMedicoNew').val();
+    const servicioId = $('#servicioSelectNew').val();
+    
+    console.log('Médico ID:', medicoId);
+    console.log('Servicio ID:', servicioId);
+    
+    if (!medicoId) {
+        console.warn('No se puede cargar horarios, falta médico');
+        return;
+    }
+
+    // Agregar nueva sección para todos los horarios
+    $('#contenedorHorariosNew').append(`
+        <div id="todosLosHorarios" class="col-12 mt-4">
+            <hr>
+            <h6><i class="fas fa-clock"></i> Todos los Horarios Disponibles</h6>
+            <div id="contenedorTodosLosSlots" class="mt-3">
+                <div class="text-center py-3">
+                    <i class="fas fa-spinner fa-spin"></i> Cargando todos los horarios disponibles...
+                </div>
+            </div>
+        </div>
+    `);
+
+    // Llamar a la API para obtener horarios de todas las fechas disponibles
+    $.ajax({
+        url: 'ajax/servicios.ajax.php',
+        method: 'POST',
+        data: {
+            action: 'obtenerTodosLosHorariosDisponibles',
+            doctor_id: medicoId,
+            servicio_id: servicioId || 0
+        },
+        dataType: 'json',
+        beforeSend: function() {
+            console.log('=== ENVIANDO SOLICITUD DE TODOS LOS HORARIOS ===');
+        },
+        success: function (respuesta) {
+            console.log('Respuesta todos los horarios:', respuesta);
+            if (respuesta && respuesta.status === 'success') {
+                if (respuesta.data && respuesta.data.length > 0) {
+                    mostrarTodosLosHorarios(respuesta.data);
+                } else {
+                    $('#contenedorTodosLosSlots').html('<div class="text-center py-3 text-info">No hay horarios disponibles</div>');
+                }
+            } else {
+                console.error('Error al cargar todos los horarios:', respuesta ? respuesta.message : 'Respuesta inválida');
+                $('#contenedorTodosLosSlots').html('<div class="text-center py-3 text-danger">Error: ' + (respuesta && respuesta.message ? respuesta.message : 'No se pudo cargar los horarios') + '</div>');
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error('Error al cargar todos los horarios:', error);
+            $('#contenedorTodosLosSlots').html('<div class="text-center py-3 text-danger">Error al cargar los horarios</div>');
+        }
+    });
+}
+
+/**
+ * Mostrar todos los horarios disponibles agrupados por fecha
+ */
+function mostrarTodosLosHorarios(horarios) {
+    console.log('Mostrando todos los horarios:', horarios);
+    
+    if (!horarios || horarios.length === 0) {
+        $('#contenedorTodosLosSlots').html('<div class="text-center py-3 text-info">No hay horarios disponibles</div>');
+        return;
+    }
+
+    // Agrupar horarios por fecha
+    const horariosPorFecha = {};
+    horarios.forEach(function(horario) {
+        const fecha = horario.fecha || horario.fecha_completa;
+        if (!horariosPorFecha[fecha]) {
+            horariosPorFecha[fecha] = [];
+        }
+        horariosPorFecha[fecha].push(horario);
+    });
+
+    let html = '';
+    
+    // Mostrar horarios agrupados por fecha
+    Object.keys(horariosPorFecha).forEach(function(fecha) {
+        const horariosDelDia = horariosPorFecha[fecha];
+        const fechaFormateada = new Date(fecha + 'T00:00:00').toLocaleDateString('es-ES', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+        
+        html += `
+            <div class="fecha-grupo mb-4">
+                <h6 class="text-primary mb-3">
+                    <i class="fas fa-calendar-day"></i> ${fechaFormateada}
+                </h6>
+                <div class="horarios-grid">
+        `;
+        
+        horariosDelDia.forEach(function(horario) {
+            const horaInicio = horario.hora_inicio || horario.hora || '';
+            const horaFin = horario.hora_fin || '';
+            const horarioId = horario.horario_id || '';
+            const agendaId = horario.agenda_id || horarioId || '';
+            const disponible = horario.disponible !== false;
+            const fechaHorario = horario.fecha || fecha;
+
+            const disponibleClass = disponible ? '' : 'no-disponible';
+            const horarioTexto = horaFin ? `${horaInicio} - ${horaFin}` : horaInicio;
+
+            html += `
+                <div class="hora-slot ${disponibleClass}" 
+                     data-id="${horarioId}"
+                     data-inicio="${horaInicio}"
+                     data-fin="${horaFin}" 
+                     data-fecha="${fechaHorario}"
+                     data-agenda-id="${agendaId}"
+                     data-texto="${horarioTexto}"
+                     data-disponible="${disponible ? 'true' : 'false'}"
+                     onclick="seleccionarHorarioCompleto('${fechaHorario}', '${horaInicio}', '${horaFin}', '${agendaId}')">
+                    <span class="hora-texto">${horarioTexto}</span>
+                    <button class="btn-select-horario btn btn-primary btn-sm" ${!disponible ? 'disabled' : ''}>
+                        <i class="fas fa-check"></i>
+                    </button>
+                    <input type="hidden" class="agenda-id-value" value="${agendaId}">
+                </div>
+            `;
+        });
+        
+        html += `
+                </div>
+            </div>
+        `;
+    });
+    
+    $('#contenedorTodosLosSlots').html(html);
+}
+
+/**
+ * Seleccionar un horario específico con fecha y hora
+ */
+function seleccionarHorarioCompleto(fecha, horaInicio, horaFin, agendaId) {
+    console.log('=== SELECCIONANDO HORARIO COMPLETO ===');
+    console.log('Fecha:', fecha);
+    console.log('Hora inicio:', horaInicio);
+    console.log('Hora fin:', horaFin);
+    console.log('Agenda ID:', agendaId);
+    
+    // Actualizar campos del formulario
+    $('#fechaReservaNew').val(fecha);
+    $('#horaInicioSeleccionada').val(horaInicio);
+    $('#horaFinSeleccionada').val(horaFin);
+    $('#horaSeleccionada').val(horaInicio);
+    $('#agendaId').val(agendaId);
+    
+    // Limpiar selecciones anteriores
+    $('.hora-slot').removeClass('selected');
+    
+    // Marcar el horario seleccionado
+    $(`[data-fecha="${fecha}"][data-inicio="${horaInicio}"]`).addClass('selected');
+    
+    // Mostrar información de selección
+    const fechaFormateada = new Date(fecha + 'T00:00:00').toLocaleDateString('es-ES');
+    const horarioTexto = horaFin ? `${horaInicio} - ${horaFin}` : horaInicio;
+    
+    console.log(`Horario seleccionado: ${fechaFormateada} a las ${horarioTexto}`);
+    
+    // Opcional: mostrar mensaje de confirmación
+    if (typeof mostrarAlerta === 'function') {
+        mostrarAlerta('success', `Horario seleccionado: ${fechaFormateada} a las ${horarioTexto}`);
+    }
+}
+
+/**
+ * Mostrar solo los horarios de una fecha específica seleccionada
+ */
+function mostrarHorariosPorFechaSeleccionada(fechaSeleccionada) {
+    console.log('=== MOSTRANDO HORARIOS PARA FECHA SELECCIONADA ===');
+    console.log('Fecha seleccionada:', fechaSeleccionada);
+    
+    // Verificar que tengamos médico y servicio seleccionados
+    const medicoId = $('#selectMedicoNew').val();
+    const servicioId = $('#servicioSelectNew').val();
+    
+    console.log('Debug valores:', {
+        medicoId: medicoId,
+        servicioId: servicioId,
+        fechaSeleccionada: fechaSeleccionada
+    });
+    
+    if (!medicoId || !servicioId) {
+        console.log('Médico o servicio no seleccionado');
+        $('#contenedorHorariosNew').html(`
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle"></i>
+                Primero debe seleccionar un paciente, servicio y médico
+            </div>
+        `);
+        return;
+    }
+    
+    // Mostrar loading
+    $('#contenedorHorariosNew').html(`
+        <div class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+                <span class="sr-only">Cargando horarios...</span>
+            </div>
+            <p class="mt-2">Cargando horarios para la fecha seleccionada...</p>
+        </div>
+    `);
+    
+    // Realizar petición AJAX para obtener horarios de la fecha específica
+    $.ajax({
+        url: 'ajax/servicios.ajax.php',
+        method: 'POST',
+        data: {
+            action: 'obtenerHorariosDisponibles',
+            doctor_id: medicoId,
+            servicio_id: servicioId,
+            fecha: fechaSeleccionada
+        },
+        dataType: 'json',
+        success: function(response) {
+            console.log('Respuesta horarios para fecha:', response);
+            
+            if (response.status === 'success' && response.data && response.data.length > 0) {
+                mostrarHorariosFechaEspecifica(response.data, fechaSeleccionada);
+            } else {
+                $('#contenedorHorariosNew').html(`
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        No hay horarios disponibles para la fecha seleccionada: ${new Date(fechaSeleccionada).toLocaleDateString('es-ES')}
+                    </div>
+                `);
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Error al cargar horarios:', error);
+            $('#contenedorHorariosNew').html(`
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle"></i>
+                    Error al cargar los horarios disponibles
+                </div>
+            `);
+        }
+    });
+}
+
+/**
+ * Mostrar horarios para una fecha específica
+ */
+function mostrarHorariosFechaEspecifica(horarios, fecha) {
+    console.log('Mostrando horarios para fecha específica:', fecha, horarios);
+    
+    const fechaFormateada = new Date(fecha + 'T00:00:00').toLocaleDateString('es-ES', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+    
+    let html = `
+        <div class="row">
+            <div class="col-12 mb-3">
+                <div class="fecha-grupo semana-1">
+                    <div class="semana-badge">Fecha Seleccionada</div>
+                    <h6>${fechaFormateada}</h6>
+                    <div class="fecha-disponible">
+                        ${horarios.length} horario(s) disponible(s)
+                    </div>
+                    <div class="horarios-fecha">
+                        <div class="horarios-grid-compacta">
+    `;
+    
+    horarios.forEach(horario => {
+        const disponible = horario.disponible !== false;
+        const claseDisponibilidad = disponible ? '' : 'no-disponible';
+        const horarioTexto = horario.hora_fin ? `${horario.hora_inicio} - ${horario.hora_fin}` : horario.hora_inicio;
+        
+        html += `
+            <div class="hora-slot-compacto ${claseDisponibilidad}" 
+                 data-fecha="${fecha}"
+                 data-inicio="${horario.hora_inicio}"
+                 data-fin="${horario.hora_fin || ''}"
+                 data-agenda-id="${horario.agenda_id || ''}"
+                 onclick="${disponible ? `seleccionarHorarioCompleto('${fecha}', '${horario.hora_inicio}', '${horario.hora_fin || ''}', '${horario.agenda_id || ''}')` : ''}">
+                <span class="hora-texto-compacto">${horarioTexto}</span>
+                <button class="btn-select-horario-compacto btn btn-primary btn-sm" ${!disponible ? 'disabled' : ''}>
+                    <i class="fas fa-check"></i>
+                </button>
+            </div>
+        `;
+    });
+    
+    html += `
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    $('#contenedorHorariosNew').html(html);
+}

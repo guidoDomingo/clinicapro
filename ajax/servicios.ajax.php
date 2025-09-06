@@ -42,6 +42,58 @@ if (isset($_POST['action'])) {
             ]);
             break;
             
+        case 'obtenerTodosLosServicios':
+            // Nuevo endpoint para obtener todos los servicios activos
+            try {
+                $servicios = ControladorServicios::ctrObtenerTodosLosServiciosActivos();
+                echo json_encode([
+                    "success" => true,
+                    "status" => "success",
+                    "data" => $servicios,
+                    "total" => count($servicios),
+                    "message" => "Servicios obtenidos exitosamente"
+                ]);
+            } catch (Exception $e) {
+                echo json_encode([
+                    "success" => false,
+                    "status" => "error",
+                    "message" => "Error al obtener servicios: " . $e->getMessage(),
+                    "data" => []
+                ]);
+            }
+            break;
+            
+        case 'obtenerMedicosPorServicio':
+            // Nuevo endpoint para obtener médicos que ofrecen un servicio específico
+            if (isset($_POST['servicio_id'])) {
+                try {
+                    $servicioId = $_POST['servicio_id'];
+                    $medicos = ControladorServicios::ctrObtenerMedicosPorServicio($servicioId);
+                    echo json_encode([
+                        "success" => true,
+                        "status" => "success",
+                        "data" => $medicos,
+                        "total" => count($medicos),
+                        "message" => "Médicos obtenidos exitosamente"
+                    ]);
+                } catch (Exception $e) {
+                    echo json_encode([
+                        "success" => false,
+                        "status" => "error",
+                        "message" => "Error al obtener médicos: " . $e->getMessage(),
+                        "data" => []
+                    ]);
+                }
+            } else {
+                echo json_encode([
+                    "success" => false,
+                    "status" => "error",
+                    "message" => "ID de servicio no proporcionado",
+                    "data" => []
+                ]);
+            }
+            break;
+            
         case 'obtenerServicioPorId':
             if (isset($_POST['servicio_id'])) {
                 $servicioId = $_POST['servicio_id'];
@@ -671,6 +723,66 @@ if (isset($_POST['action'])) {
                 echo json_encode([
                     "status" => "error",
                     "message" => "Faltan parámetros requeridos: doctor_id y fecha son obligatorios"
+                ]);
+            }
+            break;
+            
+        case 'obtenerDiasDisponibles':
+            if (isset($_POST['doctor_id'])) {
+                $doctorId = $_POST['doctor_id'];
+                $servicioId = isset($_POST['servicio_id']) ? $_POST['servicio_id'] : 0;
+                
+                error_log("AJAX obtenerDiasDisponibles: DoctorID=$doctorId, ServicioID=$servicioId", 3, 'c:/laragon/www/clinica/logs/slots.log');
+                
+                try {
+                    // Llamar al método del controlador para obtener días disponibles
+                    $diasDisponibles = ControladorServicios::ctrObtenerDiasDisponibles($doctorId, $servicioId);
+                    
+                    echo json_encode([
+                        "status" => "success",
+                        "data" => $diasDisponibles
+                    ]);
+                } catch (Exception $e) {
+                    error_log("AJAX obtenerDiasDisponibles ERROR: " . $e->getMessage(), 3, 'c:/laragon/www/clinica/logs/slots.log');
+                    echo json_encode([
+                        "status" => "error",
+                        "message" => "Error al obtener días disponibles: " . $e->getMessage()
+                    ]);
+                }
+            } else {
+                echo json_encode([
+                    "status" => "error",
+                    "message" => "Falta parámetro requerido: doctor_id es obligatorio"
+                ]);
+            }
+            break;
+            
+        case 'obtenerTodosLosHorariosDisponibles':
+            if (isset($_POST['doctor_id'])) {
+                $doctorId = $_POST['doctor_id'];
+                $servicioId = isset($_POST['servicio_id']) ? $_POST['servicio_id'] : 0;
+                
+                error_log("AJAX obtenerTodosLosHorariosDisponibles: DoctorID=$doctorId, ServicioID=$servicioId", 3, 'c:/laragon/www/clinica/logs/slots.log');
+                
+                try {
+                    // Llamar al método del controlador para obtener todos los horarios disponibles
+                    $todosLosHorarios = ControladorServicios::ctrObtenerTodosLosHorariosDisponibles($doctorId, $servicioId);
+                    
+                    echo json_encode([
+                        "status" => "success",
+                        "data" => $todosLosHorarios
+                    ]);
+                } catch (Exception $e) {
+                    error_log("AJAX obtenerTodosLosHorariosDisponibles ERROR: " . $e->getMessage(), 3, 'c:/laragon/www/clinica/logs/slots.log');
+                    echo json_encode([
+                        "status" => "error",
+                        "message" => "Error al obtener todos los horarios disponibles: " . $e->getMessage()
+                    ]);
+                }
+            } else {
+                echo json_encode([
+                    "status" => "error",
+                    "message" => "Falta parámetro requerido: doctor_id es obligatorio"
                 ]);
             }
             break;

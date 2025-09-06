@@ -100,6 +100,62 @@ class ControladorServicios {
     }
     
     /**
+     * Obtiene los días disponibles para un médico específico
+     * @param int $doctorId ID del doctor
+     * @param int $servicioId ID del servicio (opcional)
+     * @return array Lista de días disponibles con información de horarios
+     */
+    static public function ctrObtenerDiasDisponibles($doctorId, $servicioId = 0) {
+        try {
+            // Verificar que el doctor ID sea válido
+            if (empty($doctorId)) {
+                error_log("ctrObtenerDiasDisponibles: Doctor ID es requerido", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+                return [];
+            }
+
+            // Obtener los días disponibles del modelo
+            $diasDisponibles = ModelServicios::mdlObtenerDiasDisponibles($doctorId, $servicioId);
+            
+            // Registrar cuántos días se encontraron
+            error_log("ctrObtenerDiasDisponibles: Se encontraron " . count($diasDisponibles) . " días disponibles para doctor ID $doctorId", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+            
+            return $diasDisponibles;
+            
+        } catch (Exception $e) {
+            error_log("ERROR en ctrObtenerDiasDisponibles: " . $e->getMessage(), 3, 'c:/laragon/www/clinica/logs/servicios.log');
+            return [];
+        }
+    }
+    
+    /**
+     * Obtiene todos los horarios disponibles para un médico de todas las fechas
+     * @param int $doctorId ID del doctor
+     * @param int $servicioId ID del servicio (opcional)
+     * @return array Lista de todos los horarios disponibles con fechas
+     */
+    static public function ctrObtenerTodosLosHorariosDisponibles($doctorId, $servicioId = 0) {
+        try {
+            // Verificar que el doctor ID sea válido
+            if (empty($doctorId)) {
+                error_log("ctrObtenerTodosLosHorariosDisponibles: Doctor ID es requerido", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+                return [];
+            }
+
+            // Obtener todos los horarios disponibles del modelo
+            $todosLosHorarios = ModelServicios::mdlObtenerTodosLosHorariosDisponibles($doctorId, $servicioId);
+            
+            // Registrar cuántos horarios se encontraron
+            error_log("ctrObtenerTodosLosHorariosDisponibles: Se encontraron " . count($todosLosHorarios) . " horarios disponibles para doctor ID $doctorId", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+            
+            return $todosLosHorarios;
+            
+        } catch (Exception $e) {
+            error_log("ERROR en ctrObtenerTodosLosHorariosDisponibles: " . $e->getMessage(), 3, 'c:/laragon/www/clinica/logs/servicios.log');
+            return [];
+        }
+    }
+    
+    /**
      * Obtiene las categorías de servicios
      * @return array Lista de categorías
      */
@@ -705,6 +761,58 @@ class ControladorServicios {
         } catch (Exception $e) {
             error_log("Error en ctrObtenerDoctoresPorFecha: " . $e->getMessage(), 
                       3, "c:/laragon/www/clinica/logs/reservas.log");
+            return [];
+        }
+    }
+
+    /**
+     * Obtiene todos los servicios activos del sistema
+     * @return array Lista de todos los servicios activos
+     */
+    static public function ctrObtenerTodosLosServiciosActivos() {
+        try {
+            error_log("ctrObtenerTodosLosServiciosActivos: Obteniendo todos los servicios activos", 
+                      3, "c:/laragon/www/clinica/logs/servicios.log");
+                      
+            $servicios = ModelServicios::mdlObtenerTodosLosServiciosActivos();
+            
+            error_log("ctrObtenerTodosLosServiciosActivos: Encontrados " . count($servicios) . " servicios", 
+                      3, "c:/laragon/www/clinica/logs/servicios.log");
+            
+            return $servicios;
+            
+        } catch (Exception $e) {
+            error_log("Error en ctrObtenerTodosLosServiciosActivos: " . $e->getMessage(), 
+                      3, "c:/laragon/www/clinica/logs/servicios.log");
+            return [];
+        }
+    }
+
+    /**
+     * Obtiene médicos que ofrecen un servicio específico
+     * @param int $servicioId ID del servicio
+     * @return array Lista de médicos que ofrecen el servicio
+     */
+    static public function ctrObtenerMedicosPorServicio($servicioId) {
+        try {
+            // Validar que se proporcione el ID del servicio
+            if (empty($servicioId) || !is_numeric($servicioId)) {
+                throw new Exception("ID de servicio inválido");
+            }
+            
+            error_log("ctrObtenerMedicosPorServicio: Obteniendo médicos para servicio ID: " . $servicioId, 
+                      3, "c:/laragon/www/clinica/logs/servicios.log");
+                      
+            $medicos = ModelServicios::mdlObtenerMedicosPorServicio($servicioId);
+            
+            error_log("ctrObtenerMedicosPorServicio: Encontrados " . count($medicos) . " médicos", 
+                      3, "c:/laragon/www/clinica/logs/servicios.log");
+            
+            return $medicos;
+            
+        } catch (Exception $e) {
+            error_log("Error en ctrObtenerMedicosPorServicio: " . $e->getMessage(), 
+                      3, "c:/laragon/www/clinica/logs/servicios.log");
             return [];
         }
     }

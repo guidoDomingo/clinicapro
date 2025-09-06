@@ -351,7 +351,8 @@ tr.selected {
     background: #f9f9f9;
     border: 1px solid #e0e0e0;
     border-radius: 6px;
-    padding: 10px 15px;
+    padding: 18px 15px;
+    min-height: 60px;
     cursor: pointer;
     transition: all 0.2s ease;
 }
@@ -373,6 +374,20 @@ tr.selected {
     color: #999;
     cursor: not-allowed;
     opacity: 0.7;
+}
+
+.horarios-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 12px;
+    margin-top: 15px;
+}
+
+@media (max-width: 768px) {
+    .horarios-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
 }
 
 .btn-select-horario {
@@ -397,6 +412,273 @@ tr.selected {
     background-color: #ccc;
     border-color: #ccc;
     opacity: 0.7;
+}
+
+.hora-texto {
+    font-weight: 600;
+    font-size: 16px;
+    color: #2c3e50;
+}
+
+.hora-slot.selected .hora-texto {
+    color: #0066cc;
+    font-weight: 700;
+}
+
+.fecha-grupo {
+    border-left: 4px solid #007bff;
+    padding-left: 15px;
+    margin-bottom: 25px;
+}
+
+.fecha-grupo h6 {
+    margin-bottom: 15px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+/* Sistema de colores para identificar semanas */
+.fecha-grupo {
+    position: relative;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+}
+
+.fecha-grupo:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+}
+
+/* Paleta de colores moderna para semanas */
+.fecha-grupo.semana-1 {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-left: 6px solid #667eea;
+}
+
+.fecha-grupo.semana-2 {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    border-left: 6px solid #f093fb;
+}
+
+.fecha-grupo.semana-3 {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    border-left: 6px solid #4facfe;
+}
+
+.fecha-grupo.semana-4 {
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    border-left: 6px solid #43e97b;
+}
+
+.fecha-grupo.semana-5 {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    border-left: 6px solid #fa709a;
+}
+
+/* Título de fecha con mejor contraste */
+.fecha-grupo h6 {
+    margin-bottom: 15px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid rgba(255,255,255,0.3);
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 16px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    letter-spacing: 0.5px;
+}
+
+.fecha-grupo .fecha-disponible {
+    color: rgba(255,255,255,0.9);
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 15px;
+}
+
+/* Badge de semana */
+.semana-badge {
+    position: absolute;
+    top: -8px;
+    right: 15px;
+    background: rgba(255,255,255,0.95);
+    color: #333;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+/* Estilos para horarios compactos debajo de cada fecha */
+.horarios-grid-compacta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.hora-slot-compacto {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255,255,255,0.95);
+    border: 2px solid rgba(255,255,255,0.7);
+    border-radius: 8px;
+    padding: 12px 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-height: 50px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.hora-slot-compacto:hover {
+    background: rgba(255,255,255,1);
+    border-color: rgba(255,255,255,1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.hora-slot-compacto.selected {
+    background: rgba(255,255,255,1);
+    border-color: #4caf50;
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.3);
+    transform: scale(1.02);
+}
+
+.hora-slot-compacto.no-disponible {
+    background: rgba(255,255,255,0.5);
+    border-color: rgba(255,255,255,0.3);
+    color: #999;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.hora-texto-compacto {
+    font-weight: 600;
+    font-size: 14px;
+    color: #2c3e50;
+}
+
+.hora-slot-compacto.selected .hora-texto-compacto {
+    color: #2e7d32;
+    font-weight: 700;
+}
+
+.btn-select-horario-compacto {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+    font-size: 12px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    color: white;
+    box-shadow: 0 2px 6px rgba(102, 126, 234, 0.3);
+}
+
+.btn-select-horario-compacto:hover {
+    transform: scale(1.15);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
+}
+
+.horarios-fecha {
+    background: rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 15px;
+    backdrop-filter: blur(10px);
+}
+
+/* Responsive para horarios compactos */
+@media (max-width: 768px) {
+    .horarios-grid-compacta {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 6px;
+    }
+    
+    .hora-slot-compacto {
+        padding: 8px 10px;
+        min-height: 40px;
+    }
+    
+    .hora-texto-compacto {
+        font-size: 13px;
+    }
+    
+    .fecha-grupo {
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+    
+    .fecha-grupo h6 {
+        font-size: 14px;
+    }
+    
+    .semana-badge {
+        top: -6px;
+        right: 10px;
+        padding: 4px 8px;
+        font-size: 10px;
+    }
+}
+
+/* Animaciones y transiciones mejoradas */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fecha-grupo {
+    animation: fadeInUp 0.6s ease-out;
+    animation-fill-mode: both;
+}
+
+.fecha-grupo:nth-child(1) { animation-delay: 0.1s; }
+.fecha-grupo:nth-child(2) { animation-delay: 0.2s; }
+.fecha-grupo:nth-child(3) { animation-delay: 0.3s; }
+.fecha-grupo:nth-child(4) { animation-delay: 0.4s; }
+.fecha-grupo:nth-child(5) { animation-delay: 0.5s; }
+
+/* Efectos de glassmorphism */
+.fecha-grupo::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255,255,255,0.1);
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+    z-index: -1;
+}
+
+/* Loading mejorado */
+.loading-horarios {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 20px;
+    color: rgba(255,255,255,0.9);
+}
+
+.loading-horarios i {
+    font-size: 18px;
 }
 
 /* Style for the time column */
@@ -609,12 +891,12 @@ tr.selected {
 
 /* Reglas adicionales para forzar scroll y altura fija */
 #contenedorHorariosNew {
-    height: 150px !important;
+    height: 500px !important;
     overflow-y: scroll !important;
 }
 
 .table-horarios tbody {
-    height: 150px;
+    height: 500px;
     overflow-y: scroll;
 }
 
