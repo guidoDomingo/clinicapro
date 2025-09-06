@@ -196,4 +196,18 @@ class SysUser extends Model
             return false;
         }
     }
+
+    /**
+     * Get the registration ID for a user
+     * 
+     * @param int $userId The user ID
+     * @return int|null
+     */
+    public function getRegistrationId($userId)
+    {
+        $sql = "SELECT reg_id FROM {$this->table} WHERE {$this->primaryKey} = :userId";
+        $result = $this->raw($sql, ['userId' => $userId])->fetch();
+        
+        return $result ? $result['reg_id'] : null;
+    }
 }

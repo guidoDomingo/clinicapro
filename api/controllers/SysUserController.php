@@ -648,4 +648,76 @@ class SysUserController
             Response::error(['message' => 'Failed to upload profile photo', 'error' => $e->getMessage()], 500);
         }
     }
+
+    /**
+     * Change the password of any user (admin function)
+     * 
+     * @return void
+     */
+    public function adminChangePassword()
+    {
+        // Verify the current user has admin privileges
+        $currentUserId = $_SESSION['user_id'] ?? null;
+        
+        if (!$currentUserId) {
+            Logger::info('Intento de cambio de contraseña de admin sin autenticación');
+            Response::error(['message' => 'No has iniciado sesión.'], 401);
+            return;
+        }
+
+        // Get the request body
+        $data = json_decode(file_get_contents('php://input'), true);
+        
+        if (!isset($data['user_id']) || !isset($data['new_password'])) {
+            Logger::info('Intento de cambio de contraseña de admin con datos incompletos');
+            Response::error(['message' => 'El ID del usuario y la nueva contraseña son obligatorios.'], 400);
+            return;
+        }
+
+        $targetUserId = $data['user_id'];
+        $newPassword = $data['new_password'];
+
+        // Validar longitud mínima de la nueva contraseña
+        if (strlen($newPassword) < 6) {
+            Logger::info('Intento de cambio de contraseña de admin con formato inválido');
+            Response::error(['message' => 'La nueva contraseña debe tener al menos 6 caracteres.'], 400);
+            return;
+        }
+        
+        try {
+            // Get the target user
+            $targetUser = $this->userModel->find($targetUserId);
+            
+            if (!$targetUser) {
+                Logger::error('Usuario objetivo no encontrado al cambiar contraseña', ['target_user_id' => $targetUserId]);
+                Response::error(['message' => 'No se pudo encontrar la información del usuario objetivo.'], 404);
+                return;
+            }
+            
+            // Update password with new hash
+            $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+            $result = $this->userModel->update($targetUserId, ['user_pass' => $hashedPassword]);
+            
+            if ($result) {
+                Logger::info('Cambio de contraseña de admin exitoso', [
+                    'admin_user_id' => $currentUserId, 
+                    'target_user_id' => $targetUserId
+                ]);
+                Response::success(['message' => 'Contraseña actualizada exitosamente']);
+            } else {
+                Logger::error('Error al actualizar la contraseña de usuario por admin', [
+                    'admin_user_id' => $currentUserId,
+                    'target_user_id' => $targetUserId
+                ]);
+                Response::error(['message' => 'No se pudo actualizar la contraseña. Por favor, intenta nuevamente.'], 500);
+            }
+        } catch (\Exception $e) {
+            Logger::error('Error en el cambio de contraseña de admin', [
+                'admin_user_id' => $currentUserId,
+                'target_user_id' => $targetUserId,
+                'error' => $e->getMessage()
+            ]);
+            Response::error(['message' => 'Error interno del servidor al cambiar la contraseña.'], 500);
+        }
+    }
 }

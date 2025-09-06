@@ -97,6 +97,9 @@ $(document).ready(function() {
                         <button class="btn btn-primary btn-sm assignRole" data-id="${row.user_id}">
                             <i class="fas fa-user-tag"></i> Asignar Roles
                         </button>
+                        <button class="btn btn-warning btn-sm ml-1 changePassword" data-id="${row.user_id}" data-name="${row.display_name || (row.reg_name + ' ' + row.reg_lastname)}">
+                            <i class="fas fa-key"></i> Cambiar Contraseña
+                        </button>
                     `;
                 }
             }
@@ -498,6 +501,80 @@ $(document).ready(function() {
                     error: function(xhr) {
                         console.error('Error deleting permission:', xhr.responseText);
                         Swal.fire('Error', xhr.responseJSON?.message || 'Error al eliminar el permiso', 'error');
+                    }
+                });
+            }
+        });
+    });
+
+    // Handle Change Password Click
+    $(document).on('click', '.changePassword', function() {
+        const userId = $(this).data('id');
+        const userName = $(this).data('name');
+        
+        $('#changePasswordUserId').val(userId);
+        $('#changePasswordUserName').text(userName);
+        $('#modalChangeUserPassword').modal('show');
+    });
+
+    // Handle Change User Password Form Submit
+    $('#formChangeUserPassword').on('submit', function(e) {
+        e.preventDefault();
+        
+        const userId = $('#changePasswordUserId').val();
+        const newPassword = $('#newUserPassword').val();
+        const confirmPassword = $('#confirmUserPassword').val();
+        
+        // Validar que las contraseñas coincidan
+        if (newPassword !== confirmPassword) {
+            Swal.fire('Error', 'Las contraseñas no coinciden', 'error');
+            return;
+        }
+        
+        // Validar longitud mínima
+        if (newPassword.length < 6) {
+            Swal.fire('Error', 'La contraseña debe tener al menos 6 caracteres', 'error');
+            return;
+        }
+        
+        // Confirmar acción
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: 'Se cambiará la contraseña del usuario seleccionado',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#f39c12',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, cambiar contraseña',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Mostrar indicador de carga
+                Swal.fire({
+                    title: 'Cambiando contraseña...',
+                    text: 'Por favor espera',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                
+                $.ajax({
+                    url: 'api/users/admin-change-password',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        user_id: userId,
+                        new_password: newPassword
+                    }),
+                    success: function(response) {
+                        $('#modalChangeUserPassword').modal('hide');
+                        $('#formChangeUserPassword')[0].reset();
+                        Swal.fire('¡Éxito!', 'Contraseña cambiada correctamente', 'success');
+                    },
+                    error: function(xhr) {
+                        console.error('Error changing password:', xhr.responseText);
+                        Swal.fire('Error', xhr.responseJSON?.message || 'Error al cambiar la contraseña', 'error');
                     }
                 });
             }

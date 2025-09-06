@@ -277,3 +277,40 @@ if (!isset($_SESSION["iniciarSesion"]) || $_SESSION["iniciarSesion"] !== "ok") {
         </div>
     </div>
 </div>
+
+<!-- Modal Change User Password -->
+<div class="modal fade" id="modalChangeUserPassword">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Cambiar Contraseña de Usuario</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="formChangeUserPassword">
+                <input type="hidden" id="changePasswordUserId" name="user_id">
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> Cambiarás la contraseña del usuario: <strong id="changePasswordUserName"></strong>
+                    </div>
+                    <div class="form-group">
+                        <label for="newUserPassword">Nueva Contraseña <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control" id="newUserPassword" name="new_password" 
+                               placeholder="Ingresa la nueva contraseña" minlength="6" required>
+                        <small class="form-text text-muted">La contraseña debe tener al menos 6 caracteres</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmUserPassword">Confirmar Nueva Contraseña <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control" id="confirmUserPassword" name="confirm_password" 
+                               placeholder="Confirma la nueva contraseña" required>
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                    <button type="submit" class="btn btn-warning">Cambiar Contraseña</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -44,6 +44,7 @@ $router->post('users/associate-person', 'Api\\Controllers\\SysUserController', '
 $router->get('users/profile', 'Api\\Controllers\\SysUserController', 'getProfile');
 $router->post('users/update-profile', 'Api\\Controllers\\SysUserController', 'updateProfile');
 $router->post('users/change-password', 'Api\\Controllers\\SysUserController', 'changePassword');
+$router->post('users/admin-change-password', 'Api\\Controllers\\SysUserController', 'adminChangePassword');
 $router->post('users/upload-photo', 'Api\\Controllers\\SysUserController', 'uploadProfilePhoto');
 
 // Role routes

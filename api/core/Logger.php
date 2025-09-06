@@ -118,4 +118,16 @@ class Logger
     {
         self::log($data, 'debug', $context);
     }
+    
+    /**
+     * Log warning level message
+     * 
+     * @param mixed $data The data to log
+     * @param string $context Additional context information
+     * @return void
+     */
+    public static function warning($data, $context = '')
+    {
+        self::log($data, 'warning', $context);
+    }
 }
