@@ -1511,35 +1511,20 @@ function cargarServiciosActivos() {
             $('.hora-btn.btn-success').data('hora-fin') ||
             hora; // Use same as start if no end time
         const servicioId = $('#servicioSelectNew').val(); // Corregido de servicioSelect a servicioSelectNew
-        const seguroId = $('#selectSeguro').val(); // Corregido de seguroSelect a selectSeguro
         const planId = $('#planSelect').val();
-        const salaId = $('#selectSala').val(); // Corregido de salaSelect a selectSala
         
-        // Debug - verificar valores obtenidos
+        // Debug - verificar valores obtenidos (excepto sala y seguro que se capturan más adelante)
         console.log('DEBUG - Valores del formulario:');
         console.log('servicioId:', servicioId);
-        console.log('seguroId:', seguroId);
-        console.log('salaId:', salaId);
         const agendaId = $('#agendaId').val(); // Get the agenda_id
         const importe = $('#importeReservaNew').val().replace('S/ ', '');
-        const observaciones = $('#observacionesNew').val(); console.log('Datos del formulario para guardar:', {
-            medicoId: medicoId,
-            pacienteId: pacienteId,
-            fecha: fecha,
-            hora: hora,
-            horaFin: horaFin,
-            agendaId: agendaId,
-            servicioId: servicioId,
-            seguroId: seguroId,
-            planId: planId,
-            horaInicioSeleccionada: $('#horaInicioSeleccionada').val(),
-            horaFinSeleccionada: $('#horaFinSeleccionada').val(),
-            horaSeleccionada: $('#horaSeleccionada').val(),
-            btnSuccessCount: $('.hora-btn.btn-success').length,
-            btnSuccessData: $('.hora-btn.btn-success').data('hora-inicio'),
-            btnSuccessFinData: $('.hora-btn.btn-success').data('hora-fin'),
-            btnSuccessHorarioId: $('.hora-btn.btn-success').data('horario-id')
-        });
+        const observaciones = $('#observacionesNew').val();
+        
+        // Debug - verificar valores obtenidos (excepto sala y seguro que se capturan más adelante)
+        console.log('DEBUG - Valores del formulario:');
+        console.log('servicioId:', servicioId);
+        console.log('selectSeguro exists:', $('#selectSeguro').length > 0);
+        console.log('selectSala exists:', $('#selectSala').length > 0);
 
         // Validate required fields
         if (!medicoId) {
@@ -1561,6 +1546,95 @@ function cargarServiciosActivos() {
             mostrarAlerta('warning', 'Por favor seleccione un horario');
             return;
         }
+
+        // Capturar valores justo antes de la validación - CORREGIDO: usar selectores correctos
+        const salaId = $('#salaSelect').val(); // Selector visible correcto
+        const seguroId = $('#seguroSelect').val(); // Selector visible correcto
+        
+        console.log('DEBUG - Validación de valores:');
+        console.log('salaId captured:', salaId);
+        console.log('seguroId captured:', seguroId);
+        
+        // Log completo de datos del formulario
+        console.log('Datos del formulario para guardar:', {
+            medicoId: medicoId,
+            pacienteId: pacienteId,
+            fecha: fecha,
+            hora: hora,
+            horaFin: horaFin,
+            agendaId: agendaId,
+            servicioId: servicioId,
+            seguroId: seguroId,
+            salaId: salaId,
+            planId: planId,
+            horaInicioSeleccionada: $('#horaInicioSeleccionada').val(),
+            horaFinSeleccionada: $('#horaFinSeleccionada').val(),
+            horaSeleccionada: $('#horaSeleccionada').val(),
+            btnSuccessCount: $('.hora-btn.btn-success').length,
+            btnSuccessData: $('.hora-btn.btn-success').data('hora-inicio'),
+            btnSuccessFinData: $('.hora-btn.btn-success').data('hora-fin'),
+            btnSuccessHorarioId: $('.hora-btn.btn-success').data('horario-id')
+        });
+        
+        // Validación para sala (obligatoria - usuario debe seleccionar)
+        console.log('DEBUG SALA - Valor obtenido:', salaId);
+        console.log('DEBUG SALA - Tipo:', typeof salaId);
+        console.log('DEBUG SALA - Elemento existe:', $('#selectSala').length);
+        console.log('DEBUG SALA - Valor directo del DOM:', $('#selectSala').val());
+        
+        if (!salaId || salaId === '' || salaId === '0') {
+            console.error('VALIDACIÓN SALA FALLÓ:');
+            console.error('- !salaId:', !salaId);
+            console.error('- salaId === "":', salaId === '');
+            console.error('- salaId === "0":', salaId === '0');
+            console.error('- Valor actual salaId:', salaId);
+            console.error('- Tipo de salaId:', typeof salaId);
+            
+            // Mostrar alerta más específica y resaltar el campo
+            Swal.fire({
+                title: 'Sala requerida',
+                html: `
+                    <p><strong>Debe seleccionar una sala antes de guardar la reserva.</strong></p>
+                    <br>
+                    <p>Por favor:</p>
+                    <ol style="text-align: left; display: inline-block;">
+                        <li>Haga clic en el dropdown de "Sala"</li>
+                        <li>Seleccione una de las opciones disponibles</li>
+                        <li>Luego haga clic en "Guardar" nuevamente</li>
+                    </ol>
+                `,
+                icon: 'warning',
+                confirmButtonText: 'Entendido',
+                confirmButtonColor: '#3085d6'
+            }).then(() => {
+                // Resaltar y enfocar el selector de sala CORRECTO
+                $('#salaSelect').focus().addClass('is-invalid');
+                setTimeout(() => $('#salaSelect').removeClass('is-invalid'), 5000);
+            });
+            
+            console.error('ERROR: El usuario no seleccionó una sala. salaId:', salaId);
+            return;
+        }
+
+        // Validación para seguro (obligatorio - usuario debe seleccionar)
+        console.log('DEBUG SEGURO - Valor obtenido:', seguroId);
+        console.log('DEBUG SEGURO - Tipo:', typeof seguroId);
+        console.log('DEBUG SEGURO - Elemento existe:', $('#selectSeguro').length);
+        console.log('DEBUG SEGURO - Valor directo del DOM:', $('#selectSeguro').val());
+        
+        if (!seguroId || seguroId === '' || seguroId === '0') {
+            mostrarAlerta('warning', 'Por favor seleccione un seguro médico antes de guardar la reserva');
+            console.error('ERROR: El usuario no seleccionó un seguro. seguroId:', seguroId);
+            // Resaltar el selector de seguro CORRECTO
+            $('#seguroSelect').focus().addClass('is-invalid');
+            setTimeout(() => $('#seguroSelect').removeClass('is-invalid'), 3000);
+            return;
+        }
+
+        // Debug - mostrar valores seleccionados por el usuario
+        console.log('VALIDACIÓN EXITOSA:');
+        console.log('- Sala seleccionada por usuario:', salaId, 'tipo:', typeof salaId);
+        console.log('- Seguro seleccionado por usuario:', seguroId, 'tipo:', typeof seguroId);
 
         if (!servicioId) {
             mostrarAlerta('warning', 'Por favor seleccione un servicio');
@@ -1591,7 +1665,11 @@ function cargarServiciosActivos() {
             confirmButtonText: 'Sí, guardar',
             cancelButtonText: 'Cancelar'
         }).then((result) => {
-            if (result.isConfirmed) {            // AJAX call to save reservation
+            if (result.isConfirmed) {
+                // Debug final - mostrar datos que se enviarán
+                console.log('DEBUG - Datos finales enviados al servidor:', datos);
+                
+                // AJAX call to save reservation
                 $.ajax({
                     url: 'ajax/servicios.ajax.php',
                     method: 'POST',
@@ -1845,11 +1923,12 @@ function cargarServiciosActivos() {
                 $('#selectSala').html('<option value="">Seleccione una sala</option>');
 
                 if (respuesta.status && respuesta.data && respuesta.data.length > 0) {
-                    respuesta.data.forEach(function (sala) {
+                    respuesta.data.forEach(function (sala, index) {
                         const salaId = sala.id;
                         const salaNombre = `${sala.codigo} - ${sala.nombre}`;
                         $('#selectSala').append(`<option value="${salaId}">${salaNombre}</option>`);
                     });
+                    console.log('Salas cargadas, el usuario debe seleccionar una:', respuesta.data.length);
                 } else {
                     console.warn('No se encontraron salas activas para el selector.');
                 }
@@ -1881,7 +1960,7 @@ function cargarServiciosActivos() {
                 $('#selectSeguro').html('<option value="">Seleccione un seguro médico</option>');
 
                 if (respuesta.data && respuesta.data.length > 0) {
-                    respuesta.data.forEach(function (proveedor) {
+                    respuesta.data.forEach(function (proveedor, index) {
                         const proveedorId = proveedor.prov_id || proveedor.id;
                         const proveedorNombre = proveedor.prov_razon ||
                             (proveedor.prov_name + ' ' + proveedor.prov_lastname) ||
@@ -1889,6 +1968,7 @@ function cargarServiciosActivos() {
                             `Proveedor ${proveedorId}`;
                         $('#selectSeguro').append(`<option value="${proveedorId}">${proveedorNombre}</option>`);
                     });
+                    console.log('Seguros cargados, el usuario debe seleccionar uno:', respuesta.data.length);
                 } else {
                     console.warn('No se encontraron proveedores de seguro para el selector.');
                 }

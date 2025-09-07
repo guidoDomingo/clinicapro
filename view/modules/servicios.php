@@ -188,7 +188,8 @@ if (!isset($_SESSION['perfil'])) {
                                                 </div>
                                                 <div class="card-body">
                                                     <div class="form-group">
-                                                        <select class="form-control" id="selectSala">
+                                                        <label for="selectSala" class="text-bold">Sala <span class="text-danger">*</span></label>
+                                                        <select class="form-control" id="selectSala" required>
                                                             <option value="">Seleccione una sala</option>
                                                             <!-- Se carga dinámicamente -->
                                                         </select>
@@ -254,7 +255,7 @@ if (!isset($_SESSION['perfil'])) {
                                                 <div class="card-body"> <!-- Paso: Selección de seguro médico (proveedor) -->
                                                     <div class="card mb-4 mt-4">
                                                         <div class="card-header bg-warning">
-                                                            <h5 class="mb-0"><i class="fas fa-shield-alt"></i> Paso 4: ¿El paciente tiene seguro médico?</h5>
+                                                            <h5 class="mb-0"><i class="fas fa-shield-alt"></i> Paso 5: Seleccione el seguro médico <span class="text-danger">*</span></h5>
                                                         </div>
                                                         <div class="card-body">
                                                             <div class="form-group">
@@ -265,10 +266,10 @@ if (!isset($_SESSION['perfil'])) {
                                                                 </select>
                                                             </div>
 
-                                                            <div id="selectSeguroContainer" style="display: none;">
+                                                            <div id="selectSeguroContainer" style="display: block;">
                                                                 <div class="form-group">
-                                                                    <label for="selectSeguro">Seleccione el seguro:</label>
-                                                                    <select class="form-control" id="selectSeguro">
+                                                                    <label for="selectSeguro" class="text-bold">Seguro médico <span class="text-danger">*</span></label>
+                                                                    <select class="form-control" id="selectSeguro" required>
                                                                         <option value="">Seleccione un seguro médico</option>
                                                                         <!-- Se cargará dinámicamente -->
                                                                     </select>
