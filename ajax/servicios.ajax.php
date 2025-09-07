@@ -130,7 +130,8 @@ if (isset($_POST['action'])) {
                                     END as turno
                                 FROM agendas_detalle ad
                                 INNER JOIN agendas_cabecera ac ON ad.agenda_id = ac.agenda_id
-                                INNER JOIN rs_servicios_doctors rsd ON ac.medico_id = rsd.doctor_id
+                                INNER JOIN rs_servicios_doctors rsd ON rsd.agenda_detalle_id = ad.detalle_id 
+                                                                    AND ac.medico_id = rsd.doctor_id
                                 INNER JOIN rh_doctors rh ON rsd.doctor_id = rh.doctor_id
                                 INNER JOIN rh_person p ON rh.person_id = p.person_id
                                 WHERE ac.agenda_estado = true 
@@ -161,7 +162,8 @@ if (isset($_POST['action'])) {
                                     END as turno
                                 FROM agendas_detalle ad
                                 INNER JOIN agendas_cabecera ac ON ad.agenda_id = ac.agenda_id
-                                INNER JOIN rs_servicios_doctors rsd ON ac.medico_id = rsd.doctor_id
+                                INNER JOIN rs_servicios_doctors rsd ON rsd.agenda_detalle_id = ad.detalle_id 
+                                                                    AND ac.medico_id = rsd.doctor_id
                                 INNER JOIN rh_doctors rh ON rsd.doctor_id = rh.doctor_id
                                 INNER JOIN rh_person p ON rh.person_id = p.person_id
                                 WHERE ac.agenda_estado = true 
@@ -186,9 +188,11 @@ if (isset($_POST['action'])) {
                                 sr.reserva_estado,
                                 sr.fecha_reserva
                             FROM servicios_reservas sr
-                            INNER JOIN rs_servicios_doctors rsd ON sr.doctor_id = rsd.doctor_id
+                            INNER JOIN agendas_cabecera ac ON sr.agenda_id = ac.agenda_id
+                            INNER JOIN rs_servicios_doctors rsd ON rsd.doctor_id = sr.doctor_id
                             WHERE sr.fecha_reserva::date BETWEEN :fecha_inicio::date AND :fecha_fin::date
                             AND rsd.servicio_id = :servicio_id
+                            AND rsd.is_active = true
                             AND sr.reserva_estado IN ('CONFIRMADA', 'EN_PROCESO')
                         ";
                         
@@ -224,7 +228,8 @@ if (isset($_POST['action'])) {
                                     END as turno
                                 FROM agendas_detalle ad
                                 INNER JOIN agendas_cabecera ac ON ad.agenda_id = ac.agenda_id
-                                INNER JOIN rs_servicios_doctors rsd ON ac.medico_id = rsd.doctor_id
+                                INNER JOIN rs_servicios_doctors rsd ON rsd.agenda_detalle_id = ad.detalle_id 
+                                                                    AND ac.medico_id = rsd.doctor_id
                                 INNER JOIN rh_doctors rh ON rsd.doctor_id = rh.doctor_id
                                 INNER JOIN rh_person p ON rh.person_id = p.person_id
                                 WHERE ac.agenda_estado = true 
@@ -254,7 +259,8 @@ if (isset($_POST['action'])) {
                                     END as turno
                                 FROM agendas_detalle ad
                                 INNER JOIN agendas_cabecera ac ON ad.agenda_id = ac.agenda_id
-                                INNER JOIN rs_servicios_doctors rsd ON ac.medico_id = rsd.doctor_id
+                                INNER JOIN rs_servicios_doctors rsd ON rsd.agenda_detalle_id = ad.detalle_id 
+                                                                    AND ac.medico_id = rsd.doctor_id
                                 INNER JOIN rh_doctors rh ON rsd.doctor_id = rh.doctor_id
                                 INNER JOIN rh_person p ON rh.person_id = p.person_id
                                 WHERE ac.agenda_estado = true 
@@ -275,9 +281,11 @@ if (isset($_POST['action'])) {
                                 sr.doctor_id,
                                 sr.reserva_estado
                             FROM servicios_reservas sr
-                            INNER JOIN rs_servicios_doctors rsd ON sr.doctor_id = rsd.doctor_id
+                            INNER JOIN agendas_cabecera ac ON sr.agenda_id = ac.agenda_id
+                            INNER JOIN rs_servicios_doctors rsd ON rsd.doctor_id = sr.doctor_id
                             WHERE sr.fecha_reserva::date = :fecha::date
                             AND rsd.servicio_id = :servicio_id
+                            AND rsd.is_active = true
                             AND sr.reserva_estado IN ('CONFIRMADA', 'EN_PROCESO')
                         ";
                         
@@ -341,8 +349,18 @@ if (isset($_POST['action'])) {
                         if ($intervaloMinutos > 0) {
                             $horaActual = clone $horaInicio;
                             while ($horaActual < $horaFin) {
-                                $cuposPorTurno[$turno] += $cupoMaximo;
-                                $totalCupos += $cupoMaximo;
+                                // Verificar que el slot completo quepa dentro del horario
+                                $horaFinSlot = clone $horaActual;
+                                $horaFinSlot->add(new DateInterval('PT' . $intervaloMinutos . 'M'));
+                                
+                                if ($horaFinSlot <= $horaFin) {
+                                    $cuposPorTurno[$turno] += $cupoMaximo;
+                                    $totalCupos += $cupoMaximo;
+                                } else {
+                                    // El slot no cabe completo, salir del bucle
+                                    break;
+                                }
+                                
                                 $horaActual->add(new DateInterval('PT' . $intervaloMinutos . 'M'));
                             }
                         }
@@ -367,8 +385,18 @@ if (isset($_POST['action'])) {
                     $cuposDisponibles = [
                         'Mañana' => max(0, $cuposPorTurno['Mañana'] - $reservasPorTurno['Mañana']),
                         'Tarde' => max(0, $cuposPorTurno['Tarde'] - $reservasPorTurno['Tarde']),
-                        'Noche' => max(0, $cuposPorTurno['Noche'] - $reservasPorTurno['Noche']),
-                        'Total' => max(0, $totalCupos - $totalReservas)
+                        'Noche' => max(0, $cuposPorTurno['Noche'] - $reservasPorTurno['Noche'])
+                    ];
+                    
+                    // El total debe ser la suma de los cupos disponibles por turno
+                    $cuposDisponibles['Total'] = $cuposDisponibles['Mañana'] + $cuposDisponibles['Tarde'] + $cuposDisponibles['Noche'];
+                    
+                    // Calcular cupos reservados para mostrar información completa
+                    $cuposReservados = [
+                        'Mañana' => $reservasPorTurno['Mañana'],
+                        'Tarde' => $reservasPorTurno['Tarde'], 
+                        'Noche' => $reservasPorTurno['Noche'],
+                        'Total' => $totalReservas
                     ];
                     
                     error_log("Cupos calculados para servicio {$servicioId}: " . json_encode($cuposDisponibles), 3, "c:/laragon/www/clinica/logs/servicios.log");
@@ -377,7 +405,7 @@ if (isset($_POST['action'])) {
                         "success" => true,
                         "status" => "success",
                         "data" => $cuposDisponibles,
-                        "reservas" => $reservasPorTurno,
+                        "reservados" => $cuposReservados,
                         "totales" => $cuposPorTurno,
                         "message" => "Cupos obtenidos exitosamente"
                     ]);

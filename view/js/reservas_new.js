@@ -4091,11 +4091,13 @@ function cargarCuposPorServicio(servicioId) {
             if (respuesta.status === "success" && respuesta.data) {
                 const cupos = respuesta.data;
                 const reservas = respuesta.reservas || {};
+                const reservados = respuesta.reservados || {}; // Nuevo campo para reservados
                 const totales = respuesta.totales || {};
                 
                 console.log('Datos de cupos a mostrar:', {
                     cupos: cupos,
                     reservas: reservas,
+                    reservados: reservados,
                     totales: totales
                 });
                 
@@ -4104,6 +4106,12 @@ function cargarCuposPorServicio(servicioId) {
                 const elementoTarde = $('#cupoTarde');
                 const elementoNoche = $('#cupoNoche');
                 const elementoTotal = $('#cupoTotal');
+                
+                // Elementos para reservados
+                const elementoReservadoManana = $('#reservadoManana');
+                const elementoReservadoTarde = $('#reservadoTarde');
+                const elementoReservadoNoche = $('#reservadoNoche');
+                const elementoReservadoTotal = $('#reservadoTotal');
                 
                 console.log('Elementos DOM encontrados:', {
                     cupoManana: elementoManana.length,
@@ -4123,11 +4131,25 @@ function cargarCuposPorServicio(servicioId) {
                 elementoNoche.text(cupos.Noche || 0);
                 elementoTotal.text(cupos.Total || 0);
                 
+                // Mostrar cupos reservados
+                elementoReservadoManana.text(reservados.Mañana || 0);
+                elementoReservadoTarde.text(reservados.Tarde || 0);
+                elementoReservadoNoche.text(reservados.Noche || 0);
+                elementoReservadoTotal.text(reservados.Total || 0);
+                
                 console.log('Cupos actualizados en DOM:', {
-                    mañana: elementoManana.text(),
-                    tarde: elementoTarde.text(),
-                    noche: elementoNoche.text(),
-                    total: elementoTotal.text()
+                    disponibles: {
+                        mañana: elementoManana.text(),
+                        tarde: elementoTarde.text(),
+                        noche: elementoNoche.text(),
+                        total: elementoTotal.text()
+                    },
+                    reservados: {
+                        mañana: elementoReservadoManana.text(),
+                        tarde: elementoReservadoTarde.text(),
+                        noche: elementoReservadoNoche.text(),
+                        total: elementoReservadoTotal.text()
+                    }
                 });
                 
                 // Aplicar estilos según disponibilidad
@@ -4136,11 +4158,17 @@ function cargarCuposPorServicio(servicioId) {
                 aplicarEstilosCupos('#cupoNoche', cupos.Noche || 0);
                 aplicarEstilosCupos('#cupoTotal', cupos.Total || 0);
                 
-                // Agregar información adicional en tooltips
-                elementoManana.attr('title', `Disponibles: ${cupos.Mañana}, Reservados: ${reservas.Mañana || 0}, Total: ${totales.Mañana || 0}`);
-                elementoTarde.attr('title', `Disponibles: ${cupos.Tarde}, Reservados: ${reservas.Tarde || 0}, Total: ${totales.Tarde || 0}`);
-                elementoNoche.attr('title', `Disponibles: ${cupos.Noche}, Reservados: ${reservas.Noche || 0}, Total: ${totales.Noche || 0}`);
-                elementoTotal.attr('title', `Disponibles: ${cupos.Total}, Reservados: ${(reservas.Mañana || 0) + (reservas.Tarde || 0) + (reservas.Noche || 0)}`);
+                // Agregar información adicional en tooltips simplificados
+                elementoManana.attr('title', `Total de cupos: ${totales.Mañana || 0}`);
+                elementoTarde.attr('title', `Total de cupos: ${totales.Tarde || 0}`);
+                elementoNoche.attr('title', `Total de cupos: ${totales.Noche || 0}`);
+                elementoTotal.attr('title', `Total de cupos: ${(totales.Mañana || 0) + (totales.Tarde || 0) + (totales.Noche || 0)}`);
+                
+                // Tooltips para reservados
+                elementoReservadoManana.attr('title', `Cupos ya reservados en la mañana`);
+                elementoReservadoTarde.attr('title', `Cupos ya reservados en la tarde`);
+                elementoReservadoNoche.attr('title', `Cupos ya reservados en la noche`);
+                elementoReservadoTotal.attr('title', `Total de cupos reservados`);
                 
                 // Mostrar el contenedor de cupos
                 $('#cuposDisponiblesContainer').show();

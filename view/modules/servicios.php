@@ -539,30 +539,62 @@ if (!isset($_SESSION['perfil'])) {
                                                     <div class="alert alert-info mb-3">
                                                         <div class="row text-center">
                                                             <div class="col-12 mb-2">
-                                                                <strong><i class="fas fa-info-circle"></i> Cupos disponibles para el servicio seleccionado</strong>
+                                                                <strong><i class="fas fa-info-circle"></i> Cupos para el servicio seleccionado</strong>
                                                             </div>
+                                                            <!-- Fila de Disponibles -->
                                                             <div class="col-3">
                                                                 <div class="cupo-turno">
                                                                     <div class="cupo-nombre">Mañana:</div>
-                                                                    <div class="cupo-cantidad" id="cupoManana">0</div>
+                                                                    <div class="cupo-cantidad disponible" id="cupoManana">0</div>
+                                                                    <small class="text-success">Disponibles</small>
                                                                 </div>
                                                             </div>
                                                             <div class="col-3">
                                                                 <div class="cupo-turno">
                                                                     <div class="cupo-nombre">Tarde:</div>
-                                                                    <div class="cupo-cantidad" id="cupoTarde">0</div>
+                                                                    <div class="cupo-cantidad disponible" id="cupoTarde">0</div>
+                                                                    <small class="text-success">Disponibles</small>
                                                                 </div>
                                                             </div>
                                                             <div class="col-3">
                                                                 <div class="cupo-turno">
                                                                     <div class="cupo-nombre">Noche:</div>
-                                                                    <div class="cupo-cantidad" id="cupoNoche">0</div>
+                                                                    <div class="cupo-cantidad disponible" id="cupoNoche">0</div>
+                                                                    <small class="text-success">Disponibles</small>
                                                                 </div>
                                                             </div>
                                                             <div class="col-3">
                                                                 <div class="cupo-turno total">
                                                                     <div class="cupo-nombre">Total:</div>
-                                                                    <div class="cupo-cantidad" id="cupoTotal">0</div>
+                                                                    <div class="cupo-cantidad disponible" id="cupoTotal">0</div>
+                                                                    <small class="text-success">Disponibles</small>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <!-- Fila de Reservados -->
+                                                        <div class="row text-center mt-2" id="filaReservados">
+                                                            <div class="col-3">
+                                                                <div class="cupo-turno">
+                                                                    <div class="cupo-cantidad reservado" id="reservadoManana">0</div>
+                                                                    <small class="text-warning">Reservados</small>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-3">
+                                                                <div class="cupo-turno">
+                                                                    <div class="cupo-cantidad reservado" id="reservadoTarde">0</div>
+                                                                    <small class="text-warning">Reservados</small>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-3">
+                                                                <div class="cupo-turno">
+                                                                    <div class="cupo-cantidad reservado" id="reservadoNoche">0</div>
+                                                                    <small class="text-warning">Reservados</small>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-3">
+                                                                <div class="cupo-turno total">
+                                                                    <div class="cupo-cantidad reservado" id="reservadoTotal">0</div>
+                                                                    <small class="text-warning">Reservados</small>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -1013,6 +1045,18 @@ if (!isset($_SESSION['perfil'])) {
         text-align: center;
     }
 
+    /* Estilos específicos para disponibles */
+    .cupo-cantidad.disponible {
+        background-color: #28a745; /* Verde para disponibles */
+    }
+
+    /* Estilos específicos para reservados */
+    .cupo-cantidad.reservado {
+        background-color: #ffc107; /* Amarillo para reservados */
+        color: #212529;
+        border: 2px solid #f39c12;
+    }
+
     .cupo-cantidad.sin-cupos {
         background-color: #dc3545;
     }
@@ -1022,8 +1066,14 @@ if (!isset($_SESSION['perfil'])) {
         color: #212529;
     }
 
-    .cupo-turno.total .cupo-cantidad {
-        background-color: #17a2b8;
+    .cupo-turno.total .cupo-cantidad.disponible {
+        background-color: #17a2b8; /* Azul para total disponibles */
+    }
+
+    .cupo-turno.total .cupo-cantidad.reservado {
+        background-color: #fd7e14; /* Naranja para total reservados */
+        color: white;
+        border: 2px solid #e8590c;
     }
 
     .cupo-turno.total .cupo-cantidad.sin-cupos {
