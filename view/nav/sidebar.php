@@ -31,12 +31,12 @@
                         <p>Inicio</p>
                     </a>
                 </li>
-                <li class="nav-item <?php echo mostrar_si_tiene_permiso('ver_consultas'); ?>">
+                <!-- <li class="nav-item <?php echo mostrar_si_tiene_permiso('ver_consultas'); ?>">
                     <a href="index.php?ruta=consultas" class="nav-link">
                         <i class="nav-icon fas fa-stethoscope"></i>
                         <p>Consultas</p>
                     </a>
-                </li>
+                </li> -->
                 <!-- <li class="nav-item <?php echo mostrar_si_tiene_permiso('ver_consultas'); ?>">
                     <a href="index.php?ruta=consultas-new" class="nav-link">
                         <i class="nav-icon fas fa-stethoscope" style="color: #28a745;"></i>
@@ -48,7 +48,7 @@
                 <li class="nav-item <?php echo mostrar_si_tiene_permiso('ver_consultas'); ?>">
                     <a href="index.php?ruta=consultas-v3" class="nav-link">
                         <i class="nav-icon fas fa-stethoscope" style="color: #17a2b8;"></i>
-                        <p>Consultas v2
+                        <p>Consultas
                             <span class="badge badge-info badge-xs">SPA</span>
                         </p>
                     </a>
