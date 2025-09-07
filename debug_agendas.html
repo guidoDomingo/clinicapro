@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Agendas</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Debug de Elementos - Agendas</h1>
+    <div id="debug-results"></div>
+    
+    <script>
+        $(document).ready(function() {
+            // Cargar la página de agendas en un iframe oculto para debuggear
+            $('<iframe>', {
+                src: 'view/modules/agendas.php',
+                style: 'width: 1px; height: 1px; opacity: 0;',
+                load: function() {
+                    const iframeDoc = this.contentDocument || this.contentWindow.document;
+                    const $ = this.contentWindow.jQuery;
+                    
+                    if ($) {
+                        console.log('=== DEBUG IFRAME: Elementos disponibles ===');
+                        
+                        // Buscar elementos relacionados con servicios
+                        $('[id*="filtro"]', iframeDoc).each(function() {
+                            console.log('Filtro encontrado:', this.id);
+                        });
+                        
+                        $('[id*="servicio"]', iframeDoc).each(function() {
+                            console.log('Servicio encontrado:', this.id);
+                        });
+                        
+                        $('[id*="tabla"]', iframeDoc).each(function() {
+                            console.log('Tabla encontrada:', this.id);
+                        });
+                        
+                        // Buscar contenido específico
+                        const serviciosTab = $('[href*="servicios"]', iframeDoc);
+                        console.log('Tab servicios encontrado:', serviciosTab.length, serviciosTab.attr('href'));
+                        
+                        const serviciosContent = $('#servicios-doctor', iframeDoc);
+                        console.log('Contenido servicios encontrado:', serviciosContent.length);
+                        
+                        console.log('=== FIN DEBUG IFRAME ===');
+                    }
+                }
+            }).appendTo('body');
+        });
+    </script>
+</body>
+</html>

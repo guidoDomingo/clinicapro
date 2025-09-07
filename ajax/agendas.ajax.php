@@ -95,13 +95,14 @@ class AjaxAgendas {
     public function ajaxGuardarDetalleAgenda() {
         if (isset($_POST["agenda_id"]) && isset($_POST["dia_semana"]) && 
             isset($_POST["turno_id"]) && isset($_POST["sala_id"]) && 
-            isset($_POST["hora_inicio"]) && isset($_POST["hora_fin"])) {
+            isset($_POST["servicio_id"]) && isset($_POST["hora_inicio"]) && isset($_POST["hora_fin"])) {
             
             $datos = [
                 "detalle_id" => isset($_POST["detalle_id"]) ? $_POST["detalle_id"] : "",
                 "agenda_id" => $_POST["agenda_id"],
                 "turno_id" => $_POST["turno_id"],
                 "sala_id" => $_POST["sala_id"],
+                "servicio_id" => $_POST["servicio_id"],
                 "dia_semana" => $_POST["dia_semana"],
                 "hora_inicio" => $_POST["hora_inicio"],
                 "hora_fin" => $_POST["hora_fin"],
@@ -113,7 +114,7 @@ class AjaxAgendas {
             $resultado = ControllerAgendas::ctrGuardarDetalleAgenda($datos);
             echo json_encode($resultado);
         } else {
-            echo json_encode(["error" => true, "mensaje" => "Datos incompletos"]);
+            echo json_encode(["error" => true, "mensaje" => "Todos los campos marcados con * son obligatorios"]);
         }
     }
 
@@ -175,6 +176,126 @@ class AjaxAgendas {
         
         echo json_encode($duplicado);
     }
+
+    /**
+     * ========== SERVICIOS POR DOCTOR ==========
+     */
+
+    /**
+     * Obtiene todos los servicios disponibles
+     */
+    public function ajaxObtenerServicios() {
+        $servicios = ControllerAgendas::ctrObtenerServicios();
+        echo json_encode(["status" => "success", "data" => $servicios]);
+    }
+
+    /**
+     * Obtiene todas las asociaciones servicio-doctor
+     */
+    public function ajaxObtenerServiciosDoctor() {
+        $filtros = [];
+        if (isset($_POST["medico_id"]) && !empty($_POST["medico_id"])) {
+            $filtros["medico_id"] = $_POST["medico_id"];
+        }
+        if (isset($_POST["servicio_id"]) && !empty($_POST["servicio_id"])) {
+            $filtros["servicio_id"] = $_POST["servicio_id"];
+        }
+
+        $serviciosDoctor = ControllerAgendas::ctrObtenerServiciosDoctor($filtros);
+        echo json_encode(["status" => "success", "data" => $serviciosDoctor]);
+    }
+
+    /**
+     * Obtiene una asociación servicio-doctor específica
+     */
+    public function ajaxObtenerServicioDoctor() {
+        if (isset($_POST["id"])) {
+            $servicioDoctor = ControllerAgendas::ctrObtenerServicioDoctorPorId($_POST["id"]);
+            echo json_encode(["status" => "success", "data" => $servicioDoctor]);
+        } else {
+            echo json_encode(["status" => "error", "message" => "ID no proporcionado"]);
+        }
+    }
+
+    /**
+     * Crear nueva asociación servicio-doctor
+     */
+    public function ajaxCrearServicioDoctor() {
+        if (isset($_POST["doctor_id"]) && isset($_POST["servicio_id"])) {
+            $datos = [
+                "doctor_id" => $_POST["doctor_id"],
+                "servicio_id" => $_POST["servicio_id"],
+                "is_active" => isset($_POST["is_active"]) ? $_POST["is_active"] === "on" : false,
+                "horarios_especificos" => $this->procesarHorariosEspecificos()
+            ];
+
+            $resultado = ControllerAgendas::ctrCrearServicioDoctor($datos);
+            echo json_encode($resultado);
+        } else {
+            echo json_encode(["status" => "error", "message" => "Datos incompletos para crear asociación"]);
+        }
+    }
+
+    /**
+     * Actualizar asociación servicio-doctor
+     */
+    public function ajaxActualizarServicioDoctor() {
+        if (isset($_POST["servicioDoctor_id"]) && isset($_POST["doctor_id"]) && isset($_POST["servicio_id"])) {
+            $datos = [
+                "id" => $_POST["servicioDoctor_id"],
+                "doctor_id" => $_POST["doctor_id"],
+                "servicio_id" => $_POST["servicio_id"],
+                "is_active" => isset($_POST["is_active"]) ? $_POST["is_active"] === "on" : false,
+                "horarios_especificos" => $this->procesarHorariosEspecificos()
+            ];
+
+            $resultado = ControllerAgendas::ctrActualizarServicioDoctor($datos);
+            echo json_encode($resultado);
+        } else {
+            echo json_encode(["status" => "error", "message" => "Datos incompletos para actualizar asociación"]);
+        }
+    }
+
+    /**
+     * Eliminar asociación servicio-doctor
+     */
+    public function ajaxEliminarServicioDoctor() {
+        if (isset($_POST["id"])) {
+            $resultado = ControllerAgendas::ctrEliminarServicioDoctor($_POST["id"]);
+            echo json_encode($resultado);
+        } else {
+            echo json_encode(["status" => "error", "message" => "ID no proporcionado"]);
+        }
+    }
+
+    /**
+     * Procesar horarios específicos desde el formulario
+     */
+    private function procesarHorariosEspecificos() {
+        $horarios = [];
+        $dias = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
+
+        foreach ($dias as $dia) {
+            if (isset($_POST["dias"]) && in_array(strtoupper($dia), $_POST["dias"])) {
+                $inicio = $_POST["{$dia}_inicio"] ?? null;
+                $fin = $_POST["{$dia}_fin"] ?? null;
+                $intervalo = $_POST["{$dia}_intervalo"] ?? 15;
+                $cupo = $_POST["{$dia}_cupo"] ?? 1;
+
+                if (!empty($inicio) && !empty($fin)) {
+                    $horarios[] = [
+                        "dia_semana" => strtoupper($dia),
+                        "hora_inicio" => $inicio,
+                        "hora_fin" => $fin,
+                        "intervalo_minutos" => (int)$intervalo,
+                        "cupo_maximo" => (int)$cupo
+                    ];
+                }
+            }
+        }
+
+        return $horarios;
+    }
 }
 
 // Procesar las solicitudes AJAX
@@ -212,6 +333,9 @@ if (isset($_POST["action"])) {
         case "obtenerMedicos":
             $ajax->ajaxObtenerMedicos();
             break;
+        case "getMedicos":
+            $ajax->ajaxObtenerMedicos();
+            break;
         case "obtenerTurnos":
             $ajax->ajaxObtenerTurnos();
             break;
@@ -220,6 +344,26 @@ if (isset($_POST["action"])) {
             break;
         case "verificarHorarioDuplicado":
             $ajax->ajaxVerificarHorarioDuplicado();
+            break;
+        
+        // Servicios por Doctor
+        case "getServicios":
+            $ajax->ajaxObtenerServicios();
+            break;
+        case "getServiciosDoctor":
+            $ajax->ajaxObtenerServiciosDoctor();
+            break;
+        case "getServicioDoctor":
+            $ajax->ajaxObtenerServicioDoctor();
+            break;
+        case "createServicioDoctor":
+            $ajax->ajaxCrearServicioDoctor();
+            break;
+        case "updateServicioDoctor":
+            $ajax->ajaxActualizarServicioDoctor();
+            break;
+        case "deleteServicioDoctor":
+            $ajax->ajaxEliminarServicioDoctor();
             break;
     }
 }

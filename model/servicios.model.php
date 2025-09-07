@@ -392,7 +392,7 @@ class ModelServicios {
         // Mapping directo para los días de la semana
         $diasSemanaTexto = [1 => 'LUNES', 2 => 'MARTES', 3 => 'MIERCOLES', 4 => 'JUEVES', 5 => 'VIERNES', 6 => 'SABADO', 7 => 'DOMINGO'];
         $diaSemanaTexto = $diasSemanaTexto[$diaSemanaNum];        try {
-            // Usando la SQL exacta proporcionada por el cliente
+            // Construir SQL base
             $sql = "SELECT 
                 ad.detalle_id as horario_id,
                 ad.detalle_id as agenda_id,
@@ -419,8 +419,17 @@ class ModelServicios {
             INNER JOIN
                 rh_doctors rd ON rd.doctor_id = ac.medico_id 
             INNER JOIN 
-                rh_person p ON p.person_id = rd.person_id
-            WHERE
+                rh_person p ON p.person_id = rd.person_id";
+            
+            // Si se especifica un servicio, filtrar por él
+            if ($servicioId > 0) {
+                $sql .= " INNER JOIN rs_servicios_doctors rsd ON rsd.agenda_detalle_id = ad.detalle_id 
+                                                             AND rsd.doctor_id = ac.medico_id 
+                                                             AND rsd.servicio_id = :servicio_id
+                                                             AND rsd.is_active = true";
+            }
+            
+            $sql .= " WHERE
                 ac.medico_id = :doctor_id
                 AND ad.dia_semana = :dia_semana
                 AND ad.detalle_estado = true
@@ -429,12 +438,17 @@ class ModelServicios {
             
             $stmt = Conexion::conectar()->prepare($sql);
             
-            // Bind params - CORREGIDO: No filtrar por servicio_id
+            // Bind params
             $stmt->bindParam(":doctor_id", $doctorId, PDO::PARAM_INT);
             $stmt->bindParam(":dia_semana", $diaSemanaTexto, PDO::PARAM_STR);
             
+            // Si hay servicio específico, bindear también
+            if ($servicioId > 0) {
+                $stmt->bindParam(":servicio_id", $servicioId, PDO::PARAM_INT);
+            }
+            
             // Log query before execution for debugging
-            error_log("mdlObtenerHorariosDisponibles: SQL para DoctorID=$doctorId, Dia=$diaSemanaTexto: $sql", 
+            error_log("mdlObtenerHorariosDisponibles: SQL para DoctorID=$doctorId, ServicioID=$servicioId, Dia=$diaSemanaTexto: $sql", 
                       3, 'c:/laragon/www/clinica/logs/database.log');
             
             $stmt->execute();
@@ -710,41 +724,37 @@ class ModelServicios {
             
             error_log("Día de la semana: {$diaSemanaTexto} (num: {$diaSemanaNum})", 3, 'c:/laragon/www/clinica/logs/servicios.log');
             
-            // USAR LA CONSULTA SQL ESPECÍFICA PROPORCIONADA
+            // USAR LA CONSULTA SQL ESPECÍFICA CON FILTRO POR SERVICIO
             $stmt = Conexion::conectar()->prepare(
                 "SELECT 
-                    rp.person_id,
-                    rp.first_name,
                     ad.detalle_id,
                     ad.agenda_id,
-                    ad.turno_id,
-                    ad.sala_id,
                     ad.dia_semana,
                     ad.hora_inicio,
                     ad.hora_fin,
                     ad.intervalo_minutos,
                     ad.cupo_maximo,
                     ad.detalle_estado,
-                    s.sala_nombre,
-                    t.turno_nombre
+                    rsd.servicio_id
                 FROM agendas_detalle ad 
                 INNER JOIN agendas_cabecera ac ON ad.agenda_id = ac.agenda_id 
-                INNER JOIN rh_doctors rd ON rd.doctor_id = ac.medico_id 
-                INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
-                INNER JOIN salas s ON ad.sala_id = s.sala_id
-                INNER JOIN turnos t ON ad.turno_id = t.turno_id
+                INNER JOIN rs_servicios_doctors rsd ON rsd.agenda_detalle_id = ad.detalle_id
+                                                   AND rsd.servicio_id = :servicio_id
+                                                   AND rsd.doctor_id = :doctor_id
                 WHERE 
                     ac.medico_id = :doctor_id
                     AND ad.dia_semana = :dia_semana
                     AND ad.detalle_estado = true
                     AND ac.agenda_estado = true
+                    AND rsd.is_active = true
                 ORDER BY ad.hora_inicio ASC"
             );
             
             $stmt->bindParam(":doctor_id", $doctorId, PDO::PARAM_INT);
             $stmt->bindParam(":dia_semana", $diaSemanaTexto, PDO::PARAM_STR);
+            $stmt->bindParam(":servicio_id", $servicioId, PDO::PARAM_INT);
             
-            error_log("Ejecutando consulta para Doctor ID={$doctorId}, Día={$diaSemanaTexto}", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+            error_log("Ejecutando consulta para ServicioID={$servicioId}, Doctor ID={$doctorId}, Día={$diaSemanaTexto}", 3, 'c:/laragon/www/clinica/logs/servicios.log');
             $stmt->execute();
             $horarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
@@ -1309,91 +1319,12 @@ class ModelServicios {
      * @return array Lista de servicios disponibles
      */    static public function mdlObtenerServiciosPorFechaMedico($fecha, $doctorId) {
         try {
-            $servicios = [];
-            $serviciosPorDoctor = [];
-            $todosServicios = [];
+            error_log("=== mdlObtenerServiciosPorFechaMedico ===", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+            error_log("Parámetros: Fecha={$fecha}, DoctorID={$doctorId}", 3, 'c:/laragon/www/clinica/logs/servicios.log');
             
-            // Verificar si existe la tabla servicios_medicos antes de consultarla
-            $stmtCheck = Conexion::conectar()->prepare("SELECT to_regclass('public.servicios_medicos')");
-            $stmtCheck->execute();
-            $tablaServiciosMedicosExiste = $stmtCheck->fetchColumn();
-            
-            if ($tablaServiciosMedicosExiste) {
-                // MODIFICADO: Primero obtenemos todos los servicios activos
-                $stmtTodos = Conexion::conectar()->prepare(
-                    "SELECT 
-                        sm.servicio_id,
-                        sm.servicio_codigo,
-                        sm.servicio_nombre,
-                        sm.duracion_minutos,
-                        sm.precio_base,
-                        c.categoria_nombre,
-                        'servicios_medicos' as origen
-                    FROM 
-                        servicios_medicos sm
-                    INNER JOIN
-                        servicios_categorias c ON sm.categoria_id = c.categoria_id
-                    WHERE 
-                        sm.servicio_estado = 'ACTIVO'
-                    ORDER BY
-                        sm.servicio_nombre"
-                );
-                
-                $stmtTodos->execute();
-                $todosServicios = $stmtTodos->fetchAll(PDO::FETCH_ASSOC);
-                
-                // También obtenemos servicios asociados específicamente al médico 
-                // (esto solo es para tener referencia, utilizaremos todos los servicios)
-                $stmt = Conexion::conectar()->prepare(
-                    "SELECT DISTINCT
-                        sm.servicio_id,
-                        sm.servicio_codigo,
-                        sm.servicio_nombre,
-                        sm.duracion_minutos,
-                        sm.precio_base,
-                        c.categoria_nombre,
-                        'doctor_especifico' as origen
-                    FROM 
-                        servicios_medicos sm
-                    INNER JOIN
-                        servicios_categorias c ON sm.categoria_id = c.categoria_id
-                    INNER JOIN
-                        servicios_proveedores sp ON sm.servicio_id = sp.servicio_id
-                    WHERE 
-                        sp.doctor_id = :doctor_id
-                        AND sm.servicio_estado = 'ACTIVO'
-                        AND sp.proveedor_estado = true
-                    ORDER BY
-                        sm.servicio_nombre"
-                );
-                
-                $stmt->bindParam(":doctor_id", $doctorId, PDO::PARAM_INT);
-                $stmt->execute();
-                
-                $serviciosPorDoctor = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                
-                // Agregamos todos los servicios activos al resultado
-                $servicios = $todosServicios;
-                
-                // Log para seguimiento 
-                $countPorDoctor = count($serviciosPorDoctor);
-                $countTodos = count($todosServicios);
-                error_log("Servicios por doctor ID {$doctorId}: {$countPorDoctor}, Todos los servicios: {$countTodos}", 3, 'c:/laragon/www/clinica/logs/servicios.log');
-            }
-            
-            // También verificamos si tenemos los nuevos servicios disponibles (rs_servicios)
-            $stmtCheck = Conexion::conectar()->prepare("SELECT to_regclass('public.rs_servicios')");
-            $stmtCheck->execute();
-            $tablaRsServiciosExiste = $stmtCheck->fetchColumn();
-            
-            if ($tablaRsServiciosExiste) {
-                // Verificar si existe la tabla de relación médico-servicio
-                $stmtCheckRel = Conexion::conectar()->prepare("SELECT to_regclass('public.rs_medico_servicio')");
-                $stmtCheckRel->execute();
-                $tablaMedicoServicioExiste = $stmtCheckRel->fetchColumn();
-                
-                // MODIFICADO: Base SQL para obtener todos los servicios activos
-                $sqlBase = "SELECT 
+            // Usar la estructura real de la base de datos
+            $stmt = Conexion::conectar()->prepare(
+                "SELECT DISTINCT
                     rs.serv_id as servicio_id,
                     rs.serv_codigo as servicio_codigo,
                     rs.serv_descripcion as servicio_nombre,
@@ -1405,38 +1336,24 @@ class ModelServicios {
                     rs_servicios rs
                 INNER JOIN
                     rs_servicios_tipos rst ON rs.tserv_cod = rst.tserv_cod
+                INNER JOIN
+                    rs_servicios_doctors rsd ON rs.serv_id = rsd.servicio_id
                 WHERE 
                     rs.is_active = true
+                    AND rsd.doctor_id = :doctor_id
+                    AND rsd.is_active = true
                 ORDER BY
-                    rs.serv_descripcion";
-                
-                $stmtRs = Conexion::conectar()->prepare($sqlBase);
-                $stmtRs->execute();
-                $serviciosRs = $stmtRs->fetchAll(PDO::FETCH_ASSOC);
-                
-                // Log para debug
-                error_log("Servicios rs_servicios encontrados: " . count($serviciosRs), 3, 'c:/laragon/www/clinica/logs/servicios.log');
-                
-                // Combinar todos los servicios
-                if (empty($servicios)) {
-                    $servicios = $serviciosRs;
-                } else {
-                    // Combinar los resultados de ambas tablas
-                    $servicios = array_merge($servicios, $serviciosRs);
-                }
-                
-                // Ordenar por nombre
-                usort($servicios, function($a, $b) {
-                    return strcmp($a['servicio_nombre'], $b['servicio_nombre']);
-                });
-                
-                // Log para debug
-                error_log("Total de servicios combinados: " . count($servicios), 3, 'c:/laragon/www/clinica/logs/servicios.log');
-                error_log("Detalles de servicios combinados: " . json_encode(array_slice($servicios, 0, 5)), 3, 'c:/laragon/www/clinica/logs/servicios.log');
-            }
+                    rs.serv_descripcion"
+            );
             
-            // Log del resultado final
-            error_log("Resultado final de mdlObtenerServiciosPorFechaMedico para médico ID {$doctorId}: " . count($servicios) . " servicios", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+            $stmt->bindParam(":doctor_id", $doctorId, PDO::PARAM_INT);
+            $stmt->execute();
+            $servicios = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            error_log("Servicios encontrados: " . count($servicios), 3, 'c:/laragon/www/clinica/logs/servicios.log');
+            if (!empty($servicios)) {
+                error_log("Primer servicio: " . json_encode($servicios[0]), 3, 'c:/laragon/www/clinica/logs/servicios.log');
+            }
             
             return $servicios;
             

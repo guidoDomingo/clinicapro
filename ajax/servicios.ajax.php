@@ -94,6 +94,313 @@ if (isset($_POST['action'])) {
             }
             break;
             
+        case 'obtenerCuposPorServicio':
+            // Endpoint para obtener cupos disponibles específicos para un servicio
+            if (isset($_POST['servicio_id'])) {
+                try {
+                    $servicioId = $_POST['servicio_id'];
+                    $fecha = isset($_POST['fecha']) ? $_POST['fecha'] : date('Y-m-d');
+                    $medicoId = isset($_POST['medico_id']) ? $_POST['medico_id'] : null;
+                    $modoSemana = isset($_POST['modo_semana']) && $_POST['modo_semana'] == '1';
+                    
+                    error_log("Obteniendo cupos para servicio {$servicioId}, fecha {$fecha}, médico {$medicoId}, modo semana: " . ($modoSemana ? 'SI' : 'NO'), 3, "c:/laragon/www/clinica/logs/servicios.log");
+                    
+                    $pdo = Conexion::conectar();
+                    
+                    if ($modoSemana) {
+                        // MODO SEMANA: Obtener cupos de todos los días que atiende el médico
+                        $sqlCondicionFecha = "1=1"; // Sin filtro de día específico
+                        $parametroFecha = "";
+                        
+                        if ($medicoId) {
+                            $sqlHorarios = "
+                                SELECT DISTINCT
+                                    ad.hora_inicio,
+                                    ad.hora_fin,
+                                    ad.intervalo_minutos,
+                                    ad.cupo_maximo,
+                                    ad.dia_semana,
+                                    ac.medico_id,
+                                    rh.doctor_id,
+                                    p.first_name || ' ' || p.last_name as doctor_nombre,
+                                    CASE 
+                                        WHEN EXTRACT(HOUR FROM ad.hora_inicio::time) BETWEEN 6 AND 11 THEN 'Mañana'
+                                        WHEN EXTRACT(HOUR FROM ad.hora_inicio::time) BETWEEN 12 AND 17 THEN 'Tarde'
+                                        ELSE 'Noche'
+                                    END as turno
+                                FROM agendas_detalle ad
+                                INNER JOIN agendas_cabecera ac ON ad.agenda_id = ac.agenda_id
+                                INNER JOIN rs_servicios_doctors rsd ON ac.medico_id = rsd.doctor_id
+                                INNER JOIN rh_doctors rh ON rsd.doctor_id = rh.doctor_id
+                                INNER JOIN rh_person p ON rh.person_id = p.person_id
+                                WHERE ac.agenda_estado = true 
+                                AND ad.detalle_estado = true
+                                AND rsd.servicio_id = :servicio_id
+                                AND rsd.doctor_id = :medico_id
+                                AND rsd.is_active = true
+                                AND rh.doctor_estado = 'ACTIVO'
+                                AND p.is_active = true
+                                ORDER BY ad.hora_inicio, ac.medico_id
+                            ";
+                        } else {
+                            // Sin médico específico, obtener todos los médicos del servicio
+                            $sqlHorarios = "
+                                SELECT DISTINCT
+                                    ad.hora_inicio,
+                                    ad.hora_fin,
+                                    ad.intervalo_minutos,
+                                    ad.cupo_maximo,
+                                    ad.dia_semana,
+                                    ac.medico_id,
+                                    rh.doctor_id,
+                                    p.first_name || ' ' || p.last_name as doctor_nombre,
+                                    CASE 
+                                        WHEN EXTRACT(HOUR FROM ad.hora_inicio::time) BETWEEN 6 AND 11 THEN 'Mañana'
+                                        WHEN EXTRACT(HOUR FROM ad.hora_inicio::time) BETWEEN 12 AND 17 THEN 'Tarde'
+                                        ELSE 'Noche'
+                                    END as turno
+                                FROM agendas_detalle ad
+                                INNER JOIN agendas_cabecera ac ON ad.agenda_id = ac.agenda_id
+                                INNER JOIN rs_servicios_doctors rsd ON ac.medico_id = rsd.doctor_id
+                                INNER JOIN rh_doctors rh ON rsd.doctor_id = rh.doctor_id
+                                INNER JOIN rh_person p ON rh.person_id = p.person_id
+                                WHERE ac.agenda_estado = true 
+                                AND ad.detalle_estado = true
+                                AND rsd.servicio_id = :servicio_id
+                                AND rsd.is_active = true
+                                AND rh.doctor_estado = 'ACTIVO'
+                                AND p.is_active = true
+                                ORDER BY ad.hora_inicio, ac.medico_id
+                            ";
+                        }
+                        
+                        // Obtener reservas de toda la semana actual
+                        $fechaInicioSemana = date('Y-m-d', strtotime('monday this week', strtotime($fecha)));
+                        $fechaFinSemana = date('Y-m-d', strtotime('sunday this week', strtotime($fecha)));
+                        
+                        $sqlReservas = "
+                            SELECT 
+                                sr.hora_inicio,
+                                sr.hora_fin,
+                                sr.doctor_id,
+                                sr.reserva_estado,
+                                sr.fecha_reserva
+                            FROM servicios_reservas sr
+                            INNER JOIN rs_servicios_doctors rsd ON sr.doctor_id = rsd.doctor_id
+                            WHERE sr.fecha_reserva::date BETWEEN :fecha_inicio::date AND :fecha_fin::date
+                            AND rsd.servicio_id = :servicio_id
+                            AND sr.reserva_estado IN ('CONFIRMADA', 'EN_PROCESO')
+                        ";
+                        
+                        if ($medicoId) {
+                            $sqlReservas .= " AND sr.doctor_id = :medico_id";
+                        }
+                        
+                    } else {
+                        // MODO FECHA ESPECÍFICA: Lógica original
+                        $diasSemana = [
+                            1 => 'LUNES', 2 => 'MARTES', 3 => 'MIERCOLES',
+                            4 => 'JUEVES', 5 => 'VIERNES', 6 => 'SABADO', 0 => 'DOMINGO'
+                        ];
+                        
+                        $fechaObj = new DateTime($fecha);
+                        $numeroDia = (int)$fechaObj->format('w');
+                        $diaSemana = $diasSemana[$numeroDia];
+                        
+                        if ($medicoId) {
+                            $sqlHorarios = "
+                                SELECT DISTINCT
+                                    ad.hora_inicio,
+                                    ad.hora_fin,
+                                    ad.intervalo_minutos,
+                                    ad.cupo_maximo,
+                                    ac.medico_id,
+                                    rh.doctor_id,
+                                    p.first_name || ' ' || p.last_name as doctor_nombre,
+                                    CASE 
+                                        WHEN EXTRACT(HOUR FROM ad.hora_inicio::time) BETWEEN 6 AND 11 THEN 'Mañana'
+                                        WHEN EXTRACT(HOUR FROM ad.hora_inicio::time) BETWEEN 12 AND 17 THEN 'Tarde'
+                                        ELSE 'Noche'
+                                    END as turno
+                                FROM agendas_detalle ad
+                                INNER JOIN agendas_cabecera ac ON ad.agenda_id = ac.agenda_id
+                                INNER JOIN rs_servicios_doctors rsd ON ac.medico_id = rsd.doctor_id
+                                INNER JOIN rh_doctors rh ON rsd.doctor_id = rh.doctor_id
+                                INNER JOIN rh_person p ON rh.person_id = p.person_id
+                                WHERE ac.agenda_estado = true 
+                                AND ad.detalle_estado = true
+                                AND ad.dia_semana = :dia_semana
+                                AND rsd.servicio_id = :servicio_id
+                                AND rsd.doctor_id = :medico_id
+                                AND rsd.is_active = true
+                                AND rh.doctor_estado = 'ACTIVO'
+                                AND p.is_active = true
+                                ORDER BY ad.hora_inicio, ac.medico_id
+                            ";
+                        } else {
+                            $sqlHorarios = "
+                                SELECT DISTINCT
+                                    ad.hora_inicio,
+                                    ad.hora_fin,
+                                    ad.intervalo_minutos,
+                                    ad.cupo_maximo,
+                                    ac.medico_id,
+                                    rh.doctor_id,
+                                    p.first_name || ' ' || p.last_name as doctor_nombre,
+                                    CASE 
+                                        WHEN EXTRACT(HOUR FROM ad.hora_inicio::time) BETWEEN 6 AND 11 THEN 'Mañana'
+                                        WHEN EXTRACT(HOUR FROM ad.hora_inicio::time) BETWEEN 12 AND 17 THEN 'Tarde'
+                                        ELSE 'Noche'
+                                    END as turno
+                                FROM agendas_detalle ad
+                                INNER JOIN agendas_cabecera ac ON ad.agenda_id = ac.agenda_id
+                                INNER JOIN rs_servicios_doctors rsd ON ac.medico_id = rsd.doctor_id
+                                INNER JOIN rh_doctors rh ON rsd.doctor_id = rh.doctor_id
+                                INNER JOIN rh_person p ON rh.person_id = p.person_id
+                                WHERE ac.agenda_estado = true 
+                                AND ad.detalle_estado = true
+                                AND ad.dia_semana = :dia_semana
+                                AND rsd.servicio_id = :servicio_id
+                                AND rsd.is_active = true
+                                AND rh.doctor_estado = 'ACTIVO'
+                                AND p.is_active = true
+                                ORDER BY ad.hora_inicio, ac.medico_id
+                            ";
+                        }
+                        
+                        $sqlReservas = "
+                            SELECT 
+                                sr.hora_inicio,
+                                sr.hora_fin,
+                                sr.doctor_id,
+                                sr.reserva_estado
+                            FROM servicios_reservas sr
+                            INNER JOIN rs_servicios_doctors rsd ON sr.doctor_id = rsd.doctor_id
+                            WHERE sr.fecha_reserva::date = :fecha::date
+                            AND rsd.servicio_id = :servicio_id
+                            AND sr.reserva_estado IN ('CONFIRMADA', 'EN_PROCESO')
+                        ";
+                        
+                        if ($medicoId) {
+                            $sqlReservas .= " AND sr.doctor_id = :medico_id";
+                        }
+                    }
+                    
+                    // Ejecutar consulta de horarios
+                    $stmtHorarios = $pdo->prepare($sqlHorarios);
+                    $stmtHorarios->bindParam(":servicio_id", $servicioId, PDO::PARAM_INT);
+                    
+                    if ($modoSemana) {
+                        if ($medicoId) {
+                            $stmtHorarios->bindParam(":medico_id", $medicoId, PDO::PARAM_INT);
+                        }
+                    } else {
+                        $stmtHorarios->bindParam(":dia_semana", $diaSemana, PDO::PARAM_STR);
+                        if ($medicoId) {
+                            $stmtHorarios->bindParam(":medico_id", $medicoId, PDO::PARAM_INT);
+                        }
+                    }
+                    
+                    $stmtHorarios->execute();
+                    $horariosDisponibles = $stmtHorarios->fetchAll(PDO::FETCH_ASSOC);
+                    
+                    // Ejecutar consulta de reservas
+                    $stmtReservas = $pdo->prepare($sqlReservas);
+                    $stmtReservas->bindParam(":servicio_id", $servicioId, PDO::PARAM_INT);
+                    
+                    if ($modoSemana) {
+                        $stmtReservas->bindParam(":fecha_inicio", $fechaInicioSemana, PDO::PARAM_STR);
+                        $stmtReservas->bindParam(":fecha_fin", $fechaFinSemana, PDO::PARAM_STR);
+                        if ($medicoId) {
+                            $stmtReservas->bindParam(":medico_id", $medicoId, PDO::PARAM_INT);
+                        }
+                    } else {
+                        $stmtReservas->bindParam(":fecha", $fecha, PDO::PARAM_STR);
+                        if ($medicoId) {
+                            $stmtReservas->bindParam(":medico_id", $medicoId, PDO::PARAM_INT);
+                        }
+                    }
+                    
+                    $stmtReservas->execute();
+                    $reservasExistentes = $stmtReservas->fetchAll(PDO::FETCH_ASSOC);
+                    
+                    // Calcular cupos por turno
+                    $cuposPorTurno = ['Mañana' => 0, 'Tarde' => 0, 'Noche' => 0];
+                    $reservasPorTurno = ['Mañana' => 0, 'Tarde' => 0, 'Noche' => 0];
+                    $totalCupos = 0;
+                    $totalReservas = 0;
+                    
+                    // Contar cupos totales disponibles por turno
+                    foreach ($horariosDisponibles as $horario) {
+                        $horaInicio = new DateTime($horario['hora_inicio']);
+                        $horaFin = new DateTime($horario['hora_fin']);
+                        $intervaloMinutos = (int)$horario['intervalo_minutos'];
+                        $cupoMaximo = (int)$horario['cupo_maximo'];
+                        $turno = $horario['turno'];
+                        
+                        if ($intervaloMinutos > 0) {
+                            $horaActual = clone $horaInicio;
+                            while ($horaActual < $horaFin) {
+                                $cuposPorTurno[$turno] += $cupoMaximo;
+                                $totalCupos += $cupoMaximo;
+                                $horaActual->add(new DateInterval('PT' . $intervaloMinutos . 'M'));
+                            }
+                        }
+                    }
+                    
+                    // Contar reservas por turno
+                    foreach ($reservasExistentes as $reserva) {
+                        $horaInicio = new DateTime($reserva['hora_inicio']);
+                        $hora = (int)$horaInicio->format('H');
+                        
+                        if ($hora >= 6 && $hora <= 11) {
+                            $reservasPorTurno['Mañana']++;
+                        } elseif ($hora >= 12 && $hora <= 17) {
+                            $reservasPorTurno['Tarde']++;
+                        } else {
+                            $reservasPorTurno['Noche']++;
+                        }
+                        $totalReservas++;
+                    }
+                    
+                    // Calcular cupos disponibles restando las reservas
+                    $cuposDisponibles = [
+                        'Mañana' => max(0, $cuposPorTurno['Mañana'] - $reservasPorTurno['Mañana']),
+                        'Tarde' => max(0, $cuposPorTurno['Tarde'] - $reservasPorTurno['Tarde']),
+                        'Noche' => max(0, $cuposPorTurno['Noche'] - $reservasPorTurno['Noche']),
+                        'Total' => max(0, $totalCupos - $totalReservas)
+                    ];
+                    
+                    error_log("Cupos calculados para servicio {$servicioId}: " . json_encode($cuposDisponibles), 3, "c:/laragon/www/clinica/logs/servicios.log");
+                    
+                    echo json_encode([
+                        "success" => true,
+                        "status" => "success",
+                        "data" => $cuposDisponibles,
+                        "reservas" => $reservasPorTurno,
+                        "totales" => $cuposPorTurno,
+                        "message" => "Cupos obtenidos exitosamente"
+                    ]);
+                    
+                } catch (Exception $e) {
+                    error_log("Error al obtener cupos por servicio: " . $e->getMessage(), 3, "c:/laragon/www/clinica/logs/servicios.log");
+                    echo json_encode([
+                        "success" => false,
+                        "status" => "error",
+                        "message" => "Error al obtener cupos: " . $e->getMessage(),
+                        "data" => ['Mañana' => 0, 'Tarde' => 0, 'Noche' => 0, 'Total' => 0]
+                    ]);
+                }
+            } else {
+                echo json_encode([
+                    "success" => false,
+                    "status" => "error",
+                    "message" => "ID de servicio no proporcionado",
+                    "data" => ['Mañana' => 0, 'Tarde' => 0, 'Noche' => 0, 'Total' => 0]
+                ]);
+            }
+            break;
+            
         case 'obtenerServicioPorId':
             if (isset($_POST['servicio_id'])) {
                 $servicioId = $_POST['servicio_id'];
@@ -686,7 +993,7 @@ if (isset($_POST['action'])) {
             break;
               case 'obtenerHorariosDisponibles':
             if (isset($_POST['doctor_id']) && isset($_POST['fecha'])) {
-                // El servicio_id ahora es opcional
+                // El servicio_id ahora es obligatorio para filtrado correcto
                 $servicioId = isset($_POST['servicio_id']) ? $_POST['servicio_id'] : 0;
                 $doctorId = $_POST['doctor_id'];
                 $fecha = $_POST['fecha'];
@@ -694,19 +1001,11 @@ if (isset($_POST['action'])) {
                 error_log("AJAX obtenerHorariosDisponibles: ServicioID=$servicioId, DoctorID=$doctorId, Fecha=$fecha", 3, 'c:/laragon/www/clinica/logs/slots.log');
                 
                 try {
-                    // Llamar al método del controlador
+                    // Llamar al método del controlador CON filtro por servicio
                     $horarios = ControladorServicios::ctrObtenerHorariosDisponibles($servicioId, $doctorId, $fecha);
                     
-                    // Si no hay horarios para el servicio específico, intentar obtener cualquier horario del doctor
-                    if (empty($horarios) && $servicioId > 0) {
-                        error_log("No se encontraron horarios para el servicio específico. Buscando cualquier horario del doctor.", 3, 'c:/laragon/www/clinica/logs/slots.log');
-                        $horarios = ControladorServicios::ctrObtenerHorariosDisponibles(0, $doctorId, $fecha);
-                    }
-                    
-                    // Si aún no hay horarios, crear horarios predeterminados para demo
-                    if (empty($horarios)) {
-                        $horarios = [];
-                    }
+                    // Ya no buscamos horarios alternativos - respetamos el filtro por servicio
+                    error_log("Horarios encontrados para ServicioID=$servicioId: " . count($horarios), 3, 'c:/laragon/www/clinica/logs/slots.log');
                     
                     echo json_encode([
                         "status" => "success",

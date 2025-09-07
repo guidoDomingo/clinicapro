@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Prueba AJAX - Servicios por Doctor</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Prueba AJAX - Servicios por Doctor</h1>
+    
+    <button id="testMedicos">Probar getMedicos</button>
+    <button id="testServicios">Probar getServicios</button>
+    <button id="testServiciosDoctor">Probar getServiciosDoctor</button>
+    
+    <div id="resultados"></div>
+
+    <script>
+        $('#testMedicos').click(function() {
+            console.log('Probando getMedicos...');
+            $.ajax({
+                url: "test_ajax_simple.php",
+                method: "POST",
+                data: { action: "getMedicos" },
+                dataType: "json",
+                success: function(response) {
+                    console.log('Respuesta getMedicos:', response);
+                    $('#resultados').html('<h3>getMedicos:</h3><pre>' + JSON.stringify(response, null, 2) + '</pre>');
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error getMedicos:', error);
+                    console.error('Response:', xhr.responseText);
+                    $('#resultados').html('<h3>Error getMedicos:</h3><p>' + error + '</p><pre>' + xhr.responseText + '</pre>');
+                }
+            });
+        });
+
+        $('#testServicios').click(function() {
+            console.log('Probando getServicios...');
+            $.ajax({
+                url: "test_ajax_simple.php",
+                method: "POST",
+                data: { action: "getServicios" },
+                dataType: "json",
+                success: function(response) {
+                    console.log('Respuesta getServicios:', response);
+                    $('#resultados').html('<h3>getServicios:</h3><pre>' + JSON.stringify(response, null, 2) + '</pre>');
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error getServicios:', error);
+                    console.error('Response:', xhr.responseText);
+                    $('#resultados').html('<h3>Error getServicios:</h3><p>' + error + '</p><pre>' + xhr.responseText + '</pre>');
+                }
+            });
+        });
+
+        $('#testServiciosDoctor').click(function() {
+            console.log('Probando getServiciosDoctor...');
+            $.ajax({
+                url: "test_ajax_simple.php",
+                method: "POST",
+                data: { action: "getServiciosDoctor" },
+                dataType: "json",
+                success: function(response) {
+                    console.log('Respuesta getServiciosDoctor:', response);
+                    $('#resultados').html('<h3>getServiciosDoctor:</h3><pre>' + JSON.stringify(response, null, 2) + '</pre>');
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error getServiciosDoctor:', error);
+                    console.error('Response:', xhr.responseText);
+                    $('#resultados').html('<h3>Error getServiciosDoctor:</h3><p>' + error + '</p><pre>' + xhr.responseText + '</pre>');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

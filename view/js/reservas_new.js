@@ -131,6 +131,11 @@ function configurarEventListeners() {
                 cargarDiasDisponibles(medicoId, servicioId);
             }
         }
+        
+        // Actualizar cupos disponibles si hay servicio seleccionado
+        if (servicioId) {
+            cargarCuposPorServicio(servicioId);
+        }
     });
 
     // Evento para búsqueda de paciente (paso 1)
@@ -168,6 +173,11 @@ function configurarEventListeners() {
             
             // Cargar médicos que ofrecen este servicio
             cargarMedicosPorServicio(servicioId);
+            
+            // Cargar cupos disponibles para este servicio (con delay para asegurar que DOM esté listo)
+            setTimeout(function() {
+                cargarCuposPorServicio(servicioId);
+            }, 500);
         } else {
             // Ocultar sección de médicos
             $('#seccionMedico').hide();
@@ -3250,6 +3260,9 @@ function seleccionarMedicoNuevo(medicoId, medicoNombre) {
     if (servicioId) {
         console.log('Cargando días disponibles automáticamente...');
         
+        // Cargar cupos para el servicio y médico seleccionados
+        cargarCuposPorServicio(servicioId);
+        
         if (fechaSeleccionada) {
             // Si hay una fecha específica seleccionada, mostrar solo horarios de esa fecha
             console.log('Mostrando horarios para fecha específica:', fechaSeleccionada);
@@ -4034,3 +4047,209 @@ function mostrarHorariosFechaEspecifica(horarios, fecha) {
     
     $('#contenedorHorariosNew').html(html);
 }
+
+/**
+ * Cargar cupos disponibles específicos para un servicio
+ * @param {number} servicioId - ID del servicio seleccionado
+ */
+function cargarCuposPorServicio(servicioId) {
+    const fechaSeleccionada = $('#fechaReservaNew').val();
+    const medicoId = $('#selectMedicoNew').val();
+    
+    // Si no hay fecha seleccionada, mostrar cupos de toda la semana
+    const modoSemana = !fechaSeleccionada || fechaSeleccionada === '';
+    const fecha = fechaSeleccionada || new Date().toISOString().split('T')[0];
+    
+    console.log('=== CARGANDO CUPOS POR SERVICIO ===');
+    console.log('Servicio ID:', servicioId);
+    console.log('Fecha seleccionada:', fechaSeleccionada);
+    console.log('Médico ID:', medicoId);
+    console.log('Modo semana completa:', modoSemana);
+    
+    // Mostrar el contenedor inmediatamente
+    $('#cuposDisponiblesContainer').show();
+    
+    $.ajax({
+        url: "ajax/servicios.ajax.php",
+        method: "POST",
+        data: {
+            action: "obtenerCuposPorServicio",
+            servicio_id: servicioId,
+            fecha: fecha,
+            medico_id: medicoId,
+            modo_semana: modoSemana ? 1 : 0
+        },
+        dataType: "json",
+        beforeSend: function () {
+            console.log('Enviando solicitud de cupos...');
+            // Mostrar indicadores de carga
+            $('#cupoManana, #cupoTarde, #cupoNoche, #cupoTotal').html('<i class="fas fa-spinner fa-spin"></i>');
+        },
+        success: function (respuesta) {
+            console.log('Respuesta cupos por servicio:', respuesta);
+
+            if (respuesta.status === "success" && respuesta.data) {
+                const cupos = respuesta.data;
+                const reservas = respuesta.reservas || {};
+                const totales = respuesta.totales || {};
+                
+                console.log('Datos de cupos a mostrar:', {
+                    cupos: cupos,
+                    reservas: reservas,
+                    totales: totales
+                });
+                
+                // Verificar que los elementos existen antes de actualizar
+                const elementoManana = $('#cupoManana');
+                const elementoTarde = $('#cupoTarde');
+                const elementoNoche = $('#cupoNoche');
+                const elementoTotal = $('#cupoTotal');
+                
+                console.log('Elementos DOM encontrados:', {
+                    cupoManana: elementoManana.length,
+                    cupoTarde: elementoTarde.length,
+                    cupoNoche: elementoNoche.length,
+                    cupoTotal: elementoTotal.length
+                });
+                
+                if (elementoManana.length === 0) {
+                    console.error('ERROR: Elemento #cupoManana no encontrado en el DOM');
+                    return;
+                }
+                
+                // Mostrar cupos disponibles
+                elementoManana.text(cupos.Mañana || 0);
+                elementoTarde.text(cupos.Tarde || 0);
+                elementoNoche.text(cupos.Noche || 0);
+                elementoTotal.text(cupos.Total || 0);
+                
+                console.log('Cupos actualizados en DOM:', {
+                    mañana: elementoManana.text(),
+                    tarde: elementoTarde.text(),
+                    noche: elementoNoche.text(),
+                    total: elementoTotal.text()
+                });
+                
+                // Aplicar estilos según disponibilidad
+                aplicarEstilosCupos('#cupoManana', cupos.Mañana || 0);
+                aplicarEstilosCupos('#cupoTarde', cupos.Tarde || 0);
+                aplicarEstilosCupos('#cupoNoche', cupos.Noche || 0);
+                aplicarEstilosCupos('#cupoTotal', cupos.Total || 0);
+                
+                // Agregar información adicional en tooltips
+                elementoManana.attr('title', `Disponibles: ${cupos.Mañana}, Reservados: ${reservas.Mañana || 0}, Total: ${totales.Mañana || 0}`);
+                elementoTarde.attr('title', `Disponibles: ${cupos.Tarde}, Reservados: ${reservas.Tarde || 0}, Total: ${totales.Tarde || 0}`);
+                elementoNoche.attr('title', `Disponibles: ${cupos.Noche}, Reservados: ${reservas.Noche || 0}, Total: ${totales.Noche || 0}`);
+                elementoTotal.attr('title', `Disponibles: ${cupos.Total}, Reservados: ${(reservas.Mañana || 0) + (reservas.Tarde || 0) + (reservas.Noche || 0)}`);
+                
+                // Mostrar el contenedor de cupos
+                $('#cuposDisponiblesContainer').show();
+                
+                // Mostrar mensaje informativo si no hay cupos
+                if (cupos.Total === 0) {
+                    const servicioNombre = $('#servicioSelectNew option:selected').text().trim();
+                    const fechaTexto = modoSemana ? 'esta semana' : `el ${fechaSeleccionada}`;
+                    const medicoNombre = $('#selectMedicoNew option:selected').text().trim();
+                    
+                    // Agregar mensaje informativo
+                    if (!$('#mensajeCuposCero').length) {
+                        $('#cuposDisponiblesContainer').append(`
+                            <div id="mensajeCuposCero" class="alert alert-warning mt-2">
+                                <i class="fas fa-info-circle"></i> 
+                                <strong>Sin cupos disponibles</strong><br>
+                                No hay horarios disponibles para <strong>${servicioNombre}</strong> ${fechaTexto}${medicoNombre ? ` con ${medicoNombre}` : ''}.<br>
+                                <small>${modoSemana ? 'El médico no atiende esta semana o no tiene horarios configurados.' : 'Pruebe seleccionando otra fecha cuando el médico atienda.'}</small>
+                            </div>
+                        `);
+                    }
+                } else {
+                    // Remover mensaje si hay cupos disponibles
+                    $('#mensajeCuposCero').remove();
+                    
+                    // Agregar información del contexto actual
+                    const contextoTexto = modoSemana ? 'Cupos de toda la semana' : `Cupos para ${fechaSeleccionada}`;
+                    const medicoNombre = $('#selectMedicoNew option:selected').text().trim();
+                    
+                    if (!$('#contextoCupos').length) {
+                        $('#cuposDisponiblesContainer .card-header h4').after(`
+                            <small id="contextoCupos" class="text-muted d-block">
+                                <i class="fas fa-calendar-alt"></i> ${contextoTexto}${medicoNombre ? ` - ${medicoNombre}` : ''}
+                            </small>
+                        `);
+                    } else {
+                        $('#contextoCupos').html(`
+                            <i class="fas fa-calendar-alt"></i> ${contextoTexto}${medicoNombre ? ` - ${medicoNombre}` : ''}
+                        `);
+                    }
+                }
+                
+                console.log('Cupos cargados exitosamente:', cupos);
+                
+            } else {
+                console.error('Error en respuesta de cupos:', respuesta.message || 'Error desconocido');
+                // Mostrar valores en cero en caso de error
+                $('#cupoManana, #cupoTarde, #cupoNoche, #cupoTotal').text('0');
+                aplicarEstilosCupos('#cupoManana', 0);
+                aplicarEstilosCupos('#cupoTarde', 0);
+                aplicarEstilosCupos('#cupoNoche', 0);
+                aplicarEstilosCupos('#cupoTotal', 0);
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error('Error al cargar cupos por servicio:', error);
+            // Mostrar valores en cero en caso de error
+            $('#cupoManana, #cupoTarde, #cupoNoche, #cupoTotal').text('0');
+            aplicarEstilosCupos('#cupoManana', 0);
+            aplicarEstilosCupos('#cupoTarde', 0);
+            aplicarEstilosCupos('#cupoNoche', 0);
+            aplicarEstilosCupos('#cupoTotal', 0);
+        }
+    });
+}
+
+// Función auxiliar para aplicar estilos a los cupos según disponibilidad
+window.aplicarEstilosCupos = function(selector, cantidad) {
+    const elemento = $(selector);
+    
+    // Remover clases anteriores
+    elemento.removeClass('cupo-disponible cupo-limitado cupo-agotado');
+    
+    if (cantidad > 5) {
+        elemento.addClass('cupo-disponible'); // Verde - muchos cupos
+    } else if (cantidad > 0) {
+        elemento.addClass('cupo-limitado'); // Amarillo - pocos cupos
+    } else {
+        elemento.addClass('cupo-agotado'); // Rojo - sin cupos
+    }
+};
+
+// Función de prueba para verificar cupos manualmente desde la consola
+window.testCupos = function() {
+    console.log('=== PRUEBA MANUAL DE CUPOS ===');
+    
+    // Verificar que los elementos existen
+    console.log('Elementos encontrados:');
+    console.log('- #cupoManana:', $('#cupoManana').length);
+    console.log('- #cupoTarde:', $('#cupoTarde').length);
+    console.log('- #cupoNoche:', $('#cupoNoche').length);
+    console.log('- #cupoTotal:', $('#cupoTotal').length);
+    console.log('- #cuposDisponiblesContainer:', $('#cuposDisponiblesContainer').length);
+    
+    // Verificar visibilidad del contenedor
+    console.log('Contenedor visible:', $('#cuposDisponiblesContainer').is(':visible'));
+    
+    // Mostrar contenedor y actualizar valores de prueba
+    $('#cuposDisponiblesContainer').show();
+    $('#cupoManana').text('5');
+    $('#cupoTarde').text('3');
+    $('#cupoNoche').text('8');
+    $('#cupoTotal').text('16');
+    
+    // Aplicar estilos de prueba
+    aplicarEstilosCupos('#cupoManana', 5);
+    aplicarEstilosCupos('#cupoTarde', 3);
+    aplicarEstilosCupos('#cupoNoche', 8);
+    aplicarEstilosCupos('#cupoTotal', 16);
+    
+    console.log('Valores de prueba actualizados');
+};
