@@ -1430,10 +1430,8 @@ class ModelServicios {
             
             // Añadir filtros según los parámetros proporcionados
             if ($fecha !== null) {
-                // Construir rango de fechas para la consulta
-                $fechaInicio = $fecha . " 00:00:00";
-                $fechaFin = $fecha . " 23:59:59";
-                $sql .= " AND sr.fecha_reserva BETWEEN :fecha_inicio AND :fecha_fin";
+                // Para campos de tipo DATE, usar comparación directa sin horas
+                $sql .= " AND sr.fecha_reserva = :fecha_reserva";
             }
             
             if ($doctorId !== null) {
@@ -1469,8 +1467,7 @@ class ModelServicios {
             
             // Bindear parámetros según los filtros usados
             if ($fecha !== null) {
-                $stmt->bindParam(":fecha_inicio", $fechaInicio, PDO::PARAM_STR);
-                $stmt->bindParam(":fecha_fin", $fechaFin, PDO::PARAM_STR);
+                $stmt->bindParam(":fecha_reserva", $fecha, PDO::PARAM_STR);
             }
             
             if ($doctorId !== null) {

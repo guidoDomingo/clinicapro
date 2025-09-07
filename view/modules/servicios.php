@@ -534,80 +534,7 @@ if (!isset($_SESSION['perfil'])) {
                                 <div class="alert alert-info" id="alertServicioRequerido" style="display: block;">
                                     <i class="fas fa-info-circle"></i>
                                     <strong>Seleccione un servicio</strong> para ver los médicos que lo ofrecen.
-                                </div>                                                <!-- Componente de Cupos Disponibles por Turno -->
-                                                <div class="cupos-disponibles-container" id="cuposDisponiblesContainer" style="display: none;">
-                                                    <div class="alert alert-info mb-3">
-                                                        <div class="row text-center">
-                                                            <div class="col-12 mb-2">
-                                                                <strong><i class="fas fa-info-circle"></i> Cupos para el servicio seleccionado</strong>
-                                                            </div>
-                                                            <!-- Fila de Disponibles -->
-                                                            <div class="col-3">
-                                                                <div class="cupo-turno">
-                                                                    <div class="cupo-nombre">Mañana:</div>
-                                                                    <div class="cupo-cantidad disponible" id="cupoManana">0</div>
-                                                                    <small class="text-success">Disponibles</small>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-3">
-                                                                <div class="cupo-turno">
-                                                                    <div class="cupo-nombre">Tarde:</div>
-                                                                    <div class="cupo-cantidad disponible" id="cupoTarde">0</div>
-                                                                    <small class="text-success">Disponibles</small>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-3">
-                                                                <div class="cupo-turno">
-                                                                    <div class="cupo-nombre">Noche:</div>
-                                                                    <div class="cupo-cantidad disponible" id="cupoNoche">0</div>
-                                                                    <small class="text-success">Disponibles</small>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-3">
-                                                                <div class="cupo-turno total">
-                                                                    <div class="cupo-nombre">Total:</div>
-                                                                    <div class="cupo-cantidad disponible" id="cupoTotal">0</div>
-                                                                    <small class="text-success">Disponibles</small>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <!-- Fila de Reservados -->
-                                                        <div class="row text-center mt-2" id="filaReservados">
-                                                            <div class="col-3">
-                                                                <div class="cupo-turno">
-                                                                    <div class="cupo-cantidad reservado" id="reservadoManana">0</div>
-                                                                    <small class="text-warning">Reservados</small>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-3">
-                                                                <div class="cupo-turno">
-                                                                    <div class="cupo-cantidad reservado" id="reservadoTarde">0</div>
-                                                                    <small class="text-warning">Reservados</small>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-3">
-                                                                <div class="cupo-turno">
-                                                                    <div class="cupo-cantidad reservado" id="reservadoNoche">0</div>
-                                                                    <small class="text-warning">Reservados</small>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-3">
-                                                                <div class="cupo-turno total">
-                                                                    <div class="cupo-cantidad reservado" id="reservadoTotal">0</div>
-                                                                    <small class="text-warning">Reservados</small>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="row mt-2">
-                                                            <div class="col-12 text-center">
-                                                                <small class="text-muted">
-                                                                    <i class="fas fa-info-circle text-info"></i> Solo se muestran médicos que ofrecen este servicio
-                                                                </small>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
+                                </div>                                                
                                                 <div class="form-row">
                                                     <div class="form-col">
                                                         <div class="form-group">
@@ -660,15 +587,9 @@ if (!isset($_SESSION['perfil'])) {
                                     </div>
                                 </div>
 
-                                <div class="form-row">
-                                    <div class="form-col">
-                                        <div class="form-group">
-                                            <label for="fechaReservaNew">Fecha de la consulta</label>
-                                            <input type="date" id="fechaReservaNew" class="form-control" min="<?php echo date('Y-m-d'); ?>">
-                                        </div>
-                                    </div>
-                                </div>
-
+                                <!-- Campo fecha oculto para funcionalidad -->
+                                <input type="hidden" id="fechaReservaNew" value="<?php echo date('Y-m-d'); ?>">
+                                
                                 <!-- Horarios disponibles -->
                                 <div class="form-group">
                                     <label>Horarios disponibles</label>
@@ -1444,6 +1365,9 @@ if (!isset($_SESSION['perfil'])) {
 <script src="view/js/slots_pagination.js"></script>
 <script src="view/js/enviar_pdf_reserva.js"></script>
 <script src="view/js/reservas_new.js"></script>
+
+<!-- Script de depuración para slots de horario -->
+<script src="debug_slots.js"></script>
 
 <!-- Script para asegurar que la pestaña "Nueva reserva" se abra por defecto -->
 <script>

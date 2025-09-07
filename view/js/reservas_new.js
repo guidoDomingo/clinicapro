@@ -85,16 +85,14 @@ function inicializarReservasNew() {
 
     // Cargar salas disponibles
     cargarSalasReservasNew();
+    
+    // Cargar salas en el selector correcto (#selectSala)
+    cargarSalasEnSelector();
 
-    // Configurar la fecha actual como mínima (pero campo vacío)
+    // Establecer fecha actual automáticamente en el campo oculto
     const fechaActual = moment().format('YYYY-MM-DD');
+    $('#fechaReservaNew').val(fechaActual);
     
-    // Establecer fecha mínima para el input (no permitir fechas pasadas)
-    $('#fechaReservaNew').attr('min', fechaActual);
-    
-    // Dejar el campo vacío inicialmente para mostrar todas las fechas disponibles
-    $('#fechaReservaNew').val('');
-
     // Cargar reservas para la fecha actual (para la tabla de reservas existentes)
     cargarReservasPorFecha(fechaActual);
 
@@ -108,35 +106,18 @@ function inicializarReservasNew() {
 }
 
 /**
+ * Obtener la fecha seleccionada (automática)
+ */
+function obtenerFechaSeleccionada() {
+    return window.fechaSeleccionadaGlobal || moment().format('YYYY-MM-DD');
+}
+
+/**
  * Configurar los event listeners para el nuevo flujo
  */
 function configurarEventListeners() {
-    // Evento para el campo de fecha superior (filtro principal)
-    $('#fechaReservaNew').change(function() {
-        const fechaSeleccionada = $(this).val();
-        console.log('Fecha superior seleccionada:', fechaSeleccionada);
-        
-        // Si hay médico y servicio seleccionados
-        const medicoId = $('#selectMedicoNew').val();
-        const servicioId = $('#servicioSelectNew').val();
-        
-        if (medicoId && servicioId) {
-            if (fechaSeleccionada) {
-                // Si hay fecha específica, mostrar solo horarios de esa fecha
-                console.log('Mostrando horarios para fecha específica:', fechaSeleccionada);
-                mostrarHorariosPorFechaSeleccionada(fechaSeleccionada);
-            } else {
-                // Si no hay fecha (vacío), mostrar todas las fechas disponibles
-                console.log('Campo fecha vacío - mostrando todas las fechas disponibles');
-                cargarDiasDisponibles(medicoId, servicioId);
-            }
-        }
-        
-        // Actualizar cupos disponibles si hay servicio seleccionado
-        if (servicioId) {
-            cargarCuposPorServicio(servicioId);
-        }
-    });
+    // Los horarios se cargan automáticamente cuando se selecciona médico y servicio
+    // La fecha se establece automáticamente como hoy
 
     // Evento para búsqueda de paciente (paso 1)
     $('#btnBuscarPacienteNew').click(function() {
@@ -175,9 +156,10 @@ function configurarEventListeners() {
             cargarMedicosPorServicio(servicioId);
             
             // Cargar cupos disponibles para este servicio (con delay para asegurar que DOM esté listo)
-            setTimeout(function() {
-                cargarCuposPorServicio(servicioId);
-            }, 500);
+            // Cupos display removed from interface
+            // setTimeout(function() {
+            //     cargarCuposPorServicio(servicioId);
+            // }, 500);
         } else {
             // Ocultar sección de médicos
             $('#seccionMedico').hide();
@@ -572,6 +554,66 @@ function cargarServiciosActivos() {
 
         // Verificar si el formulario está completo
         verificarFormularioCompleto();
+    });
+
+    // *** EVENTOS PARA SALA Y SEGURO (IDs CORRECTOS) ***
+    
+    // Evento para selección de sala (ID correcto del HTML)
+    $('#selectSala').change(function () {
+        const salaId = $(this).val();
+        const salaNombre = $(this).find('option:selected').text();
+
+        if (salaId && salaId !== "") {
+            // Actualizar resumen con ID correcto del HTML
+            $('#resumenSala').text(salaNombre);
+            console.log("Sala seleccionada:", salaNombre);
+        } else {
+            $('#resumenSala').text('-');
+        }
+
+        // Verificar si el formulario está completo
+        if (typeof verificarFormularioCompleto === 'function') {
+            verificarFormularioCompleto();
+        }
+    });
+
+    // Evento para "¿Tiene seguro médico?"
+    $('#tieneSeguro').change(function () {
+        const tieneSeguro = $(this).val();
+        
+        if (tieneSeguro === 'si') {
+            // Mostrar el selector de seguros
+            $('#selectSeguroContainer').show();
+            // Cargar seguros si no están cargados
+            if ($('#selectSeguro option').length <= 1) {
+                cargarSegurosEnSelector();
+            }
+        } else {
+            // Ocultar selector y limpiar selección
+            $('#selectSeguroContainer').hide();
+            $('#selectSeguro').val('');
+            $('#resumenSeguro').text('Sin seguro médico');
+            console.log("Sin seguro médico seleccionado");
+        }
+    });
+
+    // Evento para selección de seguro específico
+    $('#selectSeguro').change(function () {
+        const seguroId = $(this).val();
+        const seguroNombre = $(this).find('option:selected').text();
+
+        if (seguroId && seguroId !== "") {
+            // Actualizar resumen con ID correcto del HTML
+            $('#resumenSeguro').text(seguroNombre);
+            console.log("Seguro seleccionado:", seguroNombre);
+        } else {
+            $('#resumenSeguro').text('-');
+        }
+
+        // Verificar si el formulario está completo
+        if (typeof verificarFormularioCompleto === 'function') {
+            verificarFormularioCompleto();
+        }
     });
 
     // New patient button
@@ -1468,10 +1510,16 @@ function cargarServiciosActivos() {
         const horaFin = $('#horaFinSeleccionada').val() ||
             $('.hora-btn.btn-success').data('hora-fin') ||
             hora; // Use same as start if no end time
-        const servicioId = $('#servicioSelect').val();
-        const seguroId = $('#seguroSelect').val();
+        const servicioId = $('#servicioSelectNew').val(); // Corregido de servicioSelect a servicioSelectNew
+        const seguroId = $('#selectSeguro').val(); // Corregido de seguroSelect a selectSeguro
         const planId = $('#planSelect').val();
-        const salaId = $('#salaSelect').val(); // Obtener ID de sala seleccionada
+        const salaId = $('#selectSala').val(); // Corregido de salaSelect a selectSala
+        
+        // Debug - verificar valores obtenidos
+        console.log('DEBUG - Valores del formulario:');
+        console.log('servicioId:', servicioId);
+        console.log('seguroId:', seguroId);
+        console.log('salaId:', salaId);
         const agendaId = $('#agendaId').val(); // Get the agenda_id
         const importe = $('#importeReservaNew').val().replace('S/ ', '');
         const observaciones = $('#observacionesNew').val(); console.log('Datos del formulario para guardar:', {
@@ -1773,6 +1821,81 @@ function cargarServiciosActivos() {
             error: function (xhr) {
                 console.error("Error al cargar salas:", xhr);
                 $('#salaSelect').html('<option value="">Error al cargar salas</option>');
+            }
+        });
+    }
+
+    /**
+     * Cargar salas en el selector correcto (#selectSala)
+     */
+    function cargarSalasEnSelector() {
+        $.ajax({
+            url: "ajax/salas.ajax.php",
+            method: "POST",
+            data: {
+                action: "obtenerSalasActivas"
+            },
+            dataType: "json",
+            beforeSend: function () {
+                $('#selectSala').html('<option value="">Cargando salas...</option>');
+            },
+            success: function (respuesta) {
+                console.log("Respuesta de salas para selector:", respuesta);
+
+                $('#selectSala').html('<option value="">Seleccione una sala</option>');
+
+                if (respuesta.status && respuesta.data && respuesta.data.length > 0) {
+                    respuesta.data.forEach(function (sala) {
+                        const salaId = sala.id;
+                        const salaNombre = `${sala.codigo} - ${sala.nombre}`;
+                        $('#selectSala').append(`<option value="${salaId}">${salaNombre}</option>`);
+                    });
+                } else {
+                    console.warn('No se encontraron salas activas para el selector.');
+                }
+            },
+            error: function (xhr) {
+                console.error("Error al cargar salas en selector:", xhr);
+                $('#selectSala').html('<option value="">Error al cargar salas</option>');
+            }
+        });
+    }
+
+    /**
+     * Cargar seguros en el selector correcto (#selectSeguro)
+     */
+    function cargarSegurosEnSelector() {
+        $.ajax({
+            url: "ajax/servicios.ajax.php",
+            method: "POST",
+            data: {
+                action: "obtenerProveedoresSeguro"
+            },
+            dataType: "json",
+            beforeSend: function () {
+                $('#selectSeguro').html('<option value="">Cargando seguros médicos...</option>');
+            },
+            success: function (respuesta) {
+                console.log("Respuesta de proveedores de seguro para selector:", respuesta);
+
+                $('#selectSeguro').html('<option value="">Seleccione un seguro médico</option>');
+
+                if (respuesta.data && respuesta.data.length > 0) {
+                    respuesta.data.forEach(function (proveedor) {
+                        const proveedorId = proveedor.prov_id || proveedor.id;
+                        const proveedorNombre = proveedor.prov_razon ||
+                            (proveedor.prov_name + ' ' + proveedor.prov_lastname) ||
+                            proveedor.nombre ||
+                            `Proveedor ${proveedorId}`;
+                        $('#selectSeguro').append(`<option value="${proveedorId}">${proveedorNombre}</option>`);
+                    });
+                } else {
+                    console.warn('No se encontraron proveedores de seguro para el selector.');
+                }
+            },
+            error: function (xhr) {
+                console.error("Error al cargar seguros en selector:", xhr);
+                $('#selectSeguro').html('<option value="">Error al cargar seguros</option>');
             }
         });
     }
@@ -3260,20 +3383,12 @@ function seleccionarMedicoNuevo(medicoId, medicoNombre) {
     if (servicioId) {
         console.log('Cargando días disponibles automáticamente...');
         
-        // Cargar cupos para el servicio y médico seleccionados
-        cargarCuposPorServicio(servicioId);
+        // Cupos display removed from interface
+        // cargarCuposPorServicio(servicioId);
         
-        if (fechaSeleccionada) {
-            // Si hay una fecha específica seleccionada, mostrar solo horarios de esa fecha
-            console.log('Mostrando horarios para fecha específica:', fechaSeleccionada);
-            setTimeout(() => {
-                mostrarHorariosPorFechaSeleccionada(fechaSeleccionada);
-            }, 500);
-        } else {
-            // Si no hay fecha (campo vacío), mostrar todas las fechas disponibles
-            console.log('Campo fecha vacío - mostrando todas las fechas disponibles');
-            cargarDiasDisponibles(medicoId, servicioId);
-        }
+        // Cargar vista semanal de horarios disponibles automáticamente
+        console.log('Cargando vista semanal de horarios disponibles automáticamente...');
+        cargarDiasDisponibles(medicoId, servicioId);
     }
 
     // Check if form is complete
@@ -3910,6 +4025,32 @@ function seleccionarHorarioCompleto(fecha, horaInicio, horaFin, agendaId) {
     
     console.log(`Horario seleccionado: ${fechaFormateada} a las ${horarioTexto}`);
     
+    // *** ACTUALIZAR EL RESUMEN ***
+    $('#resumenHoraNew').text(horarioTexto);
+    $('#resumenFechaNew').text(fechaFormateada);
+    console.log("Resumen actualizado - Hora:", $('#resumenHoraNew').text());
+    console.log("Resumen actualizado - Fecha:", $('#resumenFechaNew').text());
+    
+    // *** MOSTRAR SECCIONES DE DETALLES Y SEGURO ***
+    console.log('Mostrando secciones de detalles y seguro...');
+    $('#seccionDetalles').show();
+    $('#seccionSeguro').show();
+    console.log('Sección de detalles visible:', $('#seccionDetalles').is(':visible'));
+    console.log('Sección de seguro visible:', $('#seccionSeguro').is(':visible'));
+    
+    // Cargar las opciones de sala y seguros
+    if (typeof cargarSalasEnSelector === 'function') {
+        cargarSalasEnSelector();
+    }
+    if (typeof cargarSegurosEnSelector === 'function') {
+        cargarSegurosEnSelector();
+    }
+    
+    // Verificar si el formulario está completo
+    if (typeof verificarFormularioCompleto === 'function') {
+        verificarFormularioCompleto();
+    }
+    
     // Opcional: mostrar mensaje de confirmación
     if (typeof mostrarAlerta === 'function') {
         mostrarAlerta('success', `Horario seleccionado: ${fechaFormateada} a las ${horarioTexto}`);
@@ -4053,21 +4194,9 @@ function mostrarHorariosFechaEspecifica(horarios, fecha) {
  * @param {number} servicioId - ID del servicio seleccionado
  */
 function cargarCuposPorServicio(servicioId) {
-    const fechaSeleccionada = $('#fechaReservaNew').val();
-    const medicoId = $('#selectMedicoNew').val();
-    
-    // Si no hay fecha seleccionada, mostrar cupos de toda la semana
-    const modoSemana = !fechaSeleccionada || fechaSeleccionada === '';
-    const fecha = fechaSeleccionada || new Date().toISOString().split('T')[0];
-    
-    console.log('=== CARGANDO CUPOS POR SERVICIO ===');
-    console.log('Servicio ID:', servicioId);
-    console.log('Fecha seleccionada:', fechaSeleccionada);
-    console.log('Médico ID:', medicoId);
-    console.log('Modo semana completa:', modoSemana);
-    
-    // Mostrar el contenedor inmediatamente
-    $('#cuposDisponiblesContainer').show();
+    // Function disabled - cupos display removed from interface
+    console.log('cargarCuposPorServicio: Función deshabilitada - display de cupos removido');
+    return;
     
     $.ajax({
         url: "ajax/servicios.ajax.php",

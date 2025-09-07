@@ -193,7 +193,7 @@ if (isset($_POST['action'])) {
                             WHERE sr.fecha_reserva::date BETWEEN :fecha_inicio::date AND :fecha_fin::date
                             AND rsd.servicio_id = :servicio_id
                             AND rsd.is_active = true
-                            AND sr.reserva_estado IN ('CONFIRMADA', 'EN_PROCESO')
+                            AND sr.reserva_estado IN ('CONFIRMADA', 'EN_PROCESO', 'PENDIENTE')
                         ";
                         
                         if ($medicoId) {
@@ -286,7 +286,7 @@ if (isset($_POST['action'])) {
                             WHERE sr.fecha_reserva::date = :fecha::date
                             AND rsd.servicio_id = :servicio_id
                             AND rsd.is_active = true
-                            AND sr.reserva_estado IN ('CONFIRMADA', 'EN_PROCESO')
+                            AND sr.reserva_estado IN ('CONFIRMADA', 'EN_PROCESO', 'PENDIENTE')
                         ";
                         
                         if ($medicoId) {
@@ -816,7 +816,7 @@ if (isset($_POST['action'])) {
                     'fecha_reserva' => $_POST['fecha_reserva'],
                     'hora_inicio' => $_POST['hora_inicio'],
                     'hora_fin' => $_POST['hora_fin'],
-                    'seguro_id' => $_POST['seguro_id'],
+                    'seguro_id' => isset($_POST['seguro_id']) && !empty($_POST['seguro_id']) && $_POST['seguro_id'] != '0' ? intval($_POST['seguro_id']) : null,
                     'observaciones' => isset($_POST['observaciones']) ? $_POST['observaciones'] : ''
                 ];
                 
@@ -832,6 +832,9 @@ if (isset($_POST['action'])) {
                 if (isset($_POST['sala_id']) && !empty($_POST['sala_id'])) {
                     $datos['sala_id'] = intval($_POST['sala_id']);
                 }
+                
+                // Debug - verificar el seguro_id recibido
+                error_log("AJAX guardarReserva: seguro_id POST = " . (isset($_POST['seguro_id']) ? $_POST['seguro_id'] : 'NO_SET'), 3, 'c:/laragon/www/clinica/logs/reservas.log');
                 
                 // Registrar intento de guardar reserva
                 error_log("AJAX guardarReserva: Datos recibidos = " . json_encode($datos), 3, 'c:/laragon/www/clinica/logs/reservas.log');
