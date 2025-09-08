@@ -285,7 +285,7 @@ function cargarServiciosActivos() {
         // Remove any existing time slot rows
         $('.horario-row').remove();
 
-        const servicioId = $('#servicioSelect').val() || 0; const doctorRow = $(this).closest('tr');
+        const servicioId = $('#servicioSelectNew').val() || 0; const doctorRow = $(this).closest('tr');
 
         // Mostrar loader para los horarios
         doctorRow.after(`
@@ -461,12 +461,12 @@ function cargarServiciosActivos() {
 
         // Scroll al servicio como próximo paso
         $('html, body').animate({
-            scrollTop: $('#servicioSelect').offset().top - 100
+            scrollTop: $('#servicioSelectNew').offset().top - 100
         }, 500);
 
         // Focus on service selection
         setTimeout(function () {
-            $('#servicioSelect').focus();
+            $('#servicioSelectNew').focus();
         }, 600);
 
         // Mostrar una notificación de confirmación
@@ -630,6 +630,16 @@ function cargarServiciosActivos() {
     // Save reservation button
     $('#btnGuardarReservaNew').click(function () {
         guardarReserva();
+    });
+
+    // Nuevo botón confirmar reserva (diseño de dos columnas)
+    $('#btnConfirmarReservaNew').click(function () {
+        guardarReserva();
+    });
+
+    // Botón limpiar formulario
+    $('#btnLimpiarFormularioNew').click(function () {
+        limpiarFormularioReserva();
     });
 
     // Load insurance options on page load
@@ -1298,7 +1308,7 @@ function cargarServiciosActivos() {
         if (!fecha) return;
 
         // Mostrar spinner o mensaje de carga
-        $('#servicioSelect').html('<option value="">Cargando servicios...</option>');
+        $('#servicioSelectNew').html('<option value="">Cargando servicios...</option>');
 
         console.log(`Cargando servicios para médico ID: ${medicoId}, fecha: ${fecha}`);
 
@@ -1316,7 +1326,7 @@ function cargarServiciosActivos() {
                 console.log('Respuesta servicios:', respuesta);
 
                 // Clear previous options
-                $('#servicioSelect').html('<option value="">Seleccione un servicio</option>');
+                $('#servicioSelectNew').html('<option value="">Seleccione un servicio</option>');
 
                 // Add new options
                 let servicios = [];
@@ -1339,7 +1349,7 @@ function cargarServiciosActivos() {
                         const nombre = servicio.nombre || servicio.servicio_nombre || servicio.name || 'Servicio sin nombre';
                         const precio = servicio.precio_base || servicio.precio || 0;
 
-                        $('#servicioSelect').append(`
+                        $('#servicioSelectNew').append(`
                         <option value="${id}" data-precio="${precio}">
                             ${nombre}
                         </option>
@@ -1348,11 +1358,11 @@ function cargarServiciosActivos() {
                 } else {
                     // Si no hay servicios, mostrar mensaje
                     console.warn('No se encontraron servicios disponibles');
-                    $('#servicioSelect').append('<option value="">No hay servicios disponibles</option>');
+                    $('#servicioSelectNew').append('<option value="">No hay servicios disponibles</option>');
                 }
 
                 // Update price if needed
-                const precio = $('#servicioSelect option:selected').data('precio');
+                const precio = $('#servicioSelectNew option:selected').data('precio');
                 if (precio) {
                     $('#importeReservaNew').val(formatearPrecio(precio));
                     $('#resumenImporteNew').text('S/ ' + formatearPrecio(precio));
@@ -1415,12 +1425,12 @@ function cargarServiciosActivos() {
      * Update price based on insurance plan
      */
     function actualizarPrecioPlan(planId) {
-        const servicioId = $('#servicioSelect').val();
+        const servicioId = $('#servicioSelectNew').val();
         if (!servicioId || !planId) return;
 
         // For now, we'll calculate a discount based on the plan
         // This is a placeholder until the API endpoint is available
-        const precioBase = $('#servicioSelect option:selected').data('precio') || 0;
+        const precioBase = $('#servicioSelectNew option:selected').data('precio') || 0;
 
         // Apply discount based on plan
         let precioFinal = precioBase;
@@ -2089,7 +2099,7 @@ function cargarServiciosActivos() {
         const pacienteId = $('#pacienteIdNew').val() || $('#selectPacienteNew').val();
         const fecha = $('#fechaReservaNew').val();
         const medicoId = $('#selectMedicoNew').val();
-        const servicioId = $('#servicioSelect').val();
+        const servicioId = $('#servicioSelectNew').val(); // Corregido: usar servicioSelectNew
 
         // Check multiple possible hour fields
         const horaInicio = $('#horaInicioSeleccionada').val() ||
@@ -2100,12 +2110,30 @@ function cargarServiciosActivos() {
 
         const horaSeleccionadaUI = $('.hora-btn.btn-success').length > 0 || $('.hora-slot.selected').length > 0;
 
+        // Debug logging
+        console.log('DEBUG verificarFormularioCompleto:', {
+            pacienteId: pacienteId,
+            fecha: fecha,
+            medicoId: medicoId,
+            servicioId: servicioId,
+            horaInicio: horaInicio,
+            horaSeleccionadaUI: horaSeleccionadaUI,
+            btnSuccessCount: $('.hora-btn.btn-success').length,
+            horaSlotSelectedCount: $('.hora-slot.selected').length
+        });
+
         const formularioCompleto = pacienteId && fecha && medicoId && servicioId && (horaInicio || horaSeleccionadaUI);
+
+        console.log('Formulario completo:', formularioCompleto);
 
         if (formularioCompleto) {
             $('#btnConfirmarReserva').prop('disabled', false);
+            $('#btnConfirmarReservaNew').prop('disabled', false);
+            console.log('Botones habilitados');
         } else {
             $('#btnConfirmarReserva').prop('disabled', true);
+            $('#btnConfirmarReservaNew').prop('disabled', true);
+            console.log('Botones deshabilitados');
         }        // Inicializar botones alternativos si no están disponibles los de DataTables
         inicializarBotonesReservas();
 
