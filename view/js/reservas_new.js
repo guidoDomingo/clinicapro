@@ -3761,6 +3761,12 @@ function mostrarDiasDisponibles(dias) {
         
         console.log(`Fecha: ${dia.fecha}, Lunes: ${lunes}, Semana: ${semanaNumero}, Color: ${colorSemana}`);
         
+        // Contar horarios realmente disponibles
+        const horariosDisponibles = dia.horarios ? dia.horarios.filter(h => h.disponible !== false).length : dia.total_horarios;
+        const mensajeDisponibilidad = horariosDisponibles > 0 ? 
+            `${horariosDisponibles} horario(s) disponible(s)` : 
+            '<span class="text-warning">Sin horarios disponibles</span>';
+        
         html += `
             <div class="col-lg-6 col-md-12 mb-4">
                 <div class="fecha-grupo ${colorSemana}">
@@ -3768,7 +3774,7 @@ function mostrarDiasDisponibles(dias) {
                     <h6>${dia.dia_nombre}${etiquetaHoy}</h6>
                     <div class="fecha-disponible">
                         <strong>${dia.fecha_formateada}</strong><br>
-                        ${dia.total_horarios} horario(s) disponible(s)
+                        ${mensajeDisponibilidad}
                     </div>
                     <div class="horarios-fecha" id="horarios-${dia.fecha}">
                         <div class="text-center py-2">
@@ -3859,9 +3865,36 @@ function cargarHorariosPorFecha(fecha) {
             console.log(`Respuesta horarios para ${fecha}:`, respuesta);
             if (respuesta && respuesta.status === 'success') {
                 if (respuesta.data && respuesta.data.length > 0) {
+                    // Debug: Mostrar el estado de disponibilidad de cada horario
+                    console.log(`Depuración horarios ${fecha}:`, respuesta.data.map(h => ({
+                        hora: h.hora_inicio + (h.hora_fin ? ` - ${h.hora_fin}` : ''),
+                        disponible: h.disponible,
+                        disponible_check: h.disponible !== false
+                    })));
+                    
                     mostrarHorariosPorFecha(respuesta.data, fecha);
+                    
+                    // Actualizar el conteo en el encabezado de la fecha
+                    const horariosDisponibles = respuesta.data.filter(h => h.disponible !== false).length;
+                    console.log(`Horarios disponibles para ${fecha}: ${horariosDisponibles} de ${respuesta.data.length}`);
+                    
+                    const fechaGrupo = $(`.fecha-grupo`).has(`#horarios-${fecha}`).find('.fecha-disponible');
+                    if (fechaGrupo.length > 0) {
+                        const fechaFormateada = fechaGrupo.find('strong').text();
+                        const mensajeDisponibilidad = horariosDisponibles > 0 ? 
+                            `${horariosDisponibles} horario(s) disponible(s)` : 
+                            '<span class="text-warning">Todos los horarios están reservados</span>';
+                        fechaGrupo.html(`<strong>${fechaFormateada}</strong><br>${mensajeDisponibilidad}`);
+                    }
                 } else {
                     $(`#horarios-${fecha}`).html('<div class="text-center py-2 text-info">No hay horarios disponibles para esta fecha</div>');
+                    
+                    // Actualizar el conteo a 0
+                    const fechaGrupo = $(`.fecha-grupo`).has(`#horarios-${fecha}`).find('.fecha-disponible');
+                    if (fechaGrupo.length > 0) {
+                        const fechaFormateada = fechaGrupo.find('strong').text();
+                        fechaGrupo.html(`<strong>${fechaFormateada}</strong><br><span class="text-warning">Sin horarios disponibles</span>`);
+                    }
                 }
             } else {
                 console.error(`Error al cargar horarios para ${fecha}:`, respuesta ? respuesta.message : 'Respuesta inválida');
@@ -3886,30 +3919,44 @@ function mostrarHorariosPorFecha(horarios, fecha) {
         return;
     }
 
+    // Verificar si hay al menos un horario disponible
+    const horariosDisponibles = horarios.filter(h => h.disponible !== false);
+    console.log(`Fecha ${fecha} - Total horarios: ${horarios.length}, Disponibles: ${horariosDisponibles.length}`);
+    console.log(`Horarios disponibles detalle:`, horariosDisponibles.map(h => ({
+        hora: h.hora_inicio + (h.hora_fin ? ` - ${h.hora_fin}` : ''),
+        disponible: h.disponible
+    })));
+    
+    if (horariosDisponibles.length === 0) {
+        // Todos los horarios están ocupados
+        console.log(`Mostrando mensaje "todos reservados" para fecha ${fecha}`);
+        $(`#horarios-${fecha}`).html('<div class="text-center py-2 text-warning"><i class="fas fa-exclamation-triangle"></i> Todos los horarios están reservados</div>');
+        return;
+    }
+
     let html = '<div class="horarios-grid-compacta">';
     
-    horarios.forEach(function(horario) {
+    // Solo mostrar horarios disponibles
+    horariosDisponibles.forEach(function(horario) {
         const horaInicio = horario.hora_inicio || horario.hora || '';
         const horaFin = horario.hora_fin || '';
         const horarioId = horario.horario_id || '';
         const agendaId = horario.agenda_id || horarioId || '';
-        const disponible = horario.disponible !== false;
 
-        const disponibleClass = disponible ? '' : 'no-disponible';
         const horarioTexto = horaFin ? `${horaInicio} - ${horaFin}` : horaInicio;
 
         html += `
-            <div class="hora-slot-compacto ${disponibleClass}" 
+            <div class="hora-slot-compacto" 
                  data-id="${horarioId}"
                  data-inicio="${horaInicio}"
                  data-fin="${horaFin}" 
                  data-fecha="${fecha}"
                  data-agenda-id="${agendaId}"
                  data-texto="${horarioTexto}"
-                 data-disponible="${disponible ? 'true' : 'false'}"
+                 data-disponible="true"
                  onclick="seleccionarHorarioCompleto('${fecha}', '${horaInicio}', '${horaFin}', '${agendaId}')">
                 <span class="hora-texto-compacto">${horarioTexto}</span>
-                <button class="btn-select-horario-compacto btn btn-primary btn-sm" ${!disponible ? 'disabled' : ''}>
+                <button class="btn-select-horario-compacto btn btn-primary btn-sm">
                     <i class="fas fa-check"></i>
                 </button>
             </div>

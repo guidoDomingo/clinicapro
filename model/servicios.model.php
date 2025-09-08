@@ -533,10 +533,15 @@ class ModelServicios {
                     error_log("Se generaron " . count($slotsGenerados) . " slots detallados", 
                               3, 'c:/laragon/www/clinica/logs/database.log');
                     return $slotsGenerados;
+                } else {
+                    // Si no se generaron slots disponibles, significa que todos están ocupados
+                    error_log("No se generaron slots disponibles para DoctorID=$doctorId, Fecha=$fecha - todos están ocupados", 
+                              3, 'c:/laragon/www/clinica/logs/database.log');
+                    return []; // Retornar array vacío en lugar de los horarios base
                 }
             }
             
-            return $resultados;
+            return [];
         } catch (PDOException $e) {
             error_log("Error al obtener horarios disponibles: " . $e->getMessage(), 0);
             return [];
