@@ -3,14 +3,32 @@
  * Script para crear las tablas necesarias para el módulo de correo
  */
 
-require_once dirname(dirname(dirname(__DIR__))) . '/config/config.php';
+echo "=== Setup de Tablas para Módulo de Correo ===\n";
 
 try {
+    $root_path = dirname(dirname(dirname(__FILE__)));
+    $config_file = $root_path . '/config/config.php';
+    
+    echo "Cargando configuración desde: $config_file\n";
+    
+    if (!file_exists($config_file)) {
+        throw new Exception("Archivo config.php no encontrado en: $config_file");
+    }
+    
+    require_once $config_file;
+
+    // Verificar que las variables de entorno están disponibles
+    if (!isset($_ENV['DB_HOST'])) {
+        throw new Exception('Variables de entorno no están cargadas. Verifique el archivo .env');
+    }
+
     $host = $_ENV['DB_HOST'] ?? 'localhost';
     $port = $_ENV['DB_PORT'] ?? 5432;
     $database = $_ENV['DB_DATABASE'] ?? 'clinica';
     $username = $_ENV['DB_USERNAME'] ?? 'postgres';
     $password = $_ENV['DB_PASSWORD'] ?? 'admin';
+    
+    echo "Conectando a: $host:$port/$database con usuario: $username\n";
     
     $dsn = "pgsql:host={$host};port={$port};dbname={$database}";
     $pdo = new PDO($dsn, $username, $password);
@@ -90,6 +108,12 @@ try {
     
 } catch (Exception $e) {
     echo "❌ Error: " . $e->getMessage() . "\n";
+    echo "📍 Archivo: " . $e->getFile() . " línea: " . $e->getLine() . "\n";
+    
+    if (isset($dsn)) {
+        echo "🔍 DSN utilizado: $dsn\n";
+    }
+    
     exit(1);
 }
 ?>

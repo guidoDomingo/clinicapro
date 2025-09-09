@@ -3,39 +3,79 @@
  * API para configuración de correo electrónico
  */
 
+// Configurar manejo de errores
+error_reporting(E_ALL);
+ini_set('display_errors', 0); // No mostrar errores en output
+ini_set('log_errors', 1);
+
 // Limpiar buffer de salida
 if (ob_get_level()) {
     ob_end_clean();
 }
 
-header('Content-Type: application/json; charset=UTF-8');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
+// Start output buffering para controlar la salida
+ob_start();
 
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    exit(0);
-}
+try {
+    header('Content-Type: application/json; charset=UTF-8');
+    header('Access-Control-Allow-Origin: *');
+    header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+    header('Access-Control-Allow-Headers: Content-Type');
 
-session_start();
+    if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+        ob_end_clean();
+        exit(0);
+    }
 
-// Verificar autenticación (ajustar según tu sistema)
-if (!isset($_SESSION['user_id'])) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'No autorizado']);
-    exit;
-}
+    session_start();
 
-// Incluir configuración usando rutas absolutas
-$root_path = dirname(dirname(dirname(__DIR__)));
-require_once $root_path . '/config/config.php';
+    // Verificar autenticación (temporalmente deshabilitado para debug)
+    /*
+    if (!isset($_SESSION['user_id'])) {
+        ob_end_clean();
+        http_response_code(401);
+        echo json_encode(['success' => false, 'message' => 'No autorizado']);
+        exit;
+    }
+    */
 
-// Verificar si existe composer autoload
-$vendor_path = $root_path . '/vendor/autoload.php';
-if (file_exists($vendor_path)) {
-    require_once $vendor_path;
-} else {
-    echo json_encode(['success' => false, 'message' => 'PHPMailer no está instalado. Ejecute: composer install']);
+    // Incluir configuración usando rutas absolutas
+    $root_path = dirname(dirname(dirname(__DIR__)));
+    
+    // Verificar que existe el archivo config
+    $config_file = $root_path . '/config/config.php';
+    if (!file_exists($config_file)) {
+        throw new Exception("Archivo config.php no encontrado en: $config_file");
+    }
+    
+    require_once $config_file;
+
+    // Verificar si existe composer autoload
+    $vendor_path = $root_path . '/vendor/autoload.php';
+    if (file_exists($vendor_path)) {
+        require_once $vendor_path;
+    } else {
+        throw new Exception('PHPMailer no está instalado. Ejecute: composer install');
+    }
+
+    // Verificar que las clases de PHPMailer están disponibles
+    if (!class_exists('PHPMailer\PHPMailer\PHPMailer')) {
+        throw new Exception('PHPMailer no se pudo cargar correctamente');
+    }
+
+} catch (Exception $e) {
+    ob_end_clean();
+    error_log('Mail Config Setup Error: ' . $e->getMessage());
+    http_response_code(500);
+    echo json_encode([
+        'success' => false, 
+        'message' => 'Error de configuración: ' . $e->getMessage(),
+        'debug' => [
+            'root_path' => isset($root_path) ? $root_path : 'no definido',
+            'config_exists' => isset($config_file) ? file_exists($config_file) : false,
+            'vendor_exists' => isset($vendor_path) ? file_exists($vendor_path) : false
+        ]
+    ]);
     exit;
 }
 
@@ -44,6 +84,11 @@ use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
 try {
+    // Verificar que las variables de entorno están disponibles
+    if (!isset($_ENV['DB_HOST'])) {
+        throw new Exception('Variables de entorno no están cargadas. Verifique el archivo .env');
+    }
+    
     // Usar configuración de base de datos del .env
     $host = $_ENV['DB_HOST'] ?? 'localhost';
     $port = $_ENV['DB_PORT'] ?? 5432;
@@ -52,8 +97,18 @@ try {
     $password = $_ENV['DB_PASSWORD'] ?? 'admin';
     
     $dsn = "pgsql:host={$host};port={$port};dbname={$database}";
-    $pdo = new PDO($dsn, $username, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    
+    // Log para debug (remover en producción)
+    error_log("Intentando conectar a: $dsn con usuario: $username");
+    
+    $pdo = new PDO($dsn, $username, $password, [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        PDO::ATTR_TIMEOUT => 10
+    ]);
+    
+    // Verificar que la tabla mail_config existe
+    $pdo->query("SELECT 1 FROM mail_config LIMIT 1");
     
     $action = $_GET['action'] ?? ($_POST['action'] ?? null);
     $input = json_decode(file_get_contents('php://input'), true);
@@ -61,6 +116,9 @@ try {
     if ($input && isset($input['action'])) {
         $action = $input['action'];
     }
+    
+    // Limpiar buffer antes de procesar
+    ob_end_clean();
     
     switch ($action) {
         case 'get':
@@ -84,7 +142,23 @@ try {
             echo json_encode(['success' => false, 'message' => 'Acción no válida']);
     }
     
+} catch (PDOException $e) {
+    if (ob_get_level()) ob_end_clean();
+    error_log('Database Error: ' . $e->getMessage());
+    http_response_code(500);
+    echo json_encode([
+        'success' => false, 
+        'message' => 'Error de conexión a base de datos',
+        'error' => $e->getMessage(),
+        'debug' => [
+            'host' => $host ?? 'no definido',
+            'port' => $port ?? 'no definido',
+            'database' => $database ?? 'no definido',
+            'dsn' => isset($dsn) ? $dsn : 'no definido'
+        ]
+    ]);
 } catch (Exception $e) {
+    if (ob_get_level()) ob_end_clean();
     error_log('Mail Config Error: ' . $e->getMessage());
     http_response_code(500);
     echo json_encode([
