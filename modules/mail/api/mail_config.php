@@ -3,7 +3,12 @@
  * API para configuración de correo electrónico
  */
 
-header('Content-Type: application/json');
+// Limpiar buffer de salida
+if (ob_get_level()) {
+    ob_end_clean();
+}
+
+header('Content-Type: application/json; charset=UTF-8');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
@@ -21,17 +26,33 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-require_once __DIR__ . '/../../../config/config.php';
+// Incluir configuración usando rutas absolutas
+$root_path = dirname(dirname(dirname(__DIR__)));
+require_once $root_path . '/config/config.php';
 
-// Cargar PHPMailer
-require_once __DIR__ . '/../../../vendor/autoload.php';
+// Verificar si existe composer autoload
+$vendor_path = $root_path . '/vendor/autoload.php';
+if (file_exists($vendor_path)) {
+    require_once $vendor_path;
+} else {
+    echo json_encode(['success' => false, 'message' => 'PHPMailer no está instalado. Ejecute: composer install']);
+    exit;
+}
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
 try {
-    $pdo = new PDO('pgsql:host=localhost;port=5432;dbname=clinica', 'postgres', 'admin');
+    // Usar configuración de base de datos del .env
+    $host = $_ENV['DB_HOST'] ?? 'localhost';
+    $port = $_ENV['DB_PORT'] ?? 5432;
+    $database = $_ENV['DB_DATABASE'] ?? 'clinica';
+    $username = $_ENV['DB_USERNAME'] ?? 'postgres';
+    $password = $_ENV['DB_PASSWORD'] ?? 'admin';
+    
+    $dsn = "pgsql:host={$host};port={$port};dbname={$database}";
+    $pdo = new PDO($dsn, $username, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     
     $action = $_GET['action'] ?? ($_POST['action'] ?? null);
@@ -64,6 +85,7 @@ try {
     }
     
 } catch (Exception $e) {
+    error_log('Mail Config Error: ' . $e->getMessage());
     http_response_code(500);
     echo json_encode([
         'success' => false, 
@@ -200,6 +222,22 @@ function testMailConnection($pdo) {
         $mail->Host = $config['smtp_host'];
         $mail->Port = $config['smtp_port'];
         
+        // Debug en modo verbose para identificar problemas
+        $mail->SMTPDebug = 0; // Cambiar a 2 para debug completo
+        $mail->Debugoutput = function($str, $level) {
+            error_log("PHPMailer: $str");
+        };
+        
+        // Configurar timeout
+        $mail->Timeout = 10;
+        $mail->SMTPOptions = array(
+            'ssl' => array(
+                'verify_peer' => false,
+                'verify_peer_name' => false,
+                'allow_self_signed' => true
+            )
+        );
+        
         if ($config['smtp_auth'] === 'true' || $config['smtp_auth'] === true) {
             $mail->SMTPAuth = true;
             $mail->Username = $config['smtp_username'];
@@ -209,6 +247,10 @@ function testMailConnection($pdo) {
         if ($config['smtp_secure']) {
             $mail->SMTPSecure = $config['smtp_secure'];
         }
+        
+        // Configurar UTF-8
+        $mail->CharSet = 'UTF-8';
+        $mail->Encoding = 'base64';
         
         // Configurar remitente
         $mail->setFrom($config['from_email'], $config['from_name']);
@@ -228,6 +270,7 @@ function testMailConnection($pdo) {
             <p>Este es un email de prueba para verificar la configuración SMTP.</p>
             <p><strong>Fecha:</strong> ' . date('Y-m-d H:i:s') . '</p>
             <p><strong>Servidor:</strong> ' . $config['smtp_host'] . ':' . $config['smtp_port'] . '</p>
+            <p><strong>Seguridad:</strong> ' . ($config['smtp_secure'] ?: 'Ninguna') . '</p>
             <hr>
             <small>Sistema de Gestión Clínica</small>
         ';
@@ -240,9 +283,23 @@ function testMailConnection($pdo) {
         ]);
         
     } catch (Exception $e) {
+        // Log detallado del error
+        error_log('SMTP Test Error: ' . $e->getMessage());
+        
+        $errorMessage = $e->getMessage();
+        
+        // Proporcionar mensajes más descriptivos
+        if (strpos($errorMessage, 'Could not connect to SMTP host') !== false) {
+            $errorMessage = 'No se puede conectar al servidor SMTP. Verifique el host y puerto.';
+        } elseif (strpos($errorMessage, 'SMTP AUTH') !== false) {
+            $errorMessage = 'Error de autenticación SMTP. Verifique usuario y contraseña.';
+        } elseif (strpos($errorMessage, 'TLS') !== false) {
+            $errorMessage = 'Error de configuración TLS/SSL. Verifique la seguridad del puerto.';
+        }
+        
         echo json_encode([
             'success' => false, 
-            'message' => 'Error al enviar email: ' . $mail->ErrorInfo
+            'message' => 'Error al enviar email: ' . $errorMessage
         ]);
     }
 }

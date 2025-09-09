@@ -154,6 +154,9 @@ if (session_status() == PHP_SESSION_NONE) {
                                         <button type="button" class="btn btn-info" onclick="testMailConnection()">
                                             <i class="fas fa-paper-plane"></i> Probar Conexión
                                         </button>
+                                        <!-- <button type="button" class="btn btn-warning" onclick="runDiagnostic()">
+                                            <i class="fas fa-tools"></i> Diagnóstico
+                                        </button> -->
                                         <a href="referenciales" class="btn btn-secondary">
                                             <i class="fas fa-arrow-left"></i> Volver
                                         </a>
@@ -381,6 +384,49 @@ function togglePassword(fieldId) {
     } else {
         field.type = 'password';
         icon.className = 'fas fa-eye';
+    }
+}
+
+// Ejecutar diagnóstico del sistema
+async function runDiagnostic() {
+    const button = event.target;
+    const originalText = button.innerHTML;
+    
+    button.disabled = true;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Diagnosticando...';
+    
+    try {
+        const response = await fetch('modules/mail/api/check_mail_setup.php');
+        const result = await response.json();
+        
+        let messageType = result.success ? 'success' : 'warning';
+        let messageIcon = result.success ? 'check-circle' : 'exclamation-triangle';
+        
+        let detailsHtml = '<div class="mt-3">';
+        detailsHtml += `<h6>Resumen: ${result.summary.passed}/${result.summary.total} verificaciones pasaron</h6>`;
+        detailsHtml += '<ul class="list-unstyled">';
+        
+        for (let check of Object.values(result.checks)) {
+            let statusIcon = check.status ? 'fa-check text-success' : 'fa-times text-danger';
+            detailsHtml += `<li><i class="fas ${statusIcon}"></i> <strong>${check.name}:</strong> ${check.message}</li>`;
+        }
+        
+        detailsHtml += '</ul></div>';
+        
+        Swal.fire({
+            icon: messageType,
+            title: 'Diagnóstico del Sistema de Correo',
+            html: detailsHtml,
+            width: 600,
+            confirmButtonText: 'Entendido'
+        });
+        
+    } catch (error) {
+        console.error('Error en diagnóstico:', error);
+        showAlert('error', 'Error al ejecutar el diagnóstico: ' + error.message);
+    } finally {
+        button.disabled = false;
+        button.innerHTML = originalText;
     }
 }
 
