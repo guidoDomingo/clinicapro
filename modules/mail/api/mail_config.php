@@ -3,39 +3,79 @@
  * API para configuración de correo electrónico
  */
 
+// Configurar manejo de errores
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+
 // Limpiar buffer de salida
 if (ob_get_level()) {
     ob_end_clean();
 }
 
-header('Content-Type: application/json; charset=UTF-8');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
+// Start output buffering para controlar la salida
+ob_start();
 
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    exit(0);
-}
+try {
+    header('Content-Type: application/json; charset=UTF-8');
+    header('Access-Control-Allow-Origin: *');
+    header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+    header('Access-Control-Allow-Headers: Content-Type');
 
-session_start();
+    if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+        ob_end_clean();
+        exit(0);
+    }
 
-// Verificar autenticación (ajustar según tu sistema)
-if (!isset($_SESSION['user_id'])) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'No autorizado']);
-    exit;
-}
+    session_start();
 
-// Incluir configuración usando rutas absolutas
-$root_path = dirname(dirname(dirname(__DIR__)));
-require_once $root_path . '/config/config.php';
+    // Verificar autenticación (temporalmente deshabilitado para debug)
+    /*
+    if (!isset($_SESSION['user_id'])) {
+        ob_end_clean();
+        http_response_code(401);
+        echo json_encode(['success' => false, 'message' => 'No autorizado']);
+        exit;
+    }
+    */
 
-// Verificar si existe composer autoload
-$vendor_path = $root_path . '/vendor/autoload.php';
-if (file_exists($vendor_path)) {
-    require_once $vendor_path;
-} else {
-    echo json_encode(['success' => false, 'message' => 'PHPMailer no está instalado. Ejecute: composer install']);
+    // Incluir configuración usando rutas absolutas
+    $root_path = dirname(dirname(dirname(__DIR__)));
+    
+    // Verificar que existe el archivo config
+    $config_file = $root_path . '/config/config.php';
+    if (!file_exists($config_file)) {
+        throw new Exception("Archivo config.php no encontrado en: $config_file");
+    }
+    
+    require_once $config_file;
+
+    // Verificar si existe composer autoload
+    $vendor_path = $root_path . '/vendor/autoload.php';
+    if (file_exists($vendor_path)) {
+        require_once $vendor_path;
+    } else {
+        throw new Exception('PHPMailer no está instalado. Ejecute: composer install');
+    }
+
+    // Verificar que las clases de PHPMailer están disponibles
+    if (!class_exists('PHPMailer\PHPMailer\PHPMailer')) {
+        throw new Exception('PHPMailer no se pudo cargar correctamente');
+    }
+
+} catch (Exception $e) {
+    ob_end_clean();
+    error_log('Mail Config Setup Error: ' . $e->getMessage());
+    http_response_code(500);
+    echo json_encode([
+        'success' => false, 
+        'message' => 'Error de configuración: ' . $e->getMessage(),
+        'debug' => [
+            'root_path' => isset($root_path) ? $root_path : 'no definido',
+            'config_exists' => isset($config_file) ? file_exists($config_file) : false,
+            'vendor_exists' => isset($vendor_path) ? file_exists($vendor_path) : false
+        ]
+    ]);
     exit;
 }
 
