@@ -1,49 +1,36 @@
 <?php
-// API simple para configuración de correo
+// API limpia para configuración de correo
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 header('Content-Type: application/json; charset=UTF-8');
 header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type');
+
+// Manejar preflight OPTIONS request
+if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+    exit(0);
+}
 
 try {
-    $action = $_GET['action'] ?? 'default';
-    
-    // Conexión directa sin includes complicados
+    // Conexión a la base de datos
     $dsn = "pgsql:host=181.122.125.143;port=5454;dbname=clinica";
     $pdo = new PDO($dsn, 'acmeuser', 'wjstks', [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_TIMEOUT => 10
     ]);
     
-    switch ($action) {
-        case 'get':
-            $sql = "SELECT * FROM mail_config ORDER BY id DESC LIMIT 1";
-            $stmt = $pdo->query($sql);
-            $config = $stmt->fetch(PDO::FETCH_ASSOC);
-            if ($config) {
-                $config['smtp_password'] = '••••••••';
-            }
-            echo json_encode(['success' => true, 'config' => $config]);
-            break;
-            
-        case 'logs':
-            $limit = (int)($_GET['limit'] ?? 10);
-            $sql = "SELECT * FROM mail_logs ORDER BY sent_at DESC LIMIT " . $limit;
-            $stmt = $pdo->query($sql);
-            $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            echo json_encode(['success' => true, 'logs' => $logs]);
-            break;
-            
-        default:
-            echo json_encode(['success' => true, 'message' => 'API funcionando', 'action' => $action]);
-    }
+    // Determinar acción
+    $action = $_GET['action'] ?? $_POST['action'] ?? 'default';
     
-} catch (Exception $e) {
-    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
-}
-?>
-?>
+    // Obtener datos POST si existen
+    $input = null;
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $rawInput = file_get_contents('php://input');
+        if ($rawInput) {
+            $input = json_decode($rawInput, true);
+            if ($input && isset($input['action'])) {
                 $action = $input['action'];
             }
         }
@@ -73,7 +60,7 @@ try {
             break;
             
         default:
-            echo json_encode(['success' => false, 'message' => 'Acción no válida']);
+            echo json_encode(['success' => true, 'message' => 'API funcionando', 'action' => $action]);
     }
     
 } catch (Exception $e) {
