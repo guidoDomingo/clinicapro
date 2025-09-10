@@ -1,99 +1,30 @@
 <?php
-/**
- * API para configuración de correo - Con verificación de extensiones
- */
+// API simple para configuración de correo
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
-// Headers inmediatos
 header('Content-Type: application/json; charset=UTF-8');
 header('Access-Control-Allow-Origin: *');
 
-// Función para respuesta limpia
-function sendResponse($data, $exit = true) {
-    echo json_encode($data, JSON_UNESCAPED_UNICODE);
-    if ($exit) exit;
-}
-
-// Verificar extensiones críticas primero
-$missing_extensions = [];
-$required = ['pdo', 'pdo_pgsql', 'json', 'session'];
-
-foreach ($required as $ext) {
-    if (!extension_loaded($ext)) {
-        $missing_extensions[] = $ext;
-    }
-}
-
-if (!empty($missing_extensions)) {
-    sendResponse([
-        'success' => false,
-        'error' => 'Extensiones PHP faltantes en el servidor',
-        'missing' => $missing_extensions,
-        'required' => $required,
-        'server_info' => [
-            'php_version' => PHP_VERSION,
-            'server' => $_SERVER['SERVER_SOFTWARE'] ?? 'unknown'
-        ]
-    ]);
-}
-
-// Verificar funciones críticas
-$missing_functions = [];
-$functions = ['json_encode', 'json_decode', 'session_start'];
-
-foreach ($functions as $func) {
-    if (!function_exists($func)) {
-        $missing_functions[] = $func;
-    }
-}
-
-if (!empty($missing_functions)) {
-    sendResponse([
-        'success' => false,
-        'error' => 'Funciones PHP deshabilitadas',
-        'missing_functions' => $missing_functions
-    ]);
-}
-
-// Manejar OPTIONS
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    sendResponse(['status' => 'ok']);
-}
-
 try {
-    // Iniciar sesión
-    session_start();
+    $action = $_GET['action'] ?? 'default';
     
-    // Test de conexión directa (sin config.php por ahora)
-    $action = $_GET['action'] ?? 'test';
-    
-    if ($action === 'basic') {
-        sendResponse(['success' => true, 'message' => 'API funcionando correctamente']);
-    }
-    
-    // Conectar directamente con credenciales hardcodeadas para test
+    // Conexión directa sin includes complicados
     $dsn = "pgsql:host=181.122.125.143;port=5454;dbname=clinica";
     $pdo = new PDO($dsn, 'acmeuser', 'wjstks', [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
         PDO::ATTR_TIMEOUT => 10
     ]);
     
-    // Verificar tablas
-    $pdo->query("SELECT 1 FROM mail_config LIMIT 1");
-    $pdo->query("SELECT 1 FROM mail_logs LIMIT 1");
-    
-    // Procesar acciones
     switch ($action) {
         case 'get':
             $sql = "SELECT * FROM mail_config ORDER BY id DESC LIMIT 1";
             $stmt = $pdo->query($sql);
             $config = $stmt->fetch(PDO::FETCH_ASSOC);
-            
             if ($config) {
                 $config['smtp_password'] = '••••••••';
             }
-            
-            sendResponse(['success' => true, 'config' => $config]);
+            echo json_encode(['success' => true, 'config' => $config]);
             break;
             
         case 'logs':
@@ -101,51 +32,17 @@ try {
             $sql = "SELECT * FROM mail_logs ORDER BY sent_at DESC LIMIT " . $limit;
             $stmt = $pdo->query($sql);
             $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
-            sendResponse(['success' => true, 'logs' => $logs]);
-            break;
-            
-        case 'test':
-            $sql = "SELECT * FROM mail_config WHERE is_active = TRUE LIMIT 1";
-            $stmt = $pdo->query($sql);
-            $config = $stmt->fetch(PDO::FETCH_ASSOC);
-            
-            if ($config) {
-                sendResponse([
-                    'success' => true, 
-                    'message' => 'Configuración encontrada: ' . $config['smtp_host'] . ':' . $config['smtp_port']
-                ]);
-            } else {
-                sendResponse(['success' => false, 'message' => 'No hay configuración activa']);
-            }
+            echo json_encode(['success' => true, 'logs' => $logs]);
             break;
             
         default:
-            sendResponse([
-                'success' => true, 
-                'message' => 'API funcionando', 
-                'action' => $action,
-                'available_actions' => ['get', 'logs', 'test', 'basic']
-            ]);
+            echo json_encode(['success' => true, 'message' => 'API funcionando', 'action' => $action]);
     }
     
-} catch (PDOException $e) {
-    sendResponse([
-        'success' => false,
-        'error' => 'Error de base de datos',
-        'details' => $e->getMessage(),
-        'code' => $e->getCode()
-    ]);
-    
 } catch (Exception $e) {
-    sendResponse([
-        'success' => false,
-        'error' => 'Error general',
-        'details' => $e->getMessage(),
-        'file' => basename($e->getFile()),
-        'line' => $e->getLine()
-    ]);
+    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
 }
+?>
 ?>
                 $action = $input['action'];
             }
