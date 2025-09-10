@@ -2,6 +2,9 @@
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
+
+// Incluir configuración de rutas
+include_once __DIR__ . '/../../inc/config_rutas.php';
 ?>
 
 <!-- Content Wrapper. Contains page content -->
@@ -234,7 +237,7 @@ $(document).ready(function() {
 // Cargar configuración actual
 async function loadMailConfig() {
     try {
-        const response = await fetch('/clinica/modules/mail/api/mail_config.php?action=get');
+        const response = await fetch(window.APP_CONFIG.apiBase + 'mail_config.php?action=get');
         const data = await response.json();
         
         if (data.success && data.config) {
@@ -281,7 +284,7 @@ document.getElementById('mailConfigForm').addEventListener('submit', async funct
     data.is_active = document.getElementById('is_active').checked;
     
     try {
-        const response = await fetch('/clinica/modules/mail/api/mail_config.php', {
+        const response = await fetch(window.APP_CONFIG.mailApi, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -315,7 +318,7 @@ async function testMailConnection() {
     button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Probando...';
     
     try {
-        const response = await fetch('/clinica/modules/mail/api/mail_config.php', {
+        const response = await fetch(window.APP_CONFIG.mailApi, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -344,7 +347,7 @@ async function testMailConnection() {
 // Cargar logs recientes
 async function loadRecentLogs() {
     try {
-        const response = await fetch('/clinica/modules/mail/api/mail_config.php?action=logs&limit=5');
+        const response = await fetch(window.APP_CONFIG.apiBase + 'mail_config.php?action=logs&limit=5');
         const data = await response.json();
         
         const logsContainer = document.getElementById('recentLogs');
@@ -396,7 +399,7 @@ async function runDiagnostic() {
     button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Diagnosticando...';
     
     try {
-        const response = await fetch('/clinica/modules/mail/api/check_mail_setup.php');
+        const response = await fetch(window.APP_CONFIG.apiBase + 'check_mail_setup.php');
         const result = await response.json();
         
         let messageType = result.success ? 'success' : 'warning';

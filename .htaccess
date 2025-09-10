@@ -1,6 +1,13 @@
 Options All -Indexes
 RewriteEngine On
+
+# Permitir acceso directo a archivos API
+RewriteCond %{REQUEST_URI} ^/modules/mail/api/
+RewriteRule ^ - [L]
+
+# Regla principal para el enrutamiento del sistema
 RewriteRule ^([-a-zA-Z0-9]+)$ index.php?ruta=$1
+
 # Reglas de seguridad para producción
 # Deshabilitar listado de directorios
 Options -Indexes
