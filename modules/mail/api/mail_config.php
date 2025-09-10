@@ -1,54 +1,152 @@
 <?php
 /**
- * API para configuración de correo electrónico
+ * API para configuración de correo - Con verificación de extensiones
  */
 
-// Headers básicos
+// Headers inmediatos
 header('Content-Type: application/json; charset=UTF-8');
 header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
+
+// Función para respuesta limpia
+function sendResponse($data, $exit = true) {
+    echo json_encode($data, JSON_UNESCAPED_UNICODE);
+    if ($exit) exit;
+}
+
+// Verificar extensiones críticas primero
+$missing_extensions = [];
+$required = ['pdo', 'pdo_pgsql', 'json', 'session'];
+
+foreach ($required as $ext) {
+    if (!extension_loaded($ext)) {
+        $missing_extensions[] = $ext;
+    }
+}
+
+if (!empty($missing_extensions)) {
+    sendResponse([
+        'success' => false,
+        'error' => 'Extensiones PHP faltantes en el servidor',
+        'missing' => $missing_extensions,
+        'required' => $required,
+        'server_info' => [
+            'php_version' => PHP_VERSION,
+            'server' => $_SERVER['SERVER_SOFTWARE'] ?? 'unknown'
+        ]
+    ]);
+}
+
+// Verificar funciones críticas
+$missing_functions = [];
+$functions = ['json_encode', 'json_decode', 'session_start'];
+
+foreach ($functions as $func) {
+    if (!function_exists($func)) {
+        $missing_functions[] = $func;
+    }
+}
+
+if (!empty($missing_functions)) {
+    sendResponse([
+        'success' => false,
+        'error' => 'Funciones PHP deshabilitadas',
+        'missing_functions' => $missing_functions
+    ]);
+}
 
 // Manejar OPTIONS
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    exit(0);
+    sendResponse(['status' => 'ok']);
 }
-
-// Configuración de errores
-error_reporting(E_ALL);
-ini_set('display_errors', 0);
-ini_set('log_errors', 1);
 
 try {
     // Iniciar sesión
     session_start();
-
-    // Incluir configuración
-    $root_path = dirname(dirname(dirname(__DIR__)));
-    require_once $root_path . '/config/config.php';
-
-    // Conectar a base de datos usando variables del .env
-    $host = $_ENV['DB_HOST'] ?? 'localhost';
-    $port = $_ENV['DB_PORT'] ?? 5432;
-    $database = $_ENV['DB_DATABASE'] ?? 'clinica';
-    $username = $_ENV['DB_USERNAME'] ?? 'postgres';
-    $password = $_ENV['DB_PASSWORD'] ?? '';
     
-    $dsn = "pgsql:host={$host};port={$port};dbname={$database}";
-    $pdo = new PDO($dsn, $username, $password, [
+    // Test de conexión directa (sin config.php por ahora)
+    $action = $_GET['action'] ?? 'test';
+    
+    if ($action === 'basic') {
+        sendResponse(['success' => true, 'message' => 'API funcionando correctamente']);
+    }
+    
+    // Conectar directamente con credenciales hardcodeadas para test
+    $dsn = "pgsql:host=181.122.125.143;port=5454;dbname=clinica";
+    $pdo = new PDO($dsn, 'acmeuser', 'wjstks', [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        PDO::ATTR_TIMEOUT => 10
     ]);
     
-    // Obtener acción
-    $action = $_GET['action'] ?? $_POST['action'] ?? null;
+    // Verificar tablas
+    $pdo->query("SELECT 1 FROM mail_config LIMIT 1");
+    $pdo->query("SELECT 1 FROM mail_logs LIMIT 1");
     
-    $input = null;
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $raw_input = file_get_contents('php://input');
-        if ($raw_input) {
-            $input = json_decode($raw_input, true);
-            if ($input && isset($input['action'])) {
+    // Procesar acciones
+    switch ($action) {
+        case 'get':
+            $sql = "SELECT * FROM mail_config ORDER BY id DESC LIMIT 1";
+            $stmt = $pdo->query($sql);
+            $config = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($config) {
+                $config['smtp_password'] = '••••••••';
+            }
+            
+            sendResponse(['success' => true, 'config' => $config]);
+            break;
+            
+        case 'logs':
+            $limit = (int)($_GET['limit'] ?? 10);
+            $sql = "SELECT * FROM mail_logs ORDER BY sent_at DESC LIMIT " . $limit;
+            $stmt = $pdo->query($sql);
+            $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            sendResponse(['success' => true, 'logs' => $logs]);
+            break;
+            
+        case 'test':
+            $sql = "SELECT * FROM mail_config WHERE is_active = TRUE LIMIT 1";
+            $stmt = $pdo->query($sql);
+            $config = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($config) {
+                sendResponse([
+                    'success' => true, 
+                    'message' => 'Configuración encontrada: ' . $config['smtp_host'] . ':' . $config['smtp_port']
+                ]);
+            } else {
+                sendResponse(['success' => false, 'message' => 'No hay configuración activa']);
+            }
+            break;
+            
+        default:
+            sendResponse([
+                'success' => true, 
+                'message' => 'API funcionando', 
+                'action' => $action,
+                'available_actions' => ['get', 'logs', 'test', 'basic']
+            ]);
+    }
+    
+} catch (PDOException $e) {
+    sendResponse([
+        'success' => false,
+        'error' => 'Error de base de datos',
+        'details' => $e->getMessage(),
+        'code' => $e->getCode()
+    ]);
+    
+} catch (Exception $e) {
+    sendResponse([
+        'success' => false,
+        'error' => 'Error general',
+        'details' => $e->getMessage(),
+        'file' => basename($e->getFile()),
+        'line' => $e->getLine()
+    ]);
+}
+?>
                 $action = $input['action'];
             }
         }
