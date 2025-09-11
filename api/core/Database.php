@@ -18,7 +18,7 @@ class Database
     /**
      * @var string The database log file path
      */
-    private static $logFile = 'c:/laragon/www/clinica/logs/database.log';
+    private static $logFile = '/var/log/clinica/database.log';
     
     /**
      * Log SQL query to database log file

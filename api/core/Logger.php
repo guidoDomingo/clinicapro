@@ -11,7 +11,7 @@ class Logger
     /**
      * @var string The default log file path
      */
-    private static $logFile = 'c:/laragon/www/clinica/logs/application.log';
+    private static $logFile = '/var/log/clinica/application.log';
 
     /**
      * @var int Maximum size of log file in bytes (5MB)

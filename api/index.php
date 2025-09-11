@@ -46,7 +46,7 @@ if (session_status() === PHP_SESSION_NONE) {
 error_log("API Request - URI: " . $_SERVER['REQUEST_URI']);
 error_log("API Request - Method: " . $_SERVER['REQUEST_METHOD']);
 error_log("API Request - Content-Type: " . ($_SERVER['CONTENT_TYPE'] ?? 'none'));
-error_log("API Request - Session ID: " . session_id() . ", Data: " . json_encode($_SESSION), 3, "c:/laragon/www/clinica/logs/api_session.log");
+error_log("API Request - Session ID: " . session_id() . ", Data: " . json_encode($_SESSION), 3, "/var/log/clinica/api_session.log");
 
 // Set headers for API responses
 header('Content-Type: application/json');
@@ -76,9 +76,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 // Include necessary files
-require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/core/Router.php';
 require_once __DIR__ . '/core/Response.php';
+require_once __DIR__ . '/core/Database.php';
+
+// Include configuration after core classes are loaded
+require_once __DIR__ . '/../config/config.php';
 
 // Initialize the Router
 $router = new \Api\Core\Router();
@@ -87,7 +90,20 @@ $router = new \Api\Core\Router();
 require_once __DIR__ . '/routes/api.php';
 
 // Get the request URI and method
-$requestUri = isset($_GET['route']) ? $_GET['route'] : '';
+$requestUri = $_SERVER['REQUEST_URI'];
+// Remover el prefijo /api/ de la URI
+if (strpos($requestUri, '/api/') === 0) {
+    $requestUri = substr($requestUri, 5); // Remover "/api/"
+}
+// Remover query string si existe
+if (($pos = strpos($requestUri, '?')) !== false) {
+    $requestUri = substr($requestUri, 0, $pos);
+}
+// Usar como fallback el parámetro route
+if (empty($requestUri)) {
+    $requestUri = isset($_GET['route']) ? $_GET['route'] : '';
+}
+
 $requestMethod = $_SERVER['REQUEST_METHOD'];
 
 
