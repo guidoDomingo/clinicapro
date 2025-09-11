@@ -79,6 +79,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 require_once __DIR__ . '/core/Router.php';
 require_once __DIR__ . '/core/Response.php';
 require_once __DIR__ . '/core/Database.php';
+require_once __DIR__ . '/core/Model.php';
+
+// Include all controllers
+require_once __DIR__ . '/controllers/LocationController.php';
+require_once __DIR__ . '/controllers/RhPersonController.php';
+require_once __DIR__ . '/controllers/EspecialidadController.php';
+
+// Include all models
+require_once __DIR__ . '/models/RhPerson.php';
+require_once __DIR__ . '/models/Especialidad.php';
 
 // Include configuration after core classes are loaded
 require_once __DIR__ . '/../config/config.php';
