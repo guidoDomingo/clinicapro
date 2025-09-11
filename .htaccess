@@ -2,6 +2,10 @@ Options All -Indexes
 RewriteEngine On
 
 # Permitir acceso directo a archivos API
+RewriteCond %{REQUEST_URI} ^/api/
+RewriteRule ^ - [L]
+
+# Permitir acceso directo a archivos de módulos de mail API
 RewriteCond %{REQUEST_URI} ^/modules/mail/api/
 RewriteRule ^ - [L]
 
