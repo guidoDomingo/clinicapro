@@ -1,5 +1,5 @@
 <?php
-// API limpia para configuración de correo
+// API para configuración de correo - Multi-entorno (Local y Producción)
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
@@ -13,10 +13,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     exit(0);
 }
 
+// Inicializar configuración del entorno
+require_once dirname(dirname(dirname(__DIR__))) . '/config/environment_setup.php';
+EnvironmentSetup::initialize();
+
 try {
-    // Conexión a la base de datos
-    $dsn = "pgsql:host=181.122.125.143;port=5454;dbname=clinica";
-    $pdo = new PDO($dsn, 'acmeuser', 'wjstks', [
+    // Usar configuración dinámica de base de datos
+    $dbConfig = EnvironmentSetup::getDatabaseConfig();
+    $dsn = "{$dbConfig['driver']}:host={$dbConfig['host']};port={$dbConfig['port']};dbname={$dbConfig['database']}";
+    $pdo = new PDO($dsn, $dbConfig['username'], $dbConfig['password'], [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_TIMEOUT => 10
     ]);

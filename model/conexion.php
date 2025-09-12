@@ -18,11 +18,23 @@ class Conexion{
         $usuario = $_ENV['DB_USERNAME'] ?? '';
         $nombreBaseDeDatos = $_ENV['DB_DATABASE'] ?? '';
         $rutaServidor = $_ENV['DB_HOST'] ?? '';
-        $puerto = $_ENV['DB_PORT'] ?? '';        try {
+        $puerto = $_ENV['DB_PORT'] ?? '';
+        
+        try {
             // Check if PostgreSQL extension is available
             if (!extension_loaded('pdo_pgsql')) {
+                // Determinar directorio de logs basado en el entorno
+                if (isset($_ENV['LOG_PATH']) && !empty($_ENV['LOG_PATH'])) {
+                    $logDir = $_ENV['LOG_PATH'];
+                } else {
+                    if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+                        $logDir = __DIR__ . "/../logs";
+                    } else {
+                        $logDir = "/var/log/clinica";
+                    }
+                }
+                
                 // Asegurar que exista el directorio de logs
-                $logDir = "c:/laragon/www/clinica/logs";
                 if (!file_exists($logDir)) {
                     mkdir($logDir, 0777, true);
                 }
@@ -72,8 +84,18 @@ class Conexion{
                           "\nLine: " . $e->getLine() . 
                           "\nTrace: " . $e->getTraceAsString();
             
+            // Determinar directorio de logs basado en el entorno
+            if (isset($_ENV['LOG_PATH']) && !empty($_ENV['LOG_PATH'])) {
+                $logDir = $_ENV['LOG_PATH'];
+            } else {
+                if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+                    $logDir = __DIR__ . "/../logs";
+                } else {
+                    $logDir = "/var/log/clinica";
+                }
+            }
+            
             // Asegurar que exista el directorio de logs
-            $logDir = "c:/laragon/www/clinica/logs";
             if (!file_exists($logDir)) {
                 mkdir($logDir, 0777, true);
             }

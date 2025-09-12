@@ -237,7 +237,11 @@ $(document).ready(function() {
 // Cargar configuración actual
 async function loadMailConfig() {
     try {
-        const response = await fetch(window.APP_CONFIG.apiBase + 'mail_config.php?action=get');
+        const url = window.APP_CONFIG.apiBase + 'mail_config.php?action=get';
+        console.log('Debug: URL construida para mail config:', url);
+        console.log('Debug: APP_CONFIG:', window.APP_CONFIG);
+        
+        const response = await fetch(url);
         const data = await response.json();
         
         if (data.success && data.config) {
@@ -347,7 +351,10 @@ async function testMailConnection() {
 // Cargar logs recientes
 async function loadRecentLogs() {
     try {
-        const response = await fetch(window.APP_CONFIG.apiBase + 'mail_config.php?action=logs&limit=5');
+        const url = window.APP_CONFIG.apiBase + 'mail_config.php?action=logs&limit=5';
+        console.log('Debug: URL construida para logs:', url);
+        
+        const response = await fetch(url);
         const data = await response.json();
         
         const logsContainer = document.getElementById('recentLogs');

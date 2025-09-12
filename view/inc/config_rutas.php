@@ -13,10 +13,22 @@ $isLocal = (
     strpos($_SERVER['HTTP_HOST'], '.local') !== false
 );
 
+// Detectar si estamos usando dominio virtual
+$isVirtualDomain = (
+    strpos($_SERVER['HTTP_HOST'], '.test') !== false || 
+    strpos($_SERVER['HTTP_HOST'], '.local') !== false
+);
+
 if ($isLocal) {
-    // Configuración para desarrollo local (Laragon, XAMPP, etc.)
-    $baseUrl = '/clinica/';
-    $apiBase = '/clinica/modules/mail/api/';
+    if ($isVirtualDomain) {
+        // Dominio virtual como clinica.test - NO incluir /clinica/ en la ruta
+        $baseUrl = '/';
+        $apiBase = '/modules/mail/api/';
+    } else {
+        // localhost directo - incluir /clinica/ en la ruta
+        $baseUrl = '/clinica/';
+        $apiBase = '/clinica/modules/mail/api/';
+    }
 } else {
     // Configuración para servidor de producción
     $baseUrl = '/';
@@ -29,7 +41,17 @@ echo "<script>
         baseUrl: '{$baseUrl}',
         apiBase: '{$apiBase}',
         mailApi: '{$apiBase}mail_config.php',
-        isProduction: " . ($isLocal ? 'false' : 'true') . "
+        isProduction: " . ($isLocal ? 'false' : 'true') . ",
+        isVirtualDomain: " . ($isVirtualDomain ? 'true' : 'false') . ",
+        host: '{$_SERVER['HTTP_HOST']}',
+        debug: {
+            isLocal: " . ($isLocal ? 'true' : 'false') . ",
+            isVirtualDomain: " . ($isVirtualDomain ? 'true' : 'false') . ",
+            host: '{$_SERVER['HTTP_HOST']}'
+        }
     };
+    
+    // Debug temporal
+    console.log('APP_CONFIG configurado:', window.APP_CONFIG);
 </script>";
 ?>

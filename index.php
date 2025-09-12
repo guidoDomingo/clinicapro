@@ -1,4 +1,8 @@
 <?php 
+// Inicializar configuración del entorno
+require_once __DIR__ . '/config/environment_setup.php';
+EnvironmentSetup::initialize();
+
 // Iniciar sesión si no está iniciada
 if (session_status() == PHP_SESSION_NONE) {
     // Detectar el dominio actual para configurar cookies correctamente

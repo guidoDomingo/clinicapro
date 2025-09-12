@@ -231,6 +231,17 @@ class ControllerUser {
             require_once $conexionPath;
             $db = Conexion::conectar();
             
+            // Verificar si la conexión fue exitosa
+            if ($db === null) {
+                error_log("Database connection failed for user login: $usuario");
+                
+                if (isset($_POST['ajax']) && $_POST['ajax'] === 'true') {
+                    self::sendJsonResponse(false, "Error de conexión a la base de datos. Por favor, contacte al administrador.", null, 500);
+                    exit;
+                }
+                die("Error de conexión a la base de datos. Por favor, contacte al administrador.");
+            }
+            
             try {
                 $stmt = $db->prepare("SELECT u.*, r.reg_name, r.reg_lastname FROM sys_users u JOIN sys_register r ON u.reg_id = r.reg_id WHERE u.user_email = :email AND u.user_is_active = true");
                 $stmt->execute(['email' => $usuario]);

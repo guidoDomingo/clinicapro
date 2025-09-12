@@ -16,9 +16,24 @@ class Database
     private static $connection = null;
     
     /**
-     * @var string The database log file path
+     * @var string The database log file path (will be set dynamically)
      */
-    private static $logFile = '/var/log/clinica/database.log';
+    private static $logFile = null;
+    
+    /**
+     * Get the dynamic log file path
+     */
+    private static function getLogPath()
+    {
+        if (self::$logFile === null) {
+            // Load API configuration if not already loaded
+            if (!class_exists('Api\\Core\\ApiConfig')) {
+                require_once dirname(__DIR__) . '/core/ApiConfig.php';
+            }
+            self::$logFile = \Api\Core\ApiConfig::getDatabaseLogFile();
+        }
+        return self::$logFile;
+    }
     
     /**
      * Log SQL query to database log file
@@ -49,7 +64,7 @@ class Database
         
         $message .= "----------------------------------------\n";
         
-        error_log($message, 3, self::$logFile);
+        error_log($message, 3, self::getLogPath());
     }
     
     /**

@@ -11,7 +11,48 @@ class Logger
     /**
      * @var string The default log file path
      */
-    private static $logFile = '/var/log/clinica/application.log';
+    private static $logFile = null;
+
+    /**
+     * Get the appropriate log file path based on environment
+     */
+    private static function getLogPath()
+    {
+        if (self::$logFile === null) {
+            // Load environment variables if not already loaded
+            if (!isset($_ENV['LOG_PATH'])) {
+                try {
+                    $dotenv = \Dotenv\Dotenv::createImmutable(dirname(__DIR__, 2));
+                    $dotenv->load();
+                } catch (\Exception $e) {
+                    // Fallback if .env not found
+                }
+            }
+            
+            // Determine log path based on environment
+            if (isset($_ENV['LOG_PATH']) && !empty($_ENV['LOG_PATH'])) {
+                $logDir = $_ENV['LOG_PATH'];
+            } else {
+                // Auto-detect based on OS
+                if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+                    // Windows (local)
+                    $logDir = dirname(__DIR__, 2) . '/logs/';
+                } else {
+                    // Linux (production)
+                    $logDir = '/var/log/clinica/';
+                }
+            }
+            
+            // Create directory if it doesn't exist
+            if (!file_exists($logDir)) {
+                mkdir($logDir, 0777, true);
+            }
+            
+            self::$logFile = $logDir . 'application.log';
+        }
+        
+        return self::$logFile;
+    }
 
     /**
      * @var int Maximum size of log file in bytes (5MB)
@@ -28,13 +69,15 @@ class Logger
      */
     private static function rotateLogFile()
     {
-        if (!file_exists(self::$logFile)) {
+        $logFile = self::getLogPath();
+        
+        if (!file_exists($logFile)) {
             return;
         }
 
-        if (filesize(self::$logFile) > self::$maxFileSize) {
-            $backupFile = self::$logFile . '.' . date('Y-m-d-H-i-s') . '.backup';
-            rename(self::$logFile, $backupFile);
+        if (filesize($logFile) > self::$maxFileSize) {
+            $backupFile = $logFile . '.' . date('Y-m-d-H-i-s') . '.backup';
+            rename($logFile, $backupFile);
         }
     }
 
@@ -80,7 +123,13 @@ class Logger
         $message .= "Data: {$logData}\n";
         $message .= "----------------------------------------\n";
         
-        error_log($message, 3, self::$logFile);
+        try {
+            $logFile = self::getLogPath();
+            error_log($message, 3, $logFile);
+        } catch (\Exception $e) {
+            // Fallback: log to PHP error log if custom logging fails
+            error_log("Logger Error: " . $e->getMessage() . " | Original message: " . trim($message));
+        }
     }
     
     /**

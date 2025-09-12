@@ -24,8 +24,14 @@ if (strpos($_SERVER['SERVER_NAME'], '.local') !== false ||
 define('BASE_DIR', dirname(dirname(__FILE__)));
 define('API_DIR', dirname(__FILE__));
 
-// Incluir archivo de funciones comunes
+// Inicializar todos los componentes de la API
+require_once API_DIR . '/core/ApiInitializer.php';
+use Api\Core\ApiInitializer;
+use Api\Core\ApiConfig;
+
+// Incluir clases necesarias
 require_once BASE_DIR . "/api/core/Logger.php";
+require_once BASE_DIR . "/api/core/Response.php";
 
 // Iniciar sesión para todas las solicitudes a la API
 if (session_status() === PHP_SESSION_NONE) {
@@ -42,11 +48,11 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Registrar información de depuración
-error_log("API Request - URI: " . $_SERVER['REQUEST_URI']);
-error_log("API Request - Method: " . $_SERVER['REQUEST_METHOD']);
-error_log("API Request - Content-Type: " . ($_SERVER['CONTENT_TYPE'] ?? 'none'));
-error_log("API Request - Session ID: " . session_id() . ", Data: " . json_encode($_SESSION), 3, "/var/log/clinica/api_session.log");
+// Registrar información de depuración usando el sistema dinámico de logs
+ApiConfig::log("API Request - URI: " . $_SERVER['REQUEST_URI']);
+ApiConfig::log("API Request - Method: " . $_SERVER['REQUEST_METHOD']);
+ApiConfig::log("API Request - Content-Type: " . ($_SERVER['CONTENT_TYPE'] ?? 'none'));
+ApiConfig::logSession("Session ID: " . session_id() . ", Data: " . json_encode($_SESSION));
 
 // Set headers for API responses
 header('Content-Type: application/json');
@@ -126,7 +132,7 @@ try {
     $output = ob_get_clean();
     if (!headers_sent()) {
         // Si no se han enviado encabezados, significa que el controlador no respondió correctamente
-        error_log("API Warning - Controller did not send response. Output: " . $output);
+        ApiConfig::log("Controller did not send response. Output: " . $output, 'WARNING');
         \Api\Core\Response::error([
             'message' => ['No se recibió respuesta del controlador', $requestUri, $requestMethod],
             'debug_output' => substr($output, 0, 500), // Incluir parte de la salida para depuración
@@ -136,7 +142,7 @@ try {
 } catch (\Exception $e) {
     // Capturar cualquier salida para evitar que rompa el JSON
     ob_end_clean();
-    error_log("API Error - Exception: " . $e->getMessage());
+    ApiConfig::log("Exception: " . $e->getMessage(), 'ERROR');
     \Api\Core\Response::error([
         'message' => [$e->getMessage(), $requestUri, $requestMethod],
         'codes' => $e->getCode() ?: 500

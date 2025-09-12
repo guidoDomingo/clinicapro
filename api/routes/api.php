@@ -63,6 +63,7 @@ $router->post('permissions/delete', 'Api\\Controllers\\SysPermissionController',
 
 // Person Management routes
 $router->get('persons', 'Api\Controllers\RhPersonController', 'index');
+$router->get('people', 'Api\Controllers\RhPersonController', 'index'); // Alias para compatibilidad
 $router->get('persons/show', 'Api\Controllers\RhPersonController', 'show');
 $router->post('persons', 'Api\Controllers\RhPersonController', 'store');
 $router->put('persons', 'Api\Controllers\RhPersonController', 'update');
@@ -75,6 +76,7 @@ $router->post('persons/professional', 'Api\Controllers\RhPersonController', 'sav
 
 // Rutas para especialidades
 $router->get('especialidades', 'Api\Controllers\EspecialidadController', 'index');
+$router->get('specialties', 'Api\Controllers\EspecialidadController', 'index'); // Alias para compatibilidad
 $router->get('especialidades/person', 'Api\Controllers\EspecialidadController', 'getForPerson');
 $router->post('especialidades/assign', 'Api\Controllers\EspecialidadController', 'assignToPerson');
 
