@@ -24,14 +24,8 @@ if (strpos($_SERVER['SERVER_NAME'], '.local') !== false ||
 define('BASE_DIR', dirname(dirname(__FILE__)));
 define('API_DIR', dirname(__FILE__));
 
-// Inicializar todos los componentes de la API
-require_once API_DIR . '/core/ApiInitializer.php';
-use Api\Core\ApiInitializer;
-use Api\Core\ApiConfig;
-
-// Incluir clases necesarias
+// Incluir archivo de funciones comunes
 require_once BASE_DIR . "/api/core/Logger.php";
-require_once BASE_DIR . "/api/core/Response.php";
 
 // Iniciar sesión para todas las solicitudes a la API
 if (session_status() === PHP_SESSION_NONE) {
@@ -48,11 +42,11 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Registrar información de depuración usando el sistema dinámico de logs
-ApiConfig::log("API Request - URI: " . $_SERVER['REQUEST_URI']);
-ApiConfig::log("API Request - Method: " . $_SERVER['REQUEST_METHOD']);
-ApiConfig::log("API Request - Content-Type: " . ($_SERVER['CONTENT_TYPE'] ?? 'none'));
-ApiConfig::logSession("Session ID: " . session_id() . ", Data: " . json_encode($_SESSION));
+// Registrar información de depuración
+error_log("API Request - URI: " . $_SERVER['REQUEST_URI']);
+error_log("API Request - Method: " . $_SERVER['REQUEST_METHOD']);
+error_log("API Request - Content-Type: " . ($_SERVER['CONTENT_TYPE'] ?? 'none'));
+error_log("API Request - Session ID: " . session_id() . ", Data: " . json_encode($_SESSION), 3, "/var/log/clinica/api_session.log");
 
 // Set headers for API responses
 header('Content-Type: application/json');
@@ -87,42 +81,14 @@ require_once __DIR__ . '/core/Response.php';
 require_once __DIR__ . '/core/Database.php';
 require_once __DIR__ . '/core/Model.php';
 
-// Include all controllers (defensivo - no romper si alguno falla)
-$controllers = [
-    __DIR__ . '/controllers/LocationController.php',
-    __DIR__ . '/controllers/RhPersonController.php',
-    __DIR__ . '/controllers/EspecialidadController.php',
-    __DIR__ . '/controllers/SysRegisterController.php',
-    __DIR__ . '/controllers/SysUserController.php',
-    __DIR__ . '/controllers/SysRoleController.php',
-    __DIR__ . '/controllers/SysPermissionController.php'
-];
+// Include all controllers
+require_once __DIR__ . '/controllers/LocationController.php';
+require_once __DIR__ . '/controllers/RhPersonController.php';
+require_once __DIR__ . '/controllers/EspecialidadController.php';
 
-foreach ($controllers as $controller) {
-    if (file_exists($controller)) {
-        require_once $controller;
-    } else {
-        ApiConfig::log("Controller not found: $controller", 'WARNING');
-    }
-}
-
-// Include all models (defensivo - no romper si alguno falla)
-$models = [
-    __DIR__ . '/models/RhPerson.php',
-    __DIR__ . '/models/Especialidad.php',
-    __DIR__ . '/models/SysRegister.php',
-    __DIR__ . '/models/SysUser.php',
-    __DIR__ . '/models/SysRole.php',
-    __DIR__ . '/models/SysPermission.php'
-];
-
-foreach ($models as $model) {
-    if (file_exists($model)) {
-        require_once $model;
-    } else {
-        ApiConfig::log("Model not found: $model", 'WARNING');
-    }
-}
+// Include all models
+require_once __DIR__ . '/models/RhPerson.php';
+require_once __DIR__ . '/models/Especialidad.php';
 
 // Include configuration after core classes are loaded
 require_once __DIR__ . '/../config/config.php';
@@ -146,11 +112,10 @@ if (($pos = strpos($requestUri, '?')) !== false) {
     $requestUri = substr($requestUri, 0, $pos);
 }
 
-// Remover leading slash si existe
-$requestUri = ltrim($requestUri, '/');
-
-// Log para debugging
-ApiConfig::log("Processed REQUEST_URI: " . $requestUri);
+// Usar como fallback el parámetro route
+if (empty($requestUri)) {
+    $requestUri = isset($_GET['route']) ? $_GET['route'] : '';
+}
 
 $requestMethod = $_SERVER['REQUEST_METHOD'];
 
@@ -164,7 +129,7 @@ try {
     $output = ob_get_clean();
     if (!headers_sent()) {
         // Si no se han enviado encabezados, significa que el controlador no respondió correctamente
-        ApiConfig::log("Controller did not send response. Output: " . $output, 'WARNING');
+        error_log("API Warning - Controller did not send response. Output: " . $output);
         \Api\Core\Response::error([
             'message' => ['No se recibió respuesta del controlador', $requestUri, $requestMethod],
             'debug_output' => substr($output, 0, 500), // Incluir parte de la salida para depuración
@@ -174,7 +139,7 @@ try {
 } catch (\Exception $e) {
     // Capturar cualquier salida para evitar que rompa el JSON
     ob_end_clean();
-    ApiConfig::log("Exception: " . $e->getMessage(), 'ERROR');
+    error_log("API Error - Exception: " . $e->getMessage());
     \Api\Core\Response::error([
         'message' => [$e->getMessage(), $requestUri, $requestMethod],
         'codes' => $e->getCode() ?: 500
