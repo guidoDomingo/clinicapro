@@ -5,9 +5,15 @@
 
 require_once "model/conexion.php";
 
+// Incluir configuración del entorno
+require_once __DIR__ . '/config/environment_setup.php';
+use Config\EnvironmentSetup;
+
 try {
-    // Usar la conexión directa con credenciales
-    $pdo = new PDO('pgsql:host=localhost;port=5432;dbname=clinica', 'postgres', 'admin');
+    // Obtener configuración de base de datos dinámicamente
+    $dbConfig = EnvironmentSetup::getDatabaseConfig();
+    $dsn = "pgsql:host={$dbConfig['host']};port={$dbConfig['port']};dbname={$dbConfig['dbname']}";
+    $pdo = new PDO($dsn, $dbConfig['username'], $dbConfig['password']);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     
     // Definir el mapeo inverso de nombres a códigos

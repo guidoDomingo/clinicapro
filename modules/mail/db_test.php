@@ -1,18 +1,16 @@
 <?php
-echo "<h1>Test de Base de Datos</h1>";
+// Inicializar configuración del entorno
+require_once dirname(dirname(__DIR__)) . '/config/environment_setup.php';
+EnvironmentSetup::initialize();
 
-// Configuración hard-coded basada en tu .env
-$config = [
-    'host' => '181.122.125.143',
-    'port' => '5454',
-    'database' => 'clinica',
-    'username' => 'acmeuser',
-    'password' => 'wjstks'
-];
+echo "<h1>Test de Base de Datos - Multi-entorno</h1>";
 
-echo "<h2>Configuración de DB:</h2>";
+// Usar configuración dinámica
+$config = EnvironmentSetup::getDatabaseConfig();
+
+echo "<h2>Configuración de DB (Entorno: " . ($_ENV['APP_ENV'] ?? 'unknown') . "):</h2>";
 foreach ($config as $key => $value) {
-    $display_value = $key === 'password' ? '***' : $value;
+    $display_value = $key === 'password' ? str_repeat('*', strlen($value)) : $value;
     echo "- $key: $display_value<br>";
 }
 

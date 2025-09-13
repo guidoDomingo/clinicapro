@@ -5,9 +5,15 @@ ini_set('display_errors', 1);
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 
+// Incluir configuración del entorno
+require_once __DIR__ . '/config/environment_setup.php';
+use Config\EnvironmentSetup;
+
 try {
-    // Conexión directa
-    $pdo = new PDO("pgsql:host=181.122.125.143;port=5454;dbname=clinica", 'acmeuser', 'wjstks', [
+    // Obtener configuración de base de datos dinámicamente
+    $dbConfig = EnvironmentSetup::getDatabaseConfig();
+    $dsn = "pgsql:host={$dbConfig['host']};port={$dbConfig['port']};dbname={$dbConfig['dbname']}";
+    $pdo = new PDO($dsn, $dbConfig['username'], $dbConfig['password'], [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_TIMEOUT => 10
     ]);

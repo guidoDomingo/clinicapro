@@ -1,6 +1,7 @@
 <?php
 /**
  * API para envío de PDFs por correo electrónico
+ * Actualizado para funcionar en local y producción
  */
 
 // Limpiar cualquier salida previa
@@ -26,7 +27,10 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-require_once __DIR__ . '/../../../config/config.php';
+// Inicializar configuración del entorno
+require_once dirname(dirname(dirname(__DIR__))) . '/config/environment_setup.php';
+EnvironmentSetup::initialize();
+
 require_once __DIR__ . '/../../../vendor/autoload.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
@@ -36,7 +40,10 @@ use Dompdf\Dompdf;
 use Dompdf\Options;
 
 try {
-    $pdo = new PDO('pgsql:host=localhost;port=5432;dbname=clinica', 'postgres', 'admin');
+    // Usar configuración dinámica de base de datos
+    $dbConfig = EnvironmentSetup::getDatabaseConfig();
+    $dsn = "{$dbConfig['driver']}:host={$dbConfig['host']};port={$dbConfig['port']};dbname={$dbConfig['database']}";
+    $pdo = new PDO($dsn, $dbConfig['username'], $dbConfig['password']);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     
     $input = json_decode(file_get_contents('php://input'), true);

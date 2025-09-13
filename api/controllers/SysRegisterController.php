@@ -175,6 +175,18 @@ class SysRegisterController
             
             // Assign default role and activate (if user was found)
             if ($user) {
+                // Actualizar la contraseña del usuario para que sea el número de documento
+                // (en lugar del email que probablemente estableció el trigger)
+                $this->userModel->raw(
+                    "UPDATE sys_users SET user_pass = :password WHERE user_id = :user_id",
+                    [
+                        'password' => password_hash($registration['reg_document'], PASSWORD_DEFAULT),
+                        'user_id' => $user['user_id']
+                    ]
+                );
+                
+                \Api\Core\Logger::info("Password updated to document number for user ID: " . $user['user_id'], 'Registration password update');
+                
                 $this->userModel->assignRole($user['user_id'], 2); // 2 = 'Usuario'
                 
                 // Send email with credentials using registration data (not database user data)

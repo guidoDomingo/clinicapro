@@ -33,8 +33,15 @@ header('Content-Type: text/html; charset=UTF-8');
     <div class="section">
         <h2>🔌 2. CONEXIÓN A BASE DE DATOS</h2>
         <?php
+        // Incluir configuración del entorno
+        require_once __DIR__ . '/config/environment_setup.php';
+        use Config\EnvironmentSetup;
+        
         try {
-            $pdo = new PDO("pgsql:host=localhost;dbname=clinica;port=5432", "postgres", "admin");
+            // Obtener configuración de base de datos dinámicamente
+            $dbConfig = EnvironmentSetup::getDatabaseConfig();
+            $dsn = "pgsql:host={$dbConfig['host']};port={$dbConfig['port']};dbname={$dbConfig['dbname']}";
+            $pdo = new PDO($dsn, $dbConfig['username'], $dbConfig['password']);
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             echo "<p class='success'>✅ Conexión exitosa</p>";
         } catch (PDOException $e) {

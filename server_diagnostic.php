@@ -10,7 +10,17 @@ $diagnostics = [];
 
 try {
     // Información básica
-    $diagnostics['php_version'] = PHP_VERSION;
+    <?php
+/**
+ * Diagnóstico básico del servidor
+ */
+
+// Incluir configuración del entorno
+require_once __DIR__ . '/config/environment_setup.php';
+use Config\EnvironmentSetup;
+
+$diagnostics = [];
+$diagnostics['php_version'] = PHP_VERSION;
     $diagnostics['server'] = $_SERVER['SERVER_SOFTWARE'] ?? 'unknown';
     $diagnostics['document_root'] = $_SERVER['DOCUMENT_ROOT'] ?? 'unknown';
     $diagnostics['script_name'] = $_SERVER['SCRIPT_NAME'] ?? 'unknown';
@@ -52,8 +62,10 @@ try {
     // Test de conexión básica
     if (extension_loaded('pdo_pgsql')) {
         try {
-            $dsn = "pgsql:host=181.122.125.143;port=5454;dbname=clinica";
-            $pdo = new PDO($dsn, 'acmeuser', 'wjstks', [PDO::ATTR_TIMEOUT => 5]);
+            // Obtener configuración de base de datos dinámicamente
+            $dbConfig = EnvironmentSetup::getDatabaseConfig();
+            $dsn = "pgsql:host={$dbConfig['host']};port={$dbConfig['port']};dbname={$dbConfig['dbname']}";
+            $pdo = new PDO($dsn, $dbConfig['username'], $dbConfig['password'], [PDO::ATTR_TIMEOUT => 5]);
             $diagnostics['db_connection'] = 'success';
         } catch (Exception $e) {
             $diagnostics['db_connection'] = 'failed: ' . $e->getMessage();

@@ -12,6 +12,10 @@
  * - DELETE /api/consultas/{id} - Eliminar consulta
  */
 
+// Incluir configuración del entorno
+require_once __DIR__ . '/../../../config/environment_setup.php';
+use Config\EnvironmentSetup;
+
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
@@ -1690,7 +1694,10 @@ function getEquiposMedicos() {
     // Si la conexión global no está disponible, crear una directa
     if (!$conexion) {
         try {
-            $conexion = new PDO('pgsql:host=localhost;port=5432;dbname=clinica', 'postgres', 'admin');
+            // Obtener configuración de base de datos dinámicamente
+            $dbConfig = EnvironmentSetup::getDatabaseConfig();
+            $dsn = "pgsql:host={$dbConfig['host']};port={$dbConfig['port']};dbname={$dbConfig['dbname']}";
+            $conexion = new PDO($dsn, $dbConfig['username'], $dbConfig['password']);
             $conexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (PDOException $e) {
             return [

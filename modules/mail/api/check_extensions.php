@@ -78,9 +78,13 @@ try {
     
     if (extension_loaded('pdo') && extension_loaded('pdo_pgsql')) {
         try {
-            // Usar credenciales hardcodeadas para test
-            $dsn = "pgsql:host=181.122.125.143;port=5454;dbname=clinica";
-            $pdo = new PDO($dsn, 'acmeuser', 'wjstks', [
+            // Usar configuración dinámica
+            require_once dirname(dirname(dirname(__DIR__))) . '/config/environment_setup.php';
+            EnvironmentSetup::initialize();
+            $dbConfig = EnvironmentSetup::getDatabaseConfig();
+            
+            $dsn = "{$dbConfig['driver']}:host={$dbConfig['host']};port={$dbConfig['port']};dbname={$dbConfig['database']}";
+            $pdo = new PDO($dsn, $dbConfig['username'], $dbConfig['password'], [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_TIMEOUT => 5
             ]);

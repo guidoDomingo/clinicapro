@@ -98,6 +98,12 @@ class Database
     public static function getConnection()
     {
         if (self::$connection === null) {
+            // Auto-initialize with EnvironmentSetup if not manually initialized
+            if (empty(self::$config['host'])) {
+                require_once dirname(__DIR__, 2) . '/config/environment_setup.php';
+                $dbConfig = \EnvironmentSetup::getDatabaseConfig();
+                self::init($dbConfig);
+            }
             self::connect();
         }
         

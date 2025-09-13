@@ -70,11 +70,14 @@ class EnvironmentSetup
     
     public static function getLogPath()
     {
+        // Siempre priorizar la configuración explícita del .env
         if (isset($_ENV['LOG_PATH']) && !empty($_ENV['LOG_PATH'])) {
             return $_ENV['LOG_PATH'];
         }
         
-        if (self::$isWindows) {
+        // Si no hay configuración en .env, detectar automáticamente por SO
+        // (no por APP_ENV, sino por el sistema operativo real)
+        if (PHP_OS_FAMILY === 'Windows') {
             return dirname(__DIR__) . '/logs/';
         } else {
             return '/var/log/clinica/';
@@ -83,11 +86,13 @@ class EnvironmentSetup
     
     public static function getUploadPath()
     {
+        // Siempre priorizar la configuración explícita del .env
         if (isset($_ENV['UPLOAD_PATH']) && !empty($_ENV['UPLOAD_PATH'])) {
             return $_ENV['UPLOAD_PATH'];
         }
         
-        if (self::$isWindows) {
+        // Detectar automáticamente por SO real
+        if (PHP_OS_FAMILY === 'Windows') {
             return dirname(__DIR__) . '/uploads/';
         } else {
             return '/var/www/clinica/uploads/';
@@ -96,11 +101,13 @@ class EnvironmentSetup
     
     public static function getTempPath()
     {
+        // Siempre priorizar la configuración explícita del .env
         if (isset($_ENV['TEMP_PATH']) && !empty($_ENV['TEMP_PATH'])) {
             return $_ENV['TEMP_PATH'];
         }
         
-        if (self::$isWindows) {
+        // Detectar automáticamente por SO real
+        if (PHP_OS_FAMILY === 'Windows') {
             return dirname(__DIR__) . '/temp/';
         } else {
             return '/tmp/clinica/';
@@ -150,6 +157,9 @@ class EnvironmentSetup
     
     public static function getDatabaseConfig()
     {
+        // Asegurar que las variables de entorno estén cargadas
+        self::loadEnvironmentVariables();
+        
         return [
             'host' => $_ENV['DB_HOST'] ?? 'localhost',
             'port' => $_ENV['DB_PORT'] ?? '5432',

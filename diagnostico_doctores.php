@@ -3,6 +3,10 @@
  * Script de diagnóstico para verificar la conexión y doctores por fecha
  */
 
+// Incluir configuración del entorno
+require_once __DIR__ . '/config/environment_setup.php';
+use Config\EnvironmentSetup;
+
 echo "<h1>🔍 Diagnóstico de Doctores por Fecha</h1>";
 echo "<hr>";
 
@@ -22,7 +26,10 @@ require_once "model/conexion.php";
 // Probar conexión directa
 echo "<h3>2. Prueba de Conexión Directa</h3>";
 try {
-    $conexion = new PDO("pgsql:host=localhost;port=5432;dbname=clinica", "postgres", "admin");
+    // Obtener configuración de base de datos dinámicamente
+    $dbConfig = EnvironmentSetup::getDatabaseConfig();
+    $dsn = "pgsql:host={$dbConfig['host']};port={$dbConfig['port']};dbname={$dbConfig['dbname']}";
+    $conexion = new PDO($dsn, $dbConfig['username'], $dbConfig['password']);
     $conexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     echo "<p style='color: green;'>✅ Conexión directa exitosa</p>";
     

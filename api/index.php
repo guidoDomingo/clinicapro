@@ -91,10 +91,18 @@ require_once __DIR__ . '/core/Model.php';
 require_once __DIR__ . '/controllers/LocationController.php';
 require_once __DIR__ . '/controllers/RhPersonController.php';
 require_once __DIR__ . '/controllers/EspecialidadController.php';
+require_once __DIR__ . '/controllers/SysRegisterController.php';
+require_once __DIR__ . '/controllers/SysUserController.php';
+require_once __DIR__ . '/controllers/SysRoleController.php';
+require_once __DIR__ . '/controllers/SysPermissionController.php';
 
 // Include all models
 require_once __DIR__ . '/models/RhPerson.php';
 require_once __DIR__ . '/models/Especialidad.php';
+require_once __DIR__ . '/models/SysRegister.php';
+require_once __DIR__ . '/models/SysUser.php';
+require_once __DIR__ . '/models/SysRole.php';
+require_once __DIR__ . '/models/SysPermission.php';
 
 // Include configuration after core classes are loaded
 require_once __DIR__ . '/../config/config.php';
@@ -107,18 +115,36 @@ require_once __DIR__ . '/routes/api.php';
 
 // Get the request URI and method
 $requestUri = $_SERVER['REQUEST_URI'];
-// Remover el prefijo /api/ de la URI
-if (strpos($requestUri, '/api/') === 0) {
+
+// Log the original request URI for debugging
+ApiConfig::log("Original REQUEST_URI: " . $requestUri);
+
+// Remover el prefijo completo del proyecto de la URI
+$scriptName = dirname($_SERVER['SCRIPT_NAME']); // /clinica/api
+$basePath = dirname($scriptName); // /clinica
+ApiConfig::log("Script name: " . $_SERVER['SCRIPT_NAME'] . ", Base path: " . $basePath);
+
+// Si la URI contiene el basePath, removerlo
+if (strpos($requestUri, $basePath . '/api/') === 0) {
+    $requestUri = substr($requestUri, strlen($basePath . '/api/'));
+} elseif (strpos($requestUri, '/api/') === 0) {
     $requestUri = substr($requestUri, 5); // Remover "/api/"
 }
+
+// Remover leading slash si existe
+$requestUri = ltrim($requestUri, '/');
+
 // Remover query string si existe
 if (($pos = strpos($requestUri, '?')) !== false) {
     $requestUri = substr($requestUri, 0, $pos);
 }
+
 // Usar como fallback el parámetro route
 if (empty($requestUri)) {
     $requestUri = isset($_GET['route']) ? $_GET['route'] : '';
 }
+
+ApiConfig::log("Processed REQUEST_URI: " . $requestUri);
 
 $requestMethod = $_SERVER['REQUEST_METHOD'];
 

@@ -4,9 +4,15 @@
  * Usando la estructura de referenciales existente en la base de datos
  */
 
+// Incluir configuración del entorno
+require_once __DIR__ . '/config/environment_setup.php';
+use Config\EnvironmentSetup;
+
 try {
-    // Usar las credenciales correctas encontradas
-    $pdo = new PDO('pgsql:host=localhost;port=5432;dbname=clinica', 'postgres', 'admin');
+    // Obtener configuración de base de datos dinámicamente
+    $dbConfig = EnvironmentSetup::getDatabaseConfig();
+    $dsn = "pgsql:host={$dbConfig['host']};port={$dbConfig['port']};dbname={$dbConfig['dbname']}";
+    $pdo = new PDO($dsn, $dbConfig['username'], $dbConfig['password']);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     
     echo "<div style='color: green; font-weight: bold;'>✅ Conexión exitosa con la base de datos 'clinica'</div>";

@@ -4,6 +4,9 @@ namespace Api\Core;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
+// Incluir configuración del entorno
+require_once __DIR__ . '/../../config/environment_setup.php';
+
 /**
  * Mailer Class
  * 
@@ -14,7 +17,10 @@ class Mailer
     private static function getMailConfig()
     {
         try {
-            $pdo = new \PDO('pgsql:host=localhost;port=5432;dbname=clinica', 'postgres', 'admin');
+            // Obtener configuración de base de datos dinámicamente
+            $dbConfig = \EnvironmentSetup::getDatabaseConfig();
+            $dsn = "pgsql:host={$dbConfig['host']};port={$dbConfig['port']};dbname={$dbConfig['database']}";
+            $pdo = new \PDO($dsn, $dbConfig['username'], $dbConfig['password']);
             $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
             
             $sql = "SELECT * FROM mail_config WHERE is_active = TRUE ORDER BY id DESC LIMIT 1";
@@ -92,8 +98,8 @@ class Mailer
             $mail->addAddress($user['user_email']);
             $mail->Subject = 'Bienvenido a MiClinica - Detalles de su cuenta';
             
-            // La contraseña temporal es el email del usuario (como lo configura el trigger de BD)
-            $temporalPassword = $user['user_email'];
+            // La contraseña temporal es el número de documento del usuario
+            $temporalPassword = $registration['reg_document'];
             
             // Create email body
             $body = "<html><body>";

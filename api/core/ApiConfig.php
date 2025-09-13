@@ -122,7 +122,12 @@ class ApiConfig
     {
         $timestamp = date('Y-m-d H:i:s');
         $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
-        $caller = isset($backtrace[1]) ? basename($backtrace[1]['file']) . ':' . $backtrace[1]['line'] : 'unknown';
+        
+        // Verificar que exista el backtrace y los índices necesarios
+        $caller = 'unknown';
+        if (isset($backtrace[1]) && isset($backtrace[1]['file']) && isset($backtrace[1]['line'])) {
+            $caller = basename($backtrace[1]['file']) . ':' . $backtrace[1]['line'];
+        }
         
         $logMessage = sprintf(
             "[%s] [%s] [%s] %s\n",

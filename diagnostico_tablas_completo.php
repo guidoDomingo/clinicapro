@@ -2,7 +2,15 @@
 /**
  * DIAGNÓSTICO COMPLETO DE TABLAS PARA HACER 100% FUNCIONAL TODOS LOS FORMULARIOS
  */
-$pdo = new PDO('pgsql:host=localhost;port=5432;dbname=clinica', 'postgres', 'admin');
+
+// Incluir configuración del entorno
+require_once __DIR__ . '/config/environment_setup.php';
+use Config\EnvironmentSetup;
+
+// Obtener configuración de base de datos dinámicamente
+$dbConfig = EnvironmentSetup::getDatabaseConfig();
+$dsn = "pgsql:host={$dbConfig['host']};port={$dbConfig['port']};dbname={$dbConfig['dbname']}";
+$pdo = new PDO($dsn, $dbConfig['username'], $dbConfig['password']);
 
 echo "🔍 DIAGNÓSTICO COMPLETO DE TABLAS RELACIONADAS\n";
 echo "==============================================\n\n";
