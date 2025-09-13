@@ -124,7 +124,15 @@ $requestMethod = $_SERVER['REQUEST_METHOD'];
 try {
     // Capturar cualquier salida de buffer para evitar que rompa el JSON
     ob_start();
+    
+    // Suprimir warnings y notices que puedan contaminar la salida JSON
+    $old_error_reporting = error_reporting(E_ERROR | E_PARSE);
+    
     $router->dispatch($requestUri, $requestMethod);
+    
+    // Restaurar el nivel de error reporting
+    error_reporting($old_error_reporting);
+    
     // Si llegamos aquí sin enviar una respuesta, descartamos cualquier salida y enviamos un error
     $output = ob_get_clean();
     if (!headers_sent()) {
@@ -139,9 +147,16 @@ try {
 } catch (\Exception $e) {
     // Capturar cualquier salida para evitar que rompa el JSON
     ob_end_clean();
+    
+    // Suprimir warnings temporalmente para response limpio
+    $old_error_reporting = error_reporting(E_ERROR | E_PARSE);
+    
     error_log("API Error - Exception: " . $e->getMessage());
     \Api\Core\Response::error([
         'message' => [$e->getMessage(), $requestUri, $requestMethod],
         'codes' => $e->getCode() ?: 500
     ], $e->getCode() ?: 500);
+    
+    // Restaurar error reporting
+    error_reporting($old_error_reporting);
 }
