@@ -1,8 +1,8 @@
 <?php
 
-if (file_exists("model/motivos.model.php")) {
+if (file_exists("model/MotivosModel.php")) {
     // When included from index.php or similar root-level file
-    require_once "model/motivos.model.php";
+    require_once "model/MotivosModel.php";
 } else if (file_exists("../model/MotivosModel.php")) {
     // When included from an AJAX file in a subdirectory
     require_once "../model/MotivosModel.php";
