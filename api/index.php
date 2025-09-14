@@ -86,10 +86,18 @@ require_once __DIR__ . '/controllers/LocationController.php';
 require_once __DIR__ . '/controllers/RhPersonController.php';
 require_once __DIR__ . '/controllers/EspecialidadController.php';
 require_once __DIR__ . '/controllers/SysBusinessController.php';
+require_once __DIR__ . '/controllers/SysUserController.php';
+require_once __DIR__ . '/controllers/SysRoleController.php';
+require_once __DIR__ . '/controllers/SysPermissionController.php';
+require_once __DIR__ . '/controllers/SysRegisterController.php';
 
 // Include all models
 require_once __DIR__ . '/models/RhPerson.php';
 require_once __DIR__ . '/models/Especialidad.php';
+require_once __DIR__ . '/models/SysUser.php';
+require_once __DIR__ . '/models/SysRole.php';
+require_once __DIR__ . '/models/SysPermission.php';
+require_once __DIR__ . '/models/SysRegister.php';
 
 // Include configuration after core classes are loaded
 require_once __DIR__ . '/../config/config.php';
