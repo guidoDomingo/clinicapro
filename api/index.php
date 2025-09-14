@@ -85,6 +85,7 @@ require_once __DIR__ . '/core/Model.php';
 require_once __DIR__ . '/controllers/LocationController.php';
 require_once __DIR__ . '/controllers/RhPersonController.php';
 require_once __DIR__ . '/controllers/EspecialidadController.php';
+require_once __DIR__ . '/controllers/SysBusinessController.php';
 
 // Include all models
 require_once __DIR__ . '/models/RhPerson.php';
