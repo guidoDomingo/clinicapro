@@ -2,6 +2,16 @@
 /**
  * Controlador para la gestión de empresas
  */
+
+// Incluir el modelo de empresas
+if (file_exists("model/EmpresasModel.php")) {
+    require_once "model/EmpresasModel.php";
+} else if (file_exists("../model/EmpresasModel.php")) {
+    require_once "../model/EmpresasModel.php";
+} else {
+    require_once __DIR__ . "/../model/EmpresasModel.php";
+}
+
 class EmpresasController {
 
     /**

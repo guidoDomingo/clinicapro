@@ -1,11 +1,11 @@
 <?php
 
-if (file_exists("model/profesiones.model.php")) {
+if (file_exists("model/ProfesionesModel.php")) {
     // When included from index.php or similar root-level file
-    require_once "model/profesiones.model.php";
-} else if (file_exists("../model/profesiones.model.php")) {
+    require_once "model/ProfesionesModel.php";
+} else if (file_exists("../model/ProfesionesModel.php")) {
     // When included from an AJAX file in a subdirectory
-    require_once "../model/profesiones.model.php";
+    require_once "../model/ProfesionesModel.php";
 }
 
 class ProfesionesController {

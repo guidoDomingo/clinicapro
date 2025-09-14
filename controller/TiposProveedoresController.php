@@ -2,6 +2,16 @@
 /**
  * Controlador para la gestión de tipos de proveedores
  */
+
+// Incluir el modelo de tipos de proveedores
+if (file_exists("model/TiposProveedoresModel.php")) {
+    require_once "model/TiposProveedoresModel.php";
+} else if (file_exists("../model/TiposProveedoresModel.php")) {
+    require_once "../model/TiposProveedoresModel.php";
+} else {
+    require_once __DIR__ . "/../model/TiposProveedoresModel.php";
+}
+
 class TiposProveedoresController {
 
     /**
