@@ -6,6 +6,7 @@
 
 require_once __DIR__ . "/../../model/conexion.php";
 require_once __DIR__ . "/../model/ReservasPublicModel.php";
+require_once __DIR__ . "/../helpers/MailerPublic.php";
 
 class AuthController {
     
@@ -297,8 +298,8 @@ class AuthController {
                     ];
                 }
                 
-                // Generar contraseña temporal automáticamente
-                $passwordTemporal = self::generarPasswordTemporal();
+                // Usar el documento como contraseña (igual que el sistema base)
+                $passwordTemporal = $_POST['regDoc']; // El documento será la contraseña
                 
                 // Verificar que se hayan aceptado los términos y condiciones
                 if (!isset($_POST['acceptTerms']) || $_POST['acceptTerms'] !== 'on') {
@@ -317,8 +318,8 @@ class AuthController {
                     'documento' => $_POST['regDoc'],
                     'telefono' => $_POST['regTel'],
                     'fecha_nacimiento' => isset($_POST['regBdate']) ? $_POST['regBdate'] : null,
-                    'password' => password_hash($passwordTemporal, PASSWORD_DEFAULT),
-                    'password_temporal' => $passwordTemporal
+                    'password' => md5($_POST['regDoc']), // Usar MD5 del documento como el trigger
+                    'password_temporal' => $passwordTemporal // El documento será la contraseña temporal
                 ];
                 
                 // Log para verificar que los datos se están recogiendo correctamente
@@ -537,77 +538,35 @@ class AuthController {
      * @param array $datos Datos del usuario registrado
      */
     static private function enviarCredencialesPorCorreo($datos) {
-        // Cargar la clase WelcomeEmail del sistema principal
-        require_once __DIR__ . '/../../sys_sql/WelcomeEmail.php';
-        require_once __DIR__ . '/../../vendor/autoload.php';
-        
         try {
-            $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
+            error_log("enviarCredencialesPorCorreo: Usando MailerPublic dinámico para: " . $datos['email'], 3, "c:/laragon/www/clinica/logs/auth.log");
             
-            error_log("enviarCredencialesPorCorreo: Iniciando envío de email a: " . $datos['email'], 3, "c:/laragon/www/clinica/logs/auth.log");
+            // Usar la contraseña temporal generada (no el documento)
+            $password = $datos['password_temporal'];
+            error_log("enviarCredencialesPorCorreo: Enviando contraseña temporal: " . $password, 3, "c:/laragon/www/clinica/logs/auth.log");
             
-            // Configuración SMTP - usar Mailtrap para testing
-            $mail->isSMTP();
-            $mail->Host = 'sandbox.smtp.mailtrap.io';
-            $mail->SMTPAuth = true;
-            $mail->Username = '403823a30f75f1'; // Mailtrap username
-            $mail->Password = 'dd01ed75f12dbf'; // Mailtrap password
-            $mail->SMTPSecure = \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port = 2525; // Puerto correcto para Mailtrap
-            $mail->CharSet = 'UTF-8';
+            // Preparar los datos para MailerPublic
+            $datosEmail = [
+                'email' => $datos['email'],
+                'nombre' => $datos['nombre'],
+                'apellido' => $datos['apellido'],
+                'documento' => $datos['documento']
+            ];
             
-            // Habilitar debug verbose para Mailtrap
-            $mail->SMTPDebug = 2;
-            $mail->Debugoutput = function($str, $level) {
-                error_log("PHPMailer Debug: $str", 3, "c:/laragon/www/clinica/logs/auth.log");
-            };
+            // Usar MailerPublic con configuración dinámica
+            $resultado = MailerPublic::sendWelcomeEmail($datosEmail, $password);
             
-            // Configurar remitente y destinatario
-            $mail->setFrom('noreply@miclinica.com', 'MiClinica - Sistema de Reservas');
-            $mail->addAddress($datos['email'], $datos['nombre'] . ' ' . $datos['apellido']);
-            
-            error_log("enviarCredencialesPorCorreo: Configuración SMTP establecida", 3, "c:/laragon/www/clinica/logs/auth.log");
-            
-            // Crear el contenido del email usando WelcomeEmail
-            $userName = $datos['nombre'] . ' ' . $datos['apellido'];
-            $startLink = "http://localhost/clinica/public_reservas";
-            $password = isset($datos['password_temporal']) ? $datos['password_temporal'] : "Verifique su correo";
-            $userEmail = $datos['email']; // El email será el usuario de login
-            
-            $welcomeEmail = new WelcomeEmail($userName, $startLink, $password, $userEmail);
-            $emailBody = $welcomeEmail->getBody();
-            
-            // Configurar contenido del correo
-            $mail->isHTML(true);
-            $mail->Subject = '¡Bienvenido a MiClinica! - Sus credenciales de acceso';
-            $mail->Body = $emailBody;
-            
-            // Agregar texto alternativo para clientes que no soportan HTML
-            $mail->AltBody = "
-Bienvenido/a a MiClinica, {$userName}!
-
-Sus credenciales de acceso son:
-- Usuario: {$datos['email']}
-- Contraseña temporal: {$password}
-
-Para iniciar sesión, vaya a: {$startLink}
-
-Use su email como usuario y la contraseña temporal proporcionada.
-Por seguridad, le recomendamos cambiar su contraseña después del primer inicio de sesión.
-
-Saludos cordiales,
-Equipo de MiClinica
-";
-            
-            // Enviar el correo
-            error_log("enviarCredencialesPorCorreo: Intentando enviar email...", 3, "c:/laragon/www/clinica/logs/auth.log");
-            $mail->send();
-            error_log("✅ Correo enviado exitosamente a: " . $datos['email'] . " con contraseña: " . $password, 3, "c:/laragon/www/clinica/logs/auth.log");
+            if ($resultado) {
+                error_log("enviarCredencialesPorCorreo: ✅ Email enviado exitosamente con MailerPublic", 3, "c:/laragon/www/clinica/logs/auth.log");
+                return true;
+            } else {
+                error_log("enviarCredencialesPorCorreo: ❌ Error enviando con MailerPublic", 3, "c:/laragon/www/clinica/logs/auth.log");
+                return false;
+            }
             
         } catch (Exception $e) {
             error_log("❌ Error al enviar correo: " . $e->getMessage(), 3, "c:/laragon/www/clinica/logs/auth.log");
-            error_log("❌ Detalles del error PHPMailer: " . $mail->ErrorInfo, 3, "c:/laragon/www/clinica/logs/auth.log");
-            // No lanzar excepción, solo registrar el error
+            return false;
         }
     }
     

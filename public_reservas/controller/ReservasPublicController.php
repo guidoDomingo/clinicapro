@@ -6,6 +6,7 @@
 
 require_once __DIR__ . "/../model/ReservasPublicModel.php";
 require_once __DIR__ . "/AuthController.php";
+require_once __DIR__ . "/../helpers/MailerPublic.php";
 
 class ReservasPublicController {
     
@@ -622,37 +623,17 @@ class ReservasPublicController {
                 
                 $mail = new PHPMailer\PHPMailer\PHPMailer(true);
                 
-                error_log("enviarEmailConfirmacion: PHPMailer instanciado, configurando SMTP...", 3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                error_log("enviarEmailConfirmacion: Usando MailerPublic dinámico...", 3, "c:/laragon/www/clinica/logs/public_reservas.log");
                 
-                // Configuración de Mailtrap
-                $mail->isSMTP();
-                $mail->Host = 'sandbox.smtp.mailtrap.io';
-                $mail->SMTPAuth = true;
-                $mail->Username = '403823a30f75f1'; // Mailtrap username actualizado
-                $mail->Password = 'dd01ed75f12dbf'; // Mailtrap password actualizado
-                $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
-                $mail->Port = 2525;
+                // Usar MailerPublic en lugar de configuración hardcodeada
+                $resultado = MailerPublic::sendReservationEmail($email, $nombrePaciente, $asunto, $mensaje);
                 
-                // Deshabilitar debug para producción
-                $mail->SMTPDebug = 0;
-                
-                error_log("enviarEmailConfirmacion: SMTP configurado, preparando mensaje...", 3, "c:/laragon/www/clinica/logs/public_reservas.log");
-                
-                // Configuración del correo
-                $mail->setFrom('noreply@clinica.com', 'Sistema de Reservas - Clínica');
-                $mail->addAddress($email, $nombrePaciente);
-                
-                $mail->isHTML(true);
-                $mail->Subject = $asunto;
-                $mail->Body = $mensaje;
-                $mail->CharSet = 'UTF-8';
-                
-                error_log("enviarEmailConfirmacion: Enviando correo...", 3, "c:/laragon/www/clinica/logs/public_reservas.log");
-                
-                // Enviar correo
-                $mail->send();
-                error_log("enviarEmailConfirmacion: ✅ Email enviado exitosamente a: $email para la reserva: $codigoSeguimiento", 
-                    3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                if ($resultado) {
+                    error_log("enviarEmailConfirmacion: ✅ Email enviado con MailerPublic a: $email para la reserva: $codigoSeguimiento", 3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                    return true;
+                } else {
+                    error_log("enviarEmailConfirmacion: ❌ Error enviando con MailerPublic", 3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                }
                 
             } else {
                 error_log("enviarEmailConfirmacion: ⚠️ Autoload no encontrado, usando mail() nativo", 3, "c:/laragon/www/clinica/logs/public_reservas.log");

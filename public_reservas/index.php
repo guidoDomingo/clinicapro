@@ -4,6 +4,10 @@
  * Ahora requiere autenticación para agendar citas
  */
 
+// Inicializar configuración del entorno
+require_once __DIR__ . '/../config/environment_setup.php';
+EnvironmentSetup::initialize();
+
 // Iniciar sesión si no está iniciada
 if (session_status() == PHP_SESSION_NONE) {
     // Configurar las sesiones para compartir entre dominios
@@ -35,6 +39,16 @@ if (!isset($_SESSION['paciente_id']) && AuthController::ctrVerificarTokenRecorda
 // Procesar acciones de login/registro si se envió el formulario
 $resultadoAuth = null;
 if (isset($_POST['action'])) {
+    // Verificar si es una petición AJAX
+    $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+    
+    // Para peticiones AJAX, suprimir warnings y configurar headers apropiados
+    if ($isAjax) {
+        error_reporting(E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR);
+        ob_clean(); // Limpiar cualquier output previo
+        header('Content-Type: application/json');
+    }
+    
     // Debug: Ver contenido completo del POST
     $postDataClean = $_POST;
     if (isset($postDataClean['password'])) $postDataClean['password'] = '******';
@@ -43,16 +57,12 @@ if (isset($_POST['action'])) {
     
     error_log("POST data: " . json_encode($postDataClean), 3, "c:/laragon/www/clinica/logs/auth.log");
     
-    // Verificar si es una petición AJAX
-    $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
-    
     if ($_POST['action'] === 'login') {
         $resultadoAuth = AuthController::ctrLoginUser();
         error_log("Resultado de login en index.php: " . json_encode($resultadoAuth), 3, "c:/laragon/www/clinica/logs/auth.log");
         
         // Si es una petición AJAX, devolver JSON
         if ($isAjax) {
-            header('Content-Type: application/json');
             echo json_encode($resultadoAuth);
             exit;
         }
@@ -70,7 +80,6 @@ if (isset($_POST['action'])) {
         
         // Si es una petición AJAX, devolver JSON
         if ($isAjax) {
-            header('Content-Type: application/json');
             echo json_encode($resultadoAuth);
             exit;
         }
@@ -88,7 +97,6 @@ if (isset($_POST['action'])) {
         $existe = ReservasPublicModel::mdlVerificarEmailExistente($email);
         
         if ($isAjax) {
-            header('Content-Type: application/json');
             echo json_encode(['existe' => $existe]);
             exit;
         }
@@ -98,7 +106,6 @@ if (isset($_POST['action'])) {
         $existe = ReservasPublicModel::mdlVerificarDocumentoExistente($documento);
         
         if ($isAjax) {
-            header('Content-Type: application/json');
             echo json_encode(['existe' => $existe]);
             exit;
         }

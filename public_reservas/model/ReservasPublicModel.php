@@ -355,8 +355,11 @@ class ReservasPublicModel {
                 ];
             }
             
-            // Verificar la contraseña
-            if (password_verify($password, $usuario['user_pass'])) {
+            // Verificar la contraseña usando MD5 (igual que el sistema base)
+            $passwordMD5 = md5($password);
+            error_log("mdlVerificarUsuario: Comparando MD5($password) = $passwordMD5 con BD: " . $usuario['user_pass'], 3, "c:/laragon/www/clinica/logs/auth.log");
+            
+            if ($passwordMD5 === $usuario['user_pass']) {
                 error_log("mdlVerificarUsuario: Contraseña correcta para usuario ID " . $usuario['user_id'], 3, "c:/laragon/www/clinica/logs/auth.log");
                 
                 // Actualizar último login
@@ -550,15 +553,14 @@ class ReservasPublicModel {
                 ];
             }
             
-            // 2. Actualizar la contraseña en sys_users (el trigger ya creó el usuario)
+            // 2. Activar el usuario en sys_users (el trigger ya creó el usuario con contraseña MD5)
             $stmtUser = $db->prepare(
                 "UPDATE sys_users 
-                 SET user_pass = :password, user_is_active = true, user_expire = NOW() + INTERVAL '1 year'
+                 SET user_is_active = true, user_expire = NOW() + INTERVAL '1 year'
                  WHERE reg_id = :reg_id
                  RETURNING user_id"
             );
             
-            $stmtUser->bindParam(":password", $datos['password'], PDO::PARAM_STR);
             $stmtUser->bindParam(":reg_id", $regId, PDO::PARAM_INT);
             
             $stmtUser->execute();
@@ -566,10 +568,10 @@ class ReservasPublicModel {
             
             if (!$userId) {
                 $db->rollBack();
-                error_log("mdlRegistrarUsuario: Error al actualizar contraseña en sys_users", 3, "c:/laragon/www/clinica/logs/auth.log");
+                error_log("mdlRegistrarUsuario: Error al activar usuario en sys_users", 3, "c:/laragon/www/clinica/logs/auth.log");
                 return [
                     'error' => true,
-                    'mensaje' => 'Error al configurar credenciales de usuario'
+                    'mensaje' => 'Error al activar usuario'
                 ];
             }
             
