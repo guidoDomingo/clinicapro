@@ -50,11 +50,11 @@ require_once "controller/AuthController.php";
                                 <i class="fas fa-calendar-plus"></i> Reservar (Simple)
                             </a>
                         </li>
-                        <li class="nav-item">
+                        <!-- <li class="nav-item">
                             <a class="nav-link" href="index.php?accion=reservar_flujo">
                                 <i class="fas fa-calendar-check"></i> Nueva Reserva (Completa)
                             </a>
-                        </li>
+                        </li> -->
                         <li class="nav-item">
                             <a class="nav-link" href="index.php?accion=consultar">
                                 <i class="fas fa-calendar-check"></i> Mis Reservas
