@@ -47,7 +47,12 @@ require_once "controller/AuthController.php";
                         <!-- Opciones para usuarios autenticados -->
                         <li class="nav-item">
                             <a class="nav-link" href="index.php?accion=reservar">
-                                <i class="fas fa-calendar-plus"></i> Nueva Reserva
+                                <i class="fas fa-calendar-plus"></i> Reservar (Simple)
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="index.php?accion=reservar_flujo">
+                                <i class="fas fa-calendar-check"></i> Nueva Reserva (Completa)
                             </a>
                         </li>
                         <li class="nav-item">
@@ -119,7 +124,7 @@ require_once "controller/AuthController.php";
         $view = isset($_GET['view']) ? $_GET['view'] : '';
         
         // Verificar si el usuario está autenticado
-        $authRequired = ['reservar', 'confirmar'];
+        $authRequired = ['reservar', 'reservar_flujo', 'confirmar'];
         $isAuth = AuthController::isAuthenticated();
         
         // Debug de la autenticación
@@ -161,6 +166,9 @@ require_once "controller/AuthController.php";
                         break;
                     case 'reservar':
                         include "view/inicio.php";
+                        break;
+                    case 'reservar_flujo':
+                        include "view/reservar_flujo_completo.php";
                         break;
                     case 'confirmar':
                         include "view/confirmar_reserva.php";

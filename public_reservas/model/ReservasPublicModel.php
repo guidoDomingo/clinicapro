@@ -27,6 +27,76 @@ class ReservasPublicModel {
     }
     
     /**
+     * Obtiene los médicos disponibles para un servicio y fecha específicos
+     * @param string $fecha Fecha en formato YYYY-MM-DD
+     * @param int $servicioId ID del servicio
+     * @return array Lista de médicos disponibles
+     */
+    static public function mdlObtenerMedicosPorServicio($fecha, $servicioId) {
+        try {
+            $pdo = Conexion::conectar();
+            
+            // Obtener el día de la semana
+            $diasSemanaEsp = ['', 'LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES', 'SABADO', 'DOMINGO'];
+            $diaSemana = date('N', strtotime($fecha));
+            $diaSemanaTexto = $diasSemanaEsp[$diaSemana];
+            
+            $stmt = $pdo->prepare(
+                "SELECT 
+                    doctor_id,
+                    person_id,
+                    nombre_doctor,
+                    servicio_id,
+                    serv_descripcion,
+                    especialidad,
+                    first_name,
+                    last_name
+                FROM (
+                    SELECT DISTINCT
+                        ac.medico_id as doctor_id,
+                        rh.person_id,
+                        p.first_name || ' ' || p.last_name as nombre_doctor,
+                        rsd.servicio_id,
+                        rs.serv_descripcion,
+                        'Medicina General' as especialidad,
+                        p.first_name,
+                        p.last_name
+                    FROM rs_servicios_doctors rsd
+                    INNER JOIN agendas_detalle ad ON rsd.agenda_detalle_id = ad.detalle_id
+                    INNER JOIN agendas_cabecera ac ON ad.agenda_id = ac.agenda_id
+                    INNER JOIN rs_servicios rs ON rsd.servicio_id = rs.serv_id
+                    INNER JOIN rh_doctors rh ON ac.medico_id = rh.doctor_id
+                    INNER JOIN rh_person p ON rh.person_id = p.person_id
+                    WHERE 
+                        rsd.servicio_id = :servicio_id
+                        AND rsd.is_active = true
+                        AND ac.agenda_estado = true
+                        AND ad.detalle_estado = true
+                        AND ad.dia_semana = :dia_semana
+                        AND rs.is_active = true
+                ) medicos_disponibles
+                ORDER BY first_name, last_name"
+            );
+            
+            $stmt->bindParam(':servicio_id', $servicioId, PDO::PARAM_INT);
+            $stmt->bindParam(':dia_semana', $diaSemanaTexto, PDO::PARAM_STR);
+            $stmt->execute();
+            
+            $medicos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            error_log("mdlObtenerMedicosPorServicio: Servicio ID: $servicioId, Fecha: $fecha, Día: $diaSemanaTexto, Médicos encontrados: " . count($medicos), 
+                3, 'c:/laragon/www/clinica/logs/public_reservas.log');
+            
+            return $medicos;
+            
+        } catch (Exception $e) {
+            error_log("Error en mdlObtenerMedicosPorServicio: " . $e->getMessage(), 
+                3, 'c:/laragon/www/clinica/logs/public_reservas.log');
+            return [];
+        }
+    }
+    
+    /**
      * Obtiene los horarios disponibles para un médico y fecha específicos
      * @param string $fecha Fecha en formato YYYY-MM-DD
      * @param int $doctorId ID del doctor
