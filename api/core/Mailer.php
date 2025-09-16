@@ -1,6 +1,22 @@
 <?php
 namespace Api\Core;
 
+// Verificar que las dependencias estén disponibles
+if (!class_exists('PHPMailer\PHPMailer\PHPMailer')) {
+    // Intentar cargar el autoloader si no está ya cargado
+    $autoloadPaths = [
+        __DIR__ . '/../../vendor/autoload.php',
+        dirname(dirname(__DIR__)) . '/vendor/autoload.php'
+    ];
+    
+    foreach ($autoloadPaths as $autoloadPath) {
+        if (file_exists($autoloadPath)) {
+            require_once $autoloadPath;
+            break;
+        }
+    }
+}
+
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
@@ -90,6 +106,12 @@ class Mailer
      */
     public static function sendWelcomeEmail($registration, $user)
     {
+        // Verificar que PHPMailer esté disponible
+        if (!class_exists('PHPMailer\PHPMailer\PHPMailer')) {
+            error_log("PHPMailer class not found. Make sure composer dependencies are installed.");
+            return false;
+        }
+        
         $mail = self::getMailer();
         if (!$mail) return false;
         
@@ -133,6 +155,12 @@ class Mailer
      */
     public static function sendPasswordResetEmail($email, $resetToken)
     {
+        // Verificar que PHPMailer esté disponible
+        if (!class_exists('PHPMailer\PHPMailer\PHPMailer')) {
+            error_log("PHPMailer class not found. Make sure composer dependencies are installed.");
+            return false;
+        }
+        
         $mail = self::getMailer();
         if (!$mail) return false;
         

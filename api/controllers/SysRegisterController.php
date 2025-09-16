@@ -5,6 +5,9 @@ use Api\Core\Response;
 use Api\Models\SysRegister;
 use Api\Models\SysUser;
 
+// Asegurar que el Mailer esté disponible
+require_once dirname(__DIR__) . '/core/Mailer.php';
+
 /**
  * SysRegister Controller
  * 
@@ -307,7 +310,26 @@ class SysRegisterController
      */
     private function sendRegistrationEmail($registration, $user)
     {
-        // Use the Mailer class to send the welcome email
-        return \Api\Core\Mailer::sendWelcomeEmail($registration, $user);
+        try {
+            // Verificar que la clase Mailer esté disponible
+            if (!class_exists('\Api\Core\Mailer')) {
+                \Api\Core\Logger::error('Mailer class not found', 'Registration email error');
+                return false;
+            }
+            
+            // Use the Mailer class to send the welcome email
+            $result = \Api\Core\Mailer::sendWelcomeEmail($registration, $user);
+            
+            if ($result) {
+                \Api\Core\Logger::info('Registration email sent successfully to: ' . $user['user_email'], 'Registration email');
+            } else {
+                \Api\Core\Logger::error('Failed to send registration email to: ' . $user['user_email'], 'Registration email');
+            }
+            
+            return $result;
+        } catch (\Exception $e) {
+            \Api\Core\Logger::error('Exception sending registration email: ' . $e->getMessage(), 'Registration email error');
+            return false;
+        }
     }
 }

@@ -24,6 +24,9 @@ if (strpos($_SERVER['SERVER_NAME'], '.local') !== false ||
 define('BASE_DIR', dirname(dirname(__FILE__)));
 define('API_DIR', dirname(__FILE__));
 
+// Incluir el autoloader de Composer PRIMERO
+require_once BASE_DIR . '/vendor/autoload.php';
+
 // Incluir archivo de funciones comunes
 require_once BASE_DIR . "/api/core/Logger.php";
 
