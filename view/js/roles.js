@@ -20,7 +20,8 @@ $(document).ready(function() {
     const userRolesTable = $('#userRolesTable').DataTable({
         processing: true,
         serverSide: false,
-        pageLength: 25,
+        pageLength: 50,
+        lengthMenu: [[25, 50, 100, -1], [25, 50, 100, "Todos"]],
         ajax: {
             url: 'api/users',
             dataSrc: function(response) {
@@ -109,6 +110,8 @@ $(document).ready(function() {
 
     // Initialize DataTables
     const rolesTable = $('#rolesTable').DataTable({
+        pageLength: 25,
+        lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Todos"]],
         ajax: {
             url: 'api/roles',
             dataSrc: function(response) {
@@ -140,6 +143,8 @@ $(document).ready(function() {
     });
 
     const permissionsTable = $('#permissionsTable').DataTable({
+        pageLength: 25,
+        lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Todos"]],
         ajax: {
             url: 'api/permissions',
             dataSrc: 'data',
