@@ -6,13 +6,13 @@
 // Redirigir la salida de errores a un archivo
 ini_set('display_errors', 0);
 ini_set('log_errors', 1);
-ini_set('error_log', 'c:/laragon/www/clinica/logs/test_anteojos_error.log');
+ini_set('error_log', '/var/log/clinica/test_anteojos_error.log');
 
 // Función para verificar la conexión a la base de datos
 function verificar_conexion() {
     $conexion_path = 'c:/laragon/www/clinica/model/conexion.php';
     if (!file_exists($conexion_path)) {
-        file_put_contents('c:/laragon/www/clinica/logs/test_anteojos_error.log', 
+        file_put_contents('/var/log/clinica/test_anteojos_error.log', 
             date('[Y-m-d H:i:s] ') . "Archivo de conexión no encontrado: $conexion_path\n", 
             FILE_APPEND);
         return false;
@@ -22,12 +22,12 @@ function verificar_conexion() {
     
     try {
         $db = Conexion::conectar();
-        file_put_contents('c:/laragon/www/clinica/logs/test_anteojos_error.log', 
+        file_put_contents('/var/log/clinica/test_anteojos_error.log', 
             date('[Y-m-d H:i:s] ') . "Conexión a la base de datos exitosa\n", 
             FILE_APPEND);
         return true;
     } catch (Exception $e) {
-        file_put_contents('c:/laragon/www/clinica/logs/test_anteojos_error.log', 
+        file_put_contents('/var/log/clinica/test_anteojos_error.log', 
             date('[Y-m-d H:i:s] ') . "Error de conexión a la base de datos: " . $e->getMessage() . "\n", 
             FILE_APPEND);
         return false;
@@ -35,8 +35,8 @@ function verificar_conexion() {
 }
 
 // Crear directorio de logs si no existe
-if (!is_dir('c:/laragon/www/clinica/logs/')) {
-    mkdir('c:/laragon/www/clinica/logs/', 0777, true);
+if (!is_dir('/var/log/clinica/')) {
+    mkdir('/var/log/clinica/', 0777, true);
 }
 
 // Verificar conexión
@@ -63,7 +63,7 @@ $output = ob_get_clean();
 @unlink('obtener-datos-anteojos.php.temp');
 
 // Guardar la salida para análisis
-file_put_contents('c:/laragon/www/clinica/logs/test_anteojos_output.log', $output);
+file_put_contents('/var/log/clinica/test_anteojos_output.log', $output);
 
 // Devolver la salida para análisis en el navegador
 header('Content-Type: text/plain');

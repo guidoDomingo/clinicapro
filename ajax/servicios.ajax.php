@@ -103,7 +103,7 @@ if (isset($_POST['action'])) {
                     $medicoId = isset($_POST['medico_id']) ? $_POST['medico_id'] : null;
                     $modoSemana = isset($_POST['modo_semana']) && $_POST['modo_semana'] == '1';
                     
-                    error_log("Obteniendo cupos para servicio {$servicioId}, fecha {$fecha}, médico {$medicoId}, modo semana: " . ($modoSemana ? 'SI' : 'NO'), 3, "c:/laragon/www/clinica/logs/servicios.log");
+                    error_log("Obteniendo cupos para servicio {$servicioId}, fecha {$fecha}, médico {$medicoId}, modo semana: " . ($modoSemana ? 'SI' : 'NO'), 3, "/var/log/clinica/servicios.log");
                     
                     $pdo = Conexion::conectar();
                     
@@ -399,7 +399,7 @@ if (isset($_POST['action'])) {
                         'Total' => $totalReservas
                     ];
                     
-                    error_log("Cupos calculados para servicio {$servicioId}: " . json_encode($cuposDisponibles), 3, "c:/laragon/www/clinica/logs/servicios.log");
+                    error_log("Cupos calculados para servicio {$servicioId}: " . json_encode($cuposDisponibles), 3, "/var/log/clinica/servicios.log");
                     
                     echo json_encode([
                         "success" => true,
@@ -411,7 +411,7 @@ if (isset($_POST['action'])) {
                     ]);
                     
                 } catch (Exception $e) {
-                    error_log("Error al obtener cupos por servicio: " . $e->getMessage(), 3, "c:/laragon/www/clinica/logs/servicios.log");
+                    error_log("Error al obtener cupos por servicio: " . $e->getMessage(), 3, "/var/log/clinica/servicios.log");
                     echo json_encode([
                         "success" => false,
                         "status" => "error",
@@ -468,7 +468,7 @@ if (isset($_POST['action'])) {
                 $fecha = $_POST['fecha'];
 
                //agregar un log para verificar los datos recibidos
-                error_log("AJAX generarSlotsDisponibles: ServicioID=$servicioId, DoctorID=$doctorId, Fecha=$fecha", 3, 'c:/laragon/www/clinica/logs/slots.log');
+                error_log("AJAX generarSlotsDisponibles: ServicioID=$servicioId, DoctorID=$doctorId, Fecha=$fecha", 3, '/var/log/clinica/slots.log');
                 
                 $slots = ControladorServicios::ctrGenerarSlotsDisponibles($servicioId, $doctorId, $fecha);
                 echo json_encode([
@@ -500,10 +500,10 @@ if (isset($_POST['action'])) {
             break;
             
         case 'obtenerCuposDisponiblesPorTurno':
-            error_log("AJAX obtenerCuposDisponiblesPorTurno llamado", 3, 'c:/laragon/www/clinica/logs/database.log');
+            error_log("AJAX obtenerCuposDisponiblesPorTurno llamado", 3, '/var/log/clinica/database.log');
             if (isset($_POST['fecha'])) {
                 $fecha = $_POST['fecha'];
-                error_log("AJAX procesando fecha: {$fecha}", 3, 'c:/laragon/www/clinica/logs/database.log');
+                error_log("AJAX procesando fecha: {$fecha}", 3, '/var/log/clinica/database.log');
                 
                 try {
                     $pdo = Conexion::conectar();
@@ -523,7 +523,7 @@ if (isset($_POST['action'])) {
                         $numeroDia = (int)$fechaObj->format('w'); // 0=domingo, 1=lunes, etc
                         $diaSemana = $diasSemana[$numeroDia];
                         
-                        error_log("Calculando cupos para fecha {$fecha}, día: {$diaSemana}", 3, 'c:/laragon/www/clinica/logs/database.log');
+                        error_log("Calculando cupos para fecha {$fecha}, día: {$diaSemana}", 3, '/var/log/clinica/database.log');
                         
                         // Calcular cupos disponibles por turno basado en intervalos de tiempo específicos
                         $sqlHorarios = "SELECT DISTINCT
@@ -551,7 +551,7 @@ if (isset($_POST['action'])) {
                         $stmtHorarios->execute();
                         $horariosDisponibles = $stmtHorarios->fetchAll(PDO::FETCH_ASSOC);
                         
-                        error_log("Horarios encontrados para {$fecha} ({$diaSemana}): " . json_encode($horariosDisponibles), 3, 'c:/laragon/www/clinica/logs/database.log');
+                        error_log("Horarios encontrados para {$fecha} ({$diaSemana}): " . json_encode($horariosDisponibles), 3, '/var/log/clinica/database.log');
                         
                         // Generar todos los intervalos de tiempo disponibles agrupados por turno
                         $intervalosDisponibles = ['Mañana' => [], 'Tarde' => [], 'Noche' => []];
@@ -574,7 +574,7 @@ if (isset($_POST['action'])) {
                                         $claveIntervalo = $horaActual->format('H:i') . '-' . $horaFinalIntervalo->format('H:i') . '_medico_' . $medicoId;
                                         $intervalosDisponibles[$turno][] = $claveIntervalo;
                                         
-                                        error_log("Intervalo generado: {$claveIntervalo} en turno {$turno}", 3, 'c:/laragon/www/clinica/logs/database.log');
+                                        error_log("Intervalo generado: {$claveIntervalo} en turno {$turno}", 3, '/var/log/clinica/database.log');
                                     }
                                     
                                     $horaActual->add(new DateInterval('PT' . $intervaloMinutos . 'M'));
@@ -589,7 +589,7 @@ if (isset($_POST['action'])) {
                             'Noche' => count($intervalosDisponibles['Noche'])
                         ];
                         
-                        error_log("Cupos totales calculados: " . json_encode($cuposTotales), 3, 'c:/laragon/www/clinica/logs/database.log');
+                        error_log("Cupos totales calculados: " . json_encode($cuposTotales), 3, '/var/log/clinica/database.log');
                         
                         // Verificar si existe la tabla servicios_reservas y contar reservas ocupadas
                         $stmtCheck = $pdo->prepare("SELECT to_regclass('public.servicios_reservas')");
@@ -616,7 +616,7 @@ if (isset($_POST['action'])) {
                             $stmtReservas->execute();
                             $reservasOcupadas = $stmtReservas->fetchAll(PDO::FETCH_ASSOC);
                             
-                            error_log("Reservas encontradas para {$fecha}: " . json_encode($reservasOcupadas), 3, 'c:/laragon/www/clinica/logs/database.log');
+                            error_log("Reservas encontradas para {$fecha}: " . json_encode($reservasOcupadas), 3, '/var/log/clinica/database.log');
                             
                             // Marcar intervalos ocupados específicos
                             $intervalosOcupados = ['Mañana' => [], 'Tarde' => [], 'Noche' => []];
@@ -629,7 +629,7 @@ if (isset($_POST['action'])) {
                                 $claveReserva = $horaInicio->format('H:i') . '-' . $horaFin->format('H:i') . '_medico_' . $doctorId;
                                 $intervalosOcupados[$turno][] = $claveReserva;
                                 
-                                error_log("Intervalo ocupado: {$claveReserva} en turno {$turno}", 3, 'c:/laragon/www/clinica/logs/database.log');
+                                error_log("Intervalo ocupado: {$claveReserva} en turno {$turno}", 3, '/var/log/clinica/database.log');
                             }
                             
                             // Calcular cupos disponibles restando intervalos ocupados específicos
@@ -637,23 +637,23 @@ if (isset($_POST['action'])) {
                             foreach ($cuposTotales as $turno => $total) {
                                 $ocupadas = count($intervalosOcupados[$turno]);
                                 $cupos[$turno] = max(0, $total - $ocupadas); // No puede ser negativo
-                                error_log("Turno {$turno}: Total={$total}, Ocupadas={$ocupadas}, Disponibles={$cupos[$turno]}", 3, 'c:/laragon/www/clinica/logs/database.log');
+                                error_log("Turno {$turno}: Total={$total}, Ocupadas={$ocupadas}, Disponibles={$cupos[$turno]}", 3, '/var/log/clinica/database.log');
                             }
                         } else {
-                            error_log("Tabla servicios_reservas no existe, usando valores totales calculados", 3, 'c:/laragon/www/clinica/logs/database.log');
+                            error_log("Tabla servicios_reservas no existe, usando valores totales calculados", 3, '/var/log/clinica/database.log');
                             $cupos = $cuposTotales;
                         }
                     } else {
-                        error_log("No se pudo conectar a la BD", 3, 'c:/laragon/www/clinica/logs/database.log');
+                        error_log("No se pudo conectar a la BD", 3, '/var/log/clinica/database.log');
                         $cupos = ['Mañana' => 0, 'Tarde' => 0, 'Noche' => 0];
                     }
                 } catch (Exception $e) {
-                    error_log("Error al calcular cupos disponibles: " . $e->getMessage(), 3, 'c:/laragon/www/clinica/logs/database.log');
+                    error_log("Error al calcular cupos disponibles: " . $e->getMessage(), 3, '/var/log/clinica/database.log');
                     // En caso de error, devolver ceros
                     $cupos = ['Mañana' => 0, 'Tarde' => 0, 'Noche' => 0];
                 }
                 
-                error_log("AJAX retornando cupos disponibles: " . json_encode($cupos), 3, 'c:/laragon/www/clinica/logs/database.log');
+                error_log("AJAX retornando cupos disponibles: " . json_encode($cupos), 3, '/var/log/clinica/database.log');
                 
                 echo json_encode([
                     "status" => "success",
@@ -689,16 +689,16 @@ if (isset($_POST['action'])) {
             $doctorId = isset($_POST['doctor_id']) ? intval($_POST['doctor_id']) : null;
             $estado = isset($_POST['estado']) ? $_POST['estado'] : null;
             
-            error_log("AJAX obtenerReservas: Fecha=$fecha, DoctorID=" . ($doctorId ?? "null") . ", Estado=" . ($estado ?? "null"), 3, 'c:/laragon/www/clinica/logs/reservas.log');
+            error_log("AJAX obtenerReservas: Fecha=$fecha, DoctorID=" . ($doctorId ?? "null") . ", Estado=" . ($estado ?? "null"), 3, '/var/log/clinica/reservas.log');
             
             try {
                 $reservas = ControladorServicios::ctrObtenerReservasPorFecha($fecha, $doctorId, $estado);
                 
-                error_log("AJAX obtenerReservas: Se encontraron " . count($reservas) . " reservas", 3, 'c:/laragon/www/clinica/logs/reservas.log');
+                error_log("AJAX obtenerReservas: Se encontraron " . count($reservas) . " reservas", 3, '/var/log/clinica/reservas.log');
                 if (count($reservas) > 0) {
-                    error_log("AJAX obtenerReservas: Primera reserva: " . json_encode($reservas[0]), 3, 'c:/laragon/www/clinica/logs/reservas.log');
+                    error_log("AJAX obtenerReservas: Primera reserva: " . json_encode($reservas[0]), 3, '/var/log/clinica/reservas.log');
                 } else {
-                    error_log("AJAX obtenerReservas: No se encontraron reservas para esta fecha", 3, 'c:/laragon/www/clinica/logs/reservas.log');
+                    error_log("AJAX obtenerReservas: No se encontraron reservas para esta fecha", 3, '/var/log/clinica/reservas.log');
                 }
                 
                 echo json_encode([
@@ -706,7 +706,7 @@ if (isset($_POST['action'])) {
                     "data" => $reservas
                 ]);
             } catch (Exception $e) {
-                error_log("AJAX obtenerReservas ERROR: " . $e->getMessage(), 3, 'c:/laragon/www/clinica/logs/reservas.log');
+                error_log("AJAX obtenerReservas ERROR: " . $e->getMessage(), 3, '/var/log/clinica/reservas.log');
                 echo json_encode([
                     "status" => "error",
                     "message" => "Error al obtener reservas: " . $e->getMessage(),
@@ -834,10 +834,10 @@ if (isset($_POST['action'])) {
                 }
                 
                 // Debug - verificar el seguro_id recibido
-                error_log("AJAX guardarReserva: seguro_id POST = " . (isset($_POST['seguro_id']) ? $_POST['seguro_id'] : 'NO_SET'), 3, 'c:/laragon/www/clinica/logs/reservas.log');
+                error_log("AJAX guardarReserva: seguro_id POST = " . (isset($_POST['seguro_id']) ? $_POST['seguro_id'] : 'NO_SET'), 3, '/var/log/clinica/reservas.log');
                 
                 // Registrar intento de guardar reserva
-                error_log("AJAX guardarReserva: Datos recibidos = " . json_encode($datos), 3, 'c:/laragon/www/clinica/logs/reservas.log');
+                error_log("AJAX guardarReserva: Datos recibidos = " . json_encode($datos), 3, '/var/log/clinica/reservas.log');
                 
                 try {
                     // Guardar la reserva
@@ -849,16 +849,16 @@ if (isset($_POST['action'])) {
                             "message" => "Reserva guardada exitosamente",
                             "reserva_id" => $resultado
                         ]);
-                        error_log("AJAX guardarReserva: Reserva creada con ID " . $resultado, 3, 'c:/laragon/www/clinica/logs/reservas.log');
+                        error_log("AJAX guardarReserva: Reserva creada con ID " . $resultado, 3, '/var/log/clinica/reservas.log');
                     } else {
                         echo json_encode([
                             "status" => "error",
                             "message" => "No se pudo guardar la reserva. Verifique que no haya conflictos de horarios."
                         ]);
-                        error_log("AJAX guardarReserva: No se pudo guardar la reserva (resultado=false)", 3, 'c:/laragon/www/clinica/logs/reservas.log');
+                        error_log("AJAX guardarReserva: No se pudo guardar la reserva (resultado=false)", 3, '/var/log/clinica/reservas.log');
                     }
                 } catch (Exception $e) {
-                    error_log("AJAX guardarReserva: Excepción - " . $e->getMessage(), 3, 'c:/laragon/www/clinica/logs/reservas.log');
+                    error_log("AJAX guardarReserva: Excepción - " . $e->getMessage(), 3, '/var/log/clinica/reservas.log');
                     echo json_encode([
                         "status" => "error",
                         "message" => "Error al guardar la reserva: " . $e->getMessage()
@@ -875,7 +875,7 @@ if (isset($_POST['action'])) {
                 }
                 
                 $mensaje = "Faltan datos requeridos para guardar la reserva: " . implode(", ", $camposFaltantes);
-                error_log("AJAX guardarReserva: " . $mensaje, 3, 'c:/laragon/www/clinica/logs/reservas.log');
+                error_log("AJAX guardarReserva: " . $mensaje, 3, '/var/log/clinica/reservas.log');
                 
                 echo json_encode([
                     "status" => "error",
@@ -1015,7 +1015,7 @@ if (isset($_POST['action'])) {
                     "data" => $medicos
                 ]);
             } catch (Exception $e) {
-                error_log("AJAX obtenerMedicos ERROR: " . $e->getMessage(), 3, 'c:/laragon/www/clinica/logs/reservas.log');
+                error_log("AJAX obtenerMedicos ERROR: " . $e->getMessage(), 3, '/var/log/clinica/reservas.log');
                 echo json_encode([
                     "status" => "error",
                     "mensaje" => "Error al obtener médicos: " . $e->getMessage()
@@ -1029,21 +1029,21 @@ if (isset($_POST['action'])) {
                 $doctorId = $_POST['doctor_id'];
                 $fecha = $_POST['fecha'];
                 
-                error_log("AJAX obtenerHorariosDisponibles: ServicioID=$servicioId, DoctorID=$doctorId, Fecha=$fecha", 3, 'c:/laragon/www/clinica/logs/slots.log');
+                error_log("AJAX obtenerHorariosDisponibles: ServicioID=$servicioId, DoctorID=$doctorId, Fecha=$fecha", 3, '/var/log/clinica/slots.log');
                 
                 try {
                     // Llamar al método del controlador CON filtro por servicio
                     $horarios = ControladorServicios::ctrObtenerHorariosDisponibles($servicioId, $doctorId, $fecha);
                     
                     // Ya no buscamos horarios alternativos - respetamos el filtro por servicio
-                    error_log("Horarios encontrados para ServicioID=$servicioId: " . count($horarios), 3, 'c:/laragon/www/clinica/logs/slots.log');
+                    error_log("Horarios encontrados para ServicioID=$servicioId: " . count($horarios), 3, '/var/log/clinica/slots.log');
                     
                     echo json_encode([
                         "status" => "success",
                         "data" => $horarios
                     ]);
                 } catch (Exception $e) {
-                    error_log("AJAX obtenerHorariosDisponibles ERROR: " . $e->getMessage(), 3, 'c:/laragon/www/clinica/logs/slots.log');
+                    error_log("AJAX obtenerHorariosDisponibles ERROR: " . $e->getMessage(), 3, '/var/log/clinica/slots.log');
                     echo json_encode([
                         "status" => "error",
                         "message" => "Error al obtener horarios disponibles: " . $e->getMessage()
@@ -1062,7 +1062,7 @@ if (isset($_POST['action'])) {
                 $doctorId = $_POST['doctor_id'];
                 $servicioId = isset($_POST['servicio_id']) ? $_POST['servicio_id'] : 0;
                 
-                error_log("AJAX obtenerDiasDisponibles: DoctorID=$doctorId, ServicioID=$servicioId", 3, 'c:/laragon/www/clinica/logs/slots.log');
+                error_log("AJAX obtenerDiasDisponibles: DoctorID=$doctorId, ServicioID=$servicioId", 3, '/var/log/clinica/slots.log');
                 
                 try {
                     // Llamar al método del controlador para obtener días disponibles
@@ -1073,7 +1073,7 @@ if (isset($_POST['action'])) {
                         "data" => $diasDisponibles
                     ]);
                 } catch (Exception $e) {
-                    error_log("AJAX obtenerDiasDisponibles ERROR: " . $e->getMessage(), 3, 'c:/laragon/www/clinica/logs/slots.log');
+                    error_log("AJAX obtenerDiasDisponibles ERROR: " . $e->getMessage(), 3, '/var/log/clinica/slots.log');
                     echo json_encode([
                         "status" => "error",
                         "message" => "Error al obtener días disponibles: " . $e->getMessage()
@@ -1092,7 +1092,7 @@ if (isset($_POST['action'])) {
                 $doctorId = $_POST['doctor_id'];
                 $servicioId = isset($_POST['servicio_id']) ? $_POST['servicio_id'] : 0;
                 
-                error_log("AJAX obtenerTodosLosHorariosDisponibles: DoctorID=$doctorId, ServicioID=$servicioId", 3, 'c:/laragon/www/clinica/logs/slots.log');
+                error_log("AJAX obtenerTodosLosHorariosDisponibles: DoctorID=$doctorId, ServicioID=$servicioId", 3, '/var/log/clinica/slots.log');
                 
                 try {
                     // Llamar al método del controlador para obtener todos los horarios disponibles
@@ -1103,7 +1103,7 @@ if (isset($_POST['action'])) {
                         "data" => $todosLosHorarios
                     ]);
                 } catch (Exception $e) {
-                    error_log("AJAX obtenerTodosLosHorariosDisponibles ERROR: " . $e->getMessage(), 3, 'c:/laragon/www/clinica/logs/slots.log');
+                    error_log("AJAX obtenerTodosLosHorariosDisponibles ERROR: " . $e->getMessage(), 3, '/var/log/clinica/slots.log');
                     echo json_encode([
                         "status" => "error",
                         "message" => "Error al obtener todos los horarios disponibles: " . $e->getMessage()
@@ -1224,14 +1224,14 @@ if (isset($_POST['action'])) {
                 ];
                 
                 error_log("AJAX actualizarReserva: Datos recibidos: " . json_encode($datos), 
-                         3, 'c:/laragon/www/clinica/logs/reservas.log');
+                         3, '/var/log/clinica/reservas.log');
                 
                 $resultado = ControladorServicios::ctrActualizarReserva($datos);
                 echo json_encode($resultado);
                 
             } catch (Exception $e) {
                 error_log("AJAX actualizarReserva ERROR: " . $e->getMessage(), 
-                         3, 'c:/laragon/www/clinica/logs/reservas.log');
+                         3, '/var/log/clinica/reservas.log');
                 echo json_encode([
                     "status" => "error",
                     "message" => "Error al actualizar la reserva: " . $e->getMessage()
@@ -1276,14 +1276,14 @@ if (isset($_POST['action'])) {
                 ];
                 
                 error_log("AJAX editarReservaCompleta: Datos recibidos: " . json_encode($datos), 
-                         3, 'c:/laragon/www/clinica/logs/reservas.log');
+                         3, '/var/log/clinica/reservas.log');
                 
                 $resultado = ControladorServicios::ctrEditarReservaCompleta($datos);
                 echo json_encode($resultado);
                 
             } catch (Exception $e) {
                 error_log("AJAX editarReservaCompleta ERROR: " . $e->getMessage(), 
-                         3, 'c:/laragon/www/clinica/logs/reservas.log');
+                         3, '/var/log/clinica/reservas.log');
                 echo json_encode([
                     "status" => "error",
                     "message" => "Error al editar la reserva: " . $e->getMessage()
@@ -1320,14 +1320,14 @@ if (isset($_POST['action'])) {
                 ];
                 
                 error_log("AJAX verificarConflictosEdicion: Verificando conflictos: " . json_encode($datos), 
-                         3, 'c:/laragon/www/clinica/logs/reservas.log');
+                         3, '/var/log/clinica/reservas.log');
                 
                 $resultado = ControladorServicios::ctrVerificarConflictosEdicion($datos);
                 echo json_encode($resultado);
                 
             } catch (Exception $e) {
                 error_log("AJAX verificarConflictosEdicion ERROR: " . $e->getMessage(), 
-                         3, 'c:/laragon/www/clinica/logs/reservas.log');
+                         3, '/var/log/clinica/reservas.log');
                 echo json_encode([
                     "status" => "error",
                     "message" => "Error al verificar conflictos: " . $e->getMessage()
@@ -1342,13 +1342,13 @@ if (isset($_POST['action'])) {
                 
                 // Registrar datos antes de procesar
                 error_log("AJAX enviarWhatsApp: Enviando a teléfono {$telefono}, mensaje: " . substr($mensaje, 0, 50) . "...", 
-                         3, 'c:/laragon/www/clinica/logs/whatsapp.log');
+                         3, '/var/log/clinica/whatsapp.log');
                 
                 try {
                     $resultado = ControladorServicios::ctrEnviarWhatsApp($telefono, $mensaje);
                     echo json_encode($resultado);
                 } catch (Exception $e) {
-                    error_log("AJAX enviarWhatsApp ERROR: " . $e->getMessage(), 3, 'c:/laragon/www/clinica/logs/whatsapp.log');
+                    error_log("AJAX enviarWhatsApp ERROR: " . $e->getMessage(), 3, '/var/log/clinica/whatsapp.log');
                     echo json_encode([
                         "status" => "error",
                         "message" => "Error al enviar mensaje: " . $e->getMessage()
@@ -1381,7 +1381,7 @@ if (isset($_POST['action'])) {
                 }
             } catch (Exception $e) {
                 error_log("AJAX obtenerSalasActivas ERROR: " . $e->getMessage(), 
-                         3, 'c:/laragon/www/clinica/logs/reservas.log');
+                         3, '/var/log/clinica/reservas.log');
                 echo json_encode([
                     "status" => "error",
                     "message" => "Error al obtener salas: " . $e->getMessage()
@@ -1403,13 +1403,13 @@ if (isset($_POST['action'])) {
                 $fecha = $_POST['fecha'];
                 
                 error_log("AJAX obtenerDoctoresPorFecha: Obteniendo doctores para fecha: " . $fecha, 
-                         3, 'c:/laragon/www/clinica/logs/reservas.log');
+                         3, '/var/log/clinica/reservas.log');
                 
                 // USAR EL MISMO MÉTODO QUE FUNCIONA PARA NUEVA RESERVA
                 $doctores = ControladorServicios::ctrObtenerMedicosDisponiblesPorFecha($fecha);
                 
                 error_log("AJAX obtenerDoctoresPorFecha: Doctores obtenidos usando método de nueva reserva: " . count($doctores), 
-                         3, 'c:/laragon/www/clinica/logs/reservas.log');
+                         3, '/var/log/clinica/reservas.log');
                 
                 if ($doctores !== false) {
                     echo json_encode([
@@ -1426,7 +1426,7 @@ if (isset($_POST['action'])) {
                 
             } catch (Exception $e) {
                 error_log("AJAX obtenerDoctoresPorFecha ERROR: " . $e->getMessage(), 
-                         3, 'c:/laragon/www/clinica/logs/reservas.log');
+                         3, '/var/log/clinica/reservas.log');
                 echo json_encode([
                     "status" => "error",
                     "message" => "Error al obtener doctores: " . $e->getMessage()

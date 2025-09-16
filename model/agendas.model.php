@@ -280,14 +280,14 @@ class ModelAgendas {
                 // Log PDO error info
                 $errorInfo = $stmt->errorInfo();
                 $errorMsg = "PDO Error al actualizar detalle: " . json_encode($errorInfo) . " - Datos: " . json_encode($datos);
-                error_log($errorMsg, 3, "c:/laragon/www/clinica/logs/database.log");
+                error_log($errorMsg, 3, "/var/log/clinica/database.log");
             }
             
             return $result;
         } catch (Exception $e) {
             // Registrar el error con más detalle
             $errorMsg = "Error al actualizar detalle de agenda: " . $e->getMessage() . " - Datos: " . json_encode($datos);
-            error_log($errorMsg, 3, "c:/laragon/www/clinica/logs/database.log");
+            error_log($errorMsg, 3, "/var/log/clinica/database.log");
             return false;
         }
     }

@@ -165,7 +165,7 @@ class ControllerAgendas {
             "detalle_estado" => isset($datos["detalle_estado"]) ? $datos["detalle_estado"] : true
         ];
 
-        error_log(json_encode($datosDetalle), 3, "c:/laragon/www/clinica/logs/database.log");
+        error_log(json_encode($datosDetalle), 3, "/var/log/clinica/database.log");
 
         // Obtener el doctor_id de la agenda para la tabla intermedia
         $agendaCabecera = ModelAgendas::mdlObtenerAgendaPorId($datos["agenda_id"]);

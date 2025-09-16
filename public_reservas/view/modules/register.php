@@ -7,9 +7,9 @@
 <div class="register-box mx-auto">
   <div class="card card-outline card-primary">
     <div class="card-header text-center">
-      <a href="index.php" class="h1"><b>Reservas</b>MiClinica</a>
+      <a href="index.php" class="h1"><b>Reservas</b></a>
       <div class="logo-container">
-        <img src="../../view/img/thnlogo.jpg" alt="Logo de la clínica" style="max-height: 60px;">
+        <img src="../../view/img/logo.png" alt="Centro oftalmológico" style="max-height: 60px;">
       </div>
     </div>
     <div class="card-body">

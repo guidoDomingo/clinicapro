@@ -189,12 +189,12 @@ require_once "controller/AuthController.php";
     </main>
     
     <!-- Pie de página -->
-    <footer class="bg-dark text-white text-center py-3 mt-5">
-        <div class="container">
-            <p class="mb-0">&copy; <?php echo date('Y'); ?> Clínica. Todos los derechos reservados.</p>
-            <small>Desarrollado por Clínica</small>
-        </div>
-    </footer>
+    <footer class="main-footer">
+    <div class="float-right d-none d-sm-block">
+      <b>Version</b> 1.0.0
+    </div>
+    <strong>Copyright &copy; <?php  echo date('Y') ?> <a href="https://centro-oftalmologico.com.py">Centro Oftalmológico</a>.</strong>  
+  </footer>
     
     <!-- jQuery y Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

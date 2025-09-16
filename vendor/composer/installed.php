@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => '__root__',
-        'pretty_version' => 'dev-main',
-        'version' => 'dev-main',
-        'reference' => '77130ccee0d1d9d81ec28df3fac94e579cd744ed',
+        'pretty_version' => 'dev-clinica',
+        'version' => 'dev-clinica',
+        'reference' => '486559bad9fe7a851b7d00ef6b4f390be1c6fa73',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -11,9 +11,9 @@
     ),
     'versions' => array(
         '__root__' => array(
-            'pretty_version' => 'dev-main',
-            'version' => 'dev-main',
-            'reference' => '77130ccee0d1d9d81ec28df3fac94e579cd744ed',
+            'pretty_version' => 'dev-clinica',
+            'version' => 'dev-clinica',
+            'reference' => '486559bad9fe7a851b7d00ef6b4f390be1c6fa73',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

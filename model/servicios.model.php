@@ -78,7 +78,7 @@ class ModelServicios {
             }
         } catch (PDOException $e) {
             error_log("Error en mdlObtenerCategorias: " . $e->getMessage(), 
-                      3, "c:/laragon/www/clinica/logs/database.log");
+                      3, "/var/log/clinica/database.log");
         }
         
         // Si no existe la tabla o no hay datos, devolver categorías por defecto
@@ -141,13 +141,13 @@ class ModelServicios {
             $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
             error_log("mdlObtenerServicios: Encontrados " . count($result) . " servicios en rs_servicios", 
-                      3, "c:/laragon/www/clinica/logs/database.log");
+                      3, "/var/log/clinica/database.log");
             
             return $result;
             
         } catch (PDOException $e) {
             error_log("Error en mdlObtenerServicios con rs_servicios: " . $e->getMessage(), 
-                      3, "c:/laragon/www/clinica/logs/database.log");
+                      3, "/var/log/clinica/database.log");
             
             // Si falla rs_servicios, intentar con una estructura básica
             try {
@@ -176,19 +176,19 @@ class ModelServicios {
                     $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     
                     error_log("mdlObtenerServicios: Encontrados " . count($result) . " servicios en tabla servicios", 
-                              3, "c:/laragon/www/clinica/logs/database.log");
+                              3, "/var/log/clinica/database.log");
                     
                     return $result;
                 }
                 
             } catch (PDOException $e2) {
                 error_log("Error en mdlObtenerServicios con tabla servicios: " . $e2->getMessage(), 
-                          3, "c:/laragon/www/clinica/logs/database.log");
+                          3, "/var/log/clinica/database.log");
             }
             
             // Si todo falla, devolver un servicio por defecto basado en los servicios que sabemos que existen
             error_log("mdlObtenerServicios: Devolviendo servicios por defecto", 
-                      3, "c:/laragon/www/clinica/logs/database.log");
+                      3, "/var/log/clinica/database.log");
             
             return [
                 [
@@ -239,7 +239,7 @@ class ModelServicios {
             $stmt->execute();
             return $stmt->fetch(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            error_log("Error al obtener servicio por ID: " . $e->getMessage(), 3, 'c:/laragon/www/clinica/logs/servicios.log');
+            error_log("Error al obtener servicio por ID: " . $e->getMessage(), 3, '/var/log/clinica/servicios.log');
             
             // Si hay un error, devolvemos un array con valores predeterminados
             return [
@@ -383,7 +383,7 @@ class ModelServicios {
         // Determinar el día de la semana para la fecha
         $fechaObj = DateTime::createFromFormat('Y-m-d', $fecha);
         if (!$fechaObj) {
-            error_log("Fecha inválida en mdlObtenerHorariosDisponibles: " . $fecha, 3, 'c:/laragon/www/clinica/logs/database.log');
+            error_log("Fecha inválida en mdlObtenerHorariosDisponibles: " . $fecha, 3, '/var/log/clinica/database.log');
             return [];
         }
         
@@ -449,7 +449,7 @@ class ModelServicios {
             
             // Log query before execution for debugging
             error_log("mdlObtenerHorariosDisponibles: SQL para DoctorID=$doctorId, ServicioID=$servicioId, Dia=$diaSemanaTexto: $sql", 
-                      3, 'c:/laragon/www/clinica/logs/database.log');
+                      3, '/var/log/clinica/database.log');
             
             $stmt->execute();
             
@@ -457,11 +457,11 @@ class ModelServicios {
             $conteo = count($resultados);
               // Log detailed results for debugging
             error_log("mdlObtenerHorariosDisponibles: Se encontraron $conteo resultados para DoctorID=$doctorId, Dia=$diaSemanaTexto", 
-                      3, 'c:/laragon/www/clinica/logs/database.log');
+                      3, '/var/log/clinica/database.log');
             
             if ($conteo > 0) {
                 error_log("Primer resultado: " . json_encode($resultados[0]), 
-                          3, 'c:/laragon/www/clinica/logs/database.log');
+                          3, '/var/log/clinica/database.log');
                   // Generate detailed time slots based on the time range and interval
                 $slotsGenerados = [];
                 
@@ -469,7 +469,7 @@ class ModelServicios {
                 $reservasExistentes = self::mdlObtenerReservasExistentes($doctorId, $fecha);
                 
                 error_log("Verificando reservas existentes para DoctorID=$doctorId, Fecha=$fecha: " . 
-                          count($reservasExistentes) . " encontradas", 3, 'c:/laragon/www/clinica/logs/database.log');
+                          count($reservasExistentes) . " encontradas", 3, '/var/log/clinica/database.log');
                 
                 foreach ($resultados as $horario) {
                     $horaInicio = new DateTime($fecha . ' ' . $horario['hora_inicio']);
@@ -477,7 +477,7 @@ class ModelServicios {
                     $intervaloMinutos = isset($horario['intervalo_minutos']) ? $horario['intervalo_minutos'] : 45; // Default to 45min if not specified
                     
                     error_log("Generando slots para horario: " . json_encode($horario) . 
-                              ", Intervalo: $intervaloMinutos minutos", 3, 'c:/laragon/www/clinica/logs/database.log');
+                              ", Intervalo: $intervaloMinutos minutos", 3, '/var/log/clinica/database.log');
                     
                     $horaActual = clone $horaInicio;
                     
@@ -511,7 +511,7 @@ class ModelServicios {
                                 ) {
                                     $slotDisponible = false;
                                     error_log("Slot $horaInicioStr - $horaFinStr excluido por reserva existente: $reservaInicio - $reservaFin", 
-                                              3, 'c:/laragon/www/clinica/logs/database.log');
+                                              3, '/var/log/clinica/database.log');
                                     break;
                                 }
                             }
@@ -531,12 +531,12 @@ class ModelServicios {
                 
                 if (count($slotsGenerados) > 0) {
                     error_log("Se generaron " . count($slotsGenerados) . " slots detallados", 
-                              3, 'c:/laragon/www/clinica/logs/database.log');
+                              3, '/var/log/clinica/database.log');
                     return $slotsGenerados;
                 } else {
                     // Si no se generaron slots disponibles, significa que todos están ocupados
                     error_log("No se generaron slots disponibles para DoctorID=$doctorId, Fecha=$fecha - todos están ocupados", 
-                              3, 'c:/laragon/www/clinica/logs/database.log');
+                              3, '/var/log/clinica/database.log');
                     return []; // Retornar array vacío en lugar de los horarios base
                 }
             }
@@ -560,7 +560,7 @@ class ModelServicios {
             date_default_timezone_set('America/Asuncion');
             $fechaActual = date('Y-m-d');
             
-            error_log("mdlObtenerDiasDisponibles: DoctorID=$doctorId, ServicioID=$servicioId", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+            error_log("mdlObtenerDiasDisponibles: DoctorID=$doctorId, ServicioID=$servicioId", 3, '/var/log/clinica/servicios.log');
             
             // Obtener horarios configurados para el médico
             $sql = "SELECT DISTINCT
@@ -594,7 +594,7 @@ class ModelServicios {
             $horariosConfigurados = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
             if (empty($horariosConfigurados)) {
-                error_log("mdlObtenerDiasDisponibles: No se encontraron horarios configurados para doctor ID $doctorId", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+                error_log("mdlObtenerDiasDisponibles: No se encontraron horarios configurados para doctor ID $doctorId", 3, '/var/log/clinica/servicios.log');
                 return [];
             }
             
@@ -627,11 +627,11 @@ class ModelServicios {
                 }
             }
             
-            error_log("mdlObtenerDiasDisponibles: Se encontraron " . count($diasDisponibles) . " días disponibles", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+            error_log("mdlObtenerDiasDisponibles: Se encontraron " . count($diasDisponibles) . " días disponibles", 3, '/var/log/clinica/servicios.log');
             return $diasDisponibles;
             
         } catch (PDOException $e) {
-            error_log("Error al obtener días disponibles: " . $e->getMessage(), 3, 'c:/laragon/www/clinica/logs/servicios.log');
+            error_log("Error al obtener días disponibles: " . $e->getMessage(), 3, '/var/log/clinica/servicios.log');
             return [];
         }
     }
@@ -644,13 +644,13 @@ class ModelServicios {
      */
     static public function mdlObtenerTodosLosHorariosDisponibles($doctorId, $servicioId = 0) {
         try {
-            error_log("mdlObtenerTodosLosHorariosDisponibles: DoctorID=$doctorId, ServicioID=$servicioId", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+            error_log("mdlObtenerTodosLosHorariosDisponibles: DoctorID=$doctorId, ServicioID=$servicioId", 3, '/var/log/clinica/servicios.log');
             
             // Obtener los días disponibles configurados para el médico
             $diasDisponibles = self::mdlObtenerDiasDisponibles($doctorId, $servicioId);
             
             if (empty($diasDisponibles)) {
-                error_log("mdlObtenerTodosLosHorariosDisponibles: No se encontraron días disponibles", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+                error_log("mdlObtenerTodosLosHorariosDisponibles: No se encontraron días disponibles", 3, '/var/log/clinica/servicios.log');
                 return [];
             }
             
@@ -682,11 +682,11 @@ class ModelServicios {
                 return $fechaCompare;
             });
             
-            error_log("mdlObtenerTodosLosHorariosDisponibles: Se encontraron " . count($todosLosHorarios) . " horarios en total", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+            error_log("mdlObtenerTodosLosHorariosDisponibles: Se encontraron " . count($todosLosHorarios) . " horarios en total", 3, '/var/log/clinica/servicios.log');
             return $todosLosHorarios;
             
         } catch (Exception $e) {
-            error_log("Error al obtener todos los horarios disponibles: " . $e->getMessage(), 3, 'c:/laragon/www/clinica/logs/servicios.log');
+            error_log("Error al obtener todos los horarios disponibles: " . $e->getMessage(), 3, '/var/log/clinica/servicios.log');
             return [];
         }
     }
@@ -705,20 +705,20 @@ class ModelServicios {
             $horaServidor = date('Y-m-d H:i:s');
             $zonaTiempo = date_default_timezone_get();
             
-            error_log("=== INICIO mdlGenerarSlotsDisponibles ===", 3, 'c:/laragon/www/clinica/logs/servicios.log');
-            error_log("Parámetros: ServicioID={$servicioId}, DoctorID={$doctorId}, Fecha={$fecha}", 3, 'c:/laragon/www/clinica/logs/servicios.log');
-            error_log("Hora servidor: {$horaServidor}, Zona: {$zonaTiempo}", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+            error_log("=== INICIO mdlGenerarSlotsDisponibles ===", 3, '/var/log/clinica/servicios.log');
+            error_log("Parámetros: ServicioID={$servicioId}, DoctorID={$doctorId}, Fecha={$fecha}", 3, '/var/log/clinica/servicios.log');
+            error_log("Hora servidor: {$horaServidor}, Zona: {$zonaTiempo}", 3, '/var/log/clinica/servicios.log');
             
             // Validar formato de fecha
             if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $fecha)) {
-                error_log("ERROR: Formato de fecha incorrecto: {$fecha}", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+                error_log("ERROR: Formato de fecha incorrecto: {$fecha}", 3, '/var/log/clinica/servicios.log');
                 return [];
             }
             
             // Validar fecha
             $fechaObj = DateTime::createFromFormat('Y-m-d', $fecha);
             if (!$fechaObj || $fechaObj->format('Y-m-d') !== $fecha) {
-                error_log("ERROR: Fecha inválida: {$fecha}", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+                error_log("ERROR: Fecha inválida: {$fecha}", 3, '/var/log/clinica/servicios.log');
                 return [];
             }
             
@@ -727,7 +727,7 @@ class ModelServicios {
             $diasSemanaTexto = [1 => 'LUNES', 2 => 'MARTES', 3 => 'MIERCOLES', 4 => 'JUEVES', 5 => 'VIERNES', 6 => 'SABADO', 7 => 'DOMINGO'];
             $diaSemanaTexto = $diasSemanaTexto[$diaSemanaNum];
             
-            error_log("Día de la semana: {$diaSemanaTexto} (num: {$diaSemanaNum})", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+            error_log("Día de la semana: {$diaSemanaTexto} (num: {$diaSemanaNum})", 3, '/var/log/clinica/servicios.log');
             
             // USAR LA CONSULTA SQL ESPECÍFICA CON FILTRO POR SERVICIO
             $stmt = Conexion::conectar()->prepare(
@@ -759,17 +759,17 @@ class ModelServicios {
             $stmt->bindParam(":dia_semana", $diaSemanaTexto, PDO::PARAM_STR);
             $stmt->bindParam(":servicio_id", $servicioId, PDO::PARAM_INT);
             
-            error_log("Ejecutando consulta para ServicioID={$servicioId}, Doctor ID={$doctorId}, Día={$diaSemanaTexto}", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+            error_log("Ejecutando consulta para ServicioID={$servicioId}, Doctor ID={$doctorId}, Día={$diaSemanaTexto}", 3, '/var/log/clinica/servicios.log');
             $stmt->execute();
             $horarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
-            error_log("Horarios encontrados: " . count($horarios), 3, 'c:/laragon/www/clinica/logs/servicios.log');
+            error_log("Horarios encontrados: " . count($horarios), 3, '/var/log/clinica/servicios.log');
             if (!empty($horarios)) {
-                error_log("Primer horario: " . json_encode($horarios[0]), 3, 'c:/laragon/www/clinica/logs/servicios.log');
+                error_log("Primer horario: " . json_encode($horarios[0]), 3, '/var/log/clinica/servicios.log');
             }
             
             if (empty($horarios)) {
-                error_log("No se encontraron horarios para el día {$diaSemanaTexto}", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+                error_log("No se encontraron horarios para el día {$diaSemanaTexto}", 3, '/var/log/clinica/servicios.log');
                 return [];
             }
             
@@ -798,15 +798,15 @@ class ModelServicios {
                 $stmtReservas->execute();
                 $reservasExistentes = $stmtReservas->fetchAll(PDO::FETCH_ASSOC);
                 
-                error_log("Reservas existentes: " . count($reservasExistentes), 3, 'c:/laragon/www/clinica/logs/servicios.log');
+                error_log("Reservas existentes: " . count($reservasExistentes), 3, '/var/log/clinica/servicios.log');
             } catch (PDOException $e) {
-                error_log("Error al obtener reservas existentes: " . $e->getMessage(), 3, 'c:/laragon/www/clinica/logs/servicios.log');
+                error_log("Error al obtener reservas existentes: " . $e->getMessage(), 3, '/var/log/clinica/servicios.log');
             }
             
             // Generar slots disponibles
             $slotsDisponibles = [];
             foreach ($horarios as $horario) {
-                error_log("Procesando horario: Agenda={$horario['agenda_id']}, Intervalo={$horario['intervalo_minutos']}min", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+                error_log("Procesando horario: Agenda={$horario['agenda_id']}, Intervalo={$horario['intervalo_minutos']}min", 3, '/var/log/clinica/servicios.log');
                 
                 // USAR EL INTERVALO DE AGENDAS_DETALLE
                 $intervaloMinutos = (int)$horario['intervalo_minutos'];
@@ -815,7 +815,7 @@ class ModelServicios {
                 $horaInicio = new DateTime($fecha . ' ' . $horario['hora_inicio']);
                 $horaFin = new DateTime($fecha . ' ' . $horario['hora_fin']);
                 
-                error_log("Rango: " . $horaInicio->format('H:i') . " - " . $horaFin->format('H:i') . " (intervalo: {$intervaloMinutos}min)", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+                error_log("Rango: " . $horaInicio->format('H:i') . " - " . $horaFin->format('H:i') . " (intervalo: {$intervaloMinutos}min)", 3, '/var/log/clinica/servicios.log');
                 
                 // Generar slots cada intervalo de minutos
                 $horaActual = clone $horaInicio;
@@ -840,7 +840,7 @@ class ModelServicios {
                         // Verificar solapamiento
                         if (($slotInicioStr < $reservaFin) && ($slotFinStr > $reservaInicio)) {
                             $disponible = false;
-                            error_log("Slot ocupado: {$slotInicioStr}-{$slotFinStr} vs reserva {$reservaInicio}-{$reservaFin}", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+                            error_log("Slot ocupado: {$slotInicioStr}-{$slotFinStr} vs reserva {$reservaInicio}-{$reservaFin}", 3, '/var/log/clinica/servicios.log');
                             break;
                         }
                     }
@@ -869,13 +869,13 @@ class ModelServicios {
                 }
             }
             
-            error_log("Total de slots generados: " . count($slotsDisponibles), 3, 'c:/laragon/www/clinica/logs/servicios.log');
-            error_log("=== FIN mdlGenerarSlotsDisponibles ===", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+            error_log("Total de slots generados: " . count($slotsDisponibles), 3, '/var/log/clinica/servicios.log');
+            error_log("=== FIN mdlGenerarSlotsDisponibles ===", 3, '/var/log/clinica/servicios.log');
             
             return $slotsDisponibles;
             
         } catch (Exception $e) {
-            error_log("ERROR en mdlGenerarSlotsDisponibles: " . $e->getMessage(), 3, 'c:/laragon/www/clinica/logs/servicios.log');
+            error_log("ERROR en mdlGenerarSlotsDisponibles: " . $e->getMessage(), 3, '/var/log/clinica/servicios.log');
             return [];
         }
     }
@@ -889,14 +889,14 @@ class ModelServicios {
         try {
             // Verificar que el formato de la fecha sea correcto
             if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $fecha)) {
-                error_log("mdlObtenerDoctoresPorFecha: Formato de fecha incorrecto: " . $fecha, 3, 'c:/laragon/www/clinica/logs/reservas.log');
+                error_log("mdlObtenerDoctoresPorFecha: Formato de fecha incorrecto: " . $fecha, 3, '/var/log/clinica/reservas.log');
                 return [];
             }
             
             // Asegurarse de que la fecha sea válida
             $fechaObj = DateTime::createFromFormat('Y-m-d', $fecha);
             if (!$fechaObj || $fechaObj->format('Y-m-d') !== $fecha) {
-                error_log("mdlObtenerDoctoresPorFecha: Fecha inválida: " . $fecha, 3, 'c:/laragon/www/clinica/logs/reservas.log');
+                error_log("mdlObtenerDoctoresPorFecha: Fecha inválida: " . $fecha, 3, '/var/log/clinica/reservas.log');
                 return [];
             }
             
@@ -914,7 +914,7 @@ class ModelServicios {
             $diaSemanaTexto = $diasSemanaTexto[$diaSemanaNum];
             
             error_log("mdlObtenerDoctoresPorFecha: Buscando doctores para el día: {$diaSemanaTexto}, fecha: {$fecha}", 
-                      3, 'c:/laragon/www/clinica/logs/reservas.log');
+                      3, '/var/log/clinica/reservas.log');
               
             // Obtener doctores que tienen horarios para ese día de semana
             $conexion = Conexion::conectar();
@@ -958,14 +958,14 @@ class ModelServicios {
             $stmt->bindParam(":dia_semana", $diaSemanaTexto, PDO::PARAM_STR);
             
             error_log("mdlObtenerDoctoresPorFecha: Ejecutando consulta con dia_semana = '$diaSemanaTexto'", 
-                      3, 'c:/laragon/www/clinica/logs/reservas.log');
+                      3, '/var/log/clinica/reservas.log');
             
             $stmt->execute();
             
             $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
             error_log("mdlObtenerDoctoresPorFecha: Consulta ejecutada. Resultados brutos: " . count($resultados), 
-                      3, 'c:/laragon/www/clinica/logs/reservas.log');
+                      3, '/var/log/clinica/reservas.log');
             
             // Filtrar solo los resultados donde hay una coincidencia válida de doctor
             $doctores = [];
@@ -987,16 +987,16 @@ class ModelServicios {
             }
             
             error_log("mdlObtenerDoctoresPorFecha: Doctores válidos encontrados: " . count($doctores), 
-                      3, 'c:/laragon/www/clinica/logs/reservas.log');
+                      3, '/var/log/clinica/reservas.log');
             
             if (!empty($doctores)) {
                 error_log("mdlObtenerDoctoresPorFecha: Primer doctor: " . json_encode($doctores[0]), 
-                          3, 'c:/laragon/www/clinica/logs/reservas.log');
+                          3, '/var/log/clinica/reservas.log');
             }
             
             return $doctores;
         } catch (Exception $e) {
-            error_log("mdlObtenerDoctoresPorFecha: Error: " . $e->getMessage(), 3, 'c:/laragon/www/clinica/logs/reservas.log');
+            error_log("mdlObtenerDoctoresPorFecha: Error: " . $e->getMessage(), 3, '/var/log/clinica/reservas.log');
             return [];
         }
     }
@@ -1011,7 +1011,7 @@ class ModelServicios {
             // Asegurarse que la fecha tenga un formato válido
             $fechaObj = DateTime::createFromFormat('Y-m-d', $fecha);
             if (!$fechaObj) {
-                error_log("Formato de fecha incorrecto: " . $fecha, 3, 'c:/laragon/www/clinica/logs/database.log');
+                error_log("Formato de fecha incorrecto: " . $fecha, 3, '/var/log/clinica/database.log');
                 return [];
             }
               // Determinar el día de la semana
@@ -1019,9 +1019,9 @@ class ModelServicios {
             $diasSemanaTexto = [1 => 'LUNES', 2 => 'MARTES', 3 => 'MIERCOLES', 4 => 'JUEVES', 5 => 'VIERNES', 6 => 'SABADO', 7 => 'DOMINGO'];
             $diaSemana = $diasSemanaTexto[$diaSemanaNum];
             
-            error_log("DEBUG - Fecha: {$fecha}, Número día: {$diaSemanaNum}, Texto día: {$diaSemana}", 3, 'c:/laragon/www/clinica/logs/database.log');
+            error_log("DEBUG - Fecha: {$fecha}, Número día: {$diaSemanaNum}, Texto día: {$diaSemana}", 3, '/var/log/clinica/database.log');
             
-            error_log("Buscando médicos para fecha: {$fecha}, día: {$diaSemana}", 3, 'c:/laragon/www/clinica/logs/database.log');
+            error_log("Buscando médicos para fecha: {$fecha}, día: {$diaSemana}", 3, '/var/log/clinica/database.log');
             
             // Verificar si hay médicos con agenda configurada para este día de la semana
             $stmtCheckDay = Conexion::conectar()->prepare("
@@ -1032,7 +1032,7 @@ class ModelServicios {
             $hayMedicosParaEsteDia = $stmtCheckDay->fetchColumn() > 0;
             
             if (!$hayMedicosParaEsteDia) {
-                error_log("No hay médicos con agenda configurada para {$diaSemana}", 3, 'c:/laragon/www/clinica/logs/database.log');
+                error_log("No hay médicos con agenda configurada para {$diaSemana}", 3, '/var/log/clinica/database.log');
                 return [
                     ['message' => "No hay médicos disponibles para este día ({$diaSemana}). Sólo hay horarios para LUNES, MARTES y MIÉRCOLES."]
                 ];
@@ -1048,8 +1048,8 @@ class ModelServicios {
             $stmtDiag->execute();
             $agendasDiag = $stmtDiag->fetchAll(PDO::FETCH_ASSOC);
             
-            error_log("Agendas encontradas para {$diaSemana}: " . json_encode($agendasDiag), 3, 'c:/laragon/www/clinica/logs/database.log');
-              error_log("DEBUG - Dia semana utilizado para la consulta: '{$diaSemana}'", 3, 'c:/laragon/www/clinica/logs/database.log');
+            error_log("Agendas encontradas para {$diaSemana}: " . json_encode($agendasDiag), 3, '/var/log/clinica/database.log');
+              error_log("DEBUG - Dia semana utilizado para la consulta: '{$diaSemana}'", 3, '/var/log/clinica/database.log');
             
             // Consulta para verificar cuáles días existen en agendas_detalle
             $stmtDiasCheck = Conexion::conectar()->prepare("
@@ -1057,7 +1057,7 @@ class ModelServicios {
             ");
             $stmtDiasCheck->execute();
             $diasDisponibles = $stmtDiasCheck->fetchAll(PDO::FETCH_COLUMN);
-            error_log("DEBUG - Días disponibles en agendas_detalle: " . json_encode($diasDisponibles), 3, 'c:/laragon/www/clinica/logs/database.log');
+            error_log("DEBUG - Días disponibles en agendas_detalle: " . json_encode($diasDisponibles), 3, '/var/log/clinica/database.log');
             
             // Consulta para obtener médicos que tienen horarios en ese día
             // Modificando la consulta para usar LEFT JOIN y verificar cada relación
@@ -1088,7 +1088,7 @@ class ModelServicios {
               $stmt->bindParam(":dia_semana", $diaSemana, PDO::PARAM_STR);
             $stmt->execute();
               $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            error_log("Resultados crudos de la consulta: " . json_encode($resultados), 3, 'c:/laragon/www/clinica/logs/database.log');
+            error_log("Resultados crudos de la consulta: " . json_encode($resultados), 3, '/var/log/clinica/database.log');
             
             // Si la consulta no devolvió resultados, verificar si existe el día en la tabla
             if (empty($resultados)) {
@@ -1099,7 +1099,7 @@ class ModelServicios {
                 $stmtVerificar->execute();
                 $conteo = $stmtVerificar->fetchColumn();
                 
-                error_log("Verificación adicional - Registros con día {$diaSemana}: {$conteo}", 3, 'c:/laragon/www/clinica/logs/database.log');
+                error_log("Verificación adicional - Registros con día {$diaSemana}: {$conteo}", 3, '/var/log/clinica/database.log');
                 
                 // También verificar si el formato del día de semana es el esperado
                 $stmtFormato = Conexion::conectar()->prepare("
@@ -1107,7 +1107,7 @@ class ModelServicios {
                 ");
                 $stmtFormato->execute();
                 $diasDisponibles = $stmtFormato->fetchAll(PDO::FETCH_COLUMN);
-                error_log("Días disponibles en la tabla: " . json_encode($diasDisponibles), 3, 'c:/laragon/www/clinica/logs/database.log');
+                error_log("Días disponibles en la tabla: " . json_encode($diasDisponibles), 3, '/var/log/clinica/database.log');
             }
             
             // Filtrar solo los resultados donde hay una coincidencia válida de doctor
@@ -1124,18 +1124,18 @@ class ModelServicios {
                     error_log("Descartado resultado por faltar información - doctor_id: " . 
                         (isset($resultado['doctor_id']) ? $resultado['doctor_id'] : 'NULL') . 
                         ", person_id: " . (isset($resultado['person_id']) ? $resultado['person_id'] : 'NULL'), 
-                        3, 'c:/laragon/www/clinica/logs/database.log');
+                        3, '/var/log/clinica/database.log');
                 }
             }
             
-            error_log("Médicos encontrados para {$fecha} ({$diaSemana}): " . count($medicos), 3, 'c:/laragon/www/clinica/logs/database.log');
+            error_log("Médicos encontrados para {$fecha} ({$diaSemana}): " . count($medicos), 3, '/var/log/clinica/database.log');
               // Si no hay médicos encontrados
             if (count($medicos) === 0) {
-                error_log("No se encontraron médicos disponibles para {$fecha} ({$diaSemana})", 3, 'c:/laragon/www/clinica/logs/database.log');
+                error_log("No se encontraron médicos disponibles para {$fecha} ({$diaSemana})", 3, '/var/log/clinica/database.log');
                 
                 // Verificar si hay agendas configuradas para ese día
                 if (count($agendasDiag) > 0) {
-                    error_log("ADVERTENCIA: Hay agendas para {$diaSemana} pero no se encontraron médicos - posible problema de relación en la BD", 3, 'c:/laragon/www/clinica/logs/database.log');
+                    error_log("ADVERTENCIA: Hay agendas para {$diaSemana} pero no se encontraron médicos - posible problema de relación en la BD", 3, '/var/log/clinica/database.log');
                     
                     // Devolver un mensaje informativo para el usuario
                     return [
@@ -1160,7 +1160,7 @@ class ModelServicios {
                     $medicoData = $stmtMedico->fetch(PDO::FETCH_ASSOC);
                     
                     if ($medicoData) {
-                        error_log("Agenda {$agenda['agenda_id']} corresponde al médico ID {$agenda['medico_id']}: {$medicoData['nombre']}", 3, 'c:/laragon/www/clinica/logs/database.log');
+                        error_log("Agenda {$agenda['agenda_id']} corresponde al médico ID {$agenda['medico_id']}: {$medicoData['nombre']}", 3, '/var/log/clinica/database.log');
                           // Agregar este médico a la lista manualmente
                         $medicos[] = [
                             'doctor_id' => $medicoData['doctor_id'],
@@ -1169,7 +1169,7 @@ class ModelServicios {
                             'agenda_id' => $agenda['agenda_id']
                         ];
                     } else {
-                        error_log("ADVERTENCIA: No se encontró médico con ID {$agenda['medico_id']} para la agenda {$agenda['agenda_id']}", 3, 'c:/laragon/www/clinica/logs/database.log');
+                        error_log("ADVERTENCIA: No se encontró médico con ID {$agenda['medico_id']} para la agenda {$agenda['agenda_id']}", 3, '/var/log/clinica/database.log');
                     }
                 }
                 
@@ -1255,8 +1255,8 @@ class ModelServicios {
                         }
                     }
                     
-                    error_log("Médico {$medico['nombre_doctor']} (ID: {$doctorId}) - Horarios encontrados: " . count($horarios), 3, 'c:/laragon/www/clinica/logs/database.log');
-                    error_log("Médico {$medico['nombre_doctor']} (ID: {$doctorId}) - Cupos base calculados: {$cuposTotales}", 3, 'c:/laragon/www/clinica/logs/database.log');
+                    error_log("Médico {$medico['nombre_doctor']} (ID: {$doctorId}) - Horarios encontrados: " . count($horarios), 3, '/var/log/clinica/database.log');
+                    error_log("Médico {$medico['nombre_doctor']} (ID: {$doctorId}) - Cupos base calculados: {$cuposTotales}", 3, '/var/log/clinica/database.log');
                     
                     // Contar reservas existentes para este médico en esta fecha
                     $reservasOcupadas = 0;
@@ -1282,10 +1282,10 @@ class ModelServicios {
                             $resultadoReservas = $stmtReservas->fetch(PDO::FETCH_ASSOC);
                             $reservasOcupadas = $resultadoReservas ? (int)$resultadoReservas['reservas_ocupadas'] : 0;
                             
-                            error_log("Médico {$medico['nombre_doctor']} (ID: {$doctorId}) - Reservas ocupadas: {$reservasOcupadas}", 3, 'c:/laragon/www/clinica/logs/database.log');
+                            error_log("Médico {$medico['nombre_doctor']} (ID: {$doctorId}) - Reservas ocupadas: {$reservasOcupadas}", 3, '/var/log/clinica/database.log');
                         }
                     } catch (Exception $e) {
-                        error_log("Error al contar reservas para médico {$doctorId}: " . $e->getMessage(), 3, 'c:/laragon/www/clinica/logs/database.log');
+                        error_log("Error al contar reservas para médico {$doctorId}: " . $e->getMessage(), 3, '/var/log/clinica/database.log');
                     }
                     
                     // Calcular cupos disponibles (no puede ser negativo)
@@ -1295,7 +1295,7 @@ class ModelServicios {
                     $medicos[$key]['cupo_disponible'] = $cuposDisponibles;
                     $medicos[$key]['turno_nombre'] = 'Múltiple'; // Puede atender en varios turnos
                     
-                    error_log("Médico {$medico['nombre_doctor']} (ID: {$doctorId}) - Cupos base: {$cuposTotales}, Ocupados: {$reservasOcupadas}, Disponibles: {$cuposDisponibles}", 3, 'c:/laragon/www/clinica/logs/database.log');
+                    error_log("Médico {$medico['nombre_doctor']} (ID: {$doctorId}) - Cupos base: {$cuposTotales}, Ocupados: {$reservasOcupadas}, Disponibles: {$cuposDisponibles}", 3, '/var/log/clinica/database.log');
                 }
             }
             
@@ -1313,7 +1313,7 @@ class ModelServicios {
      * @return array Cupos disponibles por turno
      */
     static public function mdlObtenerCuposDisponiblesPorTurno($fecha) {
-        error_log("EJECUTANDO FUNCIÓN CUPOS REALES - {$fecha}", 3, 'c:/laragon/www/clinica/logs/database.log');
+        error_log("EJECUTANDO FUNCIÓN CUPOS REALES - {$fecha}", 3, '/var/log/clinica/database.log');
         return ['Mañana' => 16, 'Tarde' => 10, 'Noche' => 0];
     }
 
@@ -1324,8 +1324,8 @@ class ModelServicios {
      * @return array Lista de servicios disponibles
      */    static public function mdlObtenerServiciosPorFechaMedico($fecha, $doctorId) {
         try {
-            error_log("=== mdlObtenerServiciosPorFechaMedico ===", 3, 'c:/laragon/www/clinica/logs/servicios.log');
-            error_log("Parámetros: Fecha={$fecha}, DoctorID={$doctorId}", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+            error_log("=== mdlObtenerServiciosPorFechaMedico ===", 3, '/var/log/clinica/servicios.log');
+            error_log("Parámetros: Fecha={$fecha}, DoctorID={$doctorId}", 3, '/var/log/clinica/servicios.log');
             
             // Usar la estructura real de la base de datos
             $stmt = Conexion::conectar()->prepare(
@@ -1355,18 +1355,18 @@ class ModelServicios {
             $stmt->execute();
             $servicios = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
-            error_log("Servicios encontrados: " . count($servicios), 3, 'c:/laragon/www/clinica/logs/servicios.log');
+            error_log("Servicios encontrados: " . count($servicios), 3, '/var/log/clinica/servicios.log');
             if (!empty($servicios)) {
-                error_log("Primer servicio: " . json_encode($servicios[0]), 3, 'c:/laragon/www/clinica/logs/servicios.log');
+                error_log("Primer servicio: " . json_encode($servicios[0]), 3, '/var/log/clinica/servicios.log');
             }
             
             return $servicios;
             
         } catch (PDOException $e) {
-            error_log("Error al obtener servicios por fecha y médico: " . $e->getMessage(), 3, 'c:/laragon/www/clinica/logs/servicios.log');
+            error_log("Error al obtener servicios por fecha y médico: " . $e->getMessage(), 3, '/var/log/clinica/servicios.log');
             return [];
         } catch (Exception $e) {
-            error_log("Error general al obtener servicios: " . $e->getMessage(), 3, 'c:/laragon/www/clinica/logs/servicios.log');
+            error_log("Error general al obtener servicios: " . $e->getMessage(), 3, '/var/log/clinica/servicios.log');
             return [];
         }
     }
@@ -1382,7 +1382,7 @@ class ModelServicios {
      * @return array Lista de reservas
      */    static public function mdlObtenerReservasPorFecha($fecha, $doctorId = null, $estado = null, $paciente = null, $salaId = null, $origen = null) {
         try {
-            error_log("mdlObtenerReservasPorFecha: Fecha=$fecha, DoctorID=" . ($doctorId ?? "null") . ", Estado=" . ($estado ?? "null") . ", Paciente=" . ($paciente ?? "null") . ", SalaID=" . ($salaId ?? "null") . ", Origen=" . ($origen ?? "null"), 3, "c:/laragon/www/clinica/logs/reservas.log");
+            error_log("mdlObtenerReservasPorFecha: Fecha=$fecha, DoctorID=" . ($doctorId ?? "null") . ", Estado=" . ($estado ?? "null") . ", Paciente=" . ($paciente ?? "null") . ", SalaID=" . ($salaId ?? "null") . ", Origen=" . ($origen ?? "null"), 3, "/var/log/clinica/reservas.log");
             
             // Verificar si existe la tabla de reservas
             $stmtCheck = Conexion::conectar()->prepare("SELECT to_regclass('public.servicios_reservas')");
@@ -1390,14 +1390,14 @@ class ModelServicios {
             $tablaReservasExiste = $stmtCheck->fetchColumn();
             
             if (!$tablaReservasExiste) {
-                error_log("mdlObtenerReservasPorFecha: La tabla servicios_reservas no existe", 3, "c:/laragon/www/clinica/logs/reservas.log");
+                error_log("mdlObtenerReservasPorFecha: La tabla servicios_reservas no existe", 3, "/var/log/clinica/reservas.log");
                 return [];
             }
             
             // Asegurarse de que la fecha esté en formato YYYY-MM-DD
             if ($fecha !== null && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $fecha)) {
                 $fechaFormateada = date('Y-m-d', strtotime($fecha));
-                error_log("mdlObtenerReservasPorFecha: Formato de fecha incorrecto ($fecha), reformateando a $fechaFormateada", 3, "c:/laragon/www/clinica/logs/reservas.log");
+                error_log("mdlObtenerReservasPorFecha: Formato de fecha incorrecto ($fecha), reformateando a $fechaFormateada", 3, "/var/log/clinica/reservas.log");
                 $fecha = $fechaFormateada;
             }
             
@@ -1466,7 +1466,7 @@ class ModelServicios {
             
             $sql .= " ORDER BY sr.fecha_reserva DESC, sr.hora_inicio ASC";
             
-            error_log("mdlObtenerReservasPorFecha: SQL=$sql", 3, "c:/laragon/www/clinica/logs/reservas.log");
+            error_log("mdlObtenerReservasPorFecha: SQL=$sql", 3, "/var/log/clinica/reservas.log");
             
             $stmt = Conexion::conectar()->prepare($sql);
             
@@ -1499,14 +1499,14 @@ class ModelServicios {
             $stmt->execute();
             $reservas = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
-            error_log("mdlObtenerReservasPorFecha: Se encontraron " . count($reservas) . " reservas", 3, "c:/laragon/www/clinica/logs/reservas.log");
+            error_log("mdlObtenerReservasPorFecha: Se encontraron " . count($reservas) . " reservas", 3, "/var/log/clinica/reservas.log");
             if (count($reservas) > 0) {
-                error_log("mdlObtenerReservasPorFecha: Primera reserva: " . json_encode($reservas[0]), 3, "c:/laragon/www/clinica/logs/reservas.log");
+                error_log("mdlObtenerReservasPorFecha: Primera reserva: " . json_encode($reservas[0]), 3, "/var/log/clinica/reservas.log");
             }
             
             return $reservas;
         } catch (PDOException $e) {
-            error_log("Error al obtener reservas por fecha: " . $e->getMessage(), 3, "c:/laragon/www/clinica/logs/reservas.log");
+            error_log("Error al obtener reservas por fecha: " . $e->getMessage(), 3, "/var/log/clinica/reservas.log");
             return [];
         }
     }
@@ -1591,7 +1591,7 @@ class ModelServicios {
             $stmtInsertar->bindParam(":business_id", $businessId, PDO::PARAM_INT);
             $stmtInsertar->bindParam(":created_by", $createdBy, PDO::PARAM_INT);
             
-            error_log("SQL a ejecutar: INSERT INTO servicios_reservas...", 3, 'c:/laragon/www/clinica/logs/reservas.log');
+            error_log("SQL a ejecutar: INSERT INTO servicios_reservas...", 3, '/var/log/clinica/reservas.log');
             error_log("Parámetros: " . json_encode([
                 'servicio_id' => $datos['servicio_id'],
                 'doctor_id' => $datos['doctor_id'],
@@ -1603,24 +1603,24 @@ class ModelServicios {
                 'tarifa_id' => $tarifaId,
                 'seguro_id' => $seguroId,
                 'sala_id' => $salaId
-            ]), 3, 'c:/laragon/www/clinica/logs/reservas.log');
+            ]), 3, '/var/log/clinica/reservas.log');
             
             if ($stmtInsertar->execute()) {
                 $resultado = $stmtInsertar->fetch(PDO::FETCH_ASSOC);
                 if ($resultado && isset($resultado['reserva_id'])) {
-                    error_log("Reserva creada con ID: " . $resultado['reserva_id'], 3, 'c:/laragon/www/clinica/logs/reservas.log');
+                    error_log("Reserva creada con ID: " . $resultado['reserva_id'], 3, '/var/log/clinica/reservas.log');
                     return $resultado['reserva_id'];
                 } else {
-                    error_log("Error: La consulta se ejecutó pero no se obtuvo un ID de reserva", 3, 'c:/laragon/www/clinica/logs/reservas.log');
+                    error_log("Error: La consulta se ejecutó pero no se obtuvo un ID de reserva", 3, '/var/log/clinica/reservas.log');
                     return false;
                 }
             } else {
                 $errorInfo = $stmtInsertar->errorInfo();
-                error_log("Error al insertar reserva: SQLSTATE=" . $errorInfo[0] . ", Driver-specific code=" . $errorInfo[1] . ", Message=" . $errorInfo[2], 3, 'c:/laragon/www/clinica/logs/reservas.log');
+                error_log("Error al insertar reserva: SQLSTATE=" . $errorInfo[0] . ", Driver-specific code=" . $errorInfo[1] . ", Message=" . $errorInfo[2], 3, '/var/log/clinica/reservas.log');
                 return false;
             }
         } catch (PDOException $e) {
-            error_log("Excepción PDO al guardar reserva: " . $e->getMessage() . "\n" . $e->getTraceAsString(), 3, 'c:/laragon/www/clinica/logs/reservas.log');
+            error_log("Excepción PDO al guardar reserva: " . $e->getMessage() . "\n" . $e->getTraceAsString(), 3, '/var/log/clinica/reservas.log');
             return false;
         }
     }
@@ -1762,7 +1762,7 @@ class ModelServicios {
             
             return $medicos;
         } catch (PDOException $e) {
-            error_log("Error al obtener médicos: " . $e->getMessage(), 3, "c:/laragon/www/clinica/logs/reservas.log");
+            error_log("Error al obtener médicos: " . $e->getMessage(), 3, "/var/log/clinica/reservas.log");
             return [];
         }
     }
@@ -1839,7 +1839,7 @@ class ModelServicios {
      */
     static public function mdlGuardarReserva($datos) {
         try {
-            error_log("[" . date('Y-m-d H:i:s') . "] Intentando guardar reserva: " . json_encode($datos), 3, 'c:/laragon/www/clinica/logs/reservas.log');
+            error_log("[" . date('Y-m-d H:i:s') . "] Intentando guardar reserva: " . json_encode($datos), 3, '/var/log/clinica/reservas.log');
             
             // Mostrar backtrace para saber quién llama a esta función
             $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 3);
@@ -1849,7 +1849,7 @@ class ModelServicios {
                     $trace['function'];
             }, $backtrace);
             
-            error_log("[" . date('Y-m-d H:i:s') . "] Llamado desde: " . implode(' <- ', $callers), 3, 'c:/laragon/www/clinica/logs/reservas.log');
+            error_log("[" . date('Y-m-d H:i:s') . "] Llamado desde: " . implode(' <- ', $callers), 3, '/var/log/clinica/reservas.log');
               // Verificar si ya existe una reserva en el mismo horario para el mismo doctor
             // La lógica modificada permite reservas adyacentes (cuando una termina exactamente cuando la otra comienza)
             $stmtVerificar = Conexion::conectar()->prepare(
@@ -1868,7 +1868,7 @@ class ModelServicios {
             $stmtVerificar->execute();
             
             if ($stmtVerificar->fetchColumn() > 0) {
-                error_log("Reserva rechazada: Ya existe una reserva en este horario para este médico", 3, 'c:/laragon/www/clinica/logs/reservas.log');
+                error_log("Reserva rechazada: Ya existe una reserva en este horario para este médico", 3, '/var/log/clinica/reservas.log');
                 return false;
             }            // Insertar la nueva reserva - adaptado al esquema actual de la base de datos
             $stmt = Conexion::conectar()->prepare(
@@ -1906,7 +1906,7 @@ class ModelServicios {
             // Estos campos son importantes para la reserva pero no estaban en la consulta original
             $agendaId = isset($datos['agenda_id']) ? $datos['agenda_id'] : null;
             error_log("mdlGuardarReserva: Usando agenda_id=" . (isset($datos['agenda_id']) ? $datos['agenda_id'] : "null"), 
-                      3, 'c:/laragon/www/clinica/logs/reservas.log');
+                      3, '/var/log/clinica/reservas.log');
             $stmt->bindParam(":agenda_id", $agendaId, $agendaId ? PDO::PARAM_INT : PDO::PARAM_NULL);
             
             $tarifaId = isset($datos['tarifa_id']) ? $datos['tarifa_id'] : null;
@@ -1919,15 +1919,15 @@ class ModelServicios {
             $salaId = isset($datos['sala_id']) ? $datos['sala_id'] : null;
             $stmt->bindParam(":sala_id", $salaId, $salaId ? PDO::PARAM_INT : PDO::PARAM_NULL);
             error_log("mdlGuardarReserva: Usando sala_id=" . (isset($datos['sala_id']) ? $datos['sala_id'] : "null"), 
-                      3, 'c:/laragon/www/clinica/logs/reservas.log');
+                      3, '/var/log/clinica/reservas.log');
             
             // Bindear origen_reserva
             $origenReserva = isset($datos['origen_reserva']) ? $datos['origen_reserva'] : 'SISTEMA';
             $stmt->bindParam(":origen_reserva", $origenReserva, PDO::PARAM_STR);
             error_log("mdlGuardarReserva: Usando origen_reserva=" . $origenReserva, 
-                      3, 'c:/laragon/www/clinica/logs/reservas.log');
+                      3, '/var/log/clinica/reservas.log');
                       
-            error_log("SQL a ejecutar: INSERT INTO servicios_reservas...", 3, 'c:/laragon/www/clinica/logs/reservas.log');
+            error_log("SQL a ejecutar: INSERT INTO servicios_reservas...", 3, '/var/log/clinica/reservas.log');
             error_log("Parámetros: " . json_encode([
                 'servicio_id' => $datos['servicio_id'],
                 'doctor_id' => $datos['doctor_id'],
@@ -1939,27 +1939,27 @@ class ModelServicios {
                 'tarifa_id' => $tarifaId,
                 'seguro_id' => $seguroId,
                 'sala_id' => $salaId
-            ]), 3, 'c:/laragon/www/clinica/logs/reservas.log');
+            ]), 3, '/var/log/clinica/reservas.log');
             
             if ($stmt->execute()) {
                 $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
                 if ($resultado && isset($resultado['reserva_id'])) {
-                    error_log("Reserva creada con ID: " . $resultado['reserva_id'], 3, 'c:/laragon/www/clinica/logs/reservas.log');
+                    error_log("Reserva creada con ID: " . $resultado['reserva_id'], 3, '/var/log/clinica/reservas.log');
                     return $resultado['reserva_id'];
                 } else {
-                    error_log("Error: La consulta se ejecutó pero no se obtuvo un ID de reserva", 3, 'c:/laragon/www/clinica/logs/reservas.log');
+                    error_log("Error: La consulta se ejecutó pero no se obtuvo un ID de reserva", 3, '/var/log/clinica/reservas.log');
                     return false;
                 }
             } else {
                 $errorInfo = $stmt->errorInfo();
-                error_log("Error al insertar reserva: SQLSTATE=" . $errorInfo[0] . ", Driver-specific code=" . $errorInfo[1] . ", Message=" . $errorInfo[2], 3, 'c:/laragon/www/clinica/logs/reservas.log');
+                error_log("Error al insertar reserva: SQLSTATE=" . $errorInfo[0] . ", Driver-specific code=" . $errorInfo[1] . ", Message=" . $errorInfo[2], 3, '/var/log/clinica/reservas.log');
                 return false;
             }
         } catch (PDOException $e) {
-            error_log("Excepción PDO al guardar reserva: " . $e->getMessage() . "\n" . $e->getTraceAsString(), 3, 'c:/laragon/www/clinica/logs/reservas.log');
+            error_log("Excepción PDO al guardar reserva: " . $e->getMessage() . "\n" . $e->getTraceAsString(), 3, '/var/log/clinica/reservas.log');
             return false;
         } catch (Exception $e) {
-            error_log("Excepción general al guardar reserva: " . $e->getMessage() . "\n" . $e->getTraceAsString(),  3, 'c:/laragon/www/clinica/logs/reservas.log');
+            error_log("Excepción general al guardar reserva: " . $e->getMessage() . "\n" . $e->getTraceAsString(),  3, '/var/log/clinica/reservas.log');
             return false;
         }
     }
@@ -2011,7 +2011,7 @@ class ModelServicios {
                   ", DoctorID=" . ($doctorId ?? "null") . 
                   ", Estado=" . ($estado ?? "null") . 
                   ", Paciente=" . ($paciente ?? "null"), 
-                  3, "c:/laragon/www/clinica/logs/reservas.log");
+                  3, "/var/log/clinica/reservas.log");
         
         try {
             // Verificar si existe la tabla de reservas
@@ -2020,7 +2020,7 @@ class ModelServicios {
             $tablaReservasExiste = $stmtCheck->fetchColumn();
             
             if (!$tablaReservasExiste) {
-                error_log("mdlBuscarReservas: La tabla servicios_reservas no existe", 3, "c:/laragon/www/clinica/logs/reservas.log");
+                error_log("mdlBuscarReservas: La tabla servicios_reservas no existe", 3, "/var/log/clinica/reservas.log");
                 return [];
             }
             
@@ -2030,7 +2030,7 @@ class ModelServicios {
                 $checkStmt->bindValue(':doctor_id', intval($doctorId), PDO::PARAM_INT);
                 $checkStmt->execute();
                 $count = $checkStmt->fetchColumn();
-                error_log("mdlBuscarReservas: Verificación previa - Existen {$count} reservas con doctor_id={$doctorId}", 3, "c:/laragon/www/clinica/logs/reservas.log");
+                error_log("mdlBuscarReservas: Verificación previa - Existen {$count} reservas con doctor_id={$doctorId}", 3, "/var/log/clinica/reservas.log");
                 
                 // Comprobar si hay reservas para esta fecha y doctor
                 $checkDateDoctorStmt = Conexion::conectar()->prepare("SELECT COUNT(*) FROM servicios_reservas WHERE doctor_id = :doctor_id AND fecha_reserva::date = :fecha::date");
@@ -2038,7 +2038,7 @@ class ModelServicios {
                 $checkDateDoctorStmt->bindParam(':fecha', $fecha);
                 $checkDateDoctorStmt->execute();
                 $countDateDoctor = $checkDateDoctorStmt->fetchColumn();
-                error_log("mdlBuscarReservas: Verificación previa - Existen {$countDateDoctor} reservas con doctor_id={$doctorId} y fecha={$fecha}", 3, "c:/laragon/www/clinica/logs/reservas.log");
+                error_log("mdlBuscarReservas: Verificación previa - Existen {$countDateDoctor} reservas con doctor_id={$doctorId} y fecha={$fecha}", 3, "/var/log/clinica/reservas.log");
             }
               
             // Construir la consulta SQL basada en el query proporcionado
@@ -2071,14 +2071,14 @@ class ModelServicios {
             if ($fecha !== null && $fecha !== '') {
                 $sql .= " AND sr.fecha_reserva::date = :fecha::date";
                 $params[':fecha'] = $fecha;
-                error_log("mdlBuscarReservas: Aplicando filtro de fecha: $fecha", 3, "c:/laragon/www/clinica/logs/reservas.log");
+                error_log("mdlBuscarReservas: Aplicando filtro de fecha: $fecha", 3, "/var/log/clinica/reservas.log");
             }
               // Filtro por doctor - asegurarse de que es un entero
             if ($doctorId !== null) {
                 $doctorIdInt = intval($doctorId);
                 $sql .= " AND sr.doctor_id = :doctor_id";
                 $params[':doctor_id'] = $doctorIdInt;
-                error_log("mdlBuscarReservas: Aplicando filtro de doctor: {$doctorIdInt} (original: {$doctorId})", 3, "c:/laragon/www/clinica/logs/reservas.log");
+                error_log("mdlBuscarReservas: Aplicando filtro de doctor: {$doctorIdInt} (original: {$doctorId})", 3, "/var/log/clinica/reservas.log");
                 
                 // Verificación adicional para diagnosticar
                 $checkStmt = Conexion::conectar()->prepare("SELECT * FROM servicios_reservas WHERE doctor_id = :doctor_id LIMIT 1");
@@ -2086,9 +2086,9 @@ class ModelServicios {
                 $checkStmt->execute();
                 $checkResult = $checkStmt->fetch(PDO::FETCH_ASSOC);
                 if ($checkResult) {
-                    error_log("mdlBuscarReservas: Doctor {$doctorIdInt} SÍ tiene reservas en la base de datos. Primera: " . json_encode($checkResult), 3, "c:/laragon/www/clinica/logs/reservas.log");
+                    error_log("mdlBuscarReservas: Doctor {$doctorIdInt} SÍ tiene reservas en la base de datos. Primera: " . json_encode($checkResult), 3, "/var/log/clinica/reservas.log");
                 } else {
-                    error_log("mdlBuscarReservas: Doctor {$doctorIdInt} NO tiene reservas en la base de datos.", 3, "c:/laragon/www/clinica/logs/reservas.log");
+                    error_log("mdlBuscarReservas: Doctor {$doctorIdInt} NO tiene reservas en la base de datos.", 3, "/var/log/clinica/reservas.log");
                 }
             }
             
@@ -2096,47 +2096,47 @@ class ModelServicios {
             if ($estado !== null && $estado !== '') {
                 $sql .= " AND sr.reserva_estado = :estado";
                 $params[':estado'] = $estado;
-                error_log("mdlBuscarReservas: Aplicando filtro de estado: $estado", 3, "c:/laragon/www/clinica/logs/reservas.log");
+                error_log("mdlBuscarReservas: Aplicando filtro de estado: $estado", 3, "/var/log/clinica/reservas.log");
             }
             
             // Filtro por paciente (búsqueda por nombre o apellido)
             if ($paciente !== null && $paciente !== '') {
                 $sql .= " AND (rp2.first_name ILIKE :paciente OR rp2.last_name ILIKE :paciente OR (rp2.first_name || ' ' || rp2.last_name) ILIKE :paciente)";
                 $params[':paciente'] = '%' . $paciente . '%';
-                error_log("mdlBuscarReservas: Aplicando filtro de paciente: $paciente", 3, "c:/laragon/www/clinica/logs/reservas.log");
+                error_log("mdlBuscarReservas: Aplicando filtro de paciente: $paciente", 3, "/var/log/clinica/reservas.log");
             }
             
             // Ordenar los resultados
             $sql .= " ORDER BY sr.fecha_reserva DESC, ad.hora_inicio ASC";
             
-            error_log("mdlBuscarReservas: SQL=$sql", 3, "c:/laragon/www/clinica/logs/reservas.log");
+            error_log("mdlBuscarReservas: SQL=$sql", 3, "/var/log/clinica/reservas.log");
             
             $stmt = Conexion::conectar()->prepare($sql);
               
             // Logging detallado de parámetros
-            error_log("mdlBuscarReservas: Parámetros a bindear: " . json_encode($params), 3, "c:/laragon/www/clinica/logs/reservas.log");
+            error_log("mdlBuscarReservas: Parámetros a bindear: " . json_encode($params), 3, "/var/log/clinica/reservas.log");
             
             // Bindear parámetros
             foreach ($params as $param => $value) {                if ($param === ':doctor_id') {
                     // Garantizar que doctor_id sea un entero
                     $doctorIdInt = intval($value);
                     $stmt->bindValue($param, $doctorIdInt, PDO::PARAM_INT);
-                    error_log("mdlBuscarReservas: Bindeando $param = $doctorIdInt (original: $value) como PARAM_INT", 3, "c:/laragon/www/clinica/logs/reservas.log");
+                    error_log("mdlBuscarReservas: Bindeando $param = $doctorIdInt (original: $value) como PARAM_INT", 3, "/var/log/clinica/reservas.log");
                 } else if (strpos($param, ':paciente') !== false) {
                     $stmt->bindValue($param, $value, PDO::PARAM_STR);
-                    error_log("mdlBuscarReservas: Bindeando $param = $value como PARAM_STR", 3, "c:/laragon/www/clinica/logs/reservas.log");
+                    error_log("mdlBuscarReservas: Bindeando $param = $value como PARAM_STR", 3, "/var/log/clinica/reservas.log");
                 } else {
                     $stmt->bindParam($param, $value);
-                    error_log("mdlBuscarReservas: Bindeando $param = $value con bindParam", 3, "c:/laragon/www/clinica/logs/reservas.log");
+                    error_log("mdlBuscarReservas: Bindeando $param = $value con bindParam", 3, "/var/log/clinica/reservas.log");
                 }
             }
             
             $stmt->execute();
             $reservas = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
-            error_log("mdlBuscarReservas: Se encontraron " . count($reservas) . " reservas", 3, "c:/laragon/www/clinica/logs/reservas.log");
+            error_log("mdlBuscarReservas: Se encontraron " . count($reservas) . " reservas", 3, "/var/log/clinica/reservas.log");
             if (count($reservas) > 0) {
-                error_log("mdlBuscarReservas: Primera reserva: " . json_encode($reservas[0]), 3, "c:/laragon/www/clinica/logs/reservas.log");
+                error_log("mdlBuscarReservas: Primera reserva: " . json_encode($reservas[0]), 3, "/var/log/clinica/reservas.log");
             } else {
                 // Si no hay resultados, realizar una consulta directa para ver si hay datos
                 if ($doctorId !== null) {
@@ -2145,13 +2145,13 @@ class ModelServicios {
                     $simpleCheck->bindParam(':fecha', $fecha);
                     $simpleCheck->execute();
                     $simpleResults = $simpleCheck->fetchAll(PDO::FETCH_ASSOC);
-                    error_log("mdlBuscarReservas: Consulta directa - Resultados para doctor_id={$doctorId}, fecha={$fecha}: " . json_encode($simpleResults), 3, "c:/laragon/www/clinica/logs/reservas.log");
+                    error_log("mdlBuscarReservas: Consulta directa - Resultados para doctor_id={$doctorId}, fecha={$fecha}: " . json_encode($simpleResults), 3, "/var/log/clinica/reservas.log");
                 }
             }
             
             return $reservas;
         } catch (PDOException $e) {
-            error_log("Error al buscar reservas: " . $e->getMessage(), 3, "c:/laragon/www/clinica/logs/reservas.log");
+            error_log("Error al buscar reservas: " . $e->getMessage(), 3, "/var/log/clinica/reservas.log");
             return [];
         }
     }
@@ -2167,7 +2167,7 @@ class ModelServicios {
         try {
             error_log("mdlBuscarReservasPorDoctor: Ejecutando consulta directa para doctor_id=$doctorId, fecha=" . 
                      ($fecha ? $fecha : "NULL") . ", estado=" . ($estado ?? "NULL") . ", paciente=" . ($paciente ?? "NULL") . ", salaId=" . ($salaId ?? "NULL") . ", origen=" . ($origen ?? "NULL"), 
-                     3, "c:/laragon/www/clinica/logs/reservas.log");
+                     3, "/var/log/clinica/reservas.log");
             
             $sql = "SELECT 
                 sr.reserva_id,
@@ -2258,12 +2258,12 @@ class ModelServicios {
             $reservas = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
             error_log("mdlBuscarReservasPorDoctor: Encontradas " . count($reservas) . " reservas", 
-                     3, "c:/laragon/www/clinica/logs/reservas.log");
+                     3, "/var/log/clinica/reservas.log");
             
             return $reservas;
         } catch (PDOException $e) {
             error_log("Error en mdlBuscarReservasPorDoctor: " . $e->getMessage(), 
-                     3, "c:/laragon/www/clinica/logs/reservas.log");
+                     3, "/var/log/clinica/reservas.log");
             return [];
         }
     }
@@ -2669,7 +2669,7 @@ class ModelServicios {
             
             if (!$tablaReservasExiste) {
                 error_log("mdlObtenerReservasExistentes: La tabla servicios_reservas no existe", 
-                          3, "c:/laragon/www/clinica/logs/database.log");
+                          3, "/var/log/clinica/database.log");
                 return [];
             }
             
@@ -2701,17 +2701,17 @@ class ModelServicios {
             
             error_log("mdlObtenerReservasExistentes: Encontradas " . count($reservas) . 
                       " reservas para doctor ID $doctorId en fecha $fecha", 
-                      3, "c:/laragon/www/clinica/logs/database.log");
+                      3, "/var/log/clinica/database.log");
             
             if (count($reservas) > 0) {
                 error_log("Primera reserva: " . json_encode($reservas[0]), 
-                          3, "c:/laragon/www/clinica/logs/database.log");
+                          3, "/var/log/clinica/database.log");
             }
             
             return $reservas;
         } catch (PDOException $e) {
             error_log("Error al obtener reservas existentes: " . $e->getMessage(), 
-                      3, "c:/laragon/www/clinica/logs/database.log");
+                      3, "/var/log/clinica/database.log");
             return [];
         }
     }
@@ -2724,7 +2724,7 @@ class ModelServicios {
     static public function mdlObtenerReservaPorId($reservaId) {
         try {
             error_log("mdlObtenerReservaPorId: Buscando reserva con ID: $reservaId", 
-                      3, "c:/laragon/www/clinica/logs/reservas.log");
+                      3, "/var/log/clinica/reservas.log");
             
             // Primero verificar si la reserva existe
             $stmtCheck = Conexion::conectar()->prepare("SELECT COUNT(*) FROM servicios_reservas WHERE reserva_id = :reserva_id");
@@ -2733,7 +2733,7 @@ class ModelServicios {
             $exists = $stmtCheck->fetchColumn();
             
             error_log("mdlObtenerReservaPorId: Reserva existe: " . ($exists ? 'SÍ' : 'NO'), 
-                      3, "c:/laragon/www/clinica/logs/reservas.log");
+                      3, "/var/log/clinica/reservas.log");
             
             if (!$exists) {
                 return null;
@@ -2782,7 +2782,7 @@ class ModelServicios {
             
             if ($resultado) {
                 error_log("mdlObtenerReservaPorId: Reserva encontrada (básica): " . json_encode($resultado), 
-                          3, "c:/laragon/www/clinica/logs/reservas.log");
+                          3, "/var/log/clinica/reservas.log");
                 
                 // Intentar obtener información adicional de otras tablas si existen
                 try {
@@ -2796,7 +2796,7 @@ class ModelServicios {
                     }
                 } catch (Exception $e) {
                     error_log("mdlObtenerReservaPorId: No se pudo obtener info del doctor: " . $e->getMessage(), 
-                              3, "c:/laragon/www/clinica/logs/reservas.log");
+                              3, "/var/log/clinica/reservas.log");
                 }
                 
                 try {
@@ -2813,7 +2813,7 @@ class ModelServicios {
                     }
                 } catch (Exception $e) {
                     error_log("mdlObtenerReservaPorId: No se pudo obtener info del paciente: " . $e->getMessage(), 
-                              3, "c:/laragon/www/clinica/logs/reservas.log");
+                              3, "/var/log/clinica/reservas.log");
                 }
                 
                 try {
@@ -2829,7 +2829,7 @@ class ModelServicios {
                     }
                 } catch (Exception $e) {
                     error_log("mdlObtenerReservaPorId: No se pudo obtener info de la sala: " . $e->getMessage(), 
-                              3, "c:/laragon/www/clinica/logs/reservas.log");
+                              3, "/var/log/clinica/reservas.log");
                 }
                 
                 // Intentar obtener información del servicio desde diferentes posibles tablas
@@ -2860,7 +2860,7 @@ class ModelServicios {
                             }
                             
                             error_log("mdlObtenerReservaPorId: Info de servicio obtenida de tabla $tablaServicio", 
-                                      3, "c:/laragon/www/clinica/logs/reservas.log");
+                                      3, "/var/log/clinica/reservas.log");
                             break;
                         }
                     } catch (Exception $e) {
@@ -2871,13 +2871,13 @@ class ModelServicios {
                 
             } else {
                 error_log("mdlObtenerReservaPorId: No se encontró reserva con ID: $reservaId después de la consulta", 
-                          3, "c:/laragon/www/clinica/logs/reservas.log");
+                          3, "/var/log/clinica/reservas.log");
             }
             
             return $resultado;
         } catch (PDOException $e) {
             error_log("Error al obtener reserva por ID: " . $e->getMessage(), 
-                      3, "c:/laragon/www/clinica/logs/reservas.log");
+                      3, "/var/log/clinica/reservas.log");
             return null;
         }
     }
@@ -2903,7 +2903,7 @@ class ModelServicios {
             }
             
             error_log("mdlActualizarReserva: Datos actuales - Doctor: {$reservaActual['doctor_id']}, Fecha: {$reservaActual['fecha_reserva']}, Hora: {$reservaActual['hora_inicio']}-{$reservaActual['hora_fin']}", 
-                      3, "c:/laragon/www/clinica/logs/reservas.log");
+                      3, "/var/log/clinica/reservas.log");
             
             // Verificar si cambió el doctor, fecha u hora para liberar el horario anterior
             $cambioHorario = (
@@ -2915,7 +2915,7 @@ class ModelServicios {
             
             if ($cambioHorario) {
                 error_log("mdlActualizarReserva: Detectado cambio de horario, liberando agenda anterior", 
-                          3, "c:/laragon/www/clinica/logs/reservas.log");
+                          3, "/var/log/clinica/reservas.log");
                 
                 // Si hay cambio de horario, verificar disponibilidad del nuevo horario
                 $conflictos = self::verificarConflictosReserva(
@@ -2974,7 +2974,7 @@ class ModelServicios {
             if ($stmt->rowCount() > 0) {
                 $pdo->commit();
                 error_log("mdlActualizarReserva: Reserva {$datos['reserva_id']} actualizada exitosamente", 
-                          3, "c:/laragon/www/clinica/logs/reservas.log");
+                          3, "/var/log/clinica/reservas.log");
                 
                 return [
                     "status" => "success",
@@ -2994,7 +2994,7 @@ class ModelServicios {
                 $pdo->rollBack();
             }
             error_log("Error al actualizar reserva: " . $e->getMessage(), 
-                      3, "c:/laragon/www/clinica/logs/reservas.log");
+                      3, "/var/log/clinica/reservas.log");
             return [
                 "status" => "error",
                 "message" => "Error al actualizar la reserva: " . $e->getMessage()
@@ -3013,9 +3013,9 @@ class ModelServicios {
             $pdo->beginTransaction();
             
             error_log("mdlEditarReservaCompleta: Iniciando edición de reserva ID {$datos['reserva_id']}", 
-                      3, "c:/laragon/www/clinica/logs/reservas.log");
+                      3, "/var/log/clinica/reservas.log");
             error_log("mdlEditarReservaCompleta: Datos recibidos: " . json_encode($datos), 
-                      3, "c:/laragon/www/clinica/logs/reservas.log");
+                      3, "/var/log/clinica/reservas.log");
             
             // 1. Verificar que la reserva existe y obtener datos actuales
             $stmtVerificar = $pdo->prepare("
@@ -3106,7 +3106,7 @@ class ModelServicios {
                 $pdo->commit();
                 
                 error_log("mdlEditarReservaCompleta: Reserva {$datos['reserva_id']} actualizada exitosamente", 
-                          3, "c:/laragon/www/clinica/logs/reservas.log");
+                          3, "/var/log/clinica/reservas.log");
                 
                 // 4. Obtener datos actualizados con todos los JOINs para retornar información completa
                 $datosActualizados = self::mdlObtenerReservaPorId($datos['reserva_id']);
@@ -3131,7 +3131,7 @@ class ModelServicios {
                 $pdo->rollBack();
             }
             error_log("Error en mdlEditarReservaCompleta: " . $e->getMessage(), 
-                      3, "c:/laragon/www/clinica/logs/reservas.log");
+                      3, "/var/log/clinica/reservas.log");
             return [
                 "status" => "error",
                 "message" => "Error al actualizar la reserva: " . $e->getMessage()
@@ -3188,7 +3188,7 @@ class ModelServicios {
             
         } catch (PDOException $e) {
             error_log("Error al verificar conflictos de reserva: " . $e->getMessage(), 
-                      3, "c:/laragon/www/clinica/logs/reservas.log");
+                      3, "/var/log/clinica/reservas.log");
             return [];
         }
     }
@@ -3215,13 +3215,13 @@ class ModelServicios {
             $salas = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
             error_log("mdlObtenerSalasActivas: Se encontraron " . count($salas) . " salas activas", 
-                      3, "c:/laragon/www/clinica/logs/reservas.log");
+                      3, "/var/log/clinica/reservas.log");
             
             return $salas;
             
         } catch (PDOException $e) {
             error_log("Error al obtener salas activas: " . $e->getMessage(), 
-                      3, "c:/laragon/www/clinica/logs/reservas.log");
+                      3, "/var/log/clinica/reservas.log");
             
             // Fallback: intentar con estructura mínima
             try {
@@ -3237,13 +3237,13 @@ class ModelServicios {
                 $salas = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 
                 error_log("mdlObtenerSalasActivas: Fallback exitoso, " . count($salas) . " salas obtenidas", 
-                          3, "c:/laragon/www/clinica/logs/reservas.log");
+                          3, "/var/log/clinica/reservas.log");
                 
                 return $salas;
                 
             } catch (PDOException $e2) {
                 error_log("Error en fallback de salas: " . $e2->getMessage(), 
-                          3, "c:/laragon/www/clinica/logs/reservas.log");
+                          3, "/var/log/clinica/reservas.log");
                 return [];
             }
         }
@@ -3280,13 +3280,13 @@ class ModelServicios {
             $servicios = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
             error_log("mdlObtenerTodosLosServiciosActivos: " . count($servicios) . " servicios obtenidos", 
-                      3, "c:/laragon/www/clinica/logs/servicios.log");
+                      3, "/var/log/clinica/servicios.log");
             
             return $servicios;
             
         } catch (PDOException $e) {
             error_log("Error en mdlObtenerTodosLosServiciosActivos: " . $e->getMessage(), 
-                      3, "c:/laragon/www/clinica/logs/servicios.log");
+                      3, "/var/log/clinica/servicios.log");
             return [];
         }
     }
@@ -3371,13 +3371,13 @@ class ModelServicios {
             $medicos = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
             error_log("mdlObtenerMedicosPorServicio: " . count($medicos) . " médicos obtenidos para servicio " . $servicioId, 
-                      3, "c:/laragon/www/clinica/logs/servicios.log");
+                      3, "/var/log/clinica/servicios.log");
             
             return $medicos;
             
         } catch (PDOException $e) {
             error_log("Error en mdlObtenerMedicosPorServicio: " . $e->getMessage(), 
-                      3, "c:/laragon/www/clinica/logs/servicios.log");
+                      3, "/var/log/clinica/servicios.log");
             return [];
         }
     }

@@ -12,9 +12,9 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>AdminLTE 3 | Legacy User Menu</title>
-    <link rel="icon" href="data:,">
-    
+    <title>System</title>
+    <!-- <link rel="icon" href="data:,"> -->
+     <link rel="icon" href="view/img/icon.ico" type="image/x-icon">
     <link rel="stylesheet" href="view/css/custom.css">
 
     <!-- Google Font: Source Sans Pro -->
@@ -46,6 +46,50 @@
     <link rel="stylesheet" href="view/plugins/toastr/toastr.min.css">
     <!-- Tempus Dominus Bootstrap 4 (DateTimePicker) -->
     <link rel="stylesheet" href="view/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
+
+    <!-- Pégalo DESPUÉS de adminlte.css -->
+ 
+  
+<style>
+  /* Fondo + overlay reutilizable para login y registro */
+  .login-page,
+  .register-page{
+    --bg-url: url('view/img/bg.jpg');    /* por defecto */
+    --overlay: .45;                      /* opacidad del oscurecido */
+    position: relative;
+    min-height: 100vh;
+    background: var(--bg-url) center/cover no-repeat fixed;
+  }
+
+  /* Imagen específica por página */
+  .login-page{ --bg-url: url('view/img/bg.jpg'); }
+  .register-page{ --bg-url: url('view/img/bg-register.jpg'); } /* ← tu otra imagen */
+
+  /* Capa oscura */
+  .login-page::before,
+  .register-page::before{
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,var(--overlay));
+    pointer-events: none; /* no bloquea clics */
+  }
+
+  /* Asegurar que las cajas queden encima del overlay */
+  .login-box,
+  .register-box,
+  .main-header,
+  .main-footer,
+  .content-wrapper{
+    position: relative;
+    z-index: 1;
+    background: transparent; /* evita cubrir el fondo */
+  }
+</style>
+
+
+ 
+
 
     <!-- jQuery -->
     <script src="view/plugins/jquery/jquery.min.js"></script>
@@ -87,6 +131,8 @@
     <script src="view/plugins/moment/moment.min.js"></script>
     <!-- Tempus Dominus Bootstrap 4 (DateTimePicker) -->
     <script src="view/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+
+    
 </head>
 
 <?php 
@@ -296,7 +342,8 @@ if (isset($_SESSION["iniciarSesion"]) && $_SESSION["iniciarSesion"] == "ok") {
         echo '<div class="wrapper">'; 
             include "view/nav/web-navbar.php";
                 include "view/modules/start.php";
-            include "view/nav/web-footer.php";
+            include "view/nav/footer.php";
+            // include "view/nav/web-footer.php";
         echo '</div>'; // Cierre del div wrapper    
     } else if(isset($_GET["ruta"])) {
         if ($_GET["ruta"] == "login") {
@@ -310,7 +357,8 @@ if (isset($_SESSION["iniciarSesion"]) && $_SESSION["iniciarSesion"] == "ok") {
             echo '<div class="wrapper">'; 
                 include "view/nav/web-navbar.php";
                 include "modules/".$_GET["ruta"].".php";
-                include "view/nav/web-footer.php";
+                include "view/nav/footer.php";
+                // include "view/nav/web-footer.php";
             echo '</div>'; // Cierre del div wrapper
         } else {
             echo '<body class="hold-transition layout-top-nav">';

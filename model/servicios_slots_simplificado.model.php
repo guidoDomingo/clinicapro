@@ -10,21 +10,21 @@ class ModelServiciosSimplificado {
      */
     static public function mdlGenerarSlotsSimple($doctorId, $fecha) {
         try {
-            error_log("Generando slots simples para - DoctorID: {$doctorId}, Fecha: {$fecha}", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+            error_log("Generando slots simples para - DoctorID: {$doctorId}, Fecha: {$fecha}", 3, '/var/log/clinica/servicios.log');
             
             // Duración predeterminada de 30 minutos
             $duracionServicio = 30;
             
             // Verificar que el formato de la fecha sea correcto
             if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $fecha)) {
-                error_log("Formato de fecha incorrecto: " . $fecha, 3, 'c:/laragon/www/clinica/logs/servicios.log');
+                error_log("Formato de fecha incorrecto: " . $fecha, 3, '/var/log/clinica/servicios.log');
                 return [];
             }
             
             // Asegurarse de que la fecha sea válida
             $fechaObj = DateTime::createFromFormat('Y-m-d', $fecha);
             if (!$fechaObj || $fechaObj->format('Y-m-d') !== $fecha) {
-                error_log("Fecha inválida: " . $fecha, 3, 'c:/laragon/www/clinica/logs/servicios.log');
+                error_log("Fecha inválida: " . $fecha, 3, '/var/log/clinica/servicios.log');
                 return [];
             }
             
@@ -33,7 +33,7 @@ class ModelServiciosSimplificado {
             $diasSemanaTexto = [1 => 'LUNES', 2 => 'MARTES', 3 => 'MIERCOLES', 4 => 'JUEVES', 5 => 'VIERNES', 6 => 'SABADO', 7 => 'DOMINGO'];
             $diaSemanaTexto = $diasSemanaTexto[$diaSemanaNum];
             
-            error_log("Buscando horarios para: Doctor ID={$doctorId}, Día={$diaSemanaTexto}", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+            error_log("Buscando horarios para: Doctor ID={$doctorId}, Día={$diaSemanaTexto}", 3, '/var/log/clinica/servicios.log');
             
             // Obtener los horarios del doctor para el día de la semana correspondiente
             $stmt = Conexion::conectar()->prepare(
@@ -77,10 +77,10 @@ class ModelServiciosSimplificado {
             $stmt->execute();
             $horarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
-            error_log("Horarios encontrados: " . count($horarios), 3, 'c:/laragon/www/clinica/logs/servicios.log');
+            error_log("Horarios encontrados: " . count($horarios), 3, '/var/log/clinica/servicios.log');
             
             if (empty($horarios)) {
-                error_log("No se encontraron horarios para el día " . $diaSemanaTexto, 3, 'c:/laragon/www/clinica/logs/servicios.log');
+                error_log("No se encontraron horarios para el día " . $diaSemanaTexto, 3, '/var/log/clinica/servicios.log');
                 return [];
             }
             
@@ -125,12 +125,12 @@ class ModelServiciosSimplificado {
                 }
             }
             
-            error_log("Total de slots disponibles generados: " . count($slotsDisponibles), 3, 'c:/laragon/www/clinica/logs/servicios.log');
+            error_log("Total de slots disponibles generados: " . count($slotsDisponibles), 3, '/var/log/clinica/servicios.log');
             
             return $slotsDisponibles;
             
         } catch (Exception $e) {
-            error_log("Error al generar slots disponibles: " . $e->getMessage(), 3, 'c:/laragon/www/clinica/logs/servicios.log');
+            error_log("Error al generar slots disponibles: " . $e->getMessage(), 3, '/var/log/clinica/servicios.log');
             return [];
         }
     }

@@ -1,4 +1,10 @@
 <?php
+
+// Include Database class for non-API files
+if (!class_exists('Api\Core\Database')) {
+    require_once __DIR__ . '/../api/core/Database.php';
+}
+
 /**
  * Configuration File
  * 

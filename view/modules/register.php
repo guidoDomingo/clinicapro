@@ -1,7 +1,10 @@
 <div class="register-box">
   <div class="card card-outline card-primary">
     <div class="card-header text-center">
-      <a href="index.php" class="h1"><b>Mi</b>Clinica</a>
+      <a href="index.php" class="h4"><b>Centro</b>Oftalmológico</a>
+      <div class="logo-container">
+                <img src="view/img/logo.png" width="100" height="100" alt="Centro oftalmológico S.A.">
+            </div>
     </div>
     <div class="card-body">
       <p class="login-box-msg">Registro de nuevo usuario</p>

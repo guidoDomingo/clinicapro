@@ -104,7 +104,7 @@ abstract class Model
                 "Excluded Data: " . json_encode($excludedData, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) . "\n" .
                 "----------------------------------------\n",
                 3,
-                'c:/laragon/www/clinica/logs/database.log'
+                '/var/log/clinica/database.log'
             );
             
             $id = Database::insert($this->table, $filteredData);
@@ -122,7 +122,7 @@ abstract class Model
                 "Error: " . $e->getMessage() . "\n" .
                 "----------------------------------------\n",
                 3,
-                'c:/laragon/www/clinica/logs/database.log'
+                '/var/log/clinica/database.log'
             );
             throw $e;
         }

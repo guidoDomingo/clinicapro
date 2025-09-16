@@ -28,11 +28,11 @@ class ControladorServicios {
                  ", Paciente=" . ($paciente ?? "null") . 
                  ", SalaID=" . ($salaId ?? "null") .
                  ", Origen=" . ($origen ?? "null"),
-                 3, "c:/laragon/www/clinica/logs/reservas.log");
+                 3, "/var/log/clinica/reservas.log");
           // Si se está filtrando por doctor, usamos la consulta optimizada
         if ($doctorId !== null) {
             error_log("ctrBuscarReservas: Usando consulta específica para doctor_id=$doctorId", 
-                     3, "c:/laragon/www/clinica/logs/reservas.log");
+                     3, "/var/log/clinica/reservas.log");
             // Pasar todos los parámetros para filtrado completo
             return ModelServicios::mdlBuscarReservasPorDoctor($doctorId, $fecha, $estado, $paciente, $salaId, $origen);
         }
@@ -40,14 +40,14 @@ class ControladorServicios {
         // Si se está filtrando solo por estado
         if ($estado !== null && $estado !== '' && $doctorId === null) {
             error_log("ctrBuscarReservas: Filtrando específicamente por estado=$estado", 
-                     3, "c:/laragon/www/clinica/logs/reservas.log");
+                     3, "/var/log/clinica/reservas.log");
             return ModelServicios::mdlObtenerReservasPorFecha($fecha, $doctorId, $estado, $paciente, $salaId, $origen);
         }
         
         // Si se está filtrando solo por paciente
         if ($paciente !== null && trim($paciente) !== '' && $doctorId === null && ($estado === null || $estado === '')) {
             error_log("ctrBuscarReservas: Filtrando específicamente por paciente=$paciente", 
-                     3, "c:/laragon/www/clinica/logs/reservas.log");
+                     3, "/var/log/clinica/reservas.log");
             return ModelServicios::mdlObtenerReservasPorFecha($fecha, $doctorId, $estado, $paciente, $salaId, $origen);
         }
         
@@ -74,14 +74,14 @@ class ControladorServicios {
             // Verificar que los parámetros necesarios sean válidos
             // El servicio ID ahora es opcional
             if (empty($doctorId) || empty($fecha)) {
-                error_log("ctrObtenerHorariosDisponibles: Parámetros incompletos. DoctorID=$doctorId, Fecha=$fecha", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+                error_log("ctrObtenerHorariosDisponibles: Parámetros incompletos. DoctorID=$doctorId, Fecha=$fecha", 3, '/var/log/clinica/servicios.log');
                 return [];
             }
 
             // Validar formato de la fecha
             $fechaObj = DateTime::createFromFormat('Y-m-d', $fecha);
             if (!$fechaObj) {
-                error_log("ctrObtenerHorariosDisponibles: Formato de fecha inválido: $fecha", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+                error_log("ctrObtenerHorariosDisponibles: Formato de fecha inválido: $fecha", 3, '/var/log/clinica/servicios.log');
                 return [];
             }
 
@@ -89,12 +89,12 @@ class ControladorServicios {
             $horarios = ModelServicios::mdlObtenerHorariosDisponibles($servicioId, $doctorId, $fecha);
             
             // Registrar cuántos horarios se encontraron
-            error_log("ctrObtenerHorariosDisponibles: Se encontraron " . count($horarios) . " horarios disponibles", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+            error_log("ctrObtenerHorariosDisponibles: Se encontraron " . count($horarios) . " horarios disponibles", 3, '/var/log/clinica/servicios.log');
             
             return $horarios;
             
         } catch (Exception $e) {
-            error_log("ERROR en ctrObtenerHorariosDisponibles: " . $e->getMessage(), 3, 'c:/laragon/www/clinica/logs/servicios.log');
+            error_log("ERROR en ctrObtenerHorariosDisponibles: " . $e->getMessage(), 3, '/var/log/clinica/servicios.log');
             return [];
         }
     }
@@ -109,7 +109,7 @@ class ControladorServicios {
         try {
             // Verificar que el doctor ID sea válido
             if (empty($doctorId)) {
-                error_log("ctrObtenerDiasDisponibles: Doctor ID es requerido", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+                error_log("ctrObtenerDiasDisponibles: Doctor ID es requerido", 3, '/var/log/clinica/servicios.log');
                 return [];
             }
 
@@ -117,12 +117,12 @@ class ControladorServicios {
             $diasDisponibles = ModelServicios::mdlObtenerDiasDisponibles($doctorId, $servicioId);
             
             // Registrar cuántos días se encontraron
-            error_log("ctrObtenerDiasDisponibles: Se encontraron " . count($diasDisponibles) . " días disponibles para doctor ID $doctorId", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+            error_log("ctrObtenerDiasDisponibles: Se encontraron " . count($diasDisponibles) . " días disponibles para doctor ID $doctorId", 3, '/var/log/clinica/servicios.log');
             
             return $diasDisponibles;
             
         } catch (Exception $e) {
-            error_log("ERROR en ctrObtenerDiasDisponibles: " . $e->getMessage(), 3, 'c:/laragon/www/clinica/logs/servicios.log');
+            error_log("ERROR en ctrObtenerDiasDisponibles: " . $e->getMessage(), 3, '/var/log/clinica/servicios.log');
             return [];
         }
     }
@@ -137,7 +137,7 @@ class ControladorServicios {
         try {
             // Verificar que el doctor ID sea válido
             if (empty($doctorId)) {
-                error_log("ctrObtenerTodosLosHorariosDisponibles: Doctor ID es requerido", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+                error_log("ctrObtenerTodosLosHorariosDisponibles: Doctor ID es requerido", 3, '/var/log/clinica/servicios.log');
                 return [];
             }
 
@@ -145,12 +145,12 @@ class ControladorServicios {
             $todosLosHorarios = ModelServicios::mdlObtenerTodosLosHorariosDisponibles($doctorId, $servicioId);
             
             // Registrar cuántos horarios se encontraron
-            error_log("ctrObtenerTodosLosHorariosDisponibles: Se encontraron " . count($todosLosHorarios) . " horarios disponibles para doctor ID $doctorId", 3, 'c:/laragon/www/clinica/logs/servicios.log');
+            error_log("ctrObtenerTodosLosHorariosDisponibles: Se encontraron " . count($todosLosHorarios) . " horarios disponibles para doctor ID $doctorId", 3, '/var/log/clinica/servicios.log');
             
             return $todosLosHorarios;
             
         } catch (Exception $e) {
-            error_log("ERROR en ctrObtenerTodosLosHorariosDisponibles: " . $e->getMessage(), 3, 'c:/laragon/www/clinica/logs/servicios.log');
+            error_log("ERROR en ctrObtenerTodosLosHorariosDisponibles: " . $e->getMessage(), 3, '/var/log/clinica/servicios.log');
             return [];
         }
     }
@@ -447,7 +447,7 @@ class ControladorServicios {
             empty($datos['hora_inicio']) || 
             empty($datos['hora_fin'])
         ) {
-            error_log("Error en ctrGuardarReserva: Faltan datos requeridos.", 3, 'c:/laragon/www/clinica/logs/reservas.log');
+            error_log("Error en ctrGuardarReserva: Faltan datos requeridos.", 3, '/var/log/clinica/reservas.log');
             return false;
         }
 
@@ -482,7 +482,7 @@ class ControladorServicios {
             $datosReserva['seguro_id'] = $datos['seguro_id'];
         }
         
-        error_log("ctrGuardarReserva: Enviando datos al modelo: " . json_encode($datosReserva), 3, 'c:/laragon/www/clinica/logs/reservas.log');
+        error_log("ctrGuardarReserva: Enviando datos al modelo: " . json_encode($datosReserva), 3, '/var/log/clinica/reservas.log');
         return ModelServicios::mdlGuardarReserva($datosReserva);
     }
     
@@ -501,42 +501,52 @@ class ControladorServicios {
      */
     static public function ctrEnviarWhatsApp($telefono, $mensaje) {
         try {
-            // URL de la API externa
-            $url = "http://aventisdev.com:8082/send.php?phone={$telefono}&message=" . urlencode($mensaje);
-            
-            // Configurar opciones para la solicitud HTTP
-            $opciones = [
-                'http' => [
-                    'header' => "Authorization: Basic " . base64_encode("admin:1234") . "\r\n",
-                    'method' => 'GET',
-                    'timeout' => 30
-                ]
-            ];
-            
-            // Crear contexto de la solicitud
-            $contexto = stream_context_create($opciones);
-            
-            // Registrar intento de envío
-            error_log("Enviando WhatsApp a {$telefono}: " . substr($mensaje, 0, 50) . "...", 3, dirname(__FILE__, 2) . '/logs/whatsapp_api.log');
-            
-            // Realizar la solicitud HTTP
-            $resultado = @file_get_contents($url, false, $contexto);
-            
-            if ($resultado === FALSE) {
-                $error = error_get_last();
-                throw new Exception("Error al enviar WhatsApp: " . ($error['message'] ?? 'Error desconocido'));
+          
+            // Configuración
+            $endpoint = 'http://181.122.125.143:8082/send.php';
+            $user     = 'admin';
+            $pass     = 'admin123';
+
+            // Datos a enviar (formato E.164 para el número: +595983123456)
+            $to   = '+'.$telefono;
+            $text = $mensaje;
+
+            // JSON del body
+            $payload = json_encode(
+                ['to' => $to, 'text' => $text],
+                JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+            );
+
+            // Preparar cURL
+            $ch = curl_init($endpoint);
+            curl_setopt_array($ch, [
+                CURLOPT_POST           => true,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_HTTPHEADER     => [
+                    'Authorization: Basic ' . base64_encode("$user:$pass"),
+                    'Content-Type: application/json; charset=utf-8',
+                ],
+                CURLOPT_POSTFIELDS     => $payload,
+                CURLOPT_TIMEOUT        => 20,
+            ]);
+
+            // Ejecutar
+            $response = curl_exec($ch);
+            $errNo    = curl_errno($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            // Manejo simple de respuesta
+            if ($errNo) {
+                die("Error cURL (#$errNo): " . ($response ?: 'sin respuesta'));
             }
-            
-            // Decodificar respuesta JSON si es posible
-            $respuesta = json_decode($resultado, true);
-            
-            // Registrar respuesta
-            error_log("Respuesta API WhatsApp: " . print_r($respuesta ?: $resultado, true), 3, dirname(__FILE__, 2) . '/logs/whatsapp_api.log');
-            
+
+            // echo "HTTP $httpCode\n";
+            // echo $response . "\n";
             return [
                 'status' => 'success',
                 'mensaje' => 'Mensaje enviado correctamente',
-                'respuesta_api' => $respuesta ?: $resultado
+                'response' => $response
             ];
             
         } catch (Exception $e) {
@@ -676,9 +686,9 @@ class ControladorServicios {
         }
 
         error_log("ctrEditarReservaCompleta: Procesando edición de reserva ID {$datos['reserva_id']}", 
-                  3, "c:/laragon/www/clinica/logs/reservas.log");
+                  3, "/var/log/clinica/reservas.log");
         error_log("ctrEditarReservaCompleta: Datos validados: " . json_encode($datos), 
-                  3, "c:/laragon/www/clinica/logs/reservas.log");
+                  3, "/var/log/clinica/reservas.log");
 
         return ModelServicios::mdlEditarReservaCompleta($datos);
     }
@@ -726,7 +736,7 @@ class ControladorServicios {
             return ModelServicios::mdlObtenerSalasActivas();
         } catch (Exception $e) {
             error_log("Error en ctrObtenerSalasActivas: " . $e->getMessage(), 
-                      3, "c:/laragon/www/clinica/logs/reservas.log");
+                      3, "/var/log/clinica/reservas.log");
             return [];
         }
     }
@@ -749,18 +759,18 @@ class ControladorServicios {
             }
             
             error_log("ctrObtenerDoctoresPorFecha: Obteniendo doctores para fecha: " . $fecha, 
-                      3, "c:/laragon/www/clinica/logs/reservas.log");
+                      3, "/var/log/clinica/reservas.log");
             
             $doctores = ModelServicios::mdlObtenerDoctoresPorFecha($fecha);
             
             error_log("ctrObtenerDoctoresPorFecha: Encontrados " . count($doctores) . " doctores", 
-                      3, "c:/laragon/www/clinica/logs/reservas.log");
+                      3, "/var/log/clinica/reservas.log");
             
             return $doctores;
             
         } catch (Exception $e) {
             error_log("Error en ctrObtenerDoctoresPorFecha: " . $e->getMessage(), 
-                      3, "c:/laragon/www/clinica/logs/reservas.log");
+                      3, "/var/log/clinica/reservas.log");
             return [];
         }
     }
@@ -772,18 +782,18 @@ class ControladorServicios {
     static public function ctrObtenerTodosLosServiciosActivos() {
         try {
             error_log("ctrObtenerTodosLosServiciosActivos: Obteniendo todos los servicios activos", 
-                      3, "c:/laragon/www/clinica/logs/servicios.log");
+                      3, "/var/log/clinica/servicios.log");
                       
             $servicios = ModelServicios::mdlObtenerTodosLosServiciosActivos();
             
             error_log("ctrObtenerTodosLosServiciosActivos: Encontrados " . count($servicios) . " servicios", 
-                      3, "c:/laragon/www/clinica/logs/servicios.log");
+                      3, "/var/log/clinica/servicios.log");
             
             return $servicios;
             
         } catch (Exception $e) {
             error_log("Error en ctrObtenerTodosLosServiciosActivos: " . $e->getMessage(), 
-                      3, "c:/laragon/www/clinica/logs/servicios.log");
+                      3, "/var/log/clinica/servicios.log");
             return [];
         }
     }
@@ -801,18 +811,18 @@ class ControladorServicios {
             }
             
             error_log("ctrObtenerMedicosPorServicio: Obteniendo médicos para servicio ID: " . $servicioId, 
-                      3, "c:/laragon/www/clinica/logs/servicios.log");
+                      3, "/var/log/clinica/servicios.log");
                       
             $medicos = ModelServicios::mdlObtenerMedicosPorServicio($servicioId);
             
             error_log("ctrObtenerMedicosPorServicio: Encontrados " . count($medicos) . " médicos", 
-                      3, "c:/laragon/www/clinica/logs/servicios.log");
+                      3, "/var/log/clinica/servicios.log");
             
             return $medicos;
             
         } catch (Exception $e) {
             error_log("Error en ctrObtenerMedicosPorServicio: " . $e->getMessage(), 
-                      3, "c:/laragon/www/clinica/logs/servicios.log");
+                      3, "/var/log/clinica/servicios.log");
             return [];
         }
     }

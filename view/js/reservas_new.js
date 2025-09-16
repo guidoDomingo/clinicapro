@@ -3132,9 +3132,9 @@ $(document).on('click', '.btnEnviarWhatsApp', function() {
                     `📆 Fecha: ${fechaFormateada}\n` +
                     `🕒 Hora: ${reserva.hora}\n` +
                     `👨‍⚕️ Médico: ${medicoNombre}\n\n` +
-                    `🚶‍♂️ Por favor, llegue 10 minutos antes de su cita.\n` +
+                    `🚶‍♂️ Por favor, llegue 30 minutos antes de su cita.\n` +
                     `✅ Responda este mensaje si desea confirmar o reprogramar.\n\n` +
-                    `🙏 ¡Gracias!`;
+                    `😊 ¡Gracias!`;
                 
                 // Mostrar modal con los datos y opciones para enviar
                 Swal.fire({
@@ -3147,10 +3147,10 @@ $(document).on('click', '.btnEnviarWhatsApp', function() {
                             <p><span style="font-weight: bold;">🕒 Hora:</span> ${reserva.hora}</p>
                             <p><span style="font-weight: bold;">👨‍⚕️ Médico:</span> ${medicoNombre}</p>
                             
-                            <p><span style="font-weight: bold;">🚶‍♂️ Por favor, llegue 10 minutos antes de su cita.</span></p>
+                            <p><span style="font-weight: bold;">🚶‍♂️ Por favor, llegue 30 minutos antes de su cita.</span></p>
                             <p><span style="font-weight: bold;">✅ Responda este mensaje si desea confirmar o reprogramar.</span></p>
                             
-                            <p><span style="font-weight: bold;">🙏 ¡Gracias!</span></p>
+                            <p><span style="font-weight: bold;">😊 ¡Gracias!</span></p>
                         </div>
                         <div class="form-group">
                             <label for="telefonoWhatsapp" class="text-left d-block">Teléfono:</label>

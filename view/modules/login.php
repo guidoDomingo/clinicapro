@@ -2,9 +2,9 @@
     <!-- /.login-logo -->
     <div class="card card-outline card-primary">
         <div class="card-header text-center">
-            <a href="start" class="h1"><b>Mi clinica</b>Solution</a>
+            <a href="start" class="h2"><b>Centro</b>Oftalmológico S.A.</a>
             <div class="logo-container">
-                <img src="view/img/thnlogo.jpg" alt="Logo de la empresa">
+                <img src="view/img/logo.png" width="100" height="100" alt="Centro oftalmológico S.A.">
             </div>
         </div>
         <div class="card-body">
