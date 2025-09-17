@@ -273,7 +273,7 @@ $seguros = ReservasPublicController::ctrObtenerSeguros();
                 `,
                 confirmButtonText: 'Entendido'
             }).then((result) => {
-                window.location.href = 'http://clinica.test/public_reservas/index.php?accion=consultar';
+                window.location.href = 'index.php?accion=consultar';
             });
         <?php else: ?>
             Swal.fire({

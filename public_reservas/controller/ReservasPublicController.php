@@ -410,6 +410,13 @@ class ReservasPublicController {
                         3, "c:/laragon/www/clinica/logs/public_reservas.log");
                 }
                 
+                // Agregar monto del servicio si está disponible
+                if (!empty($_POST['monto_servicio_valor'])) {
+                    $datosReserva['monto_servicio'] = floatval($_POST['monto_servicio_valor']);
+                    error_log("ctrProcesarReserva: Agregando monto_servicio: " . floatval($_POST['monto_servicio_valor']), 
+                        3, "c:/laragon/www/clinica/logs/public_reservas.log");
+                }
+                
                 // Incluir controlador y modelo de servicios principal
                 require_once dirname(__DIR__, 2) . "/controller/servicios.controller.php";
                 require_once dirname(__DIR__, 2) . "/model/servicios.model.php";

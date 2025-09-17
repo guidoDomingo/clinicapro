@@ -207,5 +207,8 @@ require_once "controller/AuthController.php";
     
     <!-- Scripts personalizados -->
     <script src="assets/js/reservas.js"></script>
+    
+    <!-- Script temporal para mostrar monto en resumen -->
+    <?php include "view/monto_temporal.php"; ?>
 </body>
 </html>

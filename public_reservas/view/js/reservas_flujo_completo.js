@@ -4,13 +4,30 @@
  */
 
 $(document).ready(function() {
-    // Variables globales para el flujo
+    // Variables globa                    response.forEach(function(servicio) {
+                        const precio = servicio.precio || servicio.serv_monto || 0;
+                        const monto = servicio.serv_monto || servicio.precio || 0;
+                        const nombre = servicio.nombre || servicio.serv_descripcion || 'Servicio';
+                        const id = servicio.id || servicio.serv_id;
+                        
+                        $('#servicioSelect').append(`
+                            <option value="${id}" 
+/**
+ * JavaScript para el flujo completo de reservas
+ * Maneja el proceso paso a paso para hacer una reserva
+ */
+
+$(document).ready(function() {
+    console.log('Inicializando flujo completo de reservas...');
+
+    // Datos de la reserva en proceso
     let reservaData = {
         paciente_id: null,
         fecha: null,
         servicio_id: null,
         servicio_nombre: null,
         servicio_precio: 0,
+        servicio_monto: 0,
         medico_id: null,
         medico_nombre: null,
         horario: null,
@@ -69,6 +86,7 @@ $(document).ready(function() {
                 reservaData.servicio_id = servicioId;
                 reservaData.servicio_nombre = option.text();
                 reservaData.servicio_precio = parseFloat(option.data('precio')) || 0;
+                reservaData.servicio_monto = parseFloat(option.data('monto')) || parseFloat(option.data('precio')) || 0;
                 
                 mostrarDescripcionServicio(option);
                 actualizarResumen();
@@ -414,9 +432,16 @@ $(document).ready(function() {
             $('#resumenHorario').html(`<strong>${reservaData.horario}</strong>`);
         }
 
-        // Precio
-        if (reservaData.servicio_precio > 0) {
-            $('#resumenPrecio').text(`S/ ${reservaData.servicio_precio.toFixed(2)}`);
+        // Monto del Servicio
+        if (reservaData.servicio_monto > 0) {
+            const montoFormateado = new Intl.NumberFormat('es-PY').format(reservaData.servicio_monto);
+            $('#resumenMonto').html(`<strong>Gs. ${montoFormateado}</strong>`);
+        }
+
+        // Precio Total
+        if (reservaData.servicio_monto > 0) {
+            const montoFormateado = new Intl.NumberFormat('es-PY').format(reservaData.servicio_monto);
+            $('#resumenPrecio').text(`Gs. ${montoFormateado}`);
         }
     }
 

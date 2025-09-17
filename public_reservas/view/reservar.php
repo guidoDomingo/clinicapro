@@ -34,7 +34,9 @@ error_log("Reservar.php - Usuario: " . json_encode($userData) . ", Sesión ID: "
             </div>
         </div>
         
-        <!-- Formulario de reserva -->
+<div class="row">
+    <!-- Formulario de reserva -->
+    <div class="col-md-8">
         <form id="formReserva" method="post">
             <div class="row mt-4">
                 <div class="col-md-6">
@@ -48,6 +50,21 @@ error_log("Reservar.php - Usuario: " . json_encode($userData) . ", Sesión ID: "
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
+                        <label for="monto_servicio">Monto del Servicio</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Gs.</span>
+                            </div>
+                            <input type="text" class="form-control" id="monto_servicio" name="monto_servicio" readonly placeholder="Seleccione un servicio">
+                            <input type="hidden" id="monto_servicio_hidden" name="monto_servicio_valor" value="">
+                        </div>
+                        <small class="form-text text-muted">El monto se actualiza automáticamente según el servicio.</small>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col-md-6">
+                    <div class="form-group">
                         <label for="fecha">Fecha</label>
                         <div class="input-group">
                             <div class="input-group-prepend">
@@ -57,8 +74,6 @@ error_log("Reservar.php - Usuario: " . json_encode($userData) . ", Sesión ID: "
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="row mt-2">
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="doctor">Doctor</label>
@@ -70,6 +85,7 @@ error_log("Reservar.php - Usuario: " . json_encode($userData) . ", Sesión ID: "
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
+                        <label for="horario">Horario</label>
                         <label for="horario">Horario</label>
                         <select class="form-control" id="horario" name="horario" disabled required>
                             <option value="">-- Primero seleccione doctor --</option>
@@ -94,6 +110,59 @@ error_log("Reservar.php - Usuario: " . json_encode($userData) . ", Sesión ID: "
                 </div>
             </div>
         </form>
+    </div>
+    
+    <!-- Panel de Resumen -->
+    <div class="col-md-4">
+        <div class="card shadow">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-info-circle mr-2"></i>Resumen de la Reserva</h5>
+            </div>
+            <div class="card-body">
+                
+                <!-- Datos de la Reserva -->
+                <div class="mb-4">
+                    <h6 class="text-primary mb-3"><i class="fas fa-clipboard-list mr-2"></i>Datos de la Reserva</h6>
+                    
+                    <div class="mb-2">
+                        <strong><i class="fas fa-calendar mr-1"></i> Fecha:</strong>
+                        <span id="resumen-fecha" class="text-muted">No seleccionada</span>
+                    </div>
+                    
+                    <div class="mb-2">
+                        <strong><i class="fas fa-stethoscope mr-1"></i> Servicio:</strong>
+                        <span id="resumen-servicio" class="text-muted">No seleccionado</span>
+                    </div>
+                    
+                    <div class="mb-2">
+                        <strong><i class="fas fa-user-md mr-1"></i> Médico:</strong>
+                        <span id="resumen-medico" class="text-muted">No seleccionado</span>
+                    </div>
+                    
+                    <div class="mb-2">
+                        <strong><i class="fas fa-clock mr-1"></i> Horario:</strong>
+                        <span id="resumen-horario" class="text-muted">No seleccionado</span>
+                    </div>
+                    
+                    <div class="mb-2">
+                        <strong><i class="fas fa-dollar-sign mr-1"></i> Monto:</strong>
+                        <span id="resumen-monto" class="text-primary font-weight-bold">No disponible</span>
+                    </div>
+                </div>
+
+                <!-- Información del Paciente -->
+                <div class="border-top pt-3">
+                    <h6 class="text-primary mb-3"><i class="fas fa-user mr-2"></i>Información del Paciente</h6>
+                    <div class="mb-1">
+                        <strong>Paciente:</strong> <?php echo $userData['nombre'] . ' ' . ($userData['apellido'] ?? ''); ?>
+                    </div>
+                    <div class="text-muted small">
+                        <i class="fas fa-info-circle mr-1"></i>Esta información se tomó de su perfil de usuario.
+                    </div>
+                </div>
+                
+            </div>
+        </div>
     </div>
 </div>
 
@@ -130,14 +199,88 @@ $(document).ready(function() {
     // Cargar servicios al inicio
     cargarServicios();
     
+    // Manejar cambio de servicio
+    $('#servicio').change(function() {
+        var servicioId = $(this).val();
+        var selectedOption = $(this).find('option:selected');
+        
+        console.log('=== DEBUG CAMBIO SERVICIO ===');
+        console.log('Servicio ID:', servicioId);
+        console.log('Selected option text:', selectedOption.text());
+        
+        if (servicioId) {
+            // Obtener el monto del servicio desde el data attribute
+            var monto = selectedOption.data('monto');
+            console.log('Monto desde data attribute:', monto, typeof monto);
+            
+            if (monto) {
+                // Convertir a número si es string
+                var montoNumerico = parseFloat(monto);
+                console.log('Monto numérico:', montoNumerico);
+                
+                // Formatear el monto con separadores de miles
+                try {
+                    var montoFormateado = new Intl.NumberFormat('es-PY').format(montoNumerico);
+                    console.log('Monto formateado:', montoFormateado);
+                    
+                    // Actualizar campos
+                    $('#monto_servicio').val(montoFormateado);
+                    $('#monto_servicio_hidden').val(montoNumerico);
+                    
+                    // Actualizar resumen
+                    $('#resumen-monto').text('Gs. ' + montoFormateado).removeClass('text-muted').addClass('text-primary font-weight-bold');
+                    $('#resumen-servicio').text(selectedOption.text().split(' - Gs.')[0]).removeClass('text-muted').addClass('text-dark');
+                    
+                    console.log('Campo monto_servicio actualizado a:', $('#monto_servicio').val());
+                    console.log('Campo hidden actualizado a:', $('#monto_servicio_hidden').val());
+                } catch(e) {
+                    console.error('Error al formatear monto:', e);
+                    // Fallback sin formateo
+                    $('#monto_servicio').val(montoNumerico.toFixed(0));
+                    $('#monto_servicio_hidden').val(montoNumerico);
+                }
+            } else {
+                console.log('No hay monto disponible');
+                $('#monto_servicio').val('N/A');
+                $('#monto_servicio_hidden').val('0');
+            }
+        } else {
+            console.log('No hay servicio seleccionado');
+            $('#monto_servicio').val('').attr('placeholder', 'Seleccione un servicio');
+            $('#monto_servicio_hidden').val('');
+            
+            // Resetear resumen
+            $('#resumen-monto').text('No disponible').removeClass('text-primary font-weight-bold').addClass('text-muted');
+            $('#resumen-servicio').text('No seleccionado').removeClass('text-dark').addClass('text-muted');
+        }
+        
+        // Resetear campos dependientes cuando cambie el servicio
+        $('#fecha').val('');
+        $('#doctor').html('<option value="">-- Primero seleccione fecha --</option>').prop('disabled', true);
+        $('#horario').html('<option value="">-- Primero seleccione doctor --</option>').prop('disabled', true);
+        
+        // Resetear otros campos del resumen
+        $('#resumen-fecha').text('No seleccionada').removeClass('text-dark').addClass('text-muted');
+        $('#resumen-medico').text('No seleccionado').removeClass('text-dark').addClass('text-muted');
+        $('#resumen-horario').text('No seleccionado').removeClass('text-dark').addClass('text-muted');
+        
+        console.log('=== FIN DEBUG ===');
+    });
+    
     // Manejar cambio de fecha
     $('#fecha').change(function() {
         var fecha = $(this).val();
         if (fecha) {
             cargarDoctores(fecha);
+            // Actualizar resumen
+            $('#resumen-fecha').text(fecha).removeClass('text-muted').addClass('text-dark');
         } else {
             $('#doctor').html('<option value="">-- Primero seleccione fecha --</option>').prop('disabled', true);
             $('#horario').html('<option value="">-- Primero seleccione doctor --</option>').prop('disabled', true);
+            // Resetear resumen
+            $('#resumen-fecha').text('No seleccionada').removeClass('text-dark').addClass('text-muted');
+            $('#resumen-medico').text('No seleccionado').removeClass('text-dark').addClass('text-muted');
+            $('#resumen-horario').text('No seleccionado').removeClass('text-dark').addClass('text-muted');
         }
     });
     
@@ -147,8 +290,26 @@ $(document).ready(function() {
         var fecha = $('#fecha').val();
         if (doctorId && fecha) {
             cargarHorarios(fecha, doctorId);
+            // Actualizar resumen
+            var doctorNombre = $(this).find('option:selected').text();
+            $('#resumen-medico').text(doctorNombre).removeClass('text-muted').addClass('text-dark');
         } else {
             $('#horario').html('<option value="">-- Primero seleccione doctor --</option>').prop('disabled', true);
+            // Resetear resumen
+            $('#resumen-medico').text('No seleccionado').removeClass('text-dark').addClass('text-muted');
+            $('#resumen-horario').text('No seleccionado').removeClass('text-dark').addClass('text-muted');
+        }
+    });
+    
+    // Manejar cambio de horario
+    $('#horario').change(function() {
+        var horario = $(this).val();
+        if (horario) {
+            // Actualizar resumen
+            var horarioTexto = $(this).find('option:selected').text();
+            $('#resumen-horario').text(horarioTexto).removeClass('text-muted').addClass('text-dark');
+        } else {
+            $('#resumen-horario').text('No seleccionado').removeClass('text-dark').addClass('text-muted');
         }
     });
     
@@ -165,7 +326,11 @@ $(document).ready(function() {
                 var options = '<option value="">-- Seleccione un servicio --</option>';
                 if (response && response.length > 0) {
                     $.each(response, function(index, servicio) {
-                        options += '<option value="' + servicio.serv_id + '">' + servicio.serv_descripcion + '</option>';
+                        var monto = servicio.serv_monto || 0;
+                        var montoFormateado = new Intl.NumberFormat('es-PY').format(monto);
+                        console.log('Procesando servicio:', servicio.serv_descripcion, 'Monto:', monto, 'Formateado:', montoFormateado);
+                        options += '<option value="' + servicio.serv_id + '" data-monto="' + monto + '">' + 
+                                   servicio.serv_descripcion + ' - Gs. ' + montoFormateado + '</option>';
                     });
                 }
                 $('#servicio').html(options);
@@ -322,12 +487,23 @@ $(document).ready(function() {
                         if (response.error === false) {
                             Swal.fire({
                                 icon: 'success',
-                                title: '¡Reserva creada!',
-                                text: response.mensaje + '. Su código de seguimiento es: ' + response.codigo + '. Se ha enviado un email con el resumen y detalles de su reserva.',
-                                confirmButtonText: 'Continuar'
-                            }).then(() => {
-                                // Redirigir a la página de consulta
-                                window.location.href = 'http://clinica.test/public_reservas/index.php?accion=consultar';
+                                title: '¡Reserva creada exitosamente!',
+                                html: response.mensaje + '<br><br>' +
+                                      '<strong>Código de seguimiento:</strong> ' + response.codigo + '<br><br>' +
+                                      'Se ha enviado un email con el resumen y detalles de su reserva.',
+                                showCancelButton: true,
+                                confirmButtonText: 'Ver Mis Reservas',
+                                cancelButtonText: 'Crear Otra Reserva',
+                                confirmButtonColor: '#28a745',
+                                cancelButtonColor: '#6c757d'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    // Ir a mis reservas
+                                    window.location.href = 'index.php?accion=consultar';
+                                } else {
+                                    // Recargar la página para crear otra reserva
+                                    window.location.reload();
+                                }
                             });
                         } else {
                             Swal.fire({

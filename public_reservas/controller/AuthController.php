@@ -7,6 +7,7 @@
 require_once __DIR__ . "/../../model/conexion.php";
 require_once __DIR__ . "/../model/ReservasPublicModel.php";
 require_once __DIR__ . "/../helpers/MailerPublic.php";
+require_once __DIR__ . "/../config/ConfigPortable.php";
 
 class AuthController {
     
@@ -16,17 +17,10 @@ class AuthController {
      */
     static public function isAuthenticated() {
         if (session_status() == PHP_SESSION_NONE) {
-            // Configurar las sesiones para compartir entre dominios
-            session_set_cookie_params([
-                'lifetime' => 3600,
-                'path' => '/',
-                'domain' => '.clinica.test',
-                'secure' => false,
-                'httponly' => true,
-                'samesite' => 'Lax'
-            ]);
-            
-            session_start();
+                    // Iniciar sesión si no está iniciada
+        if (session_status() == PHP_SESSION_NONE) {
+            ConfigPortable::configurarSesiones();
+        }
         }
         
         // Debug de la sesión actual

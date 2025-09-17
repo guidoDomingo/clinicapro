@@ -8,23 +8,14 @@
 require_once __DIR__ . '/../config/environment_setup.php';
 EnvironmentSetup::initialize();
 
-// Iniciar sesión si no está iniciada
-if (session_status() == PHP_SESSION_NONE) {
-    // Configurar las sesiones para compartir entre dominios
-    session_set_cookie_params([
-        'lifetime' => 3600,
-        'path' => '/',
-        'domain' => '.clinica.test',
-        'secure' => false,
-        'httponly' => true,
-        'samesite' => 'Lax'
-    ]);
-    
-    session_start();
-}
+// Incluir configuración portable
+require_once __DIR__ . '/config/ConfigPortable.php';
 
-// Debug: Registrar información de la sesión
-error_log("INDEX - Sesión ID: " . session_id() . ", Data: " . json_encode($_SESSION), 3, "c:/laragon/www/clinica/logs/session_debug.log");
+// Configurar sesiones de forma portable
+ConfigPortable::configurarSesiones();
+
+// Debug: Registrar información de la sesión de forma portable
+ConfigPortable::log("INDEX - Sesión ID: " . session_id() . ", Data: " . json_encode($_SESSION), 'session_debug.log');
 
 // Incluir controladores necesarios
 require_once "controller/ReservasPublicController.php";
@@ -39,7 +30,7 @@ if (isset($_GET['accion']) && $_GET['accion'] === 'logout') {
 // Verificar token de "recordarme" si está habilitado
 if (!isset($_SESSION['paciente_id']) && AuthController::ctrVerificarTokenRecordarme()) {
     // El usuario ha sido autenticado por token, continuar
-    error_log("Usuario autenticado por token de recordar", 3, "c:/laragon/www/clinica/logs/auth.log");
+    ConfigPortable::log("Usuario autenticado por token de recordar", 'auth.log');
 }
 
 // Procesar acciones de login/registro si se envió el formulario
@@ -61,7 +52,7 @@ if (isset($_POST['action'])) {
     if (isset($postDataClean['regPassword'])) $postDataClean['regPassword'] = '******';
     if (isset($postDataClean['regConfirmPassword'])) $postDataClean['regConfirmPassword'] = '******';
     
-    error_log("POST data: " . json_encode($postDataClean), 3, "c:/laragon/www/clinica/logs/auth.log");
+    ConfigPortable::log("POST data: " . json_encode($postDataClean), 'auth.log');
     
     if ($_POST['action'] === 'login') {
         $resultadoAuth = AuthController::ctrLoginUser();

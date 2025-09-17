@@ -204,10 +204,18 @@ $userData = AuthController::ctrGetUserData();
                         </p>
                     </div>
 
+                    <!-- Monto del Servicio -->
+                    <div class="border-bottom pb-3 mb-3">
+                        <h6 class="text-primary"><i class="fas fa-dollar-sign"></i> Monto del Servicio</h6>
+                        <p class="mb-0" id="resumenMonto">
+                            <span class="text-muted">No seleccionado</span>
+                        </p>
+                    </div>
+
                     <!-- Precio Total -->
                     <div class="text-center">
                         <h6 class="text-primary">Total a Pagar</h6>
-                        <h4 class="text-success" id="resumenPrecio">S/ 0.00</h4>
+                        <h4 class="text-success" id="resumenPrecio">Gs. 0</h4>
                         <small class="text-muted">Precio final de la consulta</small>
                     </div>
 
