@@ -180,8 +180,8 @@ if (isset($_GET['updated']) && $_GET['updated'] === 'true') {
                     <ul class="nav nav-pills">
                         <li class="nav-item"><a class="nav-link active" href="#userInfo"
                                 data-toggle="tab">Información Personal</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#misReservas"
-                                data-toggle="tab">Mis Reservas</a></li>
+                        <!-- <li class="nav-item"><a class="nav-link" href="#misReservas"
+                                data-toggle="tab">Mis Reservas</a></li> -->
                         <li class="nav-item"><a class="nav-link" href="#changePassword"
                                 data-toggle="tab">Cambiar Contraseña</a></li>
                     </ul>
@@ -711,15 +711,39 @@ function changePassword() {
                 
                 if (data.status === 'success') {
                     console.log('ÉXITO: Contraseña cambiada correctamente');
-                    Swal.fire({
-                        icon: 'success',
-                        title: '¡Éxito!',
-                        text: data.message,
-                        confirmButtonText: 'Continuar'
-                    }).then(() => {
-                        console.log('Redirigiendo...');
-                        window.location.href = 'index.php';
-                    });
+                    
+                    // Verificar si hay que cerrar sesión
+                    if (data.logout === true) {
+                        console.log('Cerrando sesión automáticamente...');
+                        Swal.fire({
+                            icon: 'success',
+                            title: '¡Contraseña actualizada!',
+                            text: 'Tu contraseña se ha cambiado correctamente. Por seguridad, la sesión se cerrará y deberás iniciar sesión nuevamente.',
+                            confirmButtonText: 'Entendido',
+                            allowOutsideClick: false,
+                            allowEscapeKey: false
+                        }).then(() => {
+                            console.log('Redirigiendo a login...');
+                            // Limpiar cualquier dato de sesión local si existe
+                            if (typeof Storage !== "undefined") {
+                                localStorage.clear();
+                                sessionStorage.clear();
+                            }
+                            // Redirigir a la página de login
+                            window.location.href = data.redirect || 'index.php';
+                        });
+                    } else {
+                        // Caso normal sin logout (por compatibilidad)
+                        Swal.fire({
+                            icon: 'success',
+                            title: '¡Éxito!',
+                            text: data.message,
+                            confirmButtonText: 'Continuar'
+                        }).then(() => {
+                            console.log('Redirigiendo...');
+                            window.location.href = data.redirect || 'index.php';
+                        });
+                    }
                 } else {
                     console.log('ERROR del servidor:', data.message);
                     Swal.fire({

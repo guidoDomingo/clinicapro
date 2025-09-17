@@ -386,7 +386,7 @@ if (isset($_POST['action']) && !empty($_POST['action'])) {
                 
                 $response = [
                     "status" => "success",
-                    "message" => "Contraseña actualizada correctamente",
+                    "message" => "Contraseña actualizada correctamente. La sesión se cerrará automáticamente.",
                     "redirect" => $redirectUrl,
                     "logout" => true
                 ];
@@ -396,7 +396,26 @@ if (isset($_POST['action']) && !empty($_POST['action'])) {
                 
                 echo json_encode($response);
                 
-                // Cerrar la sesión es responsabilidad del cliente para evitar problemas con la respuesta JSON
+                // Cerrar la sesión después de enviar la respuesta JSON
+                // Esto es seguro porque la respuesta ya se envió al cliente
+                if (session_status() == PHP_SESSION_ACTIVE) {
+                    // Limpiar todas las variables de sesión
+                    $_SESSION = array();
+                    
+                    // Destruir la cookie de sesión si existe
+                    if (ini_get("session.use_cookies")) {
+                        $params = session_get_cookie_params();
+                        setcookie(session_name(), '', time() - 42000,
+                            $params["path"], $params["domain"],
+                            $params["secure"], $params["httponly"]
+                        );
+                    }
+                    
+                    // Destruir la sesión
+                    session_destroy();
+                    
+                    error_log(date('Y-m-d H:i:s') . " - Sesión cerrada automáticamente para usuario ID: $userId", 3, dirname(__DIR__) . "/logs/password_changes.log");
+                }
             } else {
                 $response = [
                     "status" => "error",

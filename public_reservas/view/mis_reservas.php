@@ -9,11 +9,11 @@ if (!AuthController::isAuthenticated()) {
 }
 ?>
 
-<div class="card shadow">
+<div class="card shadow" style="min-height: 500px;">
     <div class="card-header bg-primary text-white">
         <h4 class="mb-0"><i class="fas fa-calendar-check mr-2"></i>Mis Reservas</h4>
     </div>
-    <div class="card-body">
+    <div class="card-body" style="min-height: 400px;">
         <div id="cargando" class="text-center p-3">
             <i class="fas fa-spinner fa-spin fa-2x"></i>
             <p class="mt-2">Cargando sus reservas...</p>

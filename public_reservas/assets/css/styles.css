@@ -15,10 +15,16 @@
 }
 
 /* Estilos generales */
+html, body {
+    height: 100%;
+}
+
 body {
     font-family: 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     background-color: #f5f7fb;
     color: #495057;
+    display: flex;
+    flex-direction: column;
 }
 
 .header-main {
@@ -33,8 +39,32 @@ body {
 
 /* Margen superior para el contenido principal */
 .main-content {
-    min-height: calc(100vh - 180px);
+    flex: 1;
     padding: 1.5rem 0;
+}
+
+/* Footer sticky */
+.main-footer {
+    margin-top: auto;
+    background-color: var(--dark-color);
+    color: rgba(255,255,255,0.7);
+    padding: 1rem;
+    border-top: 1px solid #dee2e6;
+}
+
+/* Altura mínima para páginas con poco contenido */
+.main-content .card {
+    min-height: 400px;
+}
+
+/* Específico para la página de reservas cuando está cargando o tiene pocas reservas */
+#cargando, #reservasContainer {
+    min-height: 300px;
+}
+
+/* Asegurar que el contenedor de reservas tenga altura suficiente */
+.tab-content {
+    min-height: 250px;
 }
 
 /* Estilos de tarjetas */

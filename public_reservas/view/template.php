@@ -117,7 +117,7 @@ require_once "controller/AuthController.php";
     </nav>
     
     <!-- Contenido principal -->
-    <main class="container my-4">
+    <main class="container my-4 main-content">
         <?php
         // Cargar la vista correspondiente según la acción solicitada
         $accion = isset($_GET['accion']) ? $_GET['accion'] : 'inicio';
