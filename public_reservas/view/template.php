@@ -176,9 +176,6 @@ require_once "controller/AuthController.php";
                     case 'perfil':
                         include "view/perfil.php";
                         break;
-                    case 'logout':
-                        AuthController::ctrLogout();
-                        break;
                     default:
                         include "view/modules/home.php";
                         break;

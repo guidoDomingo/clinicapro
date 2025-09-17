@@ -30,6 +30,12 @@ error_log("INDEX - Sesión ID: " . session_id() . ", Data: " . json_encode($_SES
 require_once "controller/ReservasPublicController.php";
 require_once "controller/AuthController.php";
 
+// Procesar acción de logout ANTES de enviar cualquier contenido
+if (isset($_GET['accion']) && $_GET['accion'] === 'logout') {
+    AuthController::ctrLogout();
+    // La función logout hace redirect y exit, no se ejecutará código posterior
+}
+
 // Verificar token de "recordarme" si está habilitado
 if (!isset($_SESSION['paciente_id']) && AuthController::ctrVerificarTokenRecordarme()) {
     // El usuario ha sido autenticado por token, continuar
