@@ -126,7 +126,7 @@ require_once "controller/ProveedoresController.php";
             <div class="col-md-6">
               <div class="form-group">
                 <label for="nombreProveedor">Nombre</label>
-                <input type="text" class="form-control" id="nombreProveedor" name="nombreProveedor" placeholder="Ingrese el nombre" required>
+                <input type="text" class="form-control" id="nombreProveedor" name="nombreProveedor" placeholder="Ingrese el nombre">
               </div>
             </div>
             <div class="col-md-6">
@@ -254,7 +254,7 @@ require_once "controller/ProveedoresController.php";
             <div class="col-md-6">
               <div class="form-group">
                 <label for="editarNombreProveedor">Nombre</label>
-                <input type="text" class="form-control" id="editarNombreProveedor" name="editarNombreProveedor" placeholder="Edite el nombre" required>
+                <input type="text" class="form-control" id="editarNombreProveedor" name="editarNombreProveedor" placeholder="Edite el nombre">
               </div>
             </div>
             <div class="col-md-6">

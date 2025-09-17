@@ -272,18 +272,43 @@ function configurarTipoPersona() {
         var tipoPersona = $(this).val();
         
         if (tipoPersona === "FÍSICO") {
-            // Para persona física, habilitar campos de nombre y apellido
+            // Para persona física, mostrar campos de nombre y apellido
             $("#nombreProveedor").parent().parent().parent().show();
-            // Usar nombre y apellido para armar razón social
-            $("#nombreProveedor, #apellidoProveedor").change(function() {
+            // Agregar atributo required a los campos de persona física
+            $("#nombreProveedor").attr("required", "required");
+            $("#apellidoProveedor").attr("required", "required");
+            // Limpiar valores previos
+            $("#nombreProveedor").val("");
+            $("#apellidoProveedor").val("");
+            $("#razonSocialProveedor").val("");
+            // Usar nombre y apellido para armar razón social automáticamente
+            $("#nombreProveedor, #apellidoProveedor").off("change.razonSocial").on("change.razonSocial", function() {
                 var nombre = $("#nombreProveedor").val() || "";
                 var apellido = $("#apellidoProveedor").val() || "";
-                $("#razonSocialProveedor").val(nombre + " " + apellido);
+                var razonSocial = (nombre + " " + apellido).trim();
+                $("#razonSocialProveedor").val(razonSocial);
             });
-        } else {
+        } else if (tipoPersona === "JURÍDICO") {
             // Para persona jurídica, ocultar campos de nombre y apellido
             $("#nombreProveedor").parent().parent().parent().hide();
-            $("#razonSocialProveedor").val(""); // Limpiar razón social
+            // Remover atributo required de los campos de persona física
+            $("#nombreProveedor").removeAttr("required");
+            $("#apellidoProveedor").removeAttr("required");
+            // Limpiar valores para evitar conflictos
+            $("#nombreProveedor").val("");
+            $("#apellidoProveedor").val("");
+            $("#razonSocialProveedor").val("");
+            // Remover event listeners para evitar conflictos
+            $("#nombreProveedor, #apellidoProveedor").off("change.razonSocial");
+        } else {
+            // Caso por defecto: ocultar campos y remover required
+            $("#nombreProveedor").parent().parent().parent().hide();
+            $("#nombreProveedor").removeAttr("required");
+            $("#apellidoProveedor").removeAttr("required");
+            $("#nombreProveedor").val("");
+            $("#apellidoProveedor").val("");
+            $("#razonSocialProveedor").val("");
+            $("#nombreProveedor, #apellidoProveedor").off("change.razonSocial");
         }
     });
     
@@ -292,17 +317,32 @@ function configurarTipoPersona() {
         var tipoPersona = $(this).val();
         
         if (tipoPersona === "FÍSICO") {
-            // Para persona física, habilitar campos de nombre y apellido
+            // Para persona física, mostrar campos de nombre y apellido
             $("#editarNombreProveedor").parent().parent().parent().show();
-            // Usar nombre y apellido para armar razón social
-            $("#editarNombreProveedor, #editarApellidoProveedor").change(function() {
+            // Agregar atributo required a los campos de persona física
+            $("#editarNombreProveedor").attr("required", "required");
+            $("#editarApellidoProveedor").attr("required", "required");
+            // Usar nombre y apellido para armar razón social automáticamente
+            $("#editarNombreProveedor, #editarApellidoProveedor").off("change.editarRazonSocial").on("change.editarRazonSocial", function() {
                 var nombre = $("#editarNombreProveedor").val() || "";
                 var apellido = $("#editarApellidoProveedor").val() || "";
-                $("#editarRazonSocialProveedor").val(nombre + " " + apellido);
+                var razonSocial = (nombre + " " + apellido).trim();
+                $("#editarRazonSocialProveedor").val(razonSocial);
             });
-        } else {
+        } else if (tipoPersona === "JURÍDICO") {
             // Para persona jurídica, ocultar campos de nombre y apellido
             $("#editarNombreProveedor").parent().parent().parent().hide();
+            // Remover atributo required de los campos de persona física
+            $("#editarNombreProveedor").removeAttr("required");
+            $("#editarApellidoProveedor").removeAttr("required");
+            // Remover event listeners para evitar conflictos
+            $("#editarNombreProveedor, #editarApellidoProveedor").off("change.editarRazonSocial");
+        } else {
+            // Caso por defecto: ocultar campos y remover required
+            $("#editarNombreProveedor").parent().parent().parent().hide();
+            $("#editarNombreProveedor").removeAttr("required");
+            $("#editarApellidoProveedor").removeAttr("required");
+            $("#editarNombreProveedor, #editarApellidoProveedor").off("change.editarRazonSocial");
         }
     });
 }
@@ -410,11 +450,22 @@ $(document).on("click", "#btnAgregarProveedor", function() {
     // Limpiar los campos del formulario
     $("#proveedorForm")[0].reset();
     
-    // Establecer tipo persona por defecto en "JURÍDICA" y ejecutar el cambio para ocultar campos
-    $("#tipoPersonaProveedor").val("JURÍDICA").trigger("change");
+    // Establecer tipo persona por defecto en "JURÍDICA"
+    $("#tipoPersonaProveedor").val("JURÍDICA");
     
     // Establecer estado activo por defecto
     $("#estadoProveedor").val("1");
+    
+    // Configurar campos según tipo de persona por defecto (JURÍDICA)
+    $("#nombreProveedor").parent().parent().parent().hide();
+    $("#nombreProveedor").removeAttr("required");
+    $("#apellidoProveedor").removeAttr("required");
+    $("#nombreProveedor").val("");
+    $("#apellidoProveedor").val("");
+    $("#razonSocialProveedor").val("");
+    
+    // Limpiar event listeners previos
+    $("#nombreProveedor, #apellidoProveedor").off("change.razonSocial");
     
     // Abrir el modal
     $("#modalAgregarProveedor").modal("show");

@@ -48,7 +48,7 @@ class ProveedoresController {
                 $datos = array(
                     "tipo_cod" => $_POST["tipoCodProveedor"],
                     "tipo_persona" => $_POST["tipoPersonaProveedor"],
-                    "nombre" => trim($_POST["nombreProveedor"]),
+                    "nombre" => isset($_POST["nombreProveedor"]) ? trim($_POST["nombreProveedor"]) : '',
                     "apellido" => isset($_POST["apellidoProveedor"]) ? trim($_POST["apellidoProveedor"]) : '',
                     "razon_social" => trim($_POST["razonSocialProveedor"]),
                     "ruc" => trim($_POST["rucProveedor"]),
