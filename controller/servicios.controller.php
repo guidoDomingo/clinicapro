@@ -826,5 +826,189 @@ class ControladorServicios {
             return [];
         }
     }
+
+    /**
+     * Verifica si un usuario puede cancelar una reserva específica
+     * @param int $reservaId ID de la reserva
+     * @return array Resultado de la verificación
+     */
+    static public function ctrVerificarPermisoCancelacion($reservaId) {
+        try {
+            // Validar que se proporcione el ID de la reserva
+            if (empty($reservaId) || !is_numeric($reservaId)) {
+                return [
+                    "puede_cancelar" => false,
+                    "motivo" => "ID de reserva inválido"
+                ];
+            }
+
+            // Obtener el ID del usuario de la sesión
+            $usuarioId = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 
+                        (isset($_SESSION['usuario_id']) ? $_SESSION['usuario_id'] : null);
+
+            error_log("ctrVerificarPermisoCancelacion: Verificando reserva ID=$reservaId, Usuario=$usuarioId", 
+                     3, "/var/log/clinica/reservas.log");
+
+            // Llamar al modelo para verificar permisos
+            $resultado = ModelServicios::mdlPuedeCancelarReserva($reservaId, $usuarioId);
+
+            error_log("ctrVerificarPermisoCancelacion: Resultado - " . json_encode($resultado), 
+                     3, "/var/log/clinica/reservas.log");
+
+            return $resultado;
+
+        } catch (Exception $e) {
+            error_log("Error en ctrVerificarPermisoCancelacion: " . $e->getMessage(), 
+                     3, "/var/log/clinica/reservas.log");
+            return [
+                "puede_cancelar" => false,
+                "motivo" => "Error interno verificando permisos: " . $e->getMessage()
+            ];
+        }
+    }
+
+    /**
+     * Obtiene reservas incluyendo canceladas según configuración del sistema
+     * @param string $fecha Fecha de la reserva (opcional)
+     * @param int $doctorId ID del doctor (opcional)
+     * @param string $estado Estado de la reserva (opcional)
+     * @param string $paciente Nombre del paciente para búsqueda (opcional)
+     * @param int $salaId ID de la sala (opcional)
+     * @param string $origen Origen de la reserva (opcional)
+     * @param bool $incluirCanceladas Forzar inclusión de canceladas
+     * @return array Lista de reservas
+     */
+    static public function ctrBuscarReservasConCanceladas($fecha = null, $doctorId = null, $estado = null, $paciente = null, $salaId = null, $origen = null, $incluirCanceladas = null) {
+        try {
+            error_log("ctrBuscarReservasConCanceladas: Iniciando búsqueda con parámetros - " .
+                     "Fecha=" . ($fecha ?? "null") . 
+                     ", DoctorID=" . ($doctorId ?? "null") . 
+                     ", Estado=" . ($estado ?? "null") . 
+                     ", Paciente=" . ($paciente ?? "null") . 
+                     ", SalaID=" . ($salaId ?? "null") .
+                     ", Origen=" . ($origen ?? "null") .
+                     ", IncluirCanceladas=" . ($incluirCanceladas ?? "null"),
+                     3, "/var/log/clinica/reservas.log");
+            
+            return ModelServicios::mdlObtenerReservasConCanceladas($fecha, $doctorId, $estado, $paciente, $salaId, $origen, $incluirCanceladas);
+            
+        } catch (Exception $e) {
+            error_log("Error en ctrBuscarReservasConCanceladas: " . $e->getMessage(), 
+                     3, "/var/log/clinica/reservas.log");
+            return [];
+        }
+    }
+
+    /**
+     * Obtiene los parámetros del sistema para reservas
+     * @return array Parámetros del sistema
+     */
+    static public function ctrObtenerParametrosReservas() {
+        try {
+            return ModelServicios::mdlObtenerParametrosReservas();
+        } catch (Exception $e) {
+            error_log("Error en ctrObtenerParametrosReservas: " . $e->getMessage(), 
+                     3, "/var/log/clinica/reservas.log");
+            return [
+                'LIMITE_HORAS_CANCELACION' => 72,
+                'MOSTRAR_RESERVAS_CANCELADAS' => true,
+                'COLOR_RESERVAS_CANCELADAS' => '#ffcccc',
+                'DIAS_MANTENER_CANCELADAS' => 30
+            ];
+        }
+    }
+
+    /**
+     * Verifica si un usuario tiene un permiso específico
+     * @param int $usuarioId ID del usuario
+     * @param string $permisoNombre Nombre del permiso
+     * @return bool Si tiene el permiso
+     */
+    static public function ctrVerificarPermisoUsuario($usuarioId, $permisoNombre) {
+        try {
+            error_log("ctrVerificarPermisoUsuario: Verificando permiso '$permisoNombre' para usuario $usuarioId", 
+                     3, "/var/log/clinica/reservas.log");
+            
+            $tienePermiso = ModelServicios::mdlVerificarPermisoUsuario($usuarioId, $permisoNombre);
+            
+            error_log("ctrVerificarPermisoUsuario: Usuario $usuarioId " . ($tienePermiso ? 'SÍ' : 'NO') . " tiene permiso '$permisoNombre'", 
+                     3, "/var/log/clinica/reservas.log");
+            
+            return $tienePermiso;
+            
+        } catch (Exception $e) {
+            error_log("Error en ctrVerificarPermisoUsuario: " . $e->getMessage(), 
+                     3, "/var/log/clinica/reservas.log");
+            return false;
+        }
+    }
+
+    /**
+     * Cancela una reserva médica con validaciones de tiempo y permisos
+     * @param int $reservaId ID de la reserva a cancelar
+     * @param string $motivo Motivo de la cancelación (opcional)
+     * @param bool $forzar Forzar cancelación sin validar tiempo (solo con permisos especiales)
+     * @return array Resultado de la operación
+     */
+    static public function ctrCancelarReserva($reservaId, $motivo = null, $forzar = false) {
+        try {
+            // Validar que se proporcione el ID de la reserva
+            if (empty($reservaId) || !is_numeric($reservaId)) {
+                return [
+                    "error" => true,
+                    "mensaje" => "ID de reserva inválido"
+                ];
+            }
+
+            // Obtener el ID del usuario de la sesión
+            $usuarioId = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 
+                        (isset($_SESSION['usuario_id']) ? $_SESSION['usuario_id'] : null);
+
+            error_log("ctrCancelarReserva: Cancelando reserva ID=$reservaId, Usuario=$usuarioId, Motivo=" . 
+                     ($motivo ?? "Sin motivo") . ", Forzar=$forzar", 3, "/var/log/clinica/reservas.log");
+
+            // Si no se está forzando, verificar permisos primero
+            if (!$forzar) {
+                $permisos = ModelServicios::mdlPuedeCancelarReserva($reservaId, $usuarioId);
+                if (!$permisos['puede_cancelar']) {
+                    error_log("ctrCancelarReserva: Permisos insuficientes - " . $permisos['motivo'], 
+                             3, "/var/log/clinica/reservas.log");
+                    return [
+                        "error" => true,
+                        "mensaje" => $permisos['motivo'],
+                        "detalles" => $permisos
+                    ];
+                }
+                
+                // Si se detectó que necesita permiso especial, logearlo
+                if (isset($permisos['permiso_especial']) && $permisos['permiso_especial']) {
+                    error_log("ctrCancelarReserva: Usando permiso especial para cancelación tardía", 
+                             3, "/var/log/clinica/reservas.log");
+                }
+            }
+
+            // Llamar al modelo para cancelar la reserva
+            $resultado = ModelServicios::mdlCancelarReserva($reservaId, $motivo, $usuarioId, $forzar);
+
+            // Log del resultado
+            if ($resultado['error']) {
+                error_log("ctrCancelarReserva: Error al cancelar reserva - " . $resultado['mensaje'], 
+                         3, "/var/log/clinica/reservas.log");
+            } else {
+                error_log("ctrCancelarReserva: Reserva cancelada exitosamente", 
+                         3, "/var/log/clinica/reservas.log");
+            }
+
+            return $resultado;
+
+        } catch (Exception $e) {
+            error_log("Error en ctrCancelarReserva: " . $e->getMessage(), 
+                     3, "/var/log/clinica/reservas.log");
+            return [
+                "error" => true,
+                "mensaje" => "Error interno al cancelar la reserva: " . $e->getMessage()
+            ];
+        }
+    }
 }
 

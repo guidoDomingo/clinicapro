@@ -1,0 +1,29 @@
+
+<body>
+    <h2>Prueba de AJAX para Sistema Parámetros</h2>
+    <div id="resultado"></div>
+    
+    <script>
+    $(document).ready(function() {
+        console.log('Iniciando prueba AJAX...');
+        
+        $.ajax({
+            url: 'ajax/sistema-parametros.ajax.php',
+            type: 'POST',
+            data: { accion: 'obtener' },
+            dataType: 'json',
+            success: function(response) {
+                console.log('Respuesta exitosa:', response);
+                $('#resultado').html('<h3>✅ Respuesta JSON válida</h3><pre>' + JSON.stringify(response, null, 2) + '</pre>');
+            },
+            error: function(xhr, status, error) {
+                console.error('Error AJAX:', error);
+                console.error('Estado:', status);
+                console.error('Respuesta:', xhr.responseText);
+                $('#resultado').html('<h3>❌ Error en AJAX</h3><p><strong>Estado:</strong> ' + status + '</p><p><strong>Error:</strong> ' + error + '</p><p><strong>Respuesta:</strong></p><pre>' + xhr.responseText + '</pre>');
+            }
+        });
+    });
+    </script>
+</body>
+</html>

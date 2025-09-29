@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Lógica Botones Cancelados</title>
+</head>
+<body>
+<h1>Test de lógica para botones cancelados</h1>
+
+<script>
+console.log("🧪 Iniciando test de lógica de botones");
+
+// Simular datos de reserva cancelada como los que llegan del backend
+const reservaCancelada = {
+    reserva_id: 123,
+    reserva_estado: 'CANCELADA',
+    activo: false,
+    paciente: 'guido - ruiz',
+    doctor: 'favio - olmedo'
+};
+
+// Simular datos de reserva activa
+const reservaActiva = {
+    reserva_id: 124,
+    reserva_estado: 'PENDIENTE',
+    activo: true,
+    paciente: 'juan - perez',
+    doctor: 'maria - lopez'
+};
+
+function testearLogica(reserva, nombre) {
+    console.log(`\n=== TESTEANDO ${nombre} ===`);
+    console.log("Datos de entrada:", reserva);
+    
+    // Aplicar la misma lógica del código
+    const estadoOriginal = reserva.reserva_estado;
+    const esCancelada = (estadoOriginal === 'CANCELADA');
+    
+    console.log(`Estado original: ${estadoOriginal}`);
+    console.log(`esCancelada: ${esCancelada}`);
+    
+    // Generar HTML de botones como en el código real
+    const botonesHTML = esCancelada ? 
+        // Botones deshabilitados
+        `<button class="btn btn-secondary btn-sm" disabled title="Reserva cancelada - No disponible">
+            <i class="fas fa-ban"></i>
+        </button>
+        <button class="btn btn-secondary btn-sm" disabled title="Reserva cancelada - No disponible">
+            <i class="fas fa-edit"></i>
+        </button>` :
+        // Botones habilitados
+        `<button class="btn btn-warning btn-sm btnEditarReserva" title="Editar">
+            <i class="fas fa-edit"></i>
+        </button>
+        <button class="btn btn-danger btn-sm btnCancelarReserva" title="Cancelar">
+            <i class="fas fa-times"></i>
+        </button>`;
+    
+    console.log("HTML generado:");
+    console.log(botonesHTML);
+    
+    // Verificar si contiene disabled
+    const tieneDisabled = botonesHTML.includes('disabled');
+    console.log(`¿Contiene 'disabled'? ${tieneDisabled}`);
+    
+    return { esCancelada, tieneDisabled };
+}
+
+// Ejecutar tests
+const testCancelada = testearLogica(reservaCancelada, "RESERVA CANCELADA");
+const testActiva = testearLogica(reservaActiva, "RESERVA ACTIVA");
+
+console.log("\n🎯 RESULTADOS FINALES:");
+console.log(`Reserva cancelada - esCancelada: ${testCancelada.esCancelada}, tiene disabled: ${testCancelada.tieneDisabled}`);
+console.log(`Reserva activa - esCancelada: ${testActiva.esCancelada}, tiene disabled: ${testActiva.tieneDisabled}`);
+
+if (testCancelada.esCancelada && testCancelada.tieneDisabled) {
+    console.log("✅ CORRECTO: Reserva cancelada genera botones deshabilitados");
+} else {
+    console.log("❌ ERROR: Reserva cancelada NO genera botones deshabilitados");
+}
+
+if (!testActiva.esCancelada && !testActiva.tieneDisabled) {
+    console.log("✅ CORRECTO: Reserva activa genera botones habilitados");
+} else {
+    console.log("❌ ERROR: Reserva activa NO genera botones habilitados correctamente");
+}
+</script>
+
+</body>
+</html>

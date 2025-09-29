@@ -2935,6 +2935,10 @@ function procesarParametrosURLPaciente() {
         requestData.paciente = paciente;
     }
 
+    // Obtener configuración de mostrar canceladas
+    const mostrarCanceladas = $('#selectMostrarCanceladas').val() || 'SI';
+    requestData.mostrar_canceladas = mostrarCanceladas;
+
     console.log('Enviando solicitud AJAX con datos:', requestData);
 
     $.ajax({
@@ -2959,6 +2963,25 @@ function procesarParametrosURLPaciente() {
                 respuesta.data.forEach(function (reserva) {
                     // Formatear la fecha para mostrar
                     const fechaFormateada = formatearFechaParaMostrar(reserva.fecha_reserva);
+                    
+                    // Detectar si la reserva está cancelada (antes de modificar el estado)
+                    const estadoOriginal = reserva.reserva_estado;
+                    const esCancelada = (estadoOriginal === 'CANCELADA');
+                    
+                    // Debug DETALLADO para TODAS las reservas
+                    console.log(`🔍 DEBUG Reserva ${reserva.reserva_id}:`);
+                    console.log(`   - Estado original: "${estadoOriginal}"`);
+                    console.log(`   - Tipo de estado: ${typeof estadoOriginal}`);
+                    console.log(`   - esCancelada: ${esCancelada}`);
+                    console.log(`   - Activo: ${reserva.activo}`);
+                    
+                    // Debug específico para reservas canceladas
+                    if (esCancelada) {
+                        console.log(`🔒 ¡RESERVA CANCELADA DETECTADA! ID: ${reserva.reserva_id} - Botones se deshabilitarán`);
+                    } else {
+                        console.log(`🔓 Reserva activa ID: ${reserva.reserva_id} - Botones habilitados`);
+                    }
+                    
                     // Determinar color según estado
                     let claseFila = '';
                     let iconoEstado = '';
@@ -2977,8 +3000,10 @@ function procesarParametrosURLPaciente() {
                             iconoEstado = '<i class="fas fa-check-double text-info mr-1"></i>';
                             break;
                         case 'CANCELADA':
-                            claseFila = 'table-danger estado-cancelada';
-                            iconoEstado = '<i class="fas fa-times-circle text-danger mr-1"></i>';
+                            claseFila = 'table-secondary reserva-cancelada text-muted';
+                            iconoEstado = '<i class="fas fa-ban text-muted mr-1"></i>';
+                            // Cambiar el estado para mostrar como CANCELADO
+                            reserva.reserva_estado = 'CANCELADO';
                             break;
                         default:
                             claseFila = '';
@@ -3026,10 +3051,10 @@ function procesarParametrosURLPaciente() {
                         <td>${reserva.sala_nombre || 'Sin asignar'}</td>
                         <td>${reserva.serv_monto ? `$${parseFloat(reserva.serv_monto).toFixed(2)}` : 'N/A'}</td>
                         <td>
-                            <span class="badge badge-${claseFila.includes('warning') ? 'warning estado-pendiente' :
+                            <span class="badge badge-${esCancelada ? 'danger' : 
+                                claseFila.includes('warning') ? 'warning estado-pendiente' :
                                 claseFila.includes('success') ? 'success estado-confirmada' :
-                                    claseFila.includes('info') ? 'info estado-completada' :
-                                        claseFila.includes('danger') ? 'danger estado-cancelada' : 'secondary'}">
+                                    claseFila.includes('info') ? 'info estado-completada' : 'secondary'}">
                                 ${iconoEstado} ${reserva.reserva_estado}
                             </span>
                         </td>
@@ -3037,29 +3062,61 @@ function procesarParametrosURLPaciente() {
                             <div class="btn-group">
                                 <button class="btn btn-info btn-sm btnVerReserva" data-id="${reserva.reserva_id}" title="Ver detalles">
                                     <i class="fas fa-eye"></i>
-                                </button>                                ${reserva.reserva_estado === 'PENDIENTE' ?
-                            `<button class="btn btn-success btn-sm btnConfirmarReserva" data-id="${reserva.reserva_id}" title="Confirmar reserva">
-                                    <i class="fas fa-check"></i>
-                                </button>` : ''}
-                                ${reserva.reserva_estado === 'CONFIRMADA' ?
-                            `<button class="btn btn-primary btn-sm btnIrAConsulta" 
-                                        data-paciente-id="${reserva.paciente_id || reserva.patient_id || ''}" 
-                                        data-reserva-id="${reserva.reserva_id}"
-                                        title="Ir a Consulta">
-                                    <i class="fas fa-stethoscope"></i>
-                                </button>` : ''}
-                                <button class="btn btn-warning btn-sm btnEditarReserva" data-id="${reserva.reserva_id}" title="Editar">
-                                    <i class="fas fa-edit"></i>
-                                </button>                                
-                                <button class="btn btn-danger btn-sm btnCancelarReserva" data-id="${reserva.reserva_id}" title="Cancelar">
-                                    <i class="fas fa-times"></i>
                                 </button>
-                                <a href="generar_pdf_reserva.php?id=${reserva.reserva_id}" class="btn btn-success btn-sm" target="_blank" title="Descargar PDF">
-                                    <i class="fas fa-file-pdf"></i>
-                                </a>
-                                <button class="btn btn-info btn-sm btnEnviarWhatsApp" data-id="${reserva.reserva_id}" data-telefono="${reserva.telefono || ''}" title="Enviar por WhatsApp">
-                                    <i class="fab fa-whatsapp"></i>
-                                </button>
+                                ${esCancelada ? 
+                                    // Botones para reservas canceladas - TODOS DESHABILITADOS excepto Ver
+                                    `<button class="btn btn-secondary btn-sm" disabled title="Reserva cancelada - No disponible">
+                                        <i class="fas fa-ban"></i>
+                                    </button>
+                                    <button class="btn btn-secondary btn-sm" disabled title="Reserva cancelada - No disponible">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-secondary btn-sm" disabled title="Reserva cancelada - Ya cancelada">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                    <button class="btn btn-secondary btn-sm" disabled title="Reserva cancelada - PDF no disponible">
+                                        <i class="fas fa-file-pdf"></i>
+                                    </button>
+                                    <button class="btn btn-secondary btn-sm" disabled title="Reserva cancelada - WhatsApp no disponible">
+                                        <i class="fab fa-whatsapp"></i>
+                                    </button>
+                                    ${reserva.motivo_cancelacion ? 
+                                        `<button class="btn btn-outline-info btn-sm" 
+                                                 title="Motivo de cancelación: ${reserva.motivo_cancelacion}">
+                                            <i class="fas fa-comment"></i>
+                                        </button>` : 
+                                        `<button class="btn btn-outline-secondary btn-sm" 
+                                                 title="Cancelada ${reserva.fecha_cancelacion ? 
+                                                    new Date(reserva.fecha_cancelacion).toLocaleDateString() : ''}">
+                                            <i class="fas fa-info-circle"></i>
+                                        </button>`
+                                    }` 
+                                    :
+                                    // Botones para reservas activas (usar estadoOriginal para evitar conflictos)
+                                    `${estadoOriginal === 'PENDIENTE' ?
+                                        `<button class="btn btn-success btn-sm btnConfirmarReserva" data-id="${reserva.reserva_id}" title="Confirmar reserva">
+                                            <i class="fas fa-check"></i>
+                                        </button>` : ''}
+                                    ${estadoOriginal === 'CONFIRMADA' ?
+                                        `<button class="btn btn-primary btn-sm btnIrAConsulta" 
+                                                    data-paciente-id="${reserva.paciente_id || reserva.patient_id || ''}" 
+                                                    data-reserva-id="${reserva.reserva_id}"
+                                                    title="Ir a Consulta">
+                                            <i class="fas fa-stethoscope"></i>
+                                        </button>` : ''}
+                                    <button class="btn btn-warning btn-sm btnEditarReserva" data-id="${reserva.reserva_id}" title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-danger btn-sm btnCancelarReserva" data-id="${reserva.reserva_id}" title="Cancelar reserva">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                    <a href="generar_pdf_reserva.php?id=${reserva.reserva_id}" class="btn btn-success btn-sm" target="_blank" title="Descargar PDF">
+                                        <i class="fas fa-file-pdf"></i>
+                                    </a>
+                                    <button class="btn btn-info btn-sm btnEnviarWhatsApp" data-id="${reserva.reserva_id}" data-telefono="${reserva.telefono || ''}" title="Enviar por WhatsApp">
+                                        <i class="fab fa-whatsapp"></i>
+                                    </button>`
+                                }
                             </div>
                         </td>
                     </tr>`;
@@ -3312,6 +3369,11 @@ $(document).on('click', '.btnEnviarWhatsApp', function() {
 
     $(document).on('change', '#selectOrigenReserva', function () {
         console.log('Filtro de origen cambiado - ejecutando búsqueda automática');
+        buscarReservas();
+    });
+
+    $(document).on('change', '#selectMostrarCanceladas', function () {
+        console.log('Filtro de mostrar canceladas cambiado - ejecutando búsqueda automática');
         buscarReservas();
     });
 

@@ -790,6 +790,7 @@ class ModelServicios {
                         doctor_id = :doctor_id
                         AND fecha_reserva = :fecha_reserva
                         AND reserva_estado IN ('CONFIRMADA', 'PENDIENTE')
+                        AND activo = true
                     ORDER BY hora_inicio ASC"
                 );
                 
@@ -1272,7 +1273,8 @@ class ModelServicios {
                                 FROM servicios_reservas 
                                 WHERE doctor_id = :doctor_id 
                                 AND DATE(fecha_reserva) = :fecha 
-                                AND reserva_estado IN ('CONFIRMADA', 'PENDIENTE', 'EN_PROCESO')"
+                                AND reserva_estado IN ('CONFIRMADA', 'PENDIENTE', 'EN_PROCESO')
+                                AND activo = true"
                             );
                             
                             $stmtReservas->bindParam(":doctor_id", $doctorId, PDO::PARAM_INT);
@@ -1420,6 +1422,7 @@ class ModelServicios {
                 s.sala_nombre,
                 sr.tarifa_id,
                 sr.origen_reserva,
+                sr.activo,
                 rp.first_name ||' - ' || rp.last_name as doctor,
                 rp2.first_name ||' - ' || rp2.last_name as paciente,
                 rs.serv_descripcion,
@@ -1431,7 +1434,7 @@ class ModelServicios {
             INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
             LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
             LEFT JOIN salas s on s.sala_id = sr.sala_id 
-            WHERE 1=1";
+            WHERE sr.activo = true";
             
             // Añadir filtros según los parámetros proporcionados
             if ($fecha !== null) {
@@ -1538,7 +1541,8 @@ class ModelServicios {
                     (hora_inicio < :hora_fin AND hora_fin >= :hora_fin) OR
                     (hora_inicio >= :hora_inicio AND hora_fin <= :hora_fin)
                 )
-                AND reserva_estado IN ('PENDIENTE', 'CONFIRMADA')"
+                AND reserva_estado IN ('PENDIENTE', 'CONFIRMADA')
+                AND activo = true"
             );
             
             $stmtVerificar->bindParam(":doctor_id", $datos['doctor_id'], PDO::PARAM_INT);
@@ -1858,7 +1862,8 @@ class ModelServicios {
                 WHERE doctor_id = :doctor_id 
                 AND fecha_reserva = :fecha_reserva
                 AND ((hora_inicio < :hora_fin AND hora_fin > :hora_inicio))
-                AND reserva_estado IN ('PENDIENTE', 'CONFIRMADA')"
+                AND reserva_estado IN ('PENDIENTE', 'CONFIRMADA')
+                AND activo = true"
             );
             
             $stmtVerificar->bindParam(":doctor_id", $datos['doctor_id'], PDO::PARAM_INT);
@@ -2033,7 +2038,7 @@ class ModelServicios {
                 error_log("mdlBuscarReservas: Verificación previa - Existen {$count} reservas con doctor_id={$doctorId}", 3, "/var/log/clinica/reservas.log");
                 
                 // Comprobar si hay reservas para esta fecha y doctor
-                $checkDateDoctorStmt = Conexion::conectar()->prepare("SELECT COUNT(*) FROM servicios_reservas WHERE doctor_id = :doctor_id AND fecha_reserva::date = :fecha::date");
+                $checkDateDoctorStmt = Conexion::conectar()->prepare("SELECT COUNT(*) FROM servicios_reservas WHERE doctor_id = :doctor_id AND fecha_reserva::date = :fecha::date AND activo = true");
                 $checkDateDoctorStmt->bindValue(':doctor_id', intval($doctorId), PDO::PARAM_INT);
                 $checkDateDoctorStmt->bindParam(':fecha', $fecha);
                 $checkDateDoctorStmt->execute();
@@ -2140,7 +2145,7 @@ class ModelServicios {
             } else {
                 // Si no hay resultados, realizar una consulta directa para ver si hay datos
                 if ($doctorId !== null) {
-                    $simpleCheck = Conexion::conectar()->prepare("SELECT reserva_id, doctor_id, fecha_reserva, reserva_estado FROM servicios_reservas WHERE doctor_id = :doctor_id AND fecha_reserva::date = :fecha::date");
+                    $simpleCheck = Conexion::conectar()->prepare("SELECT reserva_id, doctor_id, fecha_reserva, reserva_estado FROM servicios_reservas WHERE doctor_id = :doctor_id AND fecha_reserva::date = :fecha::date AND activo = true");
                     $simpleCheck->bindValue(':doctor_id', intval($doctorId), PDO::PARAM_INT);
                     $simpleCheck->bindParam(':fecha', $fecha);
                     $simpleCheck->execute();
@@ -2187,6 +2192,7 @@ class ModelServicios {
                 s.sala_nombre,
                 sr.tarifa_id,
                 sr.origen_reserva,
+                sr.activo,
                 rp.first_name ||' - ' || rp.last_name as doctor,
                 rp2.first_name ||' - ' || rp2.last_name as paciente,
                 rs.serv_descripcion,
@@ -2198,7 +2204,7 @@ class ModelServicios {
             INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
             LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
             LEFT JOIN salas s on s.sala_id = sr.sala_id
-            WHERE sr.doctor_id = :doctor_id";
+            WHERE sr.doctor_id = :doctor_id AND sr.activo = true";
             
             if ($fecha) {
                 $sql .= " AND sr.fecha_reserva::date = :fecha::date";
@@ -2689,6 +2695,7 @@ class ModelServicios {
                     doctor_id = :doctor_id
                     AND fecha_reserva = :fecha_reserva
                     AND reserva_estado IN ('CONFIRMADA', 'PENDIENTE')
+                    AND activo = true
                 ORDER BY 
                     hora_inicio ASC"
             );
@@ -3163,6 +3170,7 @@ class ModelServicios {
                         sr.doctor_id = :doctor_id
                         AND sr.fecha_reserva = :fecha_reserva
                         AND sr.reserva_estado IN ('CONFIRMADA', 'PENDIENTE')
+                        AND sr.activo = true
                         AND (
                             (:hora_inicio >= sr.hora_inicio AND :hora_inicio < sr.hora_fin) OR
                             (:hora_fin > sr.hora_inicio AND :hora_fin <= sr.hora_fin) OR
@@ -3381,4 +3389,470 @@ class ModelServicios {
             return [];
         }
     }
+
+    /**
+     * Verifica si un usuario puede cancelar una reserva usando el sistema de roles existente
+     * @param int $reservaId ID de la reserva
+     * @param int $usuarioId ID del usuario
+     * @return array Resultado de la verificación
+     */
+    static public function mdlPuedeCancelarReserva($reservaId, $usuarioId = null) {
+        try {
+            $conexion = Conexion::conectar();
+            
+            // Usar la función PostgreSQL que creamos (actualizada para usar sistema de roles existente)
+            if ($usuarioId) {
+                $stmt = $conexion->prepare("SELECT * FROM puede_cancelar_reserva_usuario(:reserva_id, :user_id)");
+                $stmt->bindParam(":reserva_id", $reservaId, PDO::PARAM_INT);
+                $stmt->bindParam(":user_id", $usuarioId, PDO::PARAM_INT);
+            } else {
+                // Si no hay usuario, solo verificar tiempo límite
+                $stmt = $conexion->prepare("SELECT * FROM puede_cancelar_reserva_usuario(:reserva_id, NULL)");
+                $stmt->bindParam(":reserva_id", $reservaId, PDO::PARAM_INT);
+            }
+            
+            $stmt->execute();
+            $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($resultado) {
+                return [
+                    "puede_cancelar" => $resultado['puede_cancelar'],
+                    "motivo" => $resultado['motivo'],
+                    "horas_restantes" => round((float)$resultado['horas_restantes'], 2),
+                    "limite_horas" => (int)$resultado['limite_horas'],
+                    "permiso_especial" => $resultado['permiso_especial']
+                ];
+            } else {
+                return ["puede_cancelar" => false, "motivo" => "Error verificando permisos"];
+            }
+            
+        } catch (Exception $e) {
+            error_log("Error verificando permisos de cancelación: " . $e->getMessage(), 3, "/var/log/clinica/reservas.log");
+            
+            // Fallback a verificación manual si la función no existe
+            return self::mdlPuedeCancelarReservaFallback($reservaId, $usuarioId);
+        }
+    }
+
+    /**
+     * Método de respaldo para verificar permisos de cancelación
+     * @param int $reservaId ID de la reserva
+     * @param int $usuarioId ID del usuario
+     * @return array Resultado de la verificación
+     */
+    static private function mdlPuedeCancelarReservaFallback($reservaId, $usuarioId = null) {
+        try {
+            $conexion = Conexion::conectar();
+            
+            // Obtener información de la reserva
+            $stmt = $conexion->prepare("
+                SELECT sr.reserva_id, sr.fecha_reserva, sr.hora_inicio, sr.activo, sr.reserva_estado,
+                       EXTRACT(EPOCH FROM (sr.fecha_reserva + sr.hora_inicio::time - CURRENT_TIMESTAMP))/3600 as horas_restantes
+                FROM servicios_reservas sr
+                WHERE sr.reserva_id = :reserva_id
+            ");
+            $stmt->bindParam(":reserva_id", $reservaId, PDO::PARAM_INT);
+            $stmt->execute();
+            $reserva = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if (!$reserva) {
+                return ["puede_cancelar" => false, "motivo" => "La reserva no existe"];
+            }
+            
+            if (!$reserva['activo']) {
+                return ["puede_cancelar" => false, "motivo" => "La reserva ya está cancelada"];
+            }
+            
+            // Obtener parámetro de límite de horas
+            $stmt = $conexion->prepare("
+                SELECT parametro_valor 
+                FROM sistema_parametros 
+                WHERE parametro_codigo = 'LIMITE_HORAS_CANCELACION'
+                AND is_active = true
+            ");
+            $stmt->execute();
+            $limiteHoras = $stmt->fetchColumn();
+            $limiteHoras = $limiteHoras ? (float)$limiteHoras : 72; // Default 72 horas
+            
+            $horasRestantes = $reserva['horas_restantes'];
+            
+            // Si está dentro del tiempo límite, puede cancelar
+            if ($horasRestantes >= $limiteHoras) {
+                return [
+                    "puede_cancelar" => true, 
+                    "motivo" => "Dentro del tiempo límite",
+                    "horas_restantes" => round($horasRestantes, 2),
+                    "limite_horas" => $limiteHoras,
+                    "permiso_especial" => false
+                ];
+            }
+            
+            // Si está fuera del tiempo límite, verificar permisos especiales usando el sistema de roles
+            if ($usuarioId) {
+                $stmt = $conexion->prepare("
+                    SELECT COUNT(*) > 0 as tiene_permiso
+                    FROM sys_user_roles sur
+                    INNER JOIN sys_role_permissions srp ON sur.role_id = srp.role_id
+                    INNER JOIN sys_permissions sp ON srp.perm_id = sp.perm_id
+                    WHERE sur.user_id = :user_id 
+                    AND sp.perm_name = 'cancelar_reservas_tardias'
+                ");
+                $stmt->bindParam(":user_id", $usuarioId, PDO::PARAM_INT);
+                $stmt->execute();
+                $tienePermiso = $stmt->fetch(PDO::FETCH_ASSOC)['tiene_permiso'];
+                
+                if ($tienePermiso) {
+                    return [
+                        "puede_cancelar" => true, 
+                        "motivo" => "Permiso especial para cancelación tardía",
+                        "horas_restantes" => round($horasRestantes, 2),
+                        "limite_horas" => $limiteHoras,
+                        "permiso_especial" => true
+                    ];
+                }
+            }
+            
+            return [
+                "puede_cancelar" => false, 
+                "motivo" => "Fuera del tiempo límite para cancelación ($limiteHoras horas). Quedan " . round($horasRestantes, 2) . " horas.",
+                "horas_restantes" => round($horasRestantes, 2),
+                "limite_horas" => $limiteHoras,
+                "permiso_especial" => false
+            ];
+            
+        } catch (Exception $e) {
+            error_log("Error en verificación fallback de permisos: " . $e->getMessage(), 3, "/var/log/clinica/reservas.log");
+            return ["puede_cancelar" => false, "motivo" => "Error verificando permisos"];
+        }
+    }
+
+    /**
+     * Cancela una reserva con validaciones de tiempo y permisos
+     * @param int $reservaId ID de la reserva a cancelar
+     * @param string $motivo Motivo de la cancelación (opcional)
+     * @param int $usuarioId ID del usuario que cancela (opcional)
+     * @param bool $forzar Forzar cancelación sin validar tiempo (solo con permisos)
+     * @return array Resultado de la operación
+     */
+    static public function mdlCancelarReserva($reservaId, $motivo = null, $usuarioId = null, $forzar = false) {
+        try {
+            error_log("mdlCancelarReserva: Iniciando cancelación de reserva ID=$reservaId, Usuario=$usuarioId, Forzar=$forzar", 
+                      3, "/var/log/clinica/reservas.log");
+            
+            $conexion = Conexion::conectar();
+            
+            // Verificar permisos primero si no se está forzando
+            if (!$forzar) {
+                $permisos = self::mdlPuedeCancelarReserva($reservaId, $usuarioId);
+                if (!$permisos['puede_cancelar']) {
+                    return [
+                        "error" => true,
+                        "mensaje" => $permisos['motivo'],
+                        "detalles" => $permisos
+                    ];
+                }
+            }
+            
+            // Obtener información completa de la reserva
+            $stmtCheck = $conexion->prepare(
+                "SELECT reserva_id, reserva_estado, activo, agenda_id, fecha_reserva, hora_inicio 
+                 FROM servicios_reservas 
+                 WHERE reserva_id = :reserva_id"
+            );
+            $stmtCheck->bindParam(":reserva_id", $reservaId, PDO::PARAM_INT);
+            $stmtCheck->execute();
+            $reserva = $stmtCheck->fetch(PDO::FETCH_ASSOC);
+            
+            if (!$reserva) {
+                return ["error" => true, "mensaje" => "La reserva no existe"];
+            }
+            
+            if (!$reserva['activo']) {
+                return ["error" => true, "mensaje" => "La reserva ya está cancelada"];
+            }
+            
+            // Actualizar la reserva marcando como cancelada pero manteniendo visible
+            $stmt = $conexion->prepare(
+                "UPDATE servicios_reservas 
+                 SET activo = false,
+                     reserva_estado = 'CANCELADA',
+                     fecha_cancelacion = CURRENT_TIMESTAMP,
+                     motivo_cancelacion = :motivo,
+                     cancelado_por = :usuario_id,
+                     updated_at = CURRENT_TIMESTAMP,
+                     updated_by = :usuario_id
+                 WHERE reserva_id = :reserva_id"
+            );
+            $stmt->bindParam(":reserva_id", $reservaId, PDO::PARAM_INT);
+            $stmt->bindParam(":motivo", $motivo, PDO::PARAM_STR);
+            $stmt->bindParam(":usuario_id", $usuarioId, PDO::PARAM_INT);
+            $resultado = $stmt->execute();
+            $filasAfectadas = $stmt->rowCount();
+            
+            error_log("mdlCancelarReserva: UPDATE ejecutado - Resultado: " . ($resultado ? 'true' : 'false') . 
+                     ", Filas afectadas: $filasAfectadas", 3, "/var/log/clinica/reservas.log");
+            
+            if (!$resultado || $filasAfectadas === 0) {
+                return [
+                    "error" => true,
+                    "mensaje" => "No se pudo actualizar la reserva. Filas afectadas: $filasAfectadas"
+                ];
+            }
+            
+            // Si hay un agenda_id asociado, liberar el cupo
+            if ($reserva['agenda_id']) {
+                try {
+                    $stmtLiberar = $conexion->prepare(
+                        "UPDATE agendas_detalle 
+                         SET cupo_maximo = COALESCE(cupo_maximo, 0) + 1
+                         WHERE detalle_id = :agenda_id"
+                    );
+                    $stmtLiberar->bindParam(":agenda_id", $reserva['agenda_id'], PDO::PARAM_INT);
+                    $stmtLiberar->execute();
+                    
+                    error_log("mdlCancelarReserva: Cupo liberado para agenda_id=" . $reserva['agenda_id'], 
+                              3, "/var/log/clinica/reservas.log");
+                } catch (Exception $e) {
+                    error_log("mdlCancelarReserva: Error al liberar cupo - " . $e->getMessage(), 
+                              3, "/var/log/clinica/reservas.log");
+                }
+            }
+            
+            error_log("mdlCancelarReserva: Reserva $reservaId cancelada exitosamente", 
+                      3, "/var/log/clinica/reservas.log");
+            
+            return [
+                "error" => false,
+                "mensaje" => "Reserva cancelada exitosamente",
+                "fecha_cancelacion" => date('Y-m-d H:i:s')
+            ];
+            
+        } catch (PDOException $e) {
+            error_log("Error al cancelar reserva: " . $e->getMessage(), 
+                      3, "/var/log/clinica/reservas.log");
+            return [
+                "error" => true,
+                "mensaje" => "Error al cancelar la reserva: " . $e->getMessage()
+            ];
+        }
+    }
+
+    /**
+     * Obtiene reservas incluyendo o excluyendo canceladas según configuración
+     * @param string $fecha Fecha de la reserva (opcional)
+     * @param int $doctorId ID del doctor (opcional)
+     * @param string $estado Estado de la reserva (opcional)
+     * @param string $paciente Nombre del paciente para búsqueda (opcional)
+     * @param int $salaId ID de la sala (opcional)
+     * @param string $origen Origen de la reserva (opcional)
+     * @param bool $incluirCanceladas Forzar inclusión de canceladas
+     * @return array Lista de reservas
+     */
+    static public function mdlObtenerReservasConCanceladas($fecha = null, $doctorId = null, $estado = null, $paciente = null, $salaId = null, $origen = null, $incluirCanceladas = null) {
+        try {
+            // Obtener configuración de mostrar canceladas si no se especifica
+            if ($incluirCanceladas === null) {
+                $parametros = self::mdlObtenerParametrosReservas();
+                $incluirCanceladas = isset($parametros['MOSTRAR_RESERVAS_CANCELADAS']) ? 
+                                   $parametros['MOSTRAR_RESERVAS_CANCELADAS'] : true;
+            }
+            
+            // Validar formato de fecha si se proporciona
+            if ($fecha !== null && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $fecha)) {
+                $fechaFormateada = date('Y-m-d', strtotime($fecha));
+                error_log("mdlObtenerReservasConCanceladas: Formato de fecha incorrecto ($fecha), reformateando a $fechaFormateada", 3, "/var/log/clinica/reservas.log");
+                $fecha = $fechaFormateada;
+            }
+            
+            // Construir la consulta SQL
+            $sql = "SELECT 
+                sr.reserva_id,
+                sr.servicio_id,
+                sr.doctor_id,
+                sr.paciente_id,
+                sr.fecha_reserva,
+                sr.hora_inicio,
+                sr.hora_fin,
+                sr.reserva_estado,
+                sr.observaciones,
+                sr.business_id,
+                sr.created_at,
+                sr.updated_at,
+                sr.agenda_id,
+                sr.sala_id,
+                s.sala_nombre,
+                sr.tarifa_id,
+                sr.origen_reserva,
+                sr.activo,
+                sr.fecha_cancelacion,
+                sr.motivo_cancelacion,
+                sr.cancelado_por,
+                rp.first_name ||' - ' || rp.last_name as doctor,
+                rp2.first_name ||' - ' || rp2.last_name as paciente,
+                rs.serv_descripcion,
+                rs.serv_monto,
+                rp3.first_name ||' - ' || rp3.last_name as cancelado_por_nombre
+            FROM servicios_reservas sr 
+            INNER JOIN rh_doctors rd ON sr.doctor_id = rd.doctor_id 
+            INNER JOIN rh_person rp ON rd.person_id = rp.person_id 
+            INNER JOIN rh_person rp2 ON sr.paciente_id = rp2.person_id 
+            INNER JOIN rs_servicios rs ON sr.servicio_id = rs.serv_id 
+            LEFT JOIN agendas_detalle ad on sr.agenda_id = ad.detalle_id 
+            LEFT JOIN salas s on s.sala_id = sr.sala_id 
+            LEFT JOIN rh_person rp3 ON sr.cancelado_por = rp3.person_id
+            WHERE 1=1";
+            
+            // Filtro de activo según configuración
+            if ($incluirCanceladas) {
+                // Mostrar todas las reservas (activas y canceladas) - NO FILTRAR POR ACTIVO
+                // $sql .= " AND (sr.activo = true OR sr.activo = false)"; // Esta línea es redundante
+            } else {
+                // Solo mostrar reservas activas
+                $sql .= " AND sr.activo = true";
+            }
+            
+            // Añadir filtros según los parámetros proporcionados
+            if ($fecha !== null) {
+                $sql .= " AND sr.fecha_reserva = :fecha_reserva";
+            }
+            
+            if ($doctorId !== null) {
+                $sql .= " AND sr.doctor_id = :doctor_id";
+            }
+              
+            if ($estado !== null && $estado !== '') {
+                $sql .= " AND sr.reserva_estado = :estado";
+            }
+            
+            if ($paciente !== null && trim($paciente) !== '') {
+                $sql .= " AND (UPPER(rp2.first_name) LIKE UPPER(:paciente) OR UPPER(rp2.last_name) LIKE UPPER(:paciente))";
+            }
+            
+            if ($salaId !== null) {
+                $sql .= " AND sr.sala_id = :sala_id";
+            }
+            
+            if ($origen !== null && trim($origen) !== '') {
+                $sql .= " AND sr.origen_reserva = :origen";
+            }
+            
+            $sql .= " ORDER BY sr.fecha_reserva DESC, sr.hora_inicio DESC";
+            
+            error_log("mdlObtenerReservasConCanceladas: SQL construido: " . $sql, 3, "/var/log/clinica/reservas.log");
+            
+            $stmt = Conexion::conectar()->prepare($sql);
+            
+            // Bindear parámetros
+            if ($fecha !== null) {
+                $stmt->bindParam(":fecha_reserva", $fecha, PDO::PARAM_STR);
+            }
+            
+            if ($doctorId !== null) {
+                $stmt->bindParam(":doctor_id", $doctorId, PDO::PARAM_INT);
+            }
+            
+            if ($estado !== null && $estado !== '') {
+                $stmt->bindParam(":estado", $estado, PDO::PARAM_STR);
+            }
+            
+            if ($paciente !== null && trim($paciente) !== '') {
+                $pacienteBusqueda = "%" . trim($paciente) . "%";
+                $stmt->bindParam(":paciente", $pacienteBusqueda, PDO::PARAM_STR);
+            }
+            
+            if ($salaId !== null) {
+                $stmt->bindParam(":sala_id", $salaId, PDO::PARAM_INT);
+            }
+            
+            if ($origen !== null && trim($origen) !== '') {
+                $stmt->bindParam(":origen", $origen, PDO::PARAM_STR);
+            }
+            
+            $stmt->execute();
+            $reservas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            error_log("mdlObtenerReservasConCanceladas: " . count($reservas) . " reservas encontradas", 3, "/var/log/clinica/reservas.log");
+            
+            return $reservas;
+            
+        } catch (PDOException $e) {
+            error_log("Error en mdlObtenerReservasConCanceladas: " . $e->getMessage(), 3, "/var/log/clinica/reservas.log");
+            return [];
+        }
+    }
+
+    /**
+     * Obtiene los parámetros del sistema relacionados con reservas
+     * @return array Parámetros del sistema
+     */
+    static public function mdlObtenerParametrosReservas() {
+        try {
+            $stmt = Conexion::conectar()->prepare("
+                SELECT parametro_codigo, parametro_nombre, parametro_valor, parametro_tipo
+                FROM sistema_parametros 
+                WHERE parametro_categoria = 'RESERVAS' 
+                AND is_active = true
+                ORDER BY parametro_nombre
+            ");
+            $stmt->execute();
+            $parametros = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Convertir a formato clave-valor para fácil acceso
+            $result = [];
+            foreach ($parametros as $param) {
+                $valor = $param['parametro_valor'];
+                
+                // Convertir según el tipo
+                switch ($param['parametro_tipo']) {
+                    case 'NUMBER':
+                        $valor = is_numeric($valor) ? (float)$valor : $valor;
+                        break;
+                    case 'BOOLEAN':
+                        $valor = filter_var($valor, FILTER_VALIDATE_BOOLEAN);
+                        break;
+                    case 'JSON':
+                        $valor = json_decode($valor, true);
+                        break;
+                }
+                
+                $result[$param['parametro_codigo']] = $valor;
+            }
+            
+            return $result;
+            
+        } catch (Exception $e) {
+            error_log("Error obteniendo parámetros de reservas: " . $e->getMessage(), 3, "/var/log/clinica/reservas.log");
+            return [
+                'LIMITE_HORAS_CANCELACION' => 72,
+                'MOSTRAR_RESERVAS_CANCELADAS' => true,
+                'COLOR_RESERVAS_CANCELADAS' => '#ffcccc',
+                'DIAS_MANTENER_CANCELADAS' => 30
+            ];
+        }
+    }
+
+    /**
+     * Verifica si un usuario tiene un permiso específico usando el sistema de roles existente
+     * @param int $usuarioId ID del usuario
+     * @param string $permisoNombre Nombre del permiso
+     * @return bool Si tiene el permiso
+     */
+    static public function mdlVerificarPermisoUsuario($usuarioId, $permisoNombre) {
+        try {
+            $stmt = Conexion::conectar()->prepare("
+                SELECT verificar_permiso_usuario(:user_id, :permiso_nombre) as tiene_permiso
+            ");
+            $stmt->bindParam(":user_id", $usuarioId, PDO::PARAM_INT);
+            $stmt->bindParam(":permiso_nombre", $permisoNombre, PDO::PARAM_STR);
+            $stmt->execute();
+            $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            return filter_var($resultado['tiene_permiso'], FILTER_VALIDATE_BOOLEAN);
+            
+        } catch (Exception $e) {
+            error_log("Error verificando permiso de usuario: " . $e->getMessage(), 3, "/var/log/clinica/reservas.log");
+            return false;
+        }
+    }
+
 }

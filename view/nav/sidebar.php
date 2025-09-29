@@ -239,6 +239,12 @@
                         <p>Configuración Email</p>
                     </a>
                 </li>
+                <li class="nav-item <?php echo mostrar_si_tiene_permiso('administrar_sistema_parametros'); ?>">
+                    <a href="index.php?ruta=sistema-parametros" class="nav-link">
+                        <i class="nav-icon fas fa-cogs"></i>
+                        <p>Parámetros del Sistema</p>
+                    </a>
+                </li>
                 <li class="nav-item">
                     <a href="index.php?ruta=logout" class="nav-link">
                         <i class="nav-icon fas fa-sign-out-alt"></i>

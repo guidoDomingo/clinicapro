@@ -194,6 +194,7 @@ if (isset($_POST['action'])) {
                             AND rsd.servicio_id = :servicio_id
                             AND rsd.is_active = true
                             AND sr.reserva_estado IN ('CONFIRMADA', 'EN_PROCESO', 'PENDIENTE')
+                            AND sr.activo = true
                         ";
                         
                         if ($medicoId) {
@@ -287,6 +288,7 @@ if (isset($_POST['action'])) {
                             AND rsd.servicio_id = :servicio_id
                             AND rsd.is_active = true
                             AND sr.reserva_estado IN ('CONFIRMADA', 'EN_PROCESO', 'PENDIENTE')
+                            AND sr.activo = true
                         ";
                         
                         if ($medicoId) {
@@ -609,7 +611,8 @@ if (isset($_POST['action'])) {
                                         END as turno
                                     FROM servicios_reservas sr
                                     WHERE DATE(sr.fecha_reserva) = :fecha 
-                                    AND sr.reserva_estado IN ('CONFIRMADA', 'PENDIENTE', 'EN_PROCESO')";
+                                    AND sr.reserva_estado IN ('CONFIRMADA', 'PENDIENTE', 'EN_PROCESO')
+                                    AND sr.activo = true";
                             
                             $stmtReservas = $pdo->prepare($sql);
                             $stmtReservas->bindParam(":fecha", $fecha, PDO::PARAM_STR);
@@ -989,9 +992,30 @@ if (isset($_POST['action'])) {
                 $origen = trim($_POST['origen']);
             }
             
+            // Procesar filtro de mostrar canceladas
+            $mostrarCanceladas = isset($_POST['mostrar_canceladas']) ? $_POST['mostrar_canceladas'] : 'SI';
+            $incluirCanceladas = ($mostrarCanceladas === 'SI' || $mostrarCanceladas === 'SOLO');
+            
             try {
                 // Obtener reservas según los filtros
-                $reservas = ControladorServicios::ctrBuscarReservas($fecha, $doctorId, $estado, $paciente, $salaId, $origen);
+                $reservas = ControladorServicios::ctrBuscarReservasConCanceladas($fecha, $doctorId, $estado, $paciente, $salaId, $origen, $incluirCanceladas);
+                
+                // Si solo queremos canceladas, filtrar solo las que tienen estado CANCELADA
+                if ($mostrarCanceladas === 'SOLO') {
+                    $reservas = array_filter($reservas, function($reserva) {
+                        return $reserva['reserva_estado'] === 'CANCELADA';
+                    });
+                }
+                
+                // Si no queremos canceladas, filtrar para excluir las que tienen estado CANCELADA
+                if ($mostrarCanceladas === 'NO') {
+                    $reservas = array_filter($reservas, function($reserva) {
+                        return $reserva['reserva_estado'] !== 'CANCELADA';
+                    });
+                }
+                
+                // Reindexar el array después del filtrado
+                $reservas = array_values($reservas);
                 
                 // Enviar respuesta
                 echo json_encode([
@@ -1430,6 +1454,194 @@ if (isset($_POST['action'])) {
                 echo json_encode([
                     "status" => "error",
                     "message" => "Error al obtener doctores: " . $e->getMessage()
+                ]);
+            }
+            break;
+            
+        case 'verificarPermisoCancelacion':
+            try {
+                // Validar parámetros requeridos
+                if (!isset($_POST['reserva_id']) || empty($_POST['reserva_id'])) {
+                    echo json_encode([
+                        "status" => "error",
+                        "mensaje" => "ID de reserva requerido"
+                    ]);
+                    break;
+                }
+                
+                $reservaId = intval($_POST['reserva_id']);
+                
+                error_log("AJAX verificarPermisoCancelacion: Verificando permisos para reserva ID=$reservaId", 
+                         3, '/var/log/clinica/reservas.log');
+                
+                // Llamar al controlador para verificar permisos
+                $resultado = ControladorServicios::ctrVerificarPermisoCancelacion($reservaId);
+                
+                echo json_encode([
+                    "status" => "success",
+                    "data" => $resultado
+                ]);
+                
+            } catch (Exception $e) {
+                error_log("AJAX verificarPermisoCancelacion ERROR: " . $e->getMessage(), 
+                         3, '/var/log/clinica/reservas.log');
+                echo json_encode([
+                    "status" => "error",
+                    "mensaje" => "Error verificando permisos: " . $e->getMessage()
+                ]);
+            }
+            break;
+
+        case 'obtenerParametrosReservas':
+            try {
+                error_log("AJAX obtenerParametrosReservas: Obteniendo parámetros del sistema", 
+                         3, '/var/log/clinica/reservas.log');
+                
+                // Llamar al controlador para obtener parámetros
+                $parametros = ControladorServicios::ctrObtenerParametrosReservas();
+                
+                echo json_encode([
+                    "status" => "success",
+                    "data" => $parametros
+                ]);
+                
+            } catch (Exception $e) {
+                error_log("AJAX obtenerParametrosReservas ERROR: " . $e->getMessage(), 
+                         3, '/var/log/clinica/reservas.log');
+                echo json_encode([
+                    "status" => "error",
+                    "mensaje" => "Error obteniendo parámetros: " . $e->getMessage()
+                ]);
+            }
+            break;
+
+        case 'buscarReservasConCanceladas':
+            try {
+                error_log("AJAX buscarReservasConCanceladas: Iniciando búsqueda de reservas con canceladas", 
+                         3, '/var/log/clinica/reservas.log');
+                
+                // Obtener parámetros de búsqueda
+                $fecha = isset($_POST['fecha']) && !empty($_POST['fecha']) ? $_POST['fecha'] : null;
+                $doctorId = isset($_POST['doctor_id']) && !empty($_POST['doctor_id']) ? intval($_POST['doctor_id']) : null;
+                $estado = isset($_POST['estado']) && !empty($_POST['estado']) ? $_POST['estado'] : null;
+                $paciente = isset($_POST['paciente']) && !empty($_POST['paciente']) ? $_POST['paciente'] : null;
+                $salaId = isset($_POST['sala_id']) && !empty($_POST['sala_id']) ? intval($_POST['sala_id']) : null;
+                $origen = isset($_POST['origen']) && !empty($_POST['origen']) ? $_POST['origen'] : null;
+                $incluirCanceladas = isset($_POST['incluir_canceladas']) ? 
+                                   filter_var($_POST['incluir_canceladas'], FILTER_VALIDATE_BOOLEAN) : null;
+                
+                // Llamar al controlador
+                $reservas = ControladorServicios::ctrBuscarReservasConCanceladas(
+                    $fecha, $doctorId, $estado, $paciente, $salaId, $origen, $incluirCanceladas
+                );
+                
+                echo json_encode([
+                    "status" => "success",
+                    "data" => $reservas,
+                    "total" => count($reservas)
+                ]);
+                
+            } catch (Exception $e) {
+                error_log("AJAX buscarReservasConCanceladas ERROR: " . $e->getMessage(), 
+                         3, '/var/log/clinica/reservas.log');
+                echo json_encode([
+                    "status" => "error",
+                    "mensaje" => "Error buscando reservas: " . $e->getMessage()
+                ]);
+            }
+            break;
+
+        case 'verificarPermisosUsuario':
+            try {
+                error_log("AJAX verificarPermisosUsuario: Verificando permisos del usuario actual", 
+                         3, '/var/log/clinica/reservas.log');
+                
+                // Obtener el ID del usuario de la sesión
+                $usuarioId = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 
+                            (isset($_SESSION['usuario_id']) ? $_SESSION['usuario_id'] : null);
+                
+                if (!$usuarioId) {
+                    echo json_encode([
+                        "status" => "error",
+                        "mensaje" => "Usuario no identificado en la sesión"
+                    ]);
+                    break;
+                }
+                
+                // Verificar cada permiso de cancelación
+                $permisos = [
+                    'cancelar_reservas' => ControladorServicios::ctrVerificarPermisoUsuario($usuarioId, 'cancelar_reservas'),
+                    'cancelar_reservas_tardias' => ControladorServicios::ctrVerificarPermisoUsuario($usuarioId, 'cancelar_reservas_tardias'),
+                    'ver_reservas_canceladas' => ControladorServicios::ctrVerificarPermisoUsuario($usuarioId, 'ver_reservas_canceladas'),
+                    'cancelar_reservas_otros_usuarios' => ControladorServicios::ctrVerificarPermisoUsuario($usuarioId, 'cancelar_reservas_otros_usuarios'),
+                    'administrar_cancelaciones' => ControladorServicios::ctrVerificarPermisoUsuario($usuarioId, 'administrar_cancelaciones')
+                ];
+                
+                error_log("AJAX verificarPermisosUsuario: Usuario $usuarioId - Permisos: " . json_encode($permisos), 
+                         3, '/var/log/clinica/reservas.log');
+                
+                echo json_encode([
+                    "status" => "success",
+                    "data" => $permisos,
+                    "usuario_id" => $usuarioId
+                ]);
+                
+            } catch (Exception $e) {
+                error_log("AJAX verificarPermisosUsuario ERROR: " . $e->getMessage(), 
+                         3, '/var/log/clinica/reservas.log');
+                echo json_encode([
+                    "status" => "error",
+                    "mensaje" => "Error verificando permisos: " . $e->getMessage()
+                ]);
+            }
+            break;
+
+        case 'cancelarReserva':
+            try {
+                // Validar parámetros requeridos
+                if (!isset($_POST['reserva_id']) || empty($_POST['reserva_id'])) {
+                    echo json_encode([
+                        "status" => "error",
+                        "mensaje" => "ID de reserva requerido"
+                    ]);
+                    break;
+                }
+                
+                $reservaId = intval($_POST['reserva_id']);
+                $motivo = isset($_POST['motivo']) ? trim($_POST['motivo']) : null;
+                $forzar = isset($_POST['forzar']) ? filter_var($_POST['forzar'], FILTER_VALIDATE_BOOLEAN) : false;
+                
+                error_log("AJAX cancelarReserva: Procesando cancelación de reserva ID=$reservaId, Forzar=$forzar", 
+                         3, '/var/log/clinica/reservas.log');
+                
+                // Llamar al controlador para cancelar la reserva
+                $resultado = ControladorServicios::ctrCancelarReserva($reservaId, $motivo, $forzar);
+                
+                // Enviar respuesta
+                if ($resultado['error']) {
+                    error_log("AJAX cancelarReserva: Error - " . $resultado['mensaje'], 
+                             3, '/var/log/clinica/reservas.log');
+                    echo json_encode([
+                        "status" => "error",
+                        "mensaje" => $resultado['mensaje'],
+                        "detalles" => isset($resultado['detalles']) ? $resultado['detalles'] : null
+                    ]);
+                } else {
+                    error_log("AJAX cancelarReserva: Éxito - " . $resultado['mensaje'], 
+                             3, '/var/log/clinica/reservas.log');
+                    echo json_encode([
+                        "status" => "success",
+                        "mensaje" => $resultado['mensaje'],
+                        "fecha_cancelacion" => isset($resultado['fecha_cancelacion']) ? $resultado['fecha_cancelacion'] : null
+                    ]);
+                }
+                
+            } catch (Exception $e) {
+                error_log("AJAX cancelarReserva ERROR: " . $e->getMessage(), 
+                         3, '/var/log/clinica/reservas.log');
+                echo json_encode([
+                    "status" => "error",
+                    "mensaje" => "Error interno al cancelar la reserva: " . $e->getMessage()
                 ]);
             }
             break;

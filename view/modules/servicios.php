@@ -406,6 +406,17 @@ if (!isset($_SESSION['perfil'])) {
                                             </select>
                                         </div>
                                         <div class="col-md-2">
+                                            <label for="selectMostrarCanceladas">Mostrar Canceladas:</label>
+                                            <select class="form-control" id="selectMostrarCanceladas">
+                                                <option value="SI">Mostrar Canceladas</option>
+                                                <option value="NO">Ocultar Canceladas</option>
+                                                <option value="SOLO">Solo Canceladas</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-2">
                                             <label for="buscarPacienteReserva">Buscar Paciente:</label>
                                             <input type="text" class="form-control" id="buscarPacienteReserva" placeholder="Nombre del paciente...">
                                         </div>
@@ -1552,6 +1563,7 @@ if (!isset($_SESSION['perfil'])) {
 </style>
 
 <!-- Incluir JavaScript personalizado -->
+<script src="view/js/permisos-usuario.js"></script>
 <script src="view/js/servicios.js"></script>
 <script src="view/js/slots_init.js"></script>
 <script src="view/js/slots_fallback.js"></script>

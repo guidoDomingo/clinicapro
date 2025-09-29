@@ -1308,6 +1308,11 @@ function inicializarTabReservas() {
         buscarReservas();
     });
 
+    $(document).on('change', '#selectMostrarCanceladas', function () {
+        console.log('Filtro de mostrar canceladas cambiado - ejecutando búsqueda automática');
+        buscarReservas();
+    });
+
     $(document).on('change', '#fechaReservas', function () {
         console.log('Filtro de fecha cambiado - ejecutando búsqueda automática');
         buscarReservas();
@@ -1324,6 +1329,12 @@ function inicializarTabReservas() {
     // Evento para confirmar reserva (nuevo)
     $(document).off('click', '.btnConfirmarReserva');
     $(document).on('click', '.btnConfirmarReserva', function () {
+        // Verificar si el botón está deshabilitado
+        if ($(this).is(':disabled') || $(this).hasClass('disabled')) {
+            console.log('⚠️ Intento de clic en botón deshabilitado - Confirmación bloqueada');
+            return false;
+        }
+        
         const reservaId = $(this).data('id');
         console.log(`Confirmando reserva ${reservaId}`);
 
@@ -1347,6 +1358,12 @@ function inicializarTabReservas() {
     // Evento para ir a consulta desde reserva confirmada
     $(document).off('click', '.btnIrAConsulta');
     $(document).on('click', '.btnIrAConsulta', function () {
+        // Verificar si el botón está deshabilitado
+        if ($(this).is(':disabled') || $(this).hasClass('disabled')) {
+            console.log('⚠️ Intento de clic en botón deshabilitado - Ir a consulta bloqueado');
+            return false;
+        }
+        
         const pacienteId = $(this).data('paciente-id');
         const reservaId = $(this).data('reserva-id');
 
@@ -1536,10 +1553,13 @@ function buscarReservas() {
     // Obtener origen seleccionado
     const origen = $('#selectOrigenReserva').val() || '0';
 
+    // Obtener configuración de mostrar canceladas
+    const mostrarCanceladas = $('#selectMostrarCanceladas').val() || 'SI';
+
     // Obtener paciente y asegurar que no sea un string vacío
     const paciente = $('#buscarPacienteReserva').val() ? $('#buscarPacienteReserva').val().trim() : '';
 
-    console.log(`Buscando reservas - Fecha: ${fecha}, Doctor: ${doctorId}, Estado: ${estado}, Sala: ${salaId}, Origen: ${origen}, Paciente: ${paciente}`);
+    console.log(`Buscando reservas - Fecha: ${fecha}, Doctor: ${doctorId}, Estado: ${estado}, Sala: ${salaId}, Origen: ${origen}, MostrarCanceladas: ${mostrarCanceladas}, Paciente: ${paciente}`);
 
     // Debug para verificar valores
     console.log('Elementos DOM:');
@@ -1587,6 +1607,9 @@ function buscarReservas() {
         requestData.paciente = paciente;
     }
 
+    // Añadir configuración de mostrar canceladas
+    requestData.mostrar_canceladas = mostrarCanceladas;
+
     console.log('Enviando solicitud AJAX con datos:', requestData);
 
     $.ajax({
@@ -1605,40 +1628,76 @@ function buscarReservas() {
                 console.log("Filtros aplicados en el servidor:", respuesta.filtros);
             }
 
-            if (respuesta.status === "success" && respuesta.data && respuesta.data.length > 0) {
+            renderizarTablaReservas(respuesta);
+        },
+        error: function (xhr, status, error) {
+            console.error("Error al buscar reservas:", error);
+            $('#tablaReservas tbody').html('<tr><td colspan="11" class="text-center text-danger">Error al cargar reservas: ' + error + '</td></tr>');
+        }
+    });
+}
+
+// Función separada para renderizar la tabla
+function renderizarTablaReservas(respuesta) {
+    if (respuesta.status === "success" && respuesta.data && respuesta.data.length > 0) {
                 let filas = '';
 
                 respuesta.data.forEach(function (reserva) {
-                    // Debug: Ver qué contiene cada reserva
-                    console.log("Datos de reserva:", reserva);
-                    console.log("Origen de reserva:", reserva.origen_reserva);
-                    
                     // Formatear la fecha para mostrar
                     const fechaFormateada = formatearFechaParaMostrar(reserva.fecha_reserva);
-                    // Determinar color según estado
+                    
+                    // Determinar color según estado y si está activa o cancelada
                     let claseFila = '';
                     let iconoEstado = '';
+                    let badgeEstado = '';
+                    
+                    // LÓGICA SIMPLIFICADA: Todas las reservas CANCELADAS tienen activo = false
+                    const estadoOriginal = reserva.reserva_estado; // Guardar el estado original antes de modificarlo
+                    const esCancelada = (estadoOriginal === 'CANCELADA');
+                    
+                    // Debug detallado
+                    console.log(`🔍 Reserva ${reserva.reserva_id}:`);
+                    console.log(`   - Estado original: ${estadoOriginal}`);
+                    console.log(`   - Estado final: ${reserva.reserva_estado}`);
+                    console.log(`   - esCancelada: ${esCancelada}`);
+                    console.log(`   - activo: ${reserva.activo}`);
+                    
+                    if (esCancelada) {
+                        console.log(`� → Botones DESHABILITADOS para reserva ${reserva.reserva_id}`);
+                    } else {
+                        console.log(`🔓 → Botones HABILITADOS para reserva ${reserva.reserva_id}`);
+                    }
 
-                    switch (reserva.reserva_estado) {
-                        case 'PENDIENTE':
-                            claseFila = 'table-warning estado-pendiente';
-                            iconoEstado = '<i class="fas fa-clock text-warning mr-1"></i>';
-                            break;
-                        case 'CONFIRMADA':
-                            claseFila = 'table-success estado-confirmada';
-                            iconoEstado = '<i class="fas fa-check-circle text-success mr-1"></i>';
-                            break;
-                        case 'COMPLETADA':
-                            claseFila = 'table-info estado-completada';
-                            iconoEstado = '<i class="fas fa-check-double text-info mr-1"></i>';
-                            break;
-                        case 'CANCELADA':
-                            claseFila = 'table-danger estado-cancelada';
-                            iconoEstado = '<i class="fas fa-times-circle text-danger mr-1"></i>';
-                            break;
-                        default:
-                            claseFila = '';
-                            iconoEstado = '<i class="fas fa-question-circle text-secondary mr-1"></i>';
+                    if (esCancelada) {
+                        // Reserva CANCELADA - usar estilo especial y deshabilitar botones
+                        claseFila = 'table-secondary reserva-cancelada text-muted';
+                        iconoEstado = '<i class="fas fa-ban text-muted mr-1"></i>';
+                        badgeEstado = 'danger';
+                        // Cambiar el estado para mostrar como CANCELADO
+                        reserva.reserva_estado = 'CANCELADO';
+                    } else {
+                        // Reserva activa - usar colores normales
+                        switch (reserva.reserva_estado) {
+                            case 'PENDIENTE':
+                                claseFila = 'table-warning estado-pendiente';
+                                iconoEstado = '<i class="fas fa-clock text-warning mr-1"></i>';
+                                badgeEstado = 'warning';
+                                break;
+                            case 'CONFIRMADA':
+                                claseFila = 'table-success estado-confirmada';
+                                iconoEstado = '<i class="fas fa-check-circle text-success mr-1"></i>';
+                                badgeEstado = 'success';
+                                break;
+                            case 'COMPLETADA':
+                                claseFila = 'table-info estado-completada';
+                                iconoEstado = '<i class="fas fa-check-double text-info mr-1"></i>';
+                                badgeEstado = 'info';
+                                break;
+                            default:
+                                claseFila = '';
+                                iconoEstado = '<i class="fas fa-question-circle text-secondary mr-1"></i>';
+                                badgeEstado = 'secondary';
+                        }
                     }
 
                     // Calcular día de la semana
@@ -1684,10 +1743,7 @@ function buscarReservas() {
                         <td>${reserva.sala_nombre || 'Sin asignar'}</td>
                         <td>${reserva.serv_monto ? `$${parseFloat(reserva.serv_monto).toFixed(2)}` : 'N/A'}</td>
                         <td>
-                            <span class="badge badge-${claseFila.includes('warning') ? 'warning estado-pendiente' :
-                                claseFila.includes('success') ? 'success estado-confirmada' :
-                                    claseFila.includes('info') ? 'info estado-completada' :
-                                        claseFila.includes('danger') ? 'danger estado-cancelada' : 'secondary'}">
+                            <span class="badge badge-${badgeEstado}">
                                 ${iconoEstado} ${reserva.reserva_estado}
                             </span>
                         </td>
@@ -1697,55 +1753,75 @@ function buscarReservas() {
                                 <button class="btn btn-info btn-sm btnVerReserva" data-id="${reserva.reserva_id}" title="Ver detalles">
                                     <i class="fas fa-eye"></i>
                                 </button>
-                                ${reserva.reserva_estado === 'PENDIENTE' ?
-                            `<button class="btn btn-success btn-sm btnConfirmarReserva" data-id="${reserva.reserva_id}" title="Confirmar reserva">
-                                    <i class="fas fa-check"></i>
-                                </button>` : ''}
-                                ${reserva.reserva_estado === 'CONFIRMADA' ?
-                            `<button class="btn btn-primary btn-sm btnIrAConsulta" 
-                                        data-paciente-id="${reserva.paciente_id || reserva.patient_id || ''}" 
-                                        data-reserva-id="${reserva.reserva_id}"
-                                        title="Ir a Consulta">
-                                    <i class="fas fa-stethoscope"></i>
-                                </button>` : ''}
-                                <button class="btn btn-warning btn-sm btnEditarReserva" data-id="${reserva.reserva_id}" title="Editar">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-danger btn-sm btnCancelarReserva" data-id="${reserva.reserva_id}" title="Cancelar">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                                <a href="generar_pdf_reserva.php?id=${reserva.reserva_id}" class="btn btn-success btn-sm" target="_blank" title="Descargar PDF">
-                                    <i class="fas fa-file-pdf"></i>
-                                </a>
-                                <button class="btn btn-info btn-sm btnEnviarWhatsApp" data-id="${reserva.reserva_id}" data-telefono="${reserva.telefono || ''}" title="Enviar por WhatsApp">
-                                    <i class="fab fa-whatsapp"></i>
-                                </button>
+                                ${esCancelada ? 
+                                    // Botones para reservas canceladas - TODOS DESHABILITADOS excepto Ver
+                                    `<button class="btn btn-secondary btn-sm" disabled title="Reserva cancelada - No disponible">
+                                        <i class="fas fa-ban"></i>
+                                    </button>
+                                    <button class="btn btn-secondary btn-sm" disabled title="Reserva cancelada - No disponible">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-secondary btn-sm" disabled title="Reserva cancelada - Ya cancelada">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                    <button class="btn btn-secondary btn-sm" disabled title="Reserva cancelada - PDF no disponible">
+                                        <i class="fas fa-file-pdf"></i>
+                                    </button>
+                                    <button class="btn btn-secondary btn-sm" disabled title="Reserva cancelada - WhatsApp no disponible">
+                                        <i class="fab fa-whatsapp"></i>
+                                    </button>
+                                    ${reserva.motivo_cancelacion ? 
+                                        `<button class="btn btn-outline-info btn-sm" 
+                                                 title="Motivo de cancelación: ${reserva.motivo_cancelacion}">
+                                            <i class="fas fa-comment"></i>
+                                        </button>` : 
+                                        `<button class="btn btn-outline-secondary btn-sm" 
+                                                 title="Cancelada ${reserva.fecha_cancelacion ? 
+                                                    new Date(reserva.fecha_cancelacion).toLocaleDateString() : ''}">
+                                            <i class="fas fa-info-circle"></i>
+                                        </button>`
+                                    }` 
+                                    :
+                                    // Botones para reservas activas
+                                    `${estadoOriginal === 'PENDIENTE' ?
+                                        `<button class="btn btn-success btn-sm btnConfirmarReserva" data-id="${reserva.reserva_id}" title="Confirmar reserva">
+                                            <i class="fas fa-check"></i>
+                                        </button>` : ''}
+                                    ${estadoOriginal === 'CONFIRMADA' ?
+                                        `<button class="btn btn-primary btn-sm btnIrAConsulta" 
+                                                    data-paciente-id="${reserva.paciente_id || reserva.patient_id || ''}" 
+                                                    data-reserva-id="${reserva.reserva_id}"
+                                                    title="Ir a Consulta">
+                                            <i class="fas fa-stethoscope"></i>
+                                        </button>` : ''}
+                                    <button class="btn btn-warning btn-sm btnEditarReserva" data-id="${reserva.reserva_id}" title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-danger btn-sm btnCancelarReserva" 
+                                            data-id="${reserva.reserva_id}" 
+                                            data-paciente="${reserva.paciente}"
+                                            data-fecha="${reserva.fecha_reserva}"
+                                            data-hora="${reserva.hora_inicio}"
+                                            title="Cancelar reserva">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                    <a href="generar_pdf_reserva.php?id=${reserva.reserva_id}" class="btn btn-success btn-sm" target="_blank" title="Descargar PDF">
+                                        <i class="fas fa-file-pdf"></i>
+                                    </a>
+                                    <button class="btn btn-info btn-sm btnEnviarWhatsApp" data-id="${reserva.reserva_id}" data-telefono="${reserva.telefono || ''}" title="Enviar por WhatsApp">
+                                        <i class="fab fa-whatsapp"></i>
+                                    </button>`
+                                }
                             </div>
                         </td>
                     </tr>`;
                 });
 
                 $('#tablaReservas tbody').html(filas);
-            } else {
-                // Mostrar mensaje si no hay reservas
-                $('#tablaReservas tbody').html('<tr><td colspan="11" class="text-center">No se encontraron reservas con los filtros seleccionados</td></tr>');
-            }
-        },
-        error: function (xhr, status, error) {
-            console.error("Error al buscar reservas:", error);
-
-            // Mostrar mensaje de error
-            $('#tablaReservas tbody').html('<tr><td colspan="11" class="text-center text-danger">Error al cargar reservas: ' + error + '</td></tr>');
-
-            // Intentar obtener más detalles del error
-            try {
-                const respuesta = JSON.parse(xhr.responseText);
-                console.error("Detalles del error:", respuesta);
-            } catch (e) {
-                console.error("No se pudo parsear la respuesta del error:", xhr.responseText);
-            }
-        }
-    });
+    } else {
+        // Mostrar mensaje si no hay reservas
+        $('#tablaReservas tbody').html('<tr><td colspan="11" class="text-center">No se encontraron reservas con los filtros seleccionados</td></tr>');
+    }
 }
 
 /**
@@ -1765,6 +1841,9 @@ function limpiarFiltrosReservas() {
 
     // Restablecer origen a "Todos"
     $('#selectOrigenReserva').val('0');
+
+    // Restablecer mostrar canceladas a "SI"
+    $('#selectMostrarCanceladas').val('SI');
 
     // Restablecer sala a "Todas"
     $('#selectSalaFiltro').val('0');
@@ -2648,5 +2727,510 @@ $(document).on('change', '#editFechaReserva', function() {
         // Si no hay fecha, limpiar doctor
         $('#editDoctorSelect').html('<option value="">Seleccione una fecha primero</option>');
         $('#cardHorariosDisponiblesEdit').hide();
+    }
+});
+
+// ===================================
+// FUNCIONALIDAD DE CANCELACIÓN DE RESERVAS
+// ===================================
+
+/**
+ * Cancela una reserva médica con confirmación del usuario
+ * @param {number} reservaId ID de la reserva a cancelar
+ */
+function cancelarReserva(reservaId) {
+    console.log('🗑️ Iniciando cancelación de reserva ID:', reservaId);
+    
+    // Validar que se proporcione un ID válido
+    if (!reservaId || isNaN(reservaId)) {
+        mostrarAlerta('error', 'ID de reserva inválido');
+        return;
+    }
+    
+    // Mostrar confirmación con SweetAlert2 si está disponible
+    if (typeof Swal !== 'undefined') {
+        Swal.fire({
+            title: '¿Cancelar esta reserva?',
+            text: "Esta acción marcará la reserva como cancelada y liberará el horario.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Sí, cancelar reserva',
+            cancelButtonText: 'No, mantener reserva',
+            input: 'textarea',
+            inputPlaceholder: 'Motivo de cancelación (opcional)',
+            inputAttributes: {
+                'aria-label': 'Motivo de cancelación'
+            },
+            showLoaderOnConfirm: true,
+            preConfirm: (motivo) => {
+                return procesarCancelacionReserva(reservaId, motivo);
+            },
+            allowOutsideClick: () => !Swal.isLoading()
+        }).then((result) => {
+            if (result.isConfirmed && result.value && result.value.success) {
+                mostrarAlerta('success', result.value.mensaje || 'Reserva cancelada exitosamente');
+                
+                // Actualizar la tabla de reservas
+                if (typeof buscarReservas === 'function') {
+                    buscarReservas();
+                }
+                
+                // Actualizar reservas del día si estamos en la pestaña principal
+                const fechaActual = $('#fechaReserva').val();
+                if (fechaActual && typeof cargarReservasDelDia === 'function') {
+                    cargarReservasDelDia(fechaActual);
+                }
+            }
+        });
+    } else {
+        // Fallback para confirmación básica
+        const confirmar = confirm('¿Está seguro de que desea cancelar esta reserva?');
+        if (confirmar) {
+            const motivo = prompt('Motivo de cancelación (opcional):');
+            procesarCancelacionReserva(reservaId, motivo)
+                .then(resultado => {
+                    if (resultado.success) {
+                        mostrarAlerta('success', resultado.mensaje || 'Reserva cancelada exitosamente');
+                        
+                        // Actualizar las tablas
+                        if (typeof buscarReservas === 'function') {
+                            buscarReservas();
+                        }
+                        
+                        const fechaActual = $('#fechaReserva').val();
+                        if (fechaActual && typeof cargarReservasDelDia === 'function') {
+                            cargarReservasDelDia(fechaActual);
+                        }
+                    } else {
+                        mostrarAlerta('error', resultado.mensaje || 'Error al cancelar la reserva');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al cancelar reserva:', error);
+                    mostrarAlerta('error', 'Error al cancelar la reserva');
+                });
+        }
+    }
+}
+
+/**
+ * Procesa la cancelación de la reserva mediante AJAX
+ * @param {number} reservaId ID de la reserva
+ * @param {string} motivo Motivo de la cancelación (opcional)
+ * @param {boolean} forzar Si se debe forzar la cancelación (para permisos especiales)
+ * @returns {Promise} Promise que resuelve con el resultado de la operación
+ */
+function procesarCancelacionReserva(reservaId, motivo = null, forzar = false) {
+    return new Promise((resolve, reject) => {
+        console.log(`📡 Enviando solicitud de cancelación para reserva ${reservaId}`, { motivo, forzar });
+        
+        const datos = {
+            action: 'cancelarReserva',
+            reserva_id: reservaId,
+            forzar: forzar
+        };
+        
+        // Agregar motivo si se proporciona
+        if (motivo && motivo.trim() !== '') {
+            datos.motivo = motivo.trim();
+        }
+        
+        $.ajax({
+            url: 'ajax/servicios.ajax.php',
+            method: 'POST',
+            data: datos,
+            dataType: 'json',
+            timeout: 30000, // 30 segundos de timeout
+            success: function(respuesta) {
+                console.log('📥 Respuesta de cancelación recibida:', respuesta);
+                
+                if (respuesta.status === 'success') {
+                    resolve({
+                        success: true,
+                        mensaje: respuesta.mensaje
+                    });
+                } else {
+                    resolve({
+                        success: false,
+                        mensaje: respuesta.mensaje || 'Error desconocido al cancelar la reserva'
+                    });
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('💥 Error AJAX al cancelar reserva:', {
+                    status: status,
+                    error: error,
+                    responseText: xhr.responseText
+                });
+                
+                let mensajeError = 'Error al conectar con el servidor';
+                
+                // Intentar obtener mensaje de error más específico
+                try {
+                    const respuestaError = JSON.parse(xhr.responseText);
+                    if (respuestaError.mensaje) {
+                        mensajeError = respuestaError.mensaje;
+                    }
+                } catch (e) {
+                    // Si no se puede parsear, usar mensaje genérico
+                    if (status === 'timeout') {
+                        mensajeError = 'Tiempo de espera agotado. Por favor, intente nuevamente.';
+                    } else if (status === 'abort') {
+                        mensajeError = 'Operación cancelada por el usuario.';
+                    } else if (error) {
+                        mensajeError = `Error de conexión: ${error}`;
+                    }
+                }
+                
+                reject({
+                    success: false,
+                    mensaje: mensajeError
+                });
+            }
+        });
+    });
+}
+
+/**
+ * Verifica si el usuario puede cancelar una reserva específica
+ * @param {number} reservaId ID de la reserva
+ * @returns {Promise} Promesa con el resultado de la verificación
+ */
+function verificarPermisoCancelacion(reservaId) {
+    return new Promise((resolve, reject) => {
+        $.ajax({
+            url: 'ajax/servicios.ajax.php',
+            type: 'POST',
+            data: {
+                action: 'verificarPermisoCancelacion',
+                reserva_id: reservaId
+            },
+            dataType: 'json',
+            success: function(response) {
+                if (response.status === 'success') {
+                    resolve(response.data);
+                } else {
+                    reject(response.mensaje || 'Error verificando permisos');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Error AJAX verificando permisos:', error);
+                reject('Error de conexión verificando permisos');
+            }
+        });
+    });
+}
+
+/**
+ * Obtiene los parámetros del sistema para reservas
+ * @returns {Promise} Promesa con los parámetros del sistema
+ */
+function obtenerParametrosReservas() {
+    return new Promise((resolve, reject) => {
+        $.ajax({
+            url: 'ajax/servicios.ajax.php',
+            type: 'POST',
+            data: {
+                action: 'obtenerParametrosReservas'
+            },
+            dataType: 'json',
+            success: function(response) {
+                if (response.status === 'success') {
+                    resolve(response.data);
+                } else {
+                    reject(response.mensaje || 'Error obteniendo parámetros');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Error AJAX obteniendo parámetros:', error);
+                reject('Error de conexión obteniendo parámetros');
+            }
+        });
+    });
+}
+
+/**
+ * Verifica los permisos del usuario actual (consulta directa a BD)
+ * @returns {Promise} Promesa con los permisos del usuario
+ */
+function verificarPermisosUsuarioActual() {
+    return new Promise((resolve, reject) => {
+        $.ajax({
+            url: 'ajax/servicios.ajax.php',
+            type: 'POST',
+            data: {
+                action: 'verificarPermisosUsuario'
+            },
+            dataType: 'json',
+            success: function(response) {
+                if (response.status === 'success') {
+                    resolve(response.data);
+                } else {
+                    reject(response.mensaje || 'Error verificando permisos de usuario');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Error AJAX verificando permisos de usuario:', error);
+                reject('Error de conexión verificando permisos de usuario');
+            }
+        });
+    });
+}
+
+
+
+/**
+ * Genera el HTML de información de cancelación basado en los permisos
+ * @param {Object} permisos Resultado de la verificación de permisos
+ * @param {string} pacienteNombre Nombre del paciente
+ * @param {string} fechaReserva Fecha de la reserva
+ * @param {string} horaReserva Hora de la reserva
+ * @returns {string} HTML para mostrar en el modal
+ */
+function generarHtmlCancelacion(permisos, pacienteNombre, fechaReserva, horaReserva) {
+    let html = `
+        <div class="text-left">
+            <p><strong>Paciente:</strong> ${pacienteNombre}</p>
+            ${fechaReserva ? `<p><strong>Fecha:</strong> ${fechaReserva}</p>` : ''}
+            ${horaReserva ? `<p><strong>Hora:</strong> ${horaReserva}</p>` : ''}
+        </div>
+    `;
+    
+    if (permisos.puede_cancelar) {
+        if (permisos.permiso_especial) {
+            html += `
+                <div class="alert alert-info mt-3">
+                    <i class="fas fa-key"></i>
+                    <strong>Cancelación con permiso especial</strong><br>
+                    Esta reserva está fuera del tiempo límite normal (${permisos.limite_horas} horas), 
+                    pero tienes permisos especiales para cancelarla.
+                </div>
+            `;
+        } else {
+            const horasRestantes = Math.round(permisos.horas_restantes * 100) / 100;
+            html += `
+                <div class="alert alert-success mt-3">
+                    <i class="fas fa-clock"></i>
+                    <strong>Cancelación permitida</strong><br>
+                    horas (límite: ${permisos.limite_horas} horas antes de la cita).
+                </div>
+            `;
+        }
+        
+        html += `
+            <div class="alert alert-warning mt-2">
+                <i class="fas fa-exclamation-triangle"></i>
+                Esta acción marcará la reserva como cancelada y liberará el horario.
+            </div>
+        `;
+    }
+    
+    return html;
+}
+
+// Evento para manejar clics en botones de cancelar reserva
+$(document).on('click', '.btnCancelarReserva', function() {
+    // Verificar si el botón está deshabilitado
+    if ($(this).is(':disabled') || $(this).hasClass('disabled')) {
+        console.log('⚠️ Intento de clic en botón deshabilitado - Cancelación bloqueada');
+        return false;
+    }
+    
+    const reservaId = $(this).data('id');
+    const pacienteNombre = $(this).data('paciente') || 'Paciente no identificado';
+    const fechaReserva = $(this).data('fecha') || '';
+    const horaReserva = $(this).data('hora') || '';
+    
+    console.log(`🎯 Botón cancelar clickeado - Reserva: ${reservaId}, Paciente: ${pacienteNombre}`);
+    
+    if (typeof Swal !== 'undefined') {
+        // Mostrar loader mientras se verifican permisos
+        Swal.fire({
+            title: 'Verificando permisos...',
+            text: 'Comprobando si puedes cancelar esta reserva',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            showConfirmButton: false,
+            willOpen: () => {
+                Swal.showLoading();
+            }
+        });
+        
+        // Verificar permisos del usuario primero
+        verificarPermisosUsuarioActual()
+            .then(permisosUsuario => {
+                console.log('Permisos del usuario:', permisosUsuario);
+                
+                // Verificar si tiene permisos básicos de cancelación
+                const tienePermisosBasicos = (
+                    permisosUsuario.cancelar_reservas ||
+                    permisosUsuario.cancelar_reservas_tardias ||
+                    permisosUsuario.cancelar_reservas_otros_usuarios ||
+                    permisosUsuario.administrar_cancelaciones
+                );
+                
+                if (!tienePermisosBasicos) {
+                    // No tiene permisos - mostrar error inmediatamente
+                    Swal.fire({
+                        title: 'Sin permisos de cancelación',
+                        html: `
+                            <div class="text-left">
+                                <p><strong>Paciente:</strong> ${pacienteNombre}</p>
+                                ${fechaReserva ? `<p><strong>Fecha:</strong> ${fechaReserva}</p>` : ''}
+                                ${horaReserva ? `<p><strong>Hora:</strong> ${horaReserva}</p>` : ''}
+                            </div>
+                            <div class="alert alert-warning mt-3">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <strong>No tienes permisos para cancelar reservas</strong><br>
+                                Contacta al administrador para solicitar los permisos necesarios.
+                            </div>
+                            <div class="alert alert-info mt-2">
+                                <i class="fas fa-info-circle"></i>
+                                <strong>Permisos disponibles:</strong><br>
+                                • Cancelación básica: ${permisosUsuario.cancelar_reservas ? '✅' : '❌'}<br>
+                                • Cancelación tardía: ${permisosUsuario.cancelar_reservas_tardias ? '✅' : '❌'}<br>
+                                • Cancelar de otros usuarios: ${permisosUsuario.cancelar_reservas_otros_usuarios ? '✅' : '❌'}<br>
+                                • Administrar cancelaciones: ${permisosUsuario.administrar_cancelaciones ? '✅' : '❌'}
+                            </div>
+                        `,
+                        icon: 'warning',
+                        confirmButtonText: 'Entendido',
+                        confirmButtonColor: '#6c757d'
+                    });
+                    return;
+                }
+                
+                // Tiene permisos básicos - ahora verificar la reserva específica
+                return verificarPermisoCancelacion(reservaId);
+            })
+            .then(permisos => {
+                if (!permisos) return; // Si no hay permisos básicos, ya se mostró el error
+                
+                console.log('Permisos de cancelación para reserva:', permisos);
+                
+                if (!permisos.puede_cancelar) {
+                    // No puede cancelar esta reserva específica (por tiempo, etc.)
+                    Swal.fire({
+                        title: 'No se puede cancelar',
+                        html: `
+                            <div class="text-left">
+                                <p><strong>Paciente:</strong> ${pacienteNombre}</p>
+                                ${fechaReserva ? `<p><strong>Fecha:</strong> ${fechaReserva}</p>` : ''}
+                                ${horaReserva ? `<p><strong>Hora:</strong> ${horaReserva}</p>` : ''}
+                            </div>
+                            <div class="alert alert-danger mt-3">
+                                <i class="fas fa-ban"></i>
+                                <strong>Cancelación no permitida</strong><br>
+                                ${permisos.motivo}
+                            </div>
+                        `,
+                        icon: 'error',
+                        confirmButtonText: 'Entendido'
+                    });
+                    return;
+                }
+                
+                // Puede cancelar - mostrar modal de confirmación
+                const htmlCancelacion = generarHtmlCancelacion(permisos, pacienteNombre, fechaReserva, horaReserva);
+                
+                Swal.fire({
+                    title: '¿Cancelar esta reserva?',
+                    html: htmlCancelacion,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Sí, cancelar reserva',
+                    cancelButtonText: 'No, mantener reserva',
+                    input: 'textarea',
+                    inputPlaceholder: 'Motivo de cancelación (opcional)',
+                    inputAttributes: {
+                        'aria-label': 'Motivo de cancelación'
+                    },
+                    showLoaderOnConfirm: true,
+                    preConfirm: (motivo) => {
+                        const forzar = permisos.permiso_especial || false;
+                        return procesarCancelacionReserva(reservaId, motivo, forzar);
+                    },
+                    allowOutsideClick: () => !Swal.isLoading()
+                }).then((result) => {
+                    if (result.isConfirmed && result.value && result.value.success) {
+                        Swal.fire({
+                            title: '¡Reserva cancelada!',
+                            text: result.value.mensaje || 'La reserva ha sido cancelada exitosamente.',
+                            icon: 'success',
+                            timer: 3000,
+                            showConfirmButton: false
+                        });
+                        
+                        // Actualizar la tabla de reservas
+                        if (typeof buscarReservas === 'function') {
+                            buscarReservas();
+                        }
+                        
+                        // Actualizar reservas del día si estamos en la pestaña principal
+                        const fechaActual = $('#fechaReserva').val();
+                        if (fechaActual && typeof cargarReservasDelDia === 'function') {
+                            cargarReservasDelDia(fechaActual);
+                        }
+                    } else if (result.isConfirmed && result.value && !result.value.success) {
+                        Swal.fire({
+                            title: 'Error al cancelar',
+                            text: result.value.mensaje || 'No se pudo cancelar la reserva.',
+                            icon: 'error'
+                        });
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Error verificando permisos:', error);
+                Swal.fire({
+                    title: 'Error de verificación',
+                    text: 'No se pudo verificar los permisos: ' + error,
+                    icon: 'error'
+                });
+            });
+    } else {
+        // Usar función de cancelación básica si SweetAlert2 no está disponible
+        cancelarReserva(reservaId);
+    }
+});
+
+// DEBUG TEMPORAL: Interceptor para verificar HTML generado
+console.log("🚀 Añadiendo interceptor de debug para botones cancelados");
+
+// Añadir event listener para verificar el HTML después de que se renderice
+$(document).ready(function() {
+    // Observer para detectar cambios en la tabla
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.type === 'childList' && mutation.target.id === 'tablaReservas') {
+                console.log("🔍 Tabla actualizada, verificando botones...");
+                
+                // Buscar filas con clase reserva-cancelada
+                const filasCanceladas = document.querySelectorAll('.reserva-cancelada');
+                console.log(`Encontradas ${filasCanceladas.length} filas canceladas`);
+                
+                filasCanceladas.forEach(function(fila, index) {
+                    const botones = fila.querySelectorAll('button');
+                    console.log(`Fila cancelada ${index + 1}:`);
+                    
+                    botones.forEach(function(boton, btnIndex) {
+                        const esDeshabilitado = boton.disabled || boton.hasAttribute('disabled');
+                        const clases = boton.className;
+                        console.log(`  Botón ${btnIndex + 1}: disabled=${esDeshabilitado}, clases="${clases}"`);
+                    });
+                });
+            }
+        });
+    });
+    
+    // Observar cambios en la tabla
+    const tabla = document.getElementById('tablaReservas');
+    if (tabla) {
+        observer.observe(tabla, { childList: true, subtree: true });
+        console.log("📡 Observer de tabla activado");
     }
 });

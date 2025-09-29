@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Cancelación Reservas</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="view/js/servicios.js"></script>
+</head>
+<body>
+    <h1>Test de Cancelación de Reservas</h1>
+    
+    <div>
+        <h2>Acciones de Test:</h2>
+        <button onclick="testCancelarReserva(114)">Test Cancelar Reserva 114</button>
+        <button onclick="verificarEstadoBD(114)">Verificar Estado en BD</button>
+        <button onclick="buscarReservasDeFecha()">Buscar Reservas del 22-09-2025</button>
+    </div>
+    
+    <div id="resultados" style="margin-top: 20px;">
+        <h3>Resultados:</h3>
+        <div id="log-output" style="background: #f5f5f5; padding: 10px; font-family: monospace; white-space: pre-wrap;"></div>
+    </div>
+
+    <script src="test_cancelacion.js"></script>
+    <script>
+        // Función para mostrar reservas de una fecha específica
+        function buscarReservasDeFecha() {
+            console.log('🔍 Buscando reservas para 2025-09-22...');
+            
+            $.ajax({
+                url: 'ajax/servicios.ajax.php',
+                method: 'POST',
+                data: {
+                    action: 'buscarReservas',
+                    fecha: '2025-09-22'
+                },
+                dataType: 'json',
+                success: function(respuesta) {
+                    console.log('📋 Respuesta completa:', respuesta);
+                    
+                    if (respuesta.status === 'success' && respuesta.data) {
+                        console.log('📊 Total de reservas encontradas:', respuesta.data.length);
+                        
+                        respuesta.data.forEach((reserva, index) => {
+                            console.log(`📅 Reserva ${index + 1}:`, {
+                                id: reserva.reserva_id,
+                                estado: reserva.reserva_estado,
+                                activo: reserva.activo,
+                                paciente: reserva.paciente,
+                                hora: reserva.hora_inicio
+                            });
+                        });
+                    } else {
+                        console.log('❌ No se encontraron reservas o error:', respuesta.mensaje);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('💥 Error AJAX:', error);
+                    console.error('📄 Respuesta del servidor:', xhr.responseText);
+                }
+            });
+        }
+        
+        // Interceptar logs de consola para mostrarlos en la página
+        const originalLog = console.log;
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            const logOutput = document.getElementById('log-output');
+            if (logOutput) {
+                logOutput.textContent += args.join(' ') + '\n';
+                logOutput.scrollTop = logOutput.scrollHeight;
+            }
+        };
+    </script>
+</body>
+</html>

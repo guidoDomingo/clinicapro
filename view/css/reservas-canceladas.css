@@ -1,0 +1,260 @@
+/**
+ * Estilos para reservas canceladas
+ * Sistema parametrizable de cancelación de reservas
+ */
+
+/* Estilos para filas de reservas canceladas */
+.reserva-cancelada {
+    background-color: #f8f9fa !important;
+    opacity: 0.75;
+    border-left: 6px solid #dc3545;
+    position: relative;
+    background-image: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 10px,
+        rgba(220, 53, 69, 0.05) 10px,
+        rgba(220, 53, 69, 0.05) 20px
+    );
+}
+
+.reserva-cancelada td {
+    color: #6c757d !important;
+    text-decoration: line-through;
+    font-style: italic;
+}
+
+/* Restaurar el color normal para los badges y botones */
+.reserva-cancelada .badge,
+.reserva-cancelada .btn {
+    text-decoration: none;
+    opacity: 1;
+    font-style: normal;
+}
+
+/* Estilos específicos para botones deshabilitados en reservas canceladas */
+.reserva-cancelada .btn:disabled,
+.reserva-cancelada .btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed !important;
+    pointer-events: none !important; /* Evitar TODOS los eventos de mouse */
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
+    color: #ffffff !important;
+}
+
+/* Forzar estilos para botones secondary disabled */
+.btn-secondary:disabled,
+.btn-secondary.disabled {
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
+    color: #ffffff !important;
+    opacity: 0.6 !important;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+}
+
+/* Evitar hover en botones deshabilitados */
+.btn:disabled:hover,
+.btn.disabled:hover {
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
+    color: #ffffff !important;
+}
+
+/* Efecto visual para mostrar que la reserva está cancelada */
+.reserva-cancelada::before {
+    content: "CANCELADA";
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%) rotate(-15deg);
+    background: rgba(220, 53, 69, 0.08);
+    color: rgba(220, 53, 69, 0.25);
+    font-size: 18px;
+    font-weight: bold;
+    padding: 3px 10px;
+    border: 1px solid rgba(220, 53, 69, 0.15);
+    border-radius: 8px;
+    pointer-events: none;
+    z-index: 1;
+    white-space: nowrap;
+    font-family: monospace;
+}
+
+/* Estilos específicos para badges de estado en reservas canceladas */
+.reserva-cancelada .badge-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+/* Animación sutil para reservas canceladas */
+.reserva-cancelada {
+    transition: all 0.3s ease;
+}
+
+.reserva-cancelada:hover {
+    opacity: 0.9;
+    background-color: #e9ecef !important;
+}
+
+/* Tooltip para información de cancelación */
+.info-cancelacion {
+    cursor: help;
+    position: relative;
+}
+
+.info-cancelacion::after {
+    content: attr(data-motivo);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #333;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+    z-index: 1000;
+}
+
+.info-cancelacion:hover::after {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Estilos para el modal de verificación de permisos */
+.verificacion-permisos .alert {
+    margin-bottom: 15px;
+}
+
+.verificacion-permisos .alert-success {
+    border-left: 4px solid #28a745;
+}
+
+.verificacion-permisos .alert-info {
+    border-left: 4px solid #17a2b8;
+}
+
+.verificacion-permisos .alert-danger {
+    border-left: 4px solid #dc3545;
+}
+
+.verificacion-permisos .alert-warning {
+    border-left: 4px solid #ffc107;
+}
+
+/* Estilos para botones de cancelación con diferentes estados */
+.btn-cancelar-normal {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-cancelar-especial {
+    background-color: #fd7e14;
+    border-color: #fd7e14;
+    animation: pulse-orange 2s infinite;
+}
+
+@keyframes pulse-orange {
+    0% {
+        box-shadow: 0 0 0 0 rgba(253, 126, 20, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(253, 126, 20, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(253, 126, 20, 0);
+    }
+}
+
+/* Loader para verificación de permisos */
+.verificando-permisos {
+    text-align: center;
+    padding: 20px;
+}
+
+.verificando-permisos .spinner-border {
+    color: #007bff;
+}
+
+/* Estilos para la información de tiempo restante */
+.tiempo-restante {
+    font-weight: bold;
+    color: #28a745;
+}
+
+.tiempo-limite {
+    color: #dc3545;
+}
+
+.permiso-especial {
+    color: #fd7e14;
+    font-weight: bold;
+}
+
+/* Estilos para botones de cancelar deshabilitados */
+.btn-danger:disabled,
+.btn-danger.disabled {
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
+    cursor: not-allowed !important;
+    opacity: 0.6;
+}
+
+.btn-danger:disabled:hover,
+.btn-danger.disabled:hover {
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
+}
+
+/* Tooltip personalizado para botones deshabilitados */
+.btn[title*="No tienes permisos"] {
+    position: relative;
+}
+
+/* Botón de recarga de permisos */
+#btnRecargarPermisos {
+    transition: all 0.3s ease;
+}
+
+#btnRecargarPermisos:hover {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+#btnRecargarPermisos .fa-spin {
+    animation: fa-spin 1s infinite linear;
+}
+
+/* Indicador visual para permisos actualizados */
+.permisos-actualizados {
+    animation: flash-green 0.5s ease-in-out;
+}
+
+@keyframes flash-green {
+    0% { background-color: transparent; }
+    50% { background-color: rgba(40, 167, 69, 0.2); }
+    100% { background-color: transparent; }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .reserva-cancelada {
+        border-left: 2px solid #dc3545;
+    }
+    
+    .info-cancelacion::after {
+        display: none;
+    }
+    
+    #btnRecargarPermisos {
+        font-size: 12px;
+        padding: 4px 8px;
+    }
+}

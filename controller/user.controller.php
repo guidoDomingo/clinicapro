@@ -1,7 +1,21 @@
 <?php
-// Iniciamos la sesión al principio del archivo antes de cualquier salida
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
+// Manejo seguro de sesiones
+try {
+    if (session_status() == PHP_SESSION_NONE) {
+        session_start();
+    }
+} catch (Exception $e) {
+    // Si hay problemas con la sesión, no continuar
+    if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+        // Es una petición AJAX
+        header('Content-Type: application/json');
+        echo json_encode(['success' => false, 'message' => 'Sesión expirada', 'redirect' => 'login']);
+        exit();
+    } else {
+        // Es una petición normal
+        header('Location: index.php?ruta=login');
+        exit();
+    }
 }
 
 class ControllerUser {
