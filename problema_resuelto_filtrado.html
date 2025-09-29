@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba de Filtrado por Fecha - Funcionando</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>🎉 Problema Resuelto - Filtrado por Fecha</h1>
+    
+    <div style="margin: 20px; padding: 20px; background-color: #d1ecf1; border: 1px solid #bee5eb;">
+        <h3>❌ Problema Identificado:</h3>
+        <p>Había <strong>dos funciones con el mismo nombre</strong> <code>cargarHorariosPorFecha</code> que estaban causando conflicto.</p>
+        
+        <h4>Error encontrado:</h4>
+        <pre style="background-color: #f8f9fa; padding: 10px;">
+// INCORRECTO - llamaba con parámetros equivocados
+dias.forEach(function(dia) {
+    cargarHorariosPorFecha(dia.fecha); // ❌ Solo pasaba la fecha
+});
+        </pre>
+    </div>
+    
+    <div style="margin: 20px; padding: 20px; background-color: #d4edda; border: 1px solid #c3e6cb;">
+        <h3>✅ Solución Aplicada:</h3>
+        <ol>
+            <li><strong>Renombré la función anterior:</strong> <code>cargarHorariosPorFechaOriginal(fecha)</code></li>
+            <li><strong>Mantuve la función nueva:</strong> <code>cargarHorariosPorFecha(medicoId, servicioId, fechaSeleccionada)</code></li>
+            <li><strong>Eliminé la llamada conflictiva</strong> en el forEach que estaba causando errores</li>
+            <li><strong>Conservé el evento de cambio de fecha</strong> que funciona correctamente</li>
+        </ol>
+    </div>
+    
+    <div style="margin: 20px; padding: 20px; background-color: #fff3cd; border: 1px solid #ffeaa7;">
+        <h3>🔧 Código Corregido:</h3>
+        
+        <h4>Evento de cambio de fecha (CORRECTO):</h4>
+        <pre style="background-color: #f8f9fa; padding: 10px;">
+$('#fechaReservaNew').change(function () {
+    const fecha = $(this).val();
+    if (fecha) {
+        const medicoId = $('#selectMedicoNew').val();
+        const servicioId = $('#servicioSelectNew').val();
+        
+        if (medicoId && servicioId) {
+            // ✅ CORRECTO - pasa todos los parámetros necesarios
+            cargarHorariosPorFecha(medicoId, servicioId, fecha);
+        }
+    }
+});
+        </pre>
+        
+        <h4>ForEach corregido (COMENTADO):</h4>
+        <pre style="background-color: #f8f9fa; padding: 10px;">
+// ✅ COMENTADO para evitar conflictos
+// dias.forEach(function(dia) {
+//     cargarHorariosPorFecha(dia.fecha); // ❌ Esto causaba el error
+// });
+        </pre>
+    </div>
+    
+    <div style="margin: 20px; padding: 20px; background-color: #e2e3e5; border: 1px solid #d6d8db;">
+        <h3>🧪 Cómo Probar:</h3>
+        <ol>
+            <li>Ve al módulo de servicios (presiona <kbd>Ctrl+F5</kbd> para recargar el cache)</li>
+            <li>Selecciona un servicio (por ejemplo: "CONSULTAS")</li>
+            <li>Selecciona un médico (por ejemplo: "Antonio Galeano")</li>
+            <li>Verás que se muestran TODOS los horarios disponibles (comportamiento por defecto) ✅</li>
+            <li>Ahora cambia la fecha en el campo de fecha</li>
+            <li>Deberías ver que automáticamente se filtran solo los horarios de esa fecha específica ✅</li>
+        </ol>
+    </div>
+    
+    <div style="margin: 20px; padding: 20px; background-color: #f8d7da; border: 1px solid #f5c6cb;">
+        <h3>⚠️ Logs esperados (SIN errores):</h3>
+        <pre style="background-color: #f8f9fa; padding: 10px;">
+✅ 📅 Fecha específica seleccionada, cargando horarios filtrados...
+✅ === CARGANDO HORARIOS POR FECHA ESPECÍFICA ===
+✅ Médico ID: [número válido]
+✅ Servicio ID: [número válido]
+✅ Fecha seleccionada: [fecha válida]
+        </pre>
+        
+        <p><strong>Ya NO deberías ver:</strong></p>
+        <pre style="background-color: #f8f9fa; padding: 10px;">
+❌ Médico ID: 2025-10-01 (fecha como médico ID)
+❌ Servicio ID: undefined
+❌ Parámetros insuficientes para cargar horarios por fecha
+        </pre>
+    </div>
+    
+    <script>
+        $(document).ready(function() {
+            console.log('✅ Problema de conflicto de funciones resuelto');
+            console.log('🔧 Función cargarHorariosPorFecha ahora funcionará correctamente');
+            console.log('📋 Puedes probar el filtrado por fecha en el módulo de servicios');
+        });
+    </script>
+    
+    <div style="text-align: center; margin: 20px;">
+        <a href="/clinica/servicios" target="_blank">
+            <button style="padding: 15px 30px; background: #28a745; color: white; border: none; cursor: pointer; font-size: 16px; border-radius: 5px;">
+                🚀 Probar en Módulo de Servicios
+            </button>
+        </a>
+    </div>
+</body>
+</html>

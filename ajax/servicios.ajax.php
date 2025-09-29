@@ -1111,6 +1111,37 @@ if (isset($_POST['action'])) {
             }
             break;
             
+        case 'obtenerDiasPorFecha':
+            if (isset($_POST['doctor_id'])) {
+                $doctorId = $_POST['doctor_id'];
+                $servicioId = isset($_POST['servicio_id']) ? $_POST['servicio_id'] : 0;
+                $fechaEspecifica = isset($_POST['fecha_especifica']) ? $_POST['fecha_especifica'] : null;
+                
+                error_log("AJAX obtenerDiasPorFecha: DoctorID=$doctorId, ServicioID=$servicioId, FechaEspecifica=$fechaEspecifica", 3, '/var/log/clinica/slots.log');
+                
+                try {
+                    // Llamar al nuevo método del controlador para obtener días filtrados por fecha
+                    $diasDisponibles = ControladorServicios::ctrObtenerDiasPorFechaEspecifica($doctorId, $servicioId, $fechaEspecifica);
+                    
+                    echo json_encode([
+                        "status" => "success",
+                        "data" => $diasDisponibles
+                    ]);
+                } catch (Exception $e) {
+                    error_log("AJAX obtenerDiasPorFecha ERROR: " . $e->getMessage(), 3, '/var/log/clinica/slots.log');
+                    echo json_encode([
+                        "status" => "error",
+                        "message" => "Error al obtener días por fecha: " . $e->getMessage()
+                    ]);
+                }
+            } else {
+                echo json_encode([
+                    "status" => "error",
+                    "message" => "Falta parámetro requerido: doctor_id es obligatorio"
+                ]);
+            }
+            break;
+            
         case 'obtenerTodosLosHorariosDisponibles':
             if (isset($_POST['doctor_id'])) {
                 $doctorId = $_POST['doctor_id'];

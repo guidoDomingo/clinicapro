@@ -559,13 +559,7 @@ if (!isset($_SESSION['perfil'])) {
                                                                 </div>
                                                                 
                                                                 <div class="row">
-                                                                    <div class="col-md-6">
-                                                                        <div class="form-group">
-                                                                            <label for="fechaReservaNew">Fecha</label>
-                                                                            <input type="date" id="fechaReservaNew" class="form-control" min="<?php echo date('Y-m-d'); ?>">
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="col-md-6">
+                                                                    <div class="col-md-12">
                                                                         <div class="form-group">
                                                                             <label for="buscarMedicoNew">Médico seleccionado</label>
                                                                             <div class="input-group">
@@ -611,8 +605,30 @@ if (!isset($_SESSION['perfil'])) {
                                                                 </div>
                                                             </div>
                                                             <div class="p-3">
-                                                                <!-- Campo fecha oculto para funcionalidad -->
-                                                                <input type="hidden" id="fechaReservaNew" value="<?php echo date('Y-m-d'); ?>">
+                                                                <!-- Filtro de fecha opcional -->
+                                                                <div class="row mb-3">
+                                                                    <div class="col-md-6">
+                                                                        <div class="form-group">
+                                                                            <label for="fechaReservaNew">
+                                                                                <i class="fas fa-calendar-alt"></i> Filtrar por fecha específica (opcional)
+                                                                            </label>
+                                                                            <input type="date" id="fechaReservaNew" class="form-control" min="<?php echo date('Y-m-d'); ?>" placeholder="Dejar vacío para ver todos los horarios">
+                                                                            <small class="form-text text-muted">
+                                                                                Deje vacío para ver todos los horarios disponibles, o seleccione una fecha específica para filtrar
+                                                                            </small>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-md-6">
+                                                                        <div class="form-group">
+                                                                            <label>&nbsp;</label>
+                                                                            <div class="pt-2">
+                                                                                <button type="button" class="btn btn-outline-secondary btn-sm" id="btnLimpiarFecha">
+                                                                                    <i class="fas fa-times"></i> Limpiar filtro
+                                                                                </button>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
                                                                 
                                                                 <!-- Horarios disponibles -->
                                                                 <div class="form-group">
@@ -1567,6 +1583,28 @@ if (!isset($_SESSION['perfil'])) {
 <script src="view/js/servicios.js"></script>
 <script src="view/js/slots_init.js"></script>
 <script src="view/js/slots_fallback.js"></script>
+
+<script>
+$(document).ready(function() {
+    // Botón para limpiar el filtro de fecha
+    $('#btnLimpiarFecha').click(function() {
+        $('#fechaReservaNew').val(''); // Limpiar el campo de fecha
+        
+        // Recargar todos los horarios disponibles si hay médico y servicio seleccionados
+        const medicoId = $('#selectMedicoNew').val();
+        const servicioId = $('#servicioSelectNew').val();
+        
+        if (medicoId && servicioId) {
+            console.log('🔄 Limpiando filtro de fecha, recargando todos los horarios...');
+            // Llamar a la función que carga todos los días disponibles (sin filtro)
+            cargarDiasDisponibles();
+        }
+        
+        // Mostrar mensaje de confirmación
+        alertify.success('Filtro de fecha eliminado. Mostrando todos los horarios disponibles.');
+    });
+});
+</script>
 <script src="view/js/slots_pagination.js"></script>
 <script src="view/js/enviar_pdf_reserva.js"></script>
 <script src="view/js/reservas_new.js"></script>

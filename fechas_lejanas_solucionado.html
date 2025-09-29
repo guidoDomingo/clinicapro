@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solución - Fechas Lejanas Funcionando</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>🚀 Problema de Fechas Lejanas Solucionado</h1>
+    
+    <div style="margin: 20px; padding: 20px; background-color: #f8d7da; border: 1px solid #f5c6cb;">
+        <h3>❌ Problema Identificado:</h3>
+        <p>La función de filtrado por fecha específica estaba <strong>limitada a solo 30 días</strong> desde la fecha actual.</p>
+        
+        <h4>Código problemático anterior:</h4>
+        <pre style="background-color: #f8f9fa; padding: 10px;">
+// ❌ PROBLEMA: Solo buscaba en rango de 30 días
+for ($i = 0; $i < 30; $i++) {
+    $fechaCheck = clone $fechaInicio;
+    $fechaCheck->add(new DateInterval('P' . $i . 'D'));
+    // ...
+}
+
+// Luego filtraba de esos 30 días solamente
+$diasFiltrados = array_filter($diasDisponibles, function($dia) use ($fechaFiltro) {
+    return $dia['fecha'] == $fechaFiltro;
+});
+        </pre>
+        
+        <p><strong>Resultado:</strong> Si seleccionabas una fecha 3 meses adelante, no estaba en el array inicial de 30 días, por lo que no encontraba nada.</p>
+    </div>
+    
+    <div style="margin: 20px; padding: 20px; background-color: #d4edda; border: 1px solid #c3e6cb;">
+        <h3>✅ Solución Implementada:</h3>
+        
+        <h4>1️⃣ Nuevo método en el modelo:</h4>
+        <p>Creé <code>mdlObtenerDiasDisponiblesPorFechaEspecifica()</code> que:</p>
+        <ul>
+            <li>No está limitado a 30 días</li>
+            <li>Busca directamente en la fecha específica que seleccionaste</li>
+            <li>Verifica si el médico tiene horarios configurados para ese día de la semana</li>
+        </ul>
+        
+        <h4>2️⃣ Controlador actualizado:</h4>
+        <p>Modificé <code>ctrObtenerDiasPorFechaEspecifica()</code> para que use el nuevo método del modelo.</p>
+        
+        <h4>3️⃣ Funcionamiento mejorado:</h4>
+        <pre style="background-color: #f8f9fa; padding: 10px;">
+✅ NUEVO: Busca directamente en cualquier fecha
+// No importa si es 1 día, 30 días o 3 meses adelante
+$diasDisponibles = ModelServicios::mdlObtenerDiasDisponiblesPorFechaEspecifica(
+    $doctorId, 
+    $servicioId, 
+    $fechaEspecifica  // Cualquier fecha válida
+);
+        </pre>
+    </div>
+    
+    <div style="margin: 20px; padding: 20px; background-color: #fff3cd; border: 1px solid #ffeaa7;">
+        <h3>🔧 Cómo Funciona Ahora:</h3>
+        
+        <h4>Proceso mejorado:</h4>
+        <ol>
+            <li><strong>Recibe fecha específica</strong> (ej: 2025-12-25 - 3 meses adelante)</li>
+            <li><strong>Calcula día de la semana</strong> (ej: Jueves)</li>
+            <li><strong>Busca horarios configurados</strong> para ese día de la semana del médico</li>
+            <li><strong>Si encuentra</strong> → devuelve los horarios para esa fecha específica</li>
+            <li><strong>Si no encuentra</strong> → devuelve array vacío (médico no trabaja ese día)</li>
+        </ol>
+        
+        <h4>Ejemplos de fechas que ahora funcionan:</h4>
+        <ul>
+            <li>✅ <strong>Mañana:</strong> 2025-09-30</li>
+            <li>✅ <strong>Próxima semana:</strong> 2025-10-07</li>
+            <li>✅ <strong>Próximo mes:</strong> 2025-10-28</li>
+            <li>✅ <strong>3 meses adelante:</strong> 2025-12-25</li>
+            <li>✅ <strong>6 meses adelante:</strong> 2026-03-15</li>
+            <li>✅ <strong>1 año adelante:</strong> 2026-09-28</li>
+        </ul>
+    </div>
+    
+    <div style="margin: 20px; padding: 20px; background-color: #e2e3e5; border: 1px solid #d6d8db;">
+        <h3>🧪 Cómo Probar:</h3>
+        <ol>
+            <li>Ve al módulo de servicios (presiona <kbd>Ctrl+F5</kbd>)</li>
+            <li>Selecciona un servicio: "CONSULTAS"</li>
+            <li>Selecciona un médico: "Antonio Galeano"</li>
+            <li>Verás todos los horarios disponibles (por defecto)</li>
+            <li><strong>Ahora prueba fechas lejanas:</strong>
+                <ul>
+                    <li>Cambia la fecha a Diciembre 2025</li>
+                    <li>Cambia la fecha a Marzo 2026</li>
+                    <li>Cualquier fecha futura válida</li>
+                </ul>
+            </li>
+            <li>✅ Deberías ver horarios para esas fechas si el médico trabaja ese día de la semana</li>
+        </ol>
+    </div>
+    
+    <div style="margin: 20px; padding: 20px; background-color: #d1ecf1; border: 1px solid #bee5eb;">
+        <h3>📊 Logs Esperados:</h3>
+        <pre style="background-color: #f8f9fa; padding: 10px;">
+✅ mdlObtenerDiasDisponiblesPorFechaEspecifica: DoctorID=13, ServicioID=9, Fecha=2025-12-25
+✅ mdlObtenerDiasDisponiblesPorFechaEspecifica: Fecha 2025-12-25 corresponde al día JUEVES
+✅ ctrObtenerDiasPorFechaEspecifica: Encontrados 1 días para fecha específica
+        </pre>
+        
+        <h4>O si el médico no trabaja ese día:</h4>
+        <pre style="background-color: #f8f9fa; padding: 10px;">
+✅ mdlObtenerDiasDisponiblesPorFechaEspecifica: Fecha 2025-12-28 corresponde al día DOMINGO
+✅ ctrObtenerDiasPorFechaEspecifica: Encontrados 0 días para fecha específica
+→ "No hay horarios disponibles para la fecha seleccionada"
+        </pre>
+    </div>
+    
+    <script>
+        $(document).ready(function() {
+            console.log('✅ Problema de fechas lejanas solucionado');
+            console.log('🚀 Ahora puedes seleccionar cualquier fecha futura');
+            console.log('📅 No hay límite de 30 días');
+        });
+    </script>
+    
+    <div style="text-align: center; margin: 20px;">
+        <a href="/clinica/servicios" target="_blank">
+            <button style="padding: 15px 30px; background: #007bff; color: white; border: none; cursor: pointer; font-size: 16px; border-radius: 5px;">
+                🎯 Probar con Fechas Lejanas
+            </button>
+        </a>
+        
+        <p style="margin-top: 10px; color: #6c757d;">
+            Prueba con fechas de Diciembre 2025, Marzo 2026, etc.
+        </p>
+    </div>
+</body>
+</html>

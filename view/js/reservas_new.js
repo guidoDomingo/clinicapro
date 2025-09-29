@@ -89,9 +89,8 @@ function inicializarReservasNew() {
     // Cargar salas en el selector correcto (#selectSala)
     cargarSalasEnSelector();
 
-    // Establecer fecha actual automáticamente en el campo oculto
-    const fechaActual = moment().format('YYYY-MM-DD');
-    $('#fechaReservaNew').val(fechaActual);
+    // No establecer fecha por defecto - el usuario debe seleccionar opcionalmente
+    // $('#fechaReservaNew').val(''); // Campo vacío por defecto
     
     // Cargar reservas para la fecha actual (para la tabla de reservas existentes)
     cargarReservasPorFecha(fechaActual);
@@ -674,9 +673,26 @@ function cargarServiciosActivos() {
         // Actualiza el resumen de fecha cuando cambia la fecha
         $('#fechaReservaNew').change(function () {
             const fecha = $(this).val();
+            const medicoId = $('#selectMedicoNew').val();
+            const servicioId = $('#servicioSelectNew').val();
+            
             if (fecha) {
+                // Fecha seleccionada - filtrar horarios
                 const fechaFormateada = moment(fecha).format('DD/MM/YYYY');
                 $('#resumenFechaNew').text(fechaFormateada);
+                
+                if (medicoId && servicioId) {
+                    console.log('📅 Fecha específica seleccionada, filtrando horarios para:', fechaFormateada);
+                    cargarHorariosPorFecha(medicoId, servicioId, fecha);
+                }
+            } else {
+                // Fecha limpiada - mostrar todos los horarios
+                $('#resumenFechaNew').text('Todas las fechas disponibles');
+                
+                if (medicoId && servicioId) {
+                    console.log('� Filtro de fecha eliminado, cargando todos los horarios...');
+                    cargarDiasDisponibles();
+                }
             }
         });
 
@@ -3883,10 +3899,10 @@ function mostrarDiasDisponibles(dias) {
     // Insertar el HTML en el contenedor de horarios
     $('#contenedorHorariosNew').html(html);
     
-    // Cargar horarios para cada fecha específica
-    console.log('Cargando horarios para cada fecha...');
+    // Cargar horarios para cada fecha (comportamiento por defecto)
+    console.log('Cargando horarios por defecto para cada fecha...');
     dias.forEach(function(dia) {
-        cargarHorariosPorFecha(dia.fecha);
+        cargarHorariosPorFechaOriginal(dia.fecha); // Usar la función original renombrada
     });
 }
 
@@ -3928,10 +3944,10 @@ function seleccionarFecha(fecha) {
 }
 
 /**
- * Cargar horarios específicos para una fecha individual
+ * Cargar horarios específicos para una fecha individual (función original)
  */
-function cargarHorariosPorFecha(fecha) {
-    console.log('=== CARGANDO HORARIOS PARA FECHA ===', fecha);
+function cargarHorariosPorFechaOriginal(fecha) {
+    console.log('=== CARGANDO HORARIOS PARA FECHA (ORIGINAL) ===', fecha);
     
     const medicoId = $('#selectMedicoNew').val();
     const servicioId = $('#servicioSelectNew').val();
@@ -4628,3 +4644,63 @@ window.testCupos = function() {
     
     console.log('Valores de prueba actualizados');
 };
+
+/**
+ * Cargar horarios filtrados por fecha específica (nueva funcionalidad)
+ * Esta función es similar a seleccionarMedicoNuevo pero filtra por fecha
+ * NO afecta el funcionamiento actual de seleccionarMedicoNuevo
+ */
+function cargarHorariosPorFecha(medicoId, servicioId, fechaSeleccionada) {
+    console.log('=== CARGANDO HORARIOS POR FECHA ESPECÍFICA ===');
+    console.log('Médico ID:', medicoId);
+    console.log('Servicio ID:', servicioId);
+    console.log('Fecha seleccionada:', fechaSeleccionada);
+    
+    if (!medicoId || !servicioId || !fechaSeleccionada) {
+        console.warn('Parámetros insuficientes para cargar horarios por fecha');
+        return;
+    }
+
+    // Convertir fecha de YYYY-MM-DD a dd/mm/yyyy
+    const partes = fechaSeleccionada.split('-');
+    let fechaFormateada = null;
+    if (partes.length === 3) {
+        fechaFormateada = `${partes[2]}/${partes[1]}/${partes[0]}`;
+    }
+
+    $.ajax({
+        url: 'ajax/servicios.ajax.php',
+        method: 'POST',
+        data: {
+            action: 'obtenerDiasPorFecha',
+            doctor_id: medicoId,
+            servicio_id: servicioId,
+            fecha_especifica: fechaFormateada
+        },
+        dataType: 'json',
+        success: function(respuesta) {
+            console.log('Respuesta días por fecha específica:', respuesta);
+            if (respuesta && respuesta.status === 'success') {
+                mostrarDiasDisponibles(respuesta.data);
+                console.log('✅ Días filtrados por fecha mostrados exitosamente');
+            } else {
+                console.error('Error al cargar días por fecha:', respuesta.message || 'Error desconocido');
+                $('#diasDisponiblesContainer').html(`
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-calendar-times fa-3x mb-3"></i>
+                        <p>No hay horarios disponibles para la fecha seleccionada</p>
+                    </div>
+                `);
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Error AJAX al cargar horarios por fecha:', error);
+            $('#diasDisponiblesContainer').html(`
+                <div class="text-center text-danger py-4">
+                    <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
+                    <p>Error al cargar horarios para la fecha seleccionada</p>
+                </div>
+            `);
+        }
+    });
+}

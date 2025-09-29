@@ -128,6 +128,60 @@ class ControladorServicios {
     }
     
     /**
+     * Obtiene días disponibles filtrados por fecha específica (nueva funcionalidad)
+     * @param int $doctorId ID del doctor
+     * @param int $servicioId ID del servicio (opcional)
+     * @param string $fechaEspecifica Fecha específica en formato dd/mm/yyyy
+     * @return array Lista de días disponibles para la fecha específica
+     */
+    static public function ctrObtenerDiasPorFechaEspecifica($doctorId, $servicioId = 0, $fechaEspecifica = null) {
+        try {
+            // Verificar que el doctor ID sea válido
+            if (empty($doctorId)) {
+                error_log("ctrObtenerDiasPorFechaEspecifica: Doctor ID es requerido", 3, '/var/log/clinica/servicios.log');
+                return [];
+            }
+
+            // Verificar que se proporcione una fecha específica
+            if (empty($fechaEspecifica)) {
+                error_log("ctrObtenerDiasPorFechaEspecifica: Fecha específica es requerida", 3, '/var/log/clinica/servicios.log');
+                return [];
+            }
+
+            // Convertir formato de fecha a Y-m-d
+            $fechaFiltro = null;
+            
+            // Detectar y convertir formato de fecha
+            if (strpos($fechaEspecifica, '/') !== false) {
+                // Formato dd/mm/yyyy
+                $fechaParts = explode('/', $fechaEspecifica);
+                if (count($fechaParts) == 3) {
+                    $fechaFiltro = $fechaParts[2] . '-' . $fechaParts[1] . '-' . $fechaParts[0];
+                }
+            } elseif (strpos($fechaEspecifica, '-') !== false) {
+                // Formato yyyy-mm-dd (ya está en el formato correcto)
+                $fechaFiltro = $fechaEspecifica;
+            }
+            
+            if (!$fechaFiltro) {
+                error_log("ctrObtenerDiasPorFechaEspecifica: Formato de fecha no válido: $fechaEspecifica", 3, '/var/log/clinica/servicios.log');
+                return [];
+            }
+
+            // Usar el nuevo método del modelo que busca específicamente en cualquier fecha
+            error_log("ctrObtenerDiasPorFechaEspecifica: Buscando horarios para fecha específica $fechaEspecifica -> $fechaFiltro", 3, '/var/log/clinica/servicios.log');
+            $diasDisponibles = ModelServicios::mdlObtenerDiasDisponiblesPorFechaEspecifica($doctorId, $servicioId, $fechaFiltro);
+            
+            error_log("ctrObtenerDiasPorFechaEspecifica: Encontrados " . count($diasDisponibles) . " días para fecha específica", 3, '/var/log/clinica/servicios.log');
+            return $diasDisponibles;
+            
+        } catch (Exception $e) {
+            error_log("ERROR en ctrObtenerDiasPorFechaEspecifica: " . $e->getMessage(), 3, '/var/log/clinica/servicios.log');
+            return [];
+        }
+    }
+    
+    /**
      * Obtiene todos los horarios disponibles para un médico de todas las fechas
      * @param int $doctorId ID del doctor
      * @param int $servicioId ID del servicio (opcional)

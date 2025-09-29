@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Forzar Recarga de Cache</title>
+</head>
+<body>
+    <h1>Cache Limpiado</h1>
+    <p>El JavaScript ha sido actualizado. Por favor:</p>
+    <ol>
+        <li>Presiona <kbd>Ctrl + F5</kbd> para recargar completamente la página</li>
+        <li>O presiona <kbd>Ctrl + Shift + R</kbd> para forzar la recarga del cache</li>
+        <li>Luego regresa al módulo de servicios</li>
+    </ol>
+    
+    <script>
+        // Forzar limpieza del cache
+        if ('caches' in window) {
+            caches.keys().then(function(names) {
+                names.forEach(function(name) {
+                    caches.delete(name);
+                });
+            });
+        }
+        console.log('✅ Cache limpiado - recarga la página del módulo de servicios');
+    </script>
+    
+    <a href="/clinica/servicios" target="_blank">
+        <button style="padding: 10px 20px; background: #007bff; color: white; border: none; cursor: pointer;">
+            Ir al Módulo de Servicios
+        </button>
+    </a>
+</body>
+</html>

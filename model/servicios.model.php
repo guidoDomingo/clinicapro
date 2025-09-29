@@ -637,6 +637,95 @@ class ModelServicios {
     }
 
     /**
+     * Obtiene los horarios disponibles para una fecha específica sin límite de rango
+     * @param int $doctorId ID del doctor
+     * @param int $servicioId ID del servicio (opcional)
+     * @param string $fechaEspecifica Fecha específica en formato Y-m-d
+     * @return array Lista de días disponibles para la fecha específica
+     */
+    static public function mdlObtenerDiasDisponiblesPorFechaEspecifica($doctorId, $servicioId = 0, $fechaEspecifica = null) {
+        try {
+            // Configurar zona horaria
+            date_default_timezone_set('America/Asuncion');
+            
+            error_log("mdlObtenerDiasDisponiblesPorFechaEspecifica: DoctorID=$doctorId, ServicioID=$servicioId, Fecha=$fechaEspecifica", 3, '/var/log/clinica/servicios.log');
+            
+            if (empty($fechaEspecifica)) {
+                error_log("mdlObtenerDiasDisponiblesPorFechaEspecifica: Fecha específica es requerida", 3, '/var/log/clinica/servicios.log');
+                return [];
+            }
+            
+            // Obtener horarios configurados para el médico
+            $sql = "SELECT DISTINCT
+                        ad.dia_semana,
+                        ad.hora_inicio,
+                        ad.hora_fin,
+                        ad.intervalo_minutos,
+                        t.turno_nombre,
+                        s.sala_nombre,
+                        CASE ad.dia_semana 
+                            WHEN 'LUNES' THEN 1
+                            WHEN 'MARTES' THEN 2
+                            WHEN 'MIERCOLES' THEN 3
+                            WHEN 'JUEVES' THEN 4
+                            WHEN 'VIERNES' THEN 5
+                            WHEN 'SABADO' THEN 6
+                            WHEN 'DOMINGO' THEN 7
+                        END as dia_orden
+                    FROM agendas_detalle ad
+                    INNER JOIN agendas_cabecera ac ON ad.agenda_id = ac.agenda_id
+                    INNER JOIN turnos t ON ad.turno_id = t.turno_id
+                    LEFT JOIN salas s ON ad.sala_id = s.sala_id
+                    WHERE ac.medico_id = :doctor_id
+                    AND ad.detalle_estado = true
+                    AND ac.agenda_estado = true
+                    ORDER BY dia_orden, ad.hora_inicio";
+            
+            $stmt = Conexion::conectar()->prepare($sql);
+            $stmt->bindParam(":doctor_id", $doctorId, PDO::PARAM_INT);
+            $stmt->execute();
+            $horariosConfigurados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            if (empty($horariosConfigurados)) {
+                error_log("mdlObtenerDiasDisponiblesPorFechaEspecifica: No se encontraron horarios configurados para doctor ID $doctorId", 3, '/var/log/clinica/servicios.log');
+                return [];
+            }
+            
+            // Verificar la fecha específica
+            $fechaCheck = new DateTime($fechaEspecifica);
+            $diaSemanaNum = (int)$fechaCheck->format('N'); // 1=lunes, 7=domingo
+            $diasSemanaTexto = [1 => 'LUNES', 2 => 'MARTES', 3 => 'MIERCOLES', 4 => 'JUEVES', 5 => 'VIERNES', 6 => 'SABADO', 7 => 'DOMINGO'];
+            $diaSemanaTexto = $diasSemanaTexto[$diaSemanaNum];
+            
+            error_log("mdlObtenerDiasDisponiblesPorFechaEspecifica: Fecha $fechaEspecifica corresponde al día $diaSemanaTexto", 3, '/var/log/clinica/servicios.log');
+            
+            // Verificar si el médico tiene horarios configurados para este día de la semana
+            $horariosDelDia = array_filter($horariosConfigurados, function($horario) use ($diaSemanaTexto) {
+                return $horario['dia_semana'] === $diaSemanaTexto;
+            });
+            
+            $diasDisponibles = [];
+            if (!empty($horariosDelDia)) {
+                $diasDisponibles[] = [
+                    'fecha' => $fechaCheck->format('Y-m-d'),
+                    'fecha_formateada' => $fechaCheck->format('d/m/Y'),
+                    'dia_semana' => $diaSemanaTexto,
+                    'dia_nombre' => ucfirst(strtolower($diaSemanaTexto)),
+                    'horarios' => array_values($horariosDelDia),
+                    'total_horarios' => count($horariosDelDia)
+                ];
+            }
+            
+            error_log("mdlObtenerDiasDisponiblesPorFechaEspecifica: Se encontraron " . count($diasDisponibles) . " días disponibles para fecha específica", 3, '/var/log/clinica/servicios.log');
+            return $diasDisponibles;
+            
+        } catch (Exception $e) {
+            error_log("Error al obtener días disponibles por fecha específica: " . $e->getMessage(), 3, '/var/log/clinica/servicios.log');
+            return [];
+        }
+    }
+
+    /**
      * Obtiene todos los horarios disponibles para un médico de todas las fechas configuradas
      * @param int $doctorId ID del doctor
      * @param int $servicioId ID del servicio (opcional)
