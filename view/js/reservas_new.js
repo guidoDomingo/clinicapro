@@ -3547,19 +3547,18 @@ function seleccionarMedicoNuevo(medicoId, medicoNombre) {
     console.log('- #servicioSelectNew val:', $('#servicioSelectNew').val());
 
     // Cargar días disponibles para el médico seleccionado automáticamente
-    const servicioId = $('#servicioSelectNew').val();
+    const servicioId = $('#servicioSelectNew').val() || 0;
     const fechaSeleccionada = $('#fechaReservaNew').val();
     
-    if (servicioId) {
-        console.log('Cargando días disponibles automáticamente...');
-        
-        // Cupos display removed from interface
-        // cargarCuposPorServicio(servicioId);
-        
-        // Cargar vista semanal de horarios disponibles automáticamente
-        console.log('Cargando vista semanal de horarios disponibles automáticamente...');
-        cargarDiasDisponibles(medicoId, servicioId);
-    }
+    console.log('Cargando días disponibles automáticamente...');
+    console.log('ServicioId obtenido:', servicioId);
+    
+    // Cupos display removed from interface
+    // cargarCuposPorServicio(servicioId);
+    
+    // Cargar vista semanal de horarios disponibles automáticamente
+    console.log('Cargando vista semanal de horarios disponibles automáticamente...');
+    cargarDiasDisponibles(medicoId, servicioId);
 
     // Check if form is complete
     verificarFormularioCompleto();
@@ -3750,6 +3749,8 @@ function cargarDiasDisponibles(medicoId, servicioId = 0) {
     console.log('=== CARGANDO DÍAS DISPONIBLES ===');
     console.log('Médico ID:', medicoId);
     console.log('Servicio ID:', servicioId);
+    
+    console.log('Fecha seleccionada:', $('#fechaReservaNew').val());
     
     if (!medicoId) {
         console.warn('No se puede cargar días disponibles sin médico ID');

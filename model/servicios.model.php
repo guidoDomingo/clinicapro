@@ -3307,27 +3307,39 @@ class ModelServicios {
     static public function mdlObtenerMedicosPorServicio($servicioId) {
         try {
             $stmt = Conexion::conectar()->prepare("
-                SELECT DISTINCT
-                    rh.doctor_id,
-                    p.first_name || ' ' || p.last_name as doctor_nombre,
-                    p.first_name,
-                    p.last_name,
-                    rh.doctor_estado,
-                    rsd.id as relacion_id,
-                    rs.serv_descripcion as servicio_nombre,
-                    rs.serv_codigo as servicio_codigo,
+                WITH medicos_servicio AS (
+                    SELECT DISTINCT
+                        rh.doctor_id,
+                        p.first_name || ' ' || p.last_name as doctor_nombre,
+                        p.first_name,
+                        p.last_name,
+                        rh.doctor_estado,
+                        rs.serv_descripcion as servicio_nombre,
+                        rs.serv_codigo as servicio_codigo,
+                        rh.person_id,
+                        p.document_number,
+                        p.phone_number,
+                        p.email
+                    FROM rs_servicios_doctors rsd
+                    JOIN rs_servicios rs ON rsd.servicio_id = rs.serv_id
+                    JOIN rh_doctors rh ON rsd.doctor_id = rh.doctor_id
+                    JOIN rh_person p ON rh.person_id = p.person_id
+                    WHERE rsd.servicio_id = :servicio_id 
+                        AND rsd.is_active = true
+                        AND rs.is_active = true
+                        AND p.is_active = true
+                )
+                SELECT 
+                    ms.*,
+                    1 as relacion_id,
                     CASE 
-                        WHEN rh.doctor_estado = 'ACTIVO' THEN 'Disponible'
+                        WHEN ms.doctor_estado = 'ACTIVO' THEN 'Disponible'
                         ELSE 'No disponible'
                     END as disponibilidad_texto,
                     CASE 
-                        WHEN rh.doctor_estado = 'ACTIVO' THEN 'success'
+                        WHEN ms.doctor_estado = 'ACTIVO' THEN 'success'
                         ELSE 'danger'
                     END as disponibilidad_clase,
-                    rh.person_id,
-                    p.document_number,
-                    p.phone_number,
-                    p.email,
                     COALESCE((
                         SELECT STRING_AGG(
                             dia_abreviado, ', '
@@ -3357,24 +3369,22 @@ class ModelServicios {
                                 END as orden_dia
                             FROM agendas_cabecera ac2
                             JOIN agendas_detalle ad ON ac2.agenda_id = ad.agenda_id
-                            WHERE ac2.medico_id = rh.doctor_id
+                            JOIN rs_servicios_doctors rsd2 ON rsd2.agenda_detalle_id = ad.detalle_id 
+                                                           AND rsd2.doctor_id = ms.doctor_id
+                                                           AND rsd2.servicio_id = :servicio_id_filter
+                                                           AND rsd2.is_active = true
+                            WHERE ac2.medico_id = ms.doctor_id
                                 AND ad.detalle_estado = true
                                 AND ac2.agenda_estado = true
                             ORDER BY orden_dia
                         ) dias_ordenados
                     ), 'Sin horarios') as dias_atencion
-                FROM rs_servicios_doctors rsd
-                JOIN rs_servicios rs ON rsd.servicio_id = rs.serv_id
-                JOIN rh_doctors rh ON rsd.doctor_id = rh.doctor_id
-                JOIN rh_person p ON rh.person_id = p.person_id
-                WHERE rsd.servicio_id = :servicio_id 
-                    AND rsd.is_active = true
-                    AND rs.is_active = true
-                    AND p.is_active = true
-                ORDER BY p.first_name, p.last_name
+                FROM medicos_servicio ms
+                ORDER BY ms.first_name, ms.last_name
             ");
             
             $stmt->bindParam(':servicio_id', $servicioId, PDO::PARAM_INT);
+            $stmt->bindParam(':servicio_id_filter', $servicioId, PDO::PARAM_INT);
             $stmt->execute();
             $medicos = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
